@@ -370,14 +370,14 @@ const handleSubmit = async () => {
     await auth.signUp(form.email, form.password, form.fullName)
     
     // Success - redirect to intended page or welcome
-    const redirect = route.query.redirect as string
+    const redirect = route.query.redirect
     const destination = redirect && redirect.startsWith('/') ? redirect : '/account'
     
     await navigateTo(destination)
     
     useToast().success('Welcome to Miracute! Please check your email to confirm your account.')
     
-  } catch (error: any) {
+  } catch (error) {
     // Handle specific errors
     if (error.message?.includes('already registered')) {
       errors.email = 'An account with this email already exists'

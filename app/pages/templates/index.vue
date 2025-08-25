@@ -340,7 +340,7 @@ onMounted(async () => {
   await fetchCategories()
   
   // Handle URL search params
-  const urlSearch = route.query.q as string
+  const urlSearch = route.query.q
   if (urlSearch) {
     searchQuery.value = urlSearch
   }
@@ -350,9 +350,9 @@ onMounted(async () => {
 })
 
 // Helper function for debouncing
-function debounce(func: Function, wait: number) {
-  let timeout: NodeJS.Timeout
-  return function executedFunction(...args: any[]) {
+function debounce(func, wait) {
+  let timeout
+  return function executedFunction(...args) {
     const later = () => {
       clearTimeout(timeout)
       func(...args)

@@ -185,7 +185,7 @@
 <script setup>
 // Get route params
 const route = useRoute()
-const slug = route.params.slug as string
+const slug = route.params.slug
 
 // Composables
 const { fetchProducts, fetchCategories, resetPagination } = useProducts()

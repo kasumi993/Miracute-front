@@ -98,78 +98,25 @@
           </button>
 
           <!-- Cart -->
-          <button @click="cart.toggleDrawer()" 
+          <button @click="toggleCart" 
                   class="relative p-2 text-gray-700 hover:text-gray-900 transition-colors">
             <Icon name="heroicons:shopping-bag" class="w-6 h-6" />
-            <span v-if="cart.itemCount.value > 0"
+            <span v-if="cartItemCount > 0"
                   class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-              {{ cart.itemCount.value }}
+              {{ cartItemCount }}
             </span>
           </button>
 
           <!-- User Menu -->
-          <div v-if="auth.isAuthenticated.value" class="relative">
-            <Menu as="div" class="relative">
-              <MenuButton class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-50 transition-colors">
+          <div v-if="isAuthenticated" class="relative">
+            <div class="relative">
+              <button class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-50 transition-colors">
                 <div class="w-8 h-8 bg-brand-pink rounded-full flex items-center justify-center text-sm font-medium text-gray-700">
-                  {{ auth.userInitials.value }}
+                  {{ userInitials }}
                 </div>
                 <Icon name="heroicons:chevron-down" class="w-4 h-4 text-gray-500" />
-              </MenuButton>
-              
-              <transition
-                enter-active-class="transition duration-200 ease-out"
-                enter-from-class="transform scale-95 opacity-0"
-                enter-to-class="transform scale-100 opacity-100"
-                leave-active-class="transition duration-75 ease-in"
-                leave-from-class="transform scale-100 opacity-100"
-                leave-to-class="transform scale-95 opacity-0"
-              >
-                <MenuItems class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
-                  <MenuItem v-slot="{ active }">
-                    <NuxtLink to="/account" 
-                              :class="[active ? 'bg-gray-50' : '', 'block px-4 py-2 text-sm text-gray-700 hover:text-gray-900']">
-                      <Icon name="heroicons:user" class="w-4 h-4 inline mr-2" />
-                      Account
-                    </NuxtLink>
-                  </MenuItem>
-                  <MenuItem v-slot="{ active }">
-                    <NuxtLink to="/account/downloads" 
-                              :class="[active ? 'bg-gray-50' : '', 'block px-4 py-2 text-sm text-gray-700 hover:text-gray-900']">
-                      <Icon name="heroicons:arrow-down-tray" class="w-4 h-4 inline mr-2" />
-                      My Downloads
-                    </NuxtLink>
-                  </MenuItem>
-                  <MenuItem v-slot="{ active }">
-                    <NuxtLink to="/account/orders" 
-                              :class="[active ? 'bg-gray-50' : '', 'block px-4 py-2 text-sm text-gray-700 hover:text-gray-900']">
-                      <Icon name="heroicons:shopping-bag" class="w-4 h-4 inline mr-2" />
-                      Order History
-                    </NuxtLink>
-                  </MenuItem>
-                  
-                  <div v-if="auth.isAdmin.value" class="border-t border-gray-100 mt-2 pt-2">
-                    <MenuItem v-slot="{ active }">
-                      <NuxtLink to="/admin" 
-                                :class="[active ? 'bg-gray-50' : '', 'block px-4 py-2 text-sm text-gray-700 hover:text-gray-900']">
-                        <Icon name="heroicons:cog-6-tooth" class="w-4 h-4 inline mr-2" />
-                        Admin Panel
-                      </NuxtLink>
-                    </MenuItem>
-                  </div>
-                  
-                  <div class="border-t border-gray-100 mt-2 pt-2">
-                    <MenuItem v-slot="{ active }">
-                      <button @click="auth.signOut()"
-                              :class="[active ? 'bg-gray-50' : '', 'block w-full text-left px-4 py-2 text-sm text-gray-700 hover:text-gray-900']">
-                        <Icon name="heroicons:arrow-right-on-rectangle" class="w-4 h-4 inline mr-2" />
-                        Sign Out
-                      </button>
-                    </MenuItem>
-                  </div>
-                </MenuItems>
-              </transition>
-            </Menu>
+              </button>
+            </div>
           </div>
 
           <!-- Sign In / Sign Up -->
@@ -283,19 +230,28 @@
 </template>
 
 <script setup>
-import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
-
-// Composables
-const auth = useAuth()
-const cart = useCart()
-const { categories, fetchCategories } = useProducts()
-
 // State
 const searchQuery = ref('')
 const showMobileMenu = ref(false)
 const showMobileSearch = ref(false)
 const showMobileCategories = ref(false)
 const showCategories = ref(false)
+
+// Mock data for now
+const categories = ref([
+  { id: '1', name: 'Wedding Templates', slug: 'wedding-templates' },
+  { id: '2', name: 'Business Templates', slug: 'business-templates' },
+  { id: '3', name: 'Therapist Templates', slug: 'therapist-templates' },
+  { id: '4', name: 'Portfolio Templates', slug: 'portfolio-templates' }
+])
+
+// Mock auth state
+const isAuthenticated = ref(false)
+const userInitials = ref('')
+const isAdmin = ref(false)
+
+// Mock cart state
+const cartItemCount = ref(0)
 
 // Methods
 const performSearch = () => {
@@ -328,22 +284,17 @@ const toggleMobileCategories = () => {
   showMobileCategories.value = !showMobileCategories.value
 }
 
+const toggleCart = () => {
+  console.log('Cart toggled')
+}
+
+const signOut = () => {
+  console.log('Sign out')
+}
+
 // Close mobile menu when route changes
-watch(() => $route.path, () => {
+const route = useRoute()
+watch(() => route.path, () => {
   closeMobileMenu()
-})
-
-// Load categories on mount
-onMounted(async () => {
-  try {
-    await fetchCategories()
-  } catch (error) {
-    console.error('Failed to load categories:', error)
-  }
-})
-
-// Close dropdowns when clicking outside
-onClickOutside(showCategories, () => {
-  showCategories.value = false
 })
 </script>

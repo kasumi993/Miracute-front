@@ -146,7 +146,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 interface Props {
   product: any // Replace with proper Product type
 }

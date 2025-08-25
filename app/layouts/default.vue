@@ -11,11 +11,11 @@
     <!-- Footer -->
     <LayoutFooter />
 
-    <!-- Cart Drawer -->
-    <CartDrawer />
+    <!-- Cart Drawer - Temporarily disabled -->
+    <!-- <CartDrawer /> -->
 
-    <!-- Toast Notifications -->
-    <UIToast />
+    <!-- Toast Notifications - Temporarily disabled -->
+    <!-- <UIToast /> -->
 
     <!-- Loading Overlay -->
     <Transition
@@ -38,43 +38,8 @@
 </template>
 
 <script setup>
-// Global loading state (could be managed by a composable)
+// Global loading state
 const isGlobalLoading = ref(false)
-
-// Initialize composables
-const auth = useAuth()
-const cart = useCart()
-
-// Initialize on mount
-onMounted(async () => {
-  isGlobalLoading.value = true
-  
-  try {
-    // Initialize auth and cart
-    await Promise.all([
-      auth.init(),
-      cart.init()
-    ])
-  } catch (error) {
-    console.error('Failed to initialize app:', error)
-  } finally {
-    isGlobalLoading.value = false
-  }
-})
-
-// Handle route changes
-const route = useRoute()
-const isNavigating = ref(false)
-
-// Show loading on route changes
-watch(() => route.path, () => {
-  isNavigating.value = true
-  
-  // Hide loading after a short delay
-  setTimeout(() => {
-    isNavigating.value = false
-  }, 300)
-})
 
 // Page metadata can be set here for global defaults
 useHead({

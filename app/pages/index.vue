@@ -98,7 +98,7 @@
                class="group cursor-pointer">
             <NuxtLink :to="`/categories/${category.slug}`" class="block">
               <div class="relative overflow-hidden rounded-2xl aspect-square mb-4 hover-lift">
-                <NuxtImg 
+                <img 
                   :src="category.image" 
                   :alt="category.name"
                   class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
@@ -135,7 +135,7 @@
                class="card-product group">
             <NuxtLink :to="`/templates/${product.slug}`">
               <div class="relative aspect-[4/3] overflow-hidden">
-                <NuxtImg 
+                <img 
                   :src="product.image" 
                   :alt="product.name"
                   class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
@@ -245,30 +245,11 @@
 
 <script setup>
 // SEO Meta Tags
-useSeoMeta({
+useHead({
   title: 'Beautiful Website Templates | Miracute - Make Someone Smile Every Day',
-  description: 'Professional website templates for businesses, weddings, therapists, and creatives. Easy to customize, mobile-responsive designs. No coding required. Download instantly.',
-  keywords: 'website templates, canva website template, wedding website, business template, therapist website, portfolio template, professional design',
-  ogTitle: 'Beautiful Website Templates | Miracute',
-  ogDescription: 'Professional website templates for businesses, weddings, therapists, and creatives. Easy to customize, mobile-responsive designs.',
-  ogImage: '/images/og-image.jpg',
-  ogUrl: 'https://miracute.com',
-  twitterTitle: 'Beautiful Website Templates | Miracute',
-  twitterDescription: 'Professional website templates for businesses, weddings, therapists, and creatives. Easy to customize, mobile-responsive designs.',
-  twitterImage: '/images/twitter-image.jpg',
-  twitterCard: 'summary_large_image'
-})
-
-// Structured Data for SEO
-useJsonLd({
-  '@context': 'https://schema.org',
-  '@type': 'Organization',
-  name: 'Miracute',
-  url: 'https://miracute.com',
-  logo: 'https://miracute.com/images/logo.png',
-  description: 'Beautiful website templates for creative professionals and businesses',
-  sameAs: [
-    // Add social media links when available
+  meta: [
+    { name: 'description', content: 'Professional website templates for businesses, weddings, therapists, and creatives. Easy to customize, mobile-responsive designs. No coding required. Download instantly.' },
+    { name: 'keywords', content: 'website templates, canva website template, wedding website, business template, therapist website, portfolio template, professional design' }
   ]
 })
 

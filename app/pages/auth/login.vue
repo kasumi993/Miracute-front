@@ -244,7 +244,7 @@ const handleSubmit = async () => {
     await auth.signIn(form.email, form.password)
     
     // Success - redirect to intended page or account
-    const redirect = route.query.redirect as string
+    const redirect = route.query.redirect
     const destination = redirect && redirect.startsWith('/') ? redirect : '/account'
     
     await navigateTo(destination)

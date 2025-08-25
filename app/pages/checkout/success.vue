@@ -167,7 +167,7 @@ const orderData = ref(null)
 const orderItems = ref([])
 
 // Get session ID from URL
-const sessionId = route.query.session_id as string
+const sessionId = route.query.session_id
 
 // Methods
 const loadOrderData = async () => {
