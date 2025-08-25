@@ -12,29 +12,13 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // Check admin role
-  const { data: userData, error: userError } = await supabase
-    .from('users')
-    .select('role')
-    .eq('id', user.id)
-    .single()
-
-  if (userError || userData?.role !== 'admin') {
-    throw createError({
-      statusCode: 403,
-      statusMessage: 'Admin access required'
-    })
-  }
-
   const query = getQuery(event)
-  const limit = parseInt(query.limit as string) || 20
+  const limit = parseInt(query.limit as string) || 10
   const offset = parseInt(query.offset as string) || 0
-  const status = query.status as string
-  const search = query.search as string
 
   try {
-    // Build query
-    let ordersQuery = supabase
+    // Get user's orders with order items
+    const { data: orders, count, error } = await supabase
       .from('orders')
       .select(`
         *,
@@ -42,22 +26,12 @@ export default defineEventHandler(async (event) => {
           *,
           product:products(
             name,
-            slug
+            slug,
+            preview_images
           )
         )
       `, { count: 'exact' })
-
-    // Apply filters
-    if (status) {
-      ordersQuery = ordersQuery.eq('status', status)
-    }
-
-    if (search) {
-      ordersQuery = ordersQuery.or(`order_number.ilike.%${search}%,customer_email.ilike.%${search}%`)
-    }
-
-    // Apply pagination and sorting
-    const { data: orders, count, error } = await ordersQuery
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1)
 
@@ -75,7 +49,7 @@ export default defineEventHandler(async (event) => {
     }
 
   } catch (error: any) {
-    console.error('Error fetching admin orders:', error)
+    console.error('Error fetching user orders:', error)
     throw createError({
       statusCode: 500,
       statusMessage: 'Failed to fetch orders'

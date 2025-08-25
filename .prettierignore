@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+.nuxt/
+.output/
+dist/
+.vercel/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Cache
+.cache/
+.temp/
+.tmp/
+
+# Environment
+.env
+.env.*
+
+# Database
+*.sqlite
+*.db
+
+# Generated files
+coverage/
+*.tsbuildinfo
+.eslintcache
+
+# Public assets (might be optimized)
+public/images/
+public/icons/
+public/_nuxt/
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Supabase
+supabase/.branches
+supabase/.temp

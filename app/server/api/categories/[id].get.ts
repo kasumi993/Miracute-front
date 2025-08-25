@@ -1,45 +1,40 @@
 import { serverSupabaseClient } from '#supabase/server'
-import type { Database, ProductWithCategory } from '~/types/database'
+import type { Database } from '~/types/database'
 
-export default defineEventHandler(async (event): Promise<ProductWithCategory | null> => {
+export default defineEventHandler(async (event) => {
   const supabase = await serverSupabaseClient<Database>(event)
   const slug = getRouterParam(event, 'slug')
 
   if (!slug) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Product slug is required'
+      statusMessage: 'Category slug is required'
     })
   }
 
   try {
     const { data, error } = await supabase
-      .from('products')
-      .select(`
-        *,
-        category:categories(*)
-      `)
+      .from('categories')
+      .select('*')
       .eq('slug', slug)
       .eq('is_active', true)
       .single()
 
     if (error) {
       if (error.code === 'PGRST116') {
-        // Product not found
+        // Category not found
         throw createError({
           statusCode: 404,
-          statusMessage: 'Product not found'
+          statusMessage: 'Category not found'
         })
       }
       throw error
     }
 
-    // Increment view count asynchronously (don't wait for it)
-    if (data?.id) {
-      supabase.rpc('increment_view_count', { product_id: data.id }).catch(console.error)
+    return {
+      success: true,
+      data
     }
-
-    return data as ProductWithCategory
 
   } catch (error: any) {
     if (error.statusCode) {
@@ -48,7 +43,7 @@ export default defineEventHandler(async (event): Promise<ProductWithCategory | n
     
     throw createError({
       statusCode: 500,
-      statusMessage: 'Failed to fetch product',
+      statusMessage: 'Failed to fetch category',
       data: error
     })
   }
