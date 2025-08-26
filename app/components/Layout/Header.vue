@@ -4,20 +4,7 @@
       <div class="flex items-center justify-between h-16 lg:h-20">
         <!-- Logo -->
         <NuxtLink to="/" class="flex items-center space-x-3 hover:opacity-80 transition-opacity">
-          <!-- Miracute Bow Icon -->
-          <div class="w-8 h-8 lg:w-10 lg:h-10">
-            <svg viewBox="0 0 100 100" class="w-full h-full">
-              <path d="M20 40 Q20 20, 40 20 Q50 25, 50 35 Q50 25, 60 20 Q80 20, 80 40 Q75 50, 65 50 L50 75 L35 50 Q25 50, 20 40 Z" 
-                    fill="url(#bowGradient)" stroke="none"/>
-              <defs>
-                <linearGradient id="bowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" style="stop-color:#E8D5D5"/>
-                  <stop offset="100%" style="stop-color:#B8C4C2"/>
-                </linearGradient>
-              </defs>
-            </svg>
-          </div>
-          <span class="text-2xl lg:text-3xl font-heading font-medium text-gray-900">miracute</span>
+          <NuxtImg src="/images/logo.png" alt="Miracute Logo" width="32" height="32" />
         </NuxtLink>
 
         <!-- Desktop Navigation -->
