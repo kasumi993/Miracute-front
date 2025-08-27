@@ -31,14 +31,14 @@
         <h2 class="text-lg font-heading font-medium">Shopping Cart</h2>
         <button @click="cart.closeDrawer()" 
                 class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-          <NuxtIcon name="heroicons:x-mark" class="w-5 h-5" />
+          <Icon name="heroicons:x-mark" class="w-5 h-5" />
         </button>
       </div>
 
       <!-- Cart Items -->
       <div class="flex-1 overflow-y-auto p-4">
         <div v-if="cart.isEmpty.value" class="text-center py-16">
-          <NuxtIcon name="heroicons:shopping-bag" class="w-16 h-16 text-gray-300 mx-auto mb-4" />
+          <Icon name="heroicons:shopping-bag" class="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <p class="text-gray-500 mb-4">Your cart is empty</p>
           <button @click="cart.closeDrawer()" class="btn-primary">
             Continue Shopping
@@ -74,12 +74,12 @@
                 <button @click="cart.updateQuantity(item.product.id, item.quantity - 1)"
                         :disabled="item.quantity <= 1"
                         class="w-6 h-6 rounded-full bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-sm">
-                  <NuxtIcon name="heroicons:minus" class="w-3 h-3" />
+                  <Icon name="heroicons:minus" class="w-3 h-3" />
                 </button>
                 <span class="text-sm font-medium">{{ item.quantity }}</span>
                 <button @click="cart.updateQuantity(item.product.id, item.quantity + 1)"
                         class="w-6 h-6 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center text-sm">
-                  <NuxtIcon name="heroicons:plus" class="w-3 h-3" />
+                  <Icon name="heroicons:plus" class="w-3 h-3" />
                 </button>
               </div>
             </div>
@@ -87,7 +87,7 @@
             <!-- Remove Button -->
             <button @click="cart.removeItem(item.product.id)"
                     class="text-red-500 hover:text-red-700 p-1">
-              <NuxtIcon name="heroicons:trash" class="w-4 h-4" />
+              <Icon name="heroicons:trash" class="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -118,11 +118,11 @@
         <!-- Trust Badges -->
         <div class="flex justify-center space-x-4 text-xs text-gray-500 pt-2">
           <div class="flex items-center space-x-1">
-            <NuxtIcon name="heroicons:shield-check" class="w-4 h-4 text-green-500" />
+            <Icon name="heroicons:shield-check" class="w-4 h-4 text-green-500" />
             <span>Secure</span>
           </div>
           <div class="flex items-center space-x-1">
-            <NuxtIcon name="heroicons:arrow-down-tray" class="w-4 h-4 text-blue-500" />
+            <Icon name="heroicons:arrow-down-tray" class="w-4 h-4 text-blue-500" />
             <span>Instant</span>
           </div>
         </div>

@@ -25,7 +25,7 @@
                 placeholder="Search templates..."
                 class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-sage focus:border-transparent text-lg"
               >
-              <NuxtIcon name="heroicons:magnifying-glass" class="absolute left-4 top-3.5 w-6 h-6 text-gray-400" />
+              <Icon name="heroicons:magnifying-glass" class="absolute left-4 top-3.5 w-6 h-6 text-gray-400" />
             </div>
           </div>
         </div>
@@ -191,7 +191,7 @@
           <!-- No Results -->
           <div v-if="!isLoading && products.length === 0" 
                class="text-center py-16">
-            <NuxtIcon name="heroicons:magnifying-glass" class="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <Icon name="heroicons:magnifying-glass" class="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 class="text-xl font-heading font-medium text-gray-900 mb-2">No templates found</h3>
             <p class="text-gray-600 mb-6">Try adjusting your filters or search terms.</p>
             <button @click="clearFilters" class="btn-primary">
@@ -206,7 +206,7 @@
                     class="btn-primary">
               <span v-if="!isLoadingMore">Load More Templates</span>
               <span v-else class="flex items-center space-x-2">
-                <NuxtIcon name="heroicons:arrow-path" class="w-5 h-5 animate-spin" />
+                <Icon name="heroicons:arrow-path" class="w-5 h-5 animate-spin" />
                 <span>Loading...</span>
               </span>
             </button>

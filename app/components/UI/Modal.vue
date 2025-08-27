@@ -47,7 +47,7 @@
                   class="text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 rounded-md p-1"
                   @click="close"
                 >
-                  <NuxtIcon name="heroicons:x-mark" class="w-5 h-5" />
+                  <Icon name="heroicons:x-mark" class="w-5 h-5" />
                 </button>
               </div>
               

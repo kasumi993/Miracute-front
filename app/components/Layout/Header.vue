@@ -4,7 +4,7 @@
       <div class="flex items-center justify-between h-16 lg:h-20">
         <!-- Logo -->
         <NuxtLink to="/" class="flex items-center space-x-3 hover:opacity-80 transition-opacity">
-          <NuxtImg src="/logo.png" alt="Miracute Logo" width="32" height="32" />
+          <NuxtImg src="/logo.png" alt="Miracute Logo" width="80"/>
         </NuxtLink>
 
         <!-- Desktop Navigation -->
@@ -20,7 +20,7 @@
             <button class="flex items-center space-x-1 text-gray-700 hover:text-gray-900 font-medium transition-colors"
                     :class="{ 'text-gray-900': $route.path.startsWith('/categories') }">
               <span>Categories</span>
-              <NuxtIcon name="heroicons:chevron-down" class="w-4 h-4" />
+              <Icon name="heroicons:chevron-down" class="w-4 h-4" />
             </button>
             
             <!-- Categories Dropdown Menu -->
@@ -67,11 +67,11 @@
               placeholder="Search templates..."
               class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-sage focus:border-transparent"
             >
-            <NuxtIcon name="heroicons:magnifying-glass" class="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
+            <Icon name="heroicons:magnifying-glass" class="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
             <button v-if="searchQuery" 
                     @click="clearSearch"
                     class="absolute right-3 top-2.5 w-5 h-5 text-gray-400 hover:text-gray-600">
-              <NuxtIcon name="heroicons:x-mark" class="w-5 h-5" />
+              <Icon name="heroicons:x-mark" class="w-5 h-5" />
             </button>
           </div>
         </div>
@@ -81,13 +81,13 @@
           <!-- Mobile Search Toggle -->
           <button @click="toggleMobileSearch" 
                   class="md:hidden p-2 text-gray-700 hover:text-gray-900 transition-colors">
-            <NuxtIcon name="heroicons:magnifying-glass" class="w-5 h-5" />
+            <Icon name="heroicons:magnifying-glass" class="w-5 h-5" />
           </button>
 
           <!-- Cart -->
           <button @click="toggleCart" 
                   class="relative p-2 text-gray-700 hover:text-gray-900 transition-colors">
-            <NuxtIcon name="heroicons:shopping-bag" class="w-6 h-6" />
+            <Icon name="heroicons:shopping-bag" class="w-6 h-6" />
             <span v-if="cartItemCount > 0"
                   class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
               {{ cartItemCount }}
@@ -101,7 +101,7 @@
                 <div class="w-8 h-8 bg-brand-pink rounded-full flex items-center justify-center text-sm font-medium text-gray-700">
                   {{ userInitials }}
                 </div>
-                <NuxtIcon name="heroicons:chevron-down" class="w-4 h-4 text-gray-500" />
+                <Icon name="heroicons:chevron-down" class="w-4 h-4 text-gray-500" />
               </button>
             </div>
           </div>
@@ -144,11 +144,11 @@
               placeholder="Search templates..."
               class="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-sage focus:border-transparent"
             >
-            <NuxtIcon name="heroicons:magnifying-glass" class="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
+            <Icon name="heroicons:magnifying-glass" class="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
             <button v-if="searchQuery" 
                     @click="clearSearch"
                     class="absolute right-3 top-2.5 w-5 h-5 text-gray-400 hover:text-gray-600">
-              <NuxtIcon name="heroicons:x-mark" class="w-5 h-5" />
+              <Icon name="heroicons:x-mark" class="w-5 h-5" />
             </button>
           </div>
         </div>

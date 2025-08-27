@@ -14,7 +14,7 @@
       <div class="max-w-2xl mx-auto text-center">
         <!-- Success Icon -->
         <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-8">
-          <NuxtIcon name="heroicons:check" class="w-12 h-12 text-green-600" />
+          <Icon name="heroicons:check" class="w-12 h-12 text-green-600" />
         </div>
 
         <!-- Success Message -->
@@ -62,7 +62,7 @@
                 <a :href="item.download_url"
                    target="_blank"
                    class="btn-primary text-sm px-4 py-2">
-                  <NuxtIcon name="heroicons:arrow-down-tray" class="w-4 h-4 mr-1" />
+                  <Icon name="heroicons:arrow-down-tray" class="w-4 h-4 mr-1" />
                   Download
                 </a>
               </div>
@@ -83,12 +83,12 @@
           <NuxtLink v-if="auth.isAuthenticated.value" 
                     to="/account/downloads" 
                     class="btn-primary">
-            <NuxtIcon name="heroicons:arrow-down-tray" class="w-5 h-5 mr-2" />
+            <Icon name="heroicons:arrow-down-tray" class="w-5 h-5 mr-2" />
             View My Downloads
           </NuxtLink>
           
           <NuxtLink to="/templates" class="btn-secondary">
-            <NuxtIcon name="heroicons:shopping-bag" class="w-5 h-5 mr-2" />
+            <Icon name="heroicons:shopping-bag" class="w-5 h-5 mr-2" />
             Continue Shopping
           </NuxtLink>
         </div>
@@ -96,7 +96,7 @@
         <!-- Important Info -->
         <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-8 text-left">
           <h3 class="font-medium text-blue-900 mb-3 flex items-center">
-            <NuxtIcon name="heroicons:information-circle" class="w-5 h-5 mr-2" />
+            <Icon name="heroicons:information-circle" class="w-5 h-5 mr-2" />
             Important Information
           </h3>
           <ul class="text-sm text-blue-800 space-y-2">
@@ -124,7 +124,7 @@
     <!-- Error State -->
     <div v-else class="container-custom py-16 text-center">
       <div class="max-w-md mx-auto">
-        <NuxtIcon name="heroicons:exclamation-triangle" class="w-16 h-16 text-red-500 mx-auto mb-6" />
+        <Icon name="heroicons:exclamation-triangle" class="w-16 h-16 text-red-500 mx-auto mb-6" />
         <h2 class="text-2xl font-heading font-medium text-gray-900 mb-4">
           Order Not Found
         </h2>

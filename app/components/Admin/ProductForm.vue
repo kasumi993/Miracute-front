@@ -150,7 +150,7 @@
                 size="sm"
                 @click="removePreviewImage(index)"
               >
-                <NuxtIcon name="heroicons:x-mark" class="w-4 h-4" />
+                <Icon name="heroicons:x-mark" class="w-4 h-4" />
               </Button>
             </div>
             <Button
@@ -160,7 +160,7 @@
               @click="addPreviewImage"
               class="w-full border-2 border-dashed border-gray-300 hover:border-gray-400"
             >
-              <NuxtIcon name="heroicons:plus" class="w-4 h-4 mr-2" />
+              <Icon name="heroicons:plus" class="w-4 h-4 mr-2" />
               Add Preview Image
             </Button>
           </div>
@@ -198,7 +198,7 @@
                 size="sm"
                 @click="removeFileFormat(index)"
               >
-                <NuxtIcon name="heroicons:x-mark" class="w-4 h-4" />
+                <Icon name="heroicons:x-mark" class="w-4 h-4" />
               </Button>
             </div>
             <Button
@@ -208,7 +208,7 @@
               @click="addFileFormat"
               class="w-full border-2 border-dashed border-gray-300 hover:border-gray-400"
             >
-              <NuxtIcon name="heroicons:plus" class="w-4 h-4 mr-2" />
+              <Icon name="heroicons:plus" class="w-4 h-4 mr-2" />
               Add File Format
             </Button>
           </div>
@@ -230,7 +230,7 @@
                 size="sm"
                 @click="removeSoftware(index)"
               >
-                <NuxtIcon name="heroicons:x-mark" class="w-4 h-4" />
+                <Icon name="heroicons:x-mark" class="w-4 h-4" />
               </Button>
             </div>
             <Button
@@ -240,7 +240,7 @@
               @click="addSoftware"
               class="w-full border-2 border-dashed border-gray-300 hover:border-gray-400"
             >
-              <NuxtIcon name="heroicons:plus" class="w-4 h-4 mr-2" />
+              <Icon name="heroicons:plus" class="w-4 h-4 mr-2" />
               Add Software
             </Button>
           </div>
@@ -262,7 +262,7 @@
                 size="sm"
                 @click="removeTag(index)"
               >
-                <NuxtIcon name="heroicons:x-mark" class="w-4 h-4" />
+                <Icon name="heroicons:x-mark" class="w-4 h-4" />
               </Button>
             </div>
             <Button
@@ -272,7 +272,7 @@
               @click="addTag"
               class="w-full border-2 border-dashed border-gray-300 hover:border-gray-400"
             >
-              <NuxtIcon name="heroicons:plus" class="w-4 h-4 mr-2" />
+              <Icon name="heroicons:plus" class="w-4 h-4 mr-2" />
               Add Tag
             </Button>
           </div>
@@ -317,7 +317,7 @@
                 size="sm"
                 @click="removeKeyword(index)"
               >
-                <NuxtIcon name="heroicons:x-mark" class="w-4 h-4" />
+                <Icon name="heroicons:x-mark" class="w-4 h-4" />
               </Button>
             </div>
             <Button
@@ -327,7 +327,7 @@
               @click="addKeyword"
               class="w-full border-2 border-dashed border-gray-300 hover:border-gray-400"
             >
-              <NuxtIcon name="heroicons:plus" class="w-4 h-4 mr-2" />
+              <Icon name="heroicons:plus" class="w-4 h-4 mr-2" />
               Add Keyword
             </Button>
           </div>

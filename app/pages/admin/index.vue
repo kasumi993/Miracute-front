@@ -14,7 +14,7 @@
               ← Back to Site
             </NuxtLink>
             <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-              <NuxtIcon name="heroicons:shield-check" class="w-4 h-4 text-red-600" />
+              <Icon name="heroicons:shield-check" class="w-4 h-4 text-red-600" />
             </div>
           </div>
         </div>
@@ -29,13 +29,13 @@
             <nav class="space-y-2">
               <NuxtLink to="/admin" 
                         class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-900 bg-gray-100 font-medium">
-                <NuxtIcon name="heroicons:home" class="w-5 h-5" />
+                <Icon name="heroicons:home" class="w-5 h-5" />
                 <span>Dashboard</span>
               </NuxtLink>
               
               <NuxtLink to="/admin/products" 
                         class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
-                <NuxtIcon name="heroicons:squares-2x2" class="w-5 h-5" />
+                <Icon name="heroicons:squares-2x2" class="w-5 h-5" />
                 <span>Products</span>
                 <span v-if="stats.totalProducts" 
                       class="ml-auto text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full">
@@ -45,13 +45,13 @@
               
               <NuxtLink to="/admin/categories" 
                         class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
-                <NuxtIcon name="heroicons:folder" class="w-5 h-5" />
+                <Icon name="heroicons:folder" class="w-5 h-5" />
                 <span>Categories</span>
               </NuxtLink>
               
               <NuxtLink to="/admin/orders" 
                         class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
-                <NuxtIcon name="heroicons:shopping-bag" class="w-5 h-5" />
+                <Icon name="heroicons:shopping-bag" class="w-5 h-5" />
                 <span>Orders</span>
                 <span v-if="stats.pendingOrders" 
                       class="ml-auto text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
@@ -61,13 +61,13 @@
               
               <NuxtLink to="/admin/customers" 
                         class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
-                <NuxtIcon name="heroicons:users" class="w-5 h-5" />
+                <Icon name="heroicons:users" class="w-5 h-5" />
                 <span>Customers</span>
               </NuxtLink>
               
               <NuxtLink to="/admin/analytics" 
                         class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
-                <NuxtIcon name="heroicons:chart-bar" class="w-5 h-5" />
+                <Icon name="heroicons:chart-bar" class="w-5 h-5" />
                 <span>Analytics</span>
               </NuxtLink>
             </nav>
@@ -81,7 +81,7 @@
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
               <div class="flex items-center space-x-3">
                 <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <NuxtIcon name="heroicons:currency-dollar" class="w-6 h-6 text-blue-600" />
+                  <Icon name="heroicons:currency-dollar" class="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
                   <p class="text-2xl font-bold text-gray-900">${{ stats.totalRevenue }}</p>
@@ -93,7 +93,7 @@
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
               <div class="flex items-center space-x-3">
                 <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <NuxtIcon name="heroicons:shopping-bag" class="w-6 h-6 text-green-600" />
+                  <Icon name="heroicons:shopping-bag" class="w-6 h-6 text-green-600" />
                 </div>
                 <div>
                   <p class="text-2xl font-bold text-gray-900">{{ stats.totalOrders }}</p>
@@ -105,7 +105,7 @@
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
               <div class="flex items-center space-x-3">
                 <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <NuxtIcon name="heroicons:users" class="w-6 h-6 text-purple-600" />
+                  <Icon name="heroicons:users" class="w-6 h-6 text-purple-600" />
                 </div>
                 <div>
                   <p class="text-2xl font-bold text-gray-900">{{ stats.totalCustomers }}</p>
@@ -117,7 +117,7 @@
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
               <div class="flex items-center space-x-3">
                 <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                  <NuxtIcon name="heroicons:squares-2x2" class="w-6 h-6 text-orange-600" />
+                  <Icon name="heroicons:squares-2x2" class="w-6 h-6 text-orange-600" />
                 </div>
                 <div>
                   <p class="text-2xl font-bold text-gray-900">{{ stats.totalProducts }}</p>
@@ -139,7 +139,7 @@
               </div>
 
               <div v-if="recentOrders.length === 0" class="text-center py-8">
-                <NuxtIcon name="heroicons:shopping-bag" class="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                <Icon name="heroicons:shopping-bag" class="w-12 h-12 text-gray-300 mx-auto mb-4" />
                 <p class="text-gray-500">No recent orders</p>
               </div>
 
@@ -172,7 +172,7 @@
               </div>
 
               <div v-if="popularProducts.length === 0" class="text-center py-8">
-                <NuxtIcon name="heroicons:squares-2x2" class="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                <Icon name="heroicons:squares-2x2" class="w-12 h-12 text-gray-300 mx-auto mb-4" />
                 <p class="text-gray-500">No products data</p>
               </div>
 
@@ -211,25 +211,25 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <NuxtLink to="/admin/products/create" 
                         class="flex items-center space-x-3 p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-brand-sage hover:bg-gray-50 transition-colors">
-                <NuxtIcon name="heroicons:plus" class="w-5 h-5 text-gray-600" />
+                <Icon name="heroicons:plus" class="w-5 h-5 text-gray-600" />
                 <span class="font-medium text-gray-700">Add Product</span>
               </NuxtLink>
 
               <NuxtLink to="/admin/categories/create" 
                         class="flex items-center space-x-3 p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-brand-sage hover:bg-gray-50 transition-colors">
-                <NuxtIcon name="heroicons:folder-plus" class="w-5 h-5 text-gray-600" />
+                <Icon name="heroicons:folder-plus" class="w-5 h-5 text-gray-600" />
                 <span class="font-medium text-gray-700">Add Category</span>
               </NuxtLink>
 
               <NuxtLink to="/admin/orders?status=pending" 
                         class="flex items-center space-x-3 p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-brand-sage hover:bg-gray-50 transition-colors">
-                <NuxtIcon name="heroicons:clock" class="w-5 h-5 text-gray-600" />
+                <Icon name="heroicons:clock" class="w-5 h-5 text-gray-600" />
                 <span class="font-medium text-gray-700">Pending Orders</span>
               </NuxtLink>
 
               <NuxtLink to="/admin/analytics" 
                         class="flex items-center space-x-3 p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-brand-sage hover:bg-gray-50 transition-colors">
-                <NuxtIcon name="heroicons:chart-bar" class="w-5 h-5 text-gray-600" />
+                <Icon name="heroicons:chart-bar" class="w-5 h-5 text-gray-600" />
                 <span class="font-medium text-gray-700">View Analytics</span>
               </NuxtLink>
             </div>

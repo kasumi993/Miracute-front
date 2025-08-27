@@ -90,7 +90,7 @@
           <div v-if="auth.error.value" 
                class="p-4 bg-red-50 border border-red-200 rounded-lg">
             <div class="flex items-center space-x-2">
-              <NuxtIcon name="heroicons:exclamation-circle" class="w-5 h-5 text-red-500" />
+              <Icon name="heroicons:exclamation-circle" class="w-5 h-5 text-red-500" />
               <p class="text-sm text-red-700">{{ auth.error.value }}</p>
             </div>
           </div>
@@ -103,7 +103,7 @@
           >
             <span v-if="!auth.isLoading.value">Sign in</span>
             <span v-else class="flex items-center justify-center space-x-2">
-              <NuxtIcon name="heroicons:arrow-path" class="w-5 h-5 animate-spin" />
+              <Icon name="heroicons:arrow-path" class="w-5 h-5 animate-spin" />
               <span>Signing in...</span>
             </span>
           </button>
@@ -139,7 +139,7 @@
               type="button"
               class="w-full inline-flex justify-center py-3 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
             >
-              <NuxtIcon name="heroicons:envelope" class="w-5 h-5 mr-2" />
+              <Icon name="heroicons:envelope" class="w-5 h-5 mr-2" />
               Magic Link
             </button>
           </div>
@@ -159,7 +159,7 @@
       <!-- Back to Home -->
       <div class="text-center">
         <NuxtLink to="/" class="text-sm text-gray-500 hover:text-gray-700 flex items-center justify-center space-x-1">
-          <NuxtIcon name="heroicons:arrow-left" class="w-4 h-4" />
+          <Icon name="heroicons:arrow-left" class="w-4 h-4" />
           <span>Back to Miracute</span>
         </NuxtLink>
       </div>

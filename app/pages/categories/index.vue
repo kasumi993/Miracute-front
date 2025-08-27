@@ -50,7 +50,7 @@
                 loading="lazy"
               />
               <div v-else class="w-full h-full flex items-center justify-center">
-                <NuxtIcon name="heroicons:folder" class="w-16 h-16 text-white/80" />
+                <Icon name="heroicons:folder" class="w-16 h-16 text-white/80" />
               </div>
               
               <!-- Overlay -->
@@ -70,11 +70,11 @@
               <!-- Stats -->
               <div class="flex items-center justify-between text-xs text-gray-500">
                 <div class="flex items-center space-x-1">
-                  <NuxtIcon name="heroicons:squares-2x2" class="w-3 h-3" />
+                  <Icon name="heroicons:squares-2x2" class="w-3 h-3" />
                   <span>{{ category.product_count || 0 }} templates</span>
                 </div>
                 <div class="flex items-center space-x-1">
-                  <NuxtIcon name="heroicons:arrow-right" class="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                  <Icon name="heroicons:arrow-right" class="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                   <span>Explore</span>
                 </div>
               </div>
@@ -85,7 +85,7 @@
 
       <!-- Empty State -->
       <div v-else class="text-center py-16">
-        <NuxtIcon name="heroicons:folder-open" class="w-16 h-16 text-gray-300 mx-auto mb-6" />
+        <Icon name="heroicons:folder-open" class="w-16 h-16 text-gray-300 mx-auto mb-6" />
         <h3 class="text-xl font-heading font-medium text-gray-900 mb-2">No categories found</h3>
         <p class="text-gray-600">Categories will appear here once they're added.</p>
       </div>
@@ -111,7 +111,7 @@
       <div class="text-center mt-12">
         <NuxtLink to="/templates" class="btn-primary">
           View All Templates
-          <NuxtIcon name="heroicons:arrow-right" class="ml-2 w-5 h-5" />
+          <Icon name="heroicons:arrow-right" class="ml-2 w-5 h-5" />
         </NuxtLink>
       </div>
     </section>

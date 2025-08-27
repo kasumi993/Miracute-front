@@ -34,25 +34,25 @@
             <nav class="space-y-2">
               <NuxtLink to="/account" 
                         class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-900 bg-gray-100 font-medium">
-                <NuxtIcon name="heroicons:home" class="w-5 h-5" />
+                <Icon name="heroicons:home" class="w-5 h-5" />
                 <span>Dashboard</span>
               </NuxtLink>
               
               <NuxtLink to="/account/downloads" 
                         class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
-                <NuxtIcon name="heroicons:arrow-down-tray" class="w-5 h-5" />
+                <Icon name="heroicons:arrow-down-tray" class="w-5 h-5" />
                 <span>Downloads</span>
               </NuxtLink>
               
               <NuxtLink to="/account/orders" 
                         class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
-                <NuxtIcon name="heroicons:shopping-bag" class="w-5 h-5" />
+                <Icon name="heroicons:shopping-bag" class="w-5 h-5" />
                 <span>Order History</span>
               </NuxtLink>
               
               <NuxtLink to="/account/profile" 
                         class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
-                <NuxtIcon name="heroicons:user" class="w-5 h-5" />
+                <Icon name="heroicons:user" class="w-5 h-5" />
                 <span>Profile Settings</span>
               </NuxtLink>
               
@@ -60,7 +60,7 @@
               
               <button @click="auth.signOut()" 
                       class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors w-full text-left">
-                <NuxtIcon name="heroicons:arrow-right-on-rectangle" class="w-5 h-5" />
+                <Icon name="heroicons:arrow-right-on-rectangle" class="w-5 h-5" />
                 <span>Sign Out</span>
               </button>
             </nav>
@@ -74,7 +74,7 @@
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
               <div class="flex items-center space-x-3">
                 <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <NuxtIcon name="heroicons:arrow-down-tray" class="w-6 h-6 text-blue-600" />
+                  <Icon name="heroicons:arrow-down-tray" class="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
                   <p class="text-2xl font-bold text-gray-900">{{ stats.totalDownloads }}</p>
@@ -86,7 +86,7 @@
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
               <div class="flex items-center space-x-3">
                 <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <NuxtIcon name="heroicons:shopping-bag" class="w-6 h-6 text-green-600" />
+                  <Icon name="heroicons:shopping-bag" class="w-6 h-6 text-green-600" />
                 </div>
                 <div>
                   <p class="text-2xl font-bold text-gray-900">{{ stats.totalOrders }}</p>
@@ -98,7 +98,7 @@
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
               <div class="flex items-center space-x-3">
                 <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <NuxtIcon name="heroicons:currency-dollar" class="w-6 h-6 text-purple-600" />
+                  <Icon name="heroicons:currency-dollar" class="w-6 h-6 text-purple-600" />
                 </div>
                 <div>
                   <p class="text-2xl font-bold text-gray-900">${{ stats.totalSpent }}</p>
@@ -118,7 +118,7 @@
             </div>
 
             <div v-if="recentOrders.length === 0" class="text-center py-8">
-              <NuxtIcon name="heroicons:shopping-bag" class="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <Icon name="heroicons:shopping-bag" class="w-12 h-12 text-gray-300 mx-auto mb-4" />
               <p class="text-gray-500">No orders yet</p>
               <NuxtLink to="/templates" class="text-brand-brown hover:text-brand-brown/80 font-medium">
                 Start shopping →
@@ -131,7 +131,7 @@
                    class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
                 <div class="flex items-center space-x-4">
                   <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <NuxtIcon name="heroicons:shopping-bag" class="w-5 h-5 text-gray-600" />
+                    <Icon name="heroicons:shopping-bag" class="w-5 h-5 text-gray-600" />
                   </div>
                   <div>
                     <p class="font-medium text-gray-900">#{{ order.order_number }}</p>
@@ -159,7 +159,7 @@
             </div>
 
             <div v-if="recentDownloads.length === 0" class="text-center py-8">
-              <NuxtIcon name="heroicons:arrow-down-tray" class="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <Icon name="heroicons:arrow-down-tray" class="w-12 h-12 text-gray-300 mx-auto mb-4" />
               <p class="text-gray-500">No downloads yet</p>
             </div>
 
@@ -189,7 +189,7 @@
                      :href="download.download_url"
                      target="_blank"
                      class="btn-primary text-sm px-4 py-2">
-                    <NuxtIcon name="heroicons:arrow-down-tray" class="w-4 h-4 mr-1" />
+                    <Icon name="heroicons:arrow-down-tray" class="w-4 h-4 mr-1" />
                     Download
                   </a>
                   <span v-else class="text-sm text-gray-500">Expired</span>

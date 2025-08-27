@@ -37,7 +37,7 @@
                         :class="getCloseButtonClasses(toast.type)"
                         class="inline-flex rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2">
                   <span class="sr-only">Close</span>
-                  <NuxtIcon name="heroicons:x-mark" class="w-5 h-5" />
+                  <Icon name="heroicons:x-mark" class="w-5 h-5" />
                 </button>
               </div>
             </div>

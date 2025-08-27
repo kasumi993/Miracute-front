@@ -73,17 +73,17 @@
         <!-- Product Meta -->
         <div class="flex items-center space-x-3 mb-4 text-xs text-gray-500">
           <div v-if="product.difficulty_level" class="flex items-center space-x-1">
-            <NuxtIcon name="heroicons:academic-cap" class="w-3 h-3" />
+            <Icon name="heroicons:academic-cap" class="w-3 h-3" />
             <span>{{ product.difficulty_level }}</span>
           </div>
           
           <div v-if="product.file_formats?.length" class="flex items-center space-x-1">
-            <NuxtIcon name="heroicons:document" class="w-3 h-3" />
+            <Icon name="heroicons:document" class="w-3 h-3" />
             <span>{{ product.file_formats.join(', ') }}</span>
           </div>
           
           <div v-if="product.view_count > 0" class="flex items-center space-x-1">
-            <NuxtIcon name="heroicons:eye" class="w-3 h-3" />
+            <Icon name="heroicons:eye" class="w-3 h-3" />
             <span>{{ formatViews(product.view_count) }}</span>
           </div>
         </div>
@@ -120,7 +120,7 @@
                   class="btn-primary text-sm px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed">
             <span v-if="!cart.isLoading.value">Add to Cart</span>
             <span v-else class="flex items-center space-x-1">
-              <NuxtIcon name="heroicons:arrow-path" class="w-4 h-4 animate-spin" />
+              <Icon name="heroicons:arrow-path" class="w-4 h-4 animate-spin" />
               <span>Adding...</span>
             </span>
           </button>
@@ -129,15 +129,15 @@
         <!-- Download Info -->
         <div class="flex items-center justify-center space-x-4 text-xs text-gray-500 mt-4 pt-4 border-t border-gray-100">
           <div class="flex items-center space-x-1">
-            <NuxtIcon name="heroicons:arrow-down-tray" class="w-3 h-3" />
+            <Icon name="heroicons:arrow-down-tray" class="w-3 h-3" />
             <span>Instant Download</span>
           </div>
           <div class="flex items-center space-x-1">
-            <NuxtIcon name="heroicons:device-phone-mobile" class="w-3 h-3" />
+            <Icon name="heroicons:device-phone-mobile" class="w-3 h-3" />
             <span>Mobile Ready</span>
           </div>
           <div class="flex items-center space-x-1">
-            <NuxtIcon name="heroicons:heart" class="w-3 h-3" />
+            <Icon name="heroicons:heart" class="w-3 h-3" />
             <span>Easy Setup</span>
           </div>
         </div>

@@ -125,19 +125,19 @@
       <!-- Social Links -->
       <div class="flex justify-center space-x-6 mt-12 pt-8 border-t border-gray-800">
         <a href="#" class="text-gray-400 hover:text-white transition-colors">
-          <NuxtIcon name="heroicons:heart" class="w-6 h-6" />
+          <Icon name="heroicons:heart" class="w-6 h-6" />
           <span class="sr-only">Pinterest</span>
         </a>
         <a href="#" class="text-gray-400 hover:text-white transition-colors">
-          <NuxtIcon name="heroicons:chat-bubble-left-ellipsis" class="w-6 h-6" />
+          <Icon name="heroicons:chat-bubble-left-ellipsis" class="w-6 h-6" />
           <span class="sr-only">Instagram</span>
         </a>
         <a href="#" class="text-gray-400 hover:text-white transition-colors">
-          <NuxtIcon name="heroicons:globe-alt" class="w-6 h-6" />
+          <Icon name="heroicons:globe-alt" class="w-6 h-6" />
           <span class="sr-only">Twitter</span>
         </a>
         <a href="#" class="text-gray-400 hover:text-white transition-colors">
-          <NuxtIcon name="heroicons:envelope" class="w-6 h-6" />
+          <Icon name="heroicons:envelope" class="w-6 h-6" />
           <span class="sr-only">Facebook</span>
         </a>
       </div>
@@ -176,19 +176,19 @@
       <div class="container-custom py-4">
         <div class="flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-8 text-xs text-gray-500">
           <div class="flex items-center space-x-2">
-            <NuxtIcon name="heroicons:shield-check" class="w-4 h-4 text-green-500" />
+            <Icon name="heroicons:shield-check" class="w-4 h-4 text-green-500" />
             <span>Secure Checkout</span>
           </div>
           <div class="flex items-center space-x-2">
-            <NuxtIcon name="heroicons:arrow-down-tray" class="w-4 h-4 text-blue-500" />
+            <Icon name="heroicons:arrow-down-tray" class="w-4 h-4 text-blue-500" />
             <span>Instant Download</span>
           </div>
           <div class="flex items-center space-x-2">
-            <NuxtIcon name="heroicons:heart" class="w-4 h-4 text-red-500" />
+            <Icon name="heroicons:heart" class="w-4 h-4 text-red-500" />
             <span>Customer Support</span>
           </div>
           <div class="flex items-center space-x-2">
-            <NuxtIcon name="heroicons:arrow-path" class="w-4 h-4 text-yellow-500" />
+            <Icon name="heroicons:arrow-path" class="w-4 h-4 text-yellow-500" />
             <span>30-Day Guarantee</span>
           </div>
         </div>
