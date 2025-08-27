@@ -7,12 +7,12 @@
 
 /* Custom CSS Variables - Miracute Brand Colors */
 :root {
-  /* Brand Colors from your mood board */
-  --color-primary-pink: #E8D5D5;     /* Soft pink */
-  --color-primary-sage: #B8C4C2;     /* Sage green */
-  --color-neutral-cream: #F4F1ED;    /* Cream background */
-  --color-neutral-warm: #E6D7C3;     /* Warm beige */
-  --color-accent-brown: #8B5A3C;     /* Rich brown */
+  /* Original Project Colors */
+  --color-primary-pink: #d7c6c8;     /* Dusty pink */
+  --color-primary-sage: #bbcfca;     /* Sage green */
+  --color-neutral-cream: #cdd3d7;    /* Light blue-gray */
+  --color-neutral-warm: #e9d1be;     /* Warm beige */
+  --color-accent-brown: #955a3f;     /* Rich brown */
   --color-text-primary: #2D2D2D;     /* Dark text */
   --color-text-secondary: #6B7280;   /* Gray text */
   
