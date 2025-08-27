@@ -11,26 +11,6 @@
       
       <div class="container-custom relative z-10">
         <div class="max-w-4xl mx-auto text-center">
-          <!-- Logo -->
-          <div class="mb-8 animate-fade-in">
-            <div class="inline-flex items-center space-x-3">
-              <!-- Miracute Bow Icon -->
-              <NuxtImg 
-                src="/logo.png" 
-                alt="Miracute Logo" 
-                width="48" 
-                height="48" 
-                class="w-12 h-12"
-              />
-              <span class="text-4xl font-heading font-medium text-gray-900">miracute</span>
-            </div>
-          </div>
-          
-          <!-- Tagline -->
-          <p class="text-brand-brown text-lg sm:text-xl mb-12 animate-slide-up">
-            Make Someone Smile, Every Day
-          </p>
-          
           <!-- Hero Headline -->
           <h1 class="text-5xl sm:text-6xl lg:text-7xl font-heading font-medium text-gray-900 mb-6 animate-slide-up">
             Beautiful Website

@@ -41,6 +41,12 @@
 // Global loading state
 const isGlobalLoading = ref(false)
 
+// Initialize cart for all users (authenticated and guest)
+const cart = useCart()
+onMounted(async () => {
+  await cart.init()
+})
+
 // Page metadata can be set here for global defaults
 useHead({
   titleTemplate: (title) => title ? `${title} | Miracute` : 'Miracute - Beautiful Website Templates',

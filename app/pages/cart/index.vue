@@ -238,21 +238,8 @@ const { isAuthenticated } = useAuth()
 const proceedToCheckout = async () => {
   if (cart.isEmpty.value) return
 
-  try {
-    // Prepare cart items for checkout
-    const checkoutItems = cart.items.value.map(item => ({
-      product_id: item.product.id,
-      quantity: item.quantity,
-      price: parseFloat(item.product.price)
-    }))
-
-    // Process checkout using Stripe Checkout (hosted)
-    await payments.processCartCheckout(checkoutItems)
-
-  } catch (error) {
-    console.error('Checkout failed:', error)
-    useToast().error('Failed to proceed to checkout. Please try again.')
-  }
+  // Redirect to checkout page where users can enter their details
+  await navigateTo('/cart/checkout')
 }
 
 // Initialize on mount

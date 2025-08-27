@@ -85,14 +85,14 @@
           </button>
 
           <!-- Cart -->
-          <button @click="toggleCart" 
-                  class="relative p-2 text-gray-700 hover:text-gray-900 transition-colors">
+          <NuxtLink to="/cart" class="relative flex items-center space-x-2 p-2 text-gray-700 hover:text-gray-900 transition-colors">
             <Icon name="heroicons:shopping-bag" class="w-6 h-6" />
+            <span class="hidden sm:inline font-medium">Cart</span>
             <span v-if="cartItemCount > 0"
                   class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
               {{ cartItemCount }}
             </span>
-          </button>
+          </NuxtLink>
 
           <!-- User Menu -->
           <div v-if="isAuthenticated" class="relative">
@@ -232,13 +232,19 @@ const categories = ref([
   { id: '4', name: 'Portfolio Templates', slug: 'portfolio-templates' }
 ])
 
-// Mock auth state
-const isAuthenticated = ref(false)
-const userInitials = ref('')
-const isAdmin = ref(false)
+// Auth state
+const { user, isAuthenticated } = useAuth()
+const userInitials = computed(() => {
+  if (!user.value) return ''
+  const firstName = user.value.user_metadata?.firstName || user.value.email?.charAt(0) || ''
+  const lastName = user.value.user_metadata?.lastName || ''
+  return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase()
+})
+const isAdmin = ref(false) // TODO: Implement admin role check
 
-// Mock cart state
-const cartItemCount = ref(0)
+// Cart state
+const cart = useCart()
+const cartItemCount = cart.itemCount
 
 // Methods
 const performSearch = () => {

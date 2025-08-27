@@ -65,12 +65,46 @@
                 <div class="p-6">
                   <h3 class="text-lg font-semibold mb-4">Customer Information</h3>
                   
-                  <div v-if="!user" class="mb-6 p-4 bg-blue-50 rounded-lg">
-                    <p class="text-sm text-blue-700 mb-3">
-                      Have an account? 
-                      <NuxtLink to="/auth/login" class="font-medium underline">Sign in</NuxtLink>
-                      for faster checkout.
-                    </p>
+                  <!-- Account Options for Guest Users -->
+                  <div v-if="!user" class="mb-6">
+                    <!-- Sign In Option -->
+                    <div class="p-4 bg-blue-50 rounded-lg mb-4">
+                      <p class="text-sm text-blue-700 mb-3">
+                        Already have an account? 
+                        <NuxtLink to="/auth/login" class="font-medium underline">Sign in</NuxtLink>
+                        for faster checkout.
+                      </p>
+                    </div>
+                    
+                    <!-- Account Creation Option -->
+                    <div class="border rounded-lg p-4">
+                      <label class="flex items-center mb-3">
+                        <input
+                          v-model="form.createAccount"
+                          type="checkbox"
+                          class="mr-3"
+                        />
+                        <span class="text-sm font-medium text-gray-700">
+                          Create an account for faster future purchases (optional)
+                        </span>
+                      </label>
+                      
+                      <div v-if="form.createAccount" class="pl-6 space-y-3">
+                        <p class="text-xs text-gray-600">
+                          We'll create your account using your email. You can set a password after your purchase.
+                        </p>
+                        <label class="flex items-start">
+                          <input
+                            v-model="form.emailUpdates"
+                            type="checkbox"
+                            class="mt-1 mr-3"
+                          />
+                          <span class="text-xs text-gray-700">
+                            Send me updates about new templates and special offers
+                          </span>
+                        </label>
+                      </div>
+                    </div>
                   </div>
 
                   <div class="grid md:grid-cols-2 gap-4">
@@ -93,6 +127,7 @@
                       required
                       :error="errors.email"
                       class="md:col-span-2"
+                      placeholder="We'll use this for your receipt and download links"
                     />
                   </div>
                 </div>
@@ -224,7 +259,6 @@
 
 <script setup lang="ts">
 definePageMeta({
-  middleware: 'auth',
   layout: 'default'
 })
 
@@ -243,6 +277,8 @@ const form = reactive({
   firstName: user.value?.user_metadata?.firstName || '',
   lastName: user.value?.user_metadata?.lastName || '',
   email: user.value?.email || '',
+  createAccount: false,
+  emailUpdates: true,
   address: {
     line1: '',
     line2: '',
@@ -309,9 +345,14 @@ const handleSubmit = async () => {
         })),
         customer_info: {
           email: form.email,
-          name: `${form.firstName} ${form.lastName}`
+          name: `${form.firstName} ${form.lastName}`,
+          firstName: form.firstName,
+          lastName: form.lastName
         },
-        billing_address: form.address
+        billing_address: form.address,
+        create_account: form.createAccount && !user.value,
+        email_updates: form.emailUpdates,
+        user_id: user.value?.id || null
       }
     })
     

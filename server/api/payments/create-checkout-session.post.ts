@@ -20,7 +20,16 @@ export default defineEventHandler(async (event) => {
 
   try {
     const body = await readBody(event)
-    const { items, customer_email, success_url, cancel_url } = body
+    const { 
+      items, 
+      customer_info, 
+      billing_address, 
+      create_account = false, 
+      email_updates = false,
+      user_id = null,
+      success_url, 
+      cancel_url 
+    } = body
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       throw createError({
@@ -76,7 +85,7 @@ export default defineEventHandler(async (event) => {
     }, 0)
 
     // Customer email - use authenticated user email or provided email
-    const customerEmail = user?.email || customer_email
+    const customerEmail = user?.email || customer_info?.email
 
     if (!customerEmail) {
       throw createError({
@@ -85,15 +94,53 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Handle optional account creation for guest users
+    let newlyCreatedUserId = null
+    if (create_account && !user && customer_info?.email) {
+      try {
+        // Create account in Supabase Auth (they'll set password later)
+        const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+          email: customer_info.email,
+          email_confirm: true,
+          user_metadata: {
+            firstName: customer_info.firstName || '',
+            lastName: customer_info.lastName || '',
+            created_during_checkout: true,
+            email_updates
+          }
+        })
+
+        if (authData?.user && !authError) {
+          newlyCreatedUserId = authData.user.id
+          
+          // Create user profile
+          await supabase
+            .from('users')
+            .insert({
+              id: authData.user.id,
+              email: customer_info.email,
+              first_name: customer_info.firstName || '',
+              last_name: customer_info.lastName || '',
+              email_notifications: email_updates,
+              created_at: new Date().toISOString()
+            })
+        }
+      } catch (error) {
+        console.error('Failed to create account during checkout:', error)
+        // Don't fail checkout if account creation fails
+      }
+    }
+
     // Create or retrieve Stripe customer
     let stripeCustomerId: string | undefined
+    const effectiveUserId = user?.id || newlyCreatedUserId
 
-    if (user?.id) {
+    if (effectiveUserId) {
       // Check if user already has a Stripe customer ID
       const { data: userData } = await supabase
         .from('users')
         .select('stripe_customer_id')
-        .eq('id', user.id)
+        .eq('id', effectiveUserId)
         .single()
 
       if (userData?.stripe_customer_id) {
@@ -102,8 +149,9 @@ export default defineEventHandler(async (event) => {
         // Create new Stripe customer
         const customer = await stripe.customers.create({
           email: customerEmail,
+          name: customer_info?.name || `${customer_info?.firstName || ''} ${customer_info?.lastName || ''}`.trim(),
           metadata: {
-            user_id: user.id
+            user_id: effectiveUserId
           }
         })
 
@@ -113,7 +161,7 @@ export default defineEventHandler(async (event) => {
         await supabase
           .from('users')
           .update({ stripe_customer_id: stripeCustomerId })
-          .eq('id', user.id)
+          .eq('id', effectiveUserId)
       }
     }
 
@@ -130,9 +178,11 @@ export default defineEventHandler(async (event) => {
       },
       payment_method_types: ['card'],
       metadata: {
-        user_id: user?.id || '',
+        user_id: effectiveUserId || '',
         customer_email: customerEmail,
-        items: JSON.stringify(items)
+        items: JSON.stringify(items),
+        create_account: create_account.toString(),
+        billing_address: JSON.stringify(billing_address)
       },
       // Enable customer creation for guest users
       customer_creation: stripeCustomerId ? undefined : 'always',
@@ -144,14 +194,14 @@ export default defineEventHandler(async (event) => {
 
     // Create pending order in database
     const orderData = {
-      user_id: user?.id || null,
+      user_id: effectiveUserId || null,
       subtotal: totalAmount.toString(),
       total_amount: totalAmount.toString(),
       customer_email: customerEmail,
       status: 'pending' as const,
       payment_status: 'pending' as const,
       stripe_payment_intent_id: session.payment_intent as string,
-      notes: `Stripe Checkout Session: ${session.id}`
+      notes: `Stripe Checkout Session: ${session.id}${create_account && newlyCreatedUserId ? ' - Account created during checkout' : ''}`
     }
 
     const { data: order, error: orderError } = await supabase

@@ -34,7 +34,7 @@
       </div>
 
       <!-- Categories -->
-      <div v-else-if="categories.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+      <div v-else-if="categories && categories.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         <NuxtLink v-for="category in categories" 
                   :key="category.id"
                   :to="`/categories/${category.slug}`"
@@ -102,7 +102,7 @@
         </p>
       </div>
 
-      <div v-if="featuredProducts.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div v-if="featuredProducts && featuredProducts.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <ProductCard v-for="product in featuredProducts" 
                     :key="product.id" 
                     :product="product" />
