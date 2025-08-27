@@ -6,9 +6,9 @@
         <div class="flex items-center justify-between">
           <div>
             <h1 class="text-3xl font-heading font-medium text-gray-900">
-              Welcome back, {{ auth.authUser.value?.full_name || 'there' }}!
+              Your Downloads
             </h1>
-            <p class="text-gray-600 mt-1">Manage your account and downloads</p>
+            <p class="text-gray-600 mt-1">Access all your purchased templates and manage your preferences</p>
           </div>
           
           <div class="hidden sm:flex items-center space-x-4">
@@ -34,35 +34,23 @@
             <nav class="space-y-2">
               <NuxtLink to="/account" 
                         class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-900 bg-gray-100 font-medium">
-                <Icon name="heroicons:home" class="w-5 h-5" />
-                <span>Dashboard</span>
-              </NuxtLink>
-              
-              <NuxtLink to="/account/downloads" 
-                        class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
                 <Icon name="heroicons:arrow-down-tray" class="w-5 h-5" />
-                <span>Downloads</span>
+                <span>My Downloads</span>
               </NuxtLink>
               
-              <NuxtLink to="/account/orders" 
+              <NuxtLink to="/account/preferences" 
                         class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
-                <Icon name="heroicons:shopping-bag" class="w-5 h-5" />
-                <span>Order History</span>
+                <Icon name="heroicons:cog-6-tooth" class="w-5 h-5" />
+                <span>Preferences</span>
               </NuxtLink>
               
-              <NuxtLink to="/account/profile" 
-                        class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
-                <Icon name="heroicons:user" class="w-5 h-5" />
-                <span>Profile Settings</span>
-              </NuxtLink>
-              
-              <hr class="border-gray-200 my-4">
-              
-              <button @click="auth.signOut()" 
-                      class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors w-full text-left">
-                <Icon name="heroicons:arrow-right-on-rectangle" class="w-5 h-5" />
-                <span>Sign Out</span>
-              </button>
+              <div class="border-t border-gray-200 pt-2 mt-2">
+                <button @click="auth.signOut()" 
+                        class="flex items-center space-x-3 px-3 py-2 rounded-lg text-red-700 hover:bg-red-50 hover:text-red-900 transition-colors w-full text-left">
+                  <Icon name="heroicons:arrow-right-on-rectangle" class="w-5 h-5" />
+                  <span>Sign Out</span>
+                </button>
+              </div>
             </nav>
           </div>
         </div>

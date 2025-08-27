@@ -85,49 +85,48 @@ export const useAuth = () => {
     }
   }
 
-  // Sign up with email and password
-  const signUp = async (email: string, password: string, fullName?: string) => {
+  // Sign in with magic link
+  const signInWithMagicLink = async (email: string) => {
     isLoading.value = true
     error.value = null
 
     try {
-      const { data, error: signUpError } = await supabase.auth.signUp({
+      const { error: signInError } = await supabase.auth.signInWithOtp({
         email,
-        password,
         options: {
-          data: {
-            full_name: fullName
-          }
+          emailRedirectTo: `${window.location.origin}/auth/callback`
         }
       })
 
-      if (signUpError) throw signUpError
+      if (signInError) throw signInError
 
-      return { user: data.user, session: data.session }
+      return true
     } catch (err: any) {
-      error.value = err.message || 'Failed to sign up'
+      error.value = err.message || 'Failed to send magic link'
       throw err
     } finally {
       isLoading.value = false
     }
   }
 
-  // Sign in with email and password
-  const signIn = async (email: string, password: string) => {
+  // Sign in with Google
+  const signInWithGoogle = async () => {
     isLoading.value = true
     error.value = null
 
     try {
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password
+      const { error: signInError } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`
+        }
       })
 
       if (signInError) throw signInError
 
-      return { user: data.user, session: data.session }
+      return true
     } catch (err: any) {
-      error.value = err.message || 'Failed to sign in'
+      error.value = err.message || 'Failed to sign in with Google'
       throw err
     } finally {
       isLoading.value = false
@@ -153,47 +152,6 @@ export const useAuth = () => {
     }
   }
 
-  // Reset password
-  const resetPassword = async (email: string) => {
-    isLoading.value = true
-    error.value = null
-
-    try {
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/reset-password`
-      })
-
-      if (resetError) throw resetError
-
-      return true
-    } catch (err: any) {
-      error.value = err.message || 'Failed to send reset email'
-      throw err
-    } finally {
-      isLoading.value = false
-    }
-  }
-
-  // Update password
-  const updatePassword = async (newPassword: string) => {
-    isLoading.value = true
-    error.value = null
-
-    try {
-      const { error: updateError } = await supabase.auth.updateUser({
-        password: newPassword
-      })
-
-      if (updateError) throw updateError
-
-      return true
-    } catch (err: any) {
-      error.value = err.message || 'Failed to update password'
-      throw err
-    } finally {
-      isLoading.value = false
-    }
-  }
 
   // Update profile
   const updateProfile = async (updates: Partial<AuthUser>) => {
@@ -276,11 +234,9 @@ export const useAuth = () => {
     userInitials,
 
     // Methods
-    signUp,
-    signIn,
+    signInWithMagicLink,
+    signInWithGoogle,
     signOut,
-    resetPassword,
-    updatePassword,
     updateProfile,
     fetchUserProfile,
     requireAdmin,
