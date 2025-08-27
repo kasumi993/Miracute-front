@@ -3,8 +3,8 @@
     <nav class="container-custom">
       <div class="flex items-center justify-between h-16 lg:h-20">
         <!-- Logo -->
-        <NuxtLink to="/" class="flex items-center space-x-3 hover:opacity-80 transition-opacity">
-          <NuxtImg src="/logo.png" alt="Miracute Logo" width="80"/>
+        <NuxtLink to="/" class="flex items-center space-x-3 hover:opacity-80 transition-opacity relative top-[-8px] mr-24">
+          <NuxtImg src="/logo.png" alt="Miracute Logo" width="100"/>
         </NuxtLink>
 
         <!-- Desktop Navigation -->

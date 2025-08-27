@@ -6,13 +6,10 @@
         <!-- Logo -->
         <NuxtLink to="/" class="inline-flex items-center space-x-3 mb-8">
           <NuxtImg 
-            src="/logo.png" 
+            src="/logo-full.png" 
             alt="Miracute Logo" 
-            width="40" 
-            height="40" 
-            class="w-10 h-10"
+            width="100" 
           />
-          <span class="text-3xl font-heading font-medium text-gray-900">miracute</span>
         </NuxtLink>
         
         <h2 class="text-2xl font-heading font-medium text-gray-900">Create your account</h2>

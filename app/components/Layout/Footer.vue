@@ -8,13 +8,10 @@
           <!-- Logo -->
           <NuxtLink to="/" class="flex items-center space-x-3 mb-6 hover:opacity-80 transition-opacity">
             <NuxtImg 
-              src="/logo.png" 
+              src="/logo.png"
               alt="Miracute Logo" 
-              width="40" 
-              height="40" 
-              class="w-10 h-10"
+              width="180"
             />
-            <span class="text-2xl font-heading font-medium">miracute</span>
           </NuxtLink>
           
           <!-- Tagline -->
