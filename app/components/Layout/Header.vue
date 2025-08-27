@@ -19,12 +19,12 @@
                 @keyup.enter="performSearch"
                 type="text"
                 placeholder="Search templates..."
-                class="w-full pl-12 pr-10 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-brand-sage focus:border-transparent bg-gray-50 hover:bg-white transition-colors"
+                class="w-full pl-12 pr-10 py-3 border border-gray-300 rounded-xl focus:ring-0 focus:outline-none focus:border-gray-400 bg-transparent hover:border-gray-400 transition-colors duration-200 placeholder-gray-500 text-gray-900"
               >
-              <Icon name="heroicons:magnifying-glass" class="absolute left-4 top-3.5 w-5 h-5 text-gray-400" />
+              <Icon name="heroicons:magnifying-glass" class="absolute left-4 top-3.5 w-5 h-5 text-gray-500" />
               <button v-if="searchQuery" 
                       @click="clearSearch"
-                      class="absolute right-4 top-3.5 w-5 h-5 text-gray-400 hover:text-gray-600">
+                      class="absolute right-4 top-3.5 w-5 h-5 text-gray-500 hover:text-gray-700 transition-colors">
                 <Icon name="heroicons:x-mark" class="w-5 h-5" />
               </button>
             </div>
@@ -264,12 +264,12 @@
               @keyup.enter="performSearch"
               type="text"
               placeholder="Search templates..."
-              class="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-sage focus:border-transparent"
+              class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-xl focus:ring-0 focus:outline-none focus:border-gray-400 bg-transparent hover:border-gray-400 transition-colors duration-200 placeholder-gray-500 text-gray-900"
             >
-            <Icon name="heroicons:magnifying-glass" class="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
+            <Icon name="heroicons:magnifying-glass" class="absolute left-3 top-3.5 w-5 h-5 text-gray-500" />
             <button v-if="searchQuery" 
                     @click="clearSearch"
-                    class="absolute right-3 top-2.5 w-5 h-5 text-gray-400 hover:text-gray-600">
+                    class="absolute right-3 top-3.5 w-5 h-5 text-gray-500 hover:text-gray-700 transition-colors">
               <Icon name="heroicons:x-mark" class="w-5 h-5" />
             </button>
           </div>
