@@ -15,7 +15,7 @@
     <div class="container-custom py-12">
       <!-- Empty Cart -->
       <div v-if="cart.isEmpty.value" class="text-center py-16">
-        <Icon name="heroicons:shopping-bag" class="w-24 h-24 text-gray-300 mx-auto mb-6" />
+        <NuxtIcon name="heroicons:shopping-bag" class="w-24 h-24 text-gray-300 mx-auto mb-6" />
         <h2 class="text-2xl font-heading font-medium text-gray-900 mb-4">Your cart is empty</h2>
         <p class="text-gray-600 mb-8">Discover our beautiful templates and start creating something amazing.</p>
         <NuxtLink to="/templates" class="btn-primary">
@@ -63,15 +63,15 @@
                   <!-- Product Meta -->
                   <div class="flex items-center space-x-4 text-xs text-gray-500">
                     <div v-if="item.product.category" class="flex items-center space-x-1">
-                      <Icon name="heroicons:tag" class="w-3 h-3" />
+                      <NuxtIcon name="heroicons:tag" class="w-3 h-3" />
                       <span>{{ item.product.category.name }}</span>
                     </div>
                     <div v-if="item.product.file_formats?.length" class="flex items-center space-x-1">
-                      <Icon name="heroicons:document" class="w-3 h-3" />
+                      <NuxtIcon name="heroicons:document" class="w-3 h-3" />
                       <span>{{ item.product.file_formats.join(', ') }}</span>
                     </div>
                     <div class="flex items-center space-x-1">
-                      <Icon name="heroicons:arrow-down-tray" class="w-3 h-3" />
+                      <NuxtIcon name="heroicons:arrow-down-tray" class="w-3 h-3" />
                       <span>Instant Download</span>
                     </div>
                   </div>
@@ -95,7 +95,7 @@
                     <button @click="cart.updateQuantity(item.product.id, item.quantity - 1)"
                             :disabled="item.quantity <= 1 || cart.isLoading.value"
                             class="w-8 h-8 rounded-full border border-gray-300 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-sm">
-                      <Icon name="heroicons:minus" class="w-3 h-3" />
+                      <NuxtIcon name="heroicons:minus" class="w-3 h-3" />
                     </button>
                     
                     <span class="text-sm font-medium w-8 text-center">{{ item.quantity }}</span>
@@ -103,7 +103,7 @@
                     <button @click="cart.updateQuantity(item.product.id, item.quantity + 1)"
                             :disabled="cart.isLoading.value"
                             class="w-8 h-8 rounded-full border border-gray-300 hover:border-gray-400 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-sm">
-                      <Icon name="heroicons:plus" class="w-3 h-3" />
+                      <NuxtIcon name="heroicons:plus" class="w-3 h-3" />
                     </button>
                   </div>
 
@@ -111,7 +111,7 @@
                   <button @click="cart.removeItem(item.product.id)"
                           :disabled="cart.isLoading.value"
                           class="text-red-600 hover:text-red-700 text-sm disabled:opacity-50">
-                    <Icon name="heroicons:trash" class="w-4 h-4 inline mr-1" />
+                    <NuxtIcon name="heroicons:trash" class="w-4 h-4 inline mr-1" />
                     Remove
                   </button>
                 </div>
@@ -122,7 +122,7 @@
             <div class="mt-6 pt-6 border-t border-gray-200">
               <NuxtLink to="/templates" 
                         class="text-brand-brown hover:text-brand-brown/80 font-medium flex items-center space-x-2">
-                <Icon name="heroicons:arrow-left" class="w-4 h-4" />
+                <NuxtIcon name="heroicons:arrow-left" class="w-4 h-4" />
                 <span>Continue Shopping</span>
               </NuxtLink>
             </div>
@@ -169,7 +169,7 @@
                 Proceed to Checkout
               </span>
               <span v-else class="flex items-center justify-center space-x-2">
-                <Icon name="heroicons:arrow-path" class="w-5 h-5 animate-spin" />
+                <NuxtIcon name="heroicons:arrow-path" class="w-5 h-5 animate-spin" />
                 <span>Processing...</span>
               </span>
             </button>
@@ -178,19 +178,19 @@
             <div class="mt-6 pt-6 border-t border-gray-200">
               <div class="grid grid-cols-2 gap-4 text-xs text-gray-600">
                 <div class="flex items-center space-x-2">
-                  <Icon name="heroicons:shield-check" class="w-4 h-4 text-green-500" />
+                  <NuxtIcon name="heroicons:shield-check" class="w-4 h-4 text-green-500" />
                   <span>SSL Secure</span>
                 </div>
                 <div class="flex items-center space-x-2">
-                  <Icon name="heroicons:arrow-down-tray" class="w-4 h-4 text-blue-500" />
+                  <NuxtIcon name="heroicons:arrow-down-tray" class="w-4 h-4 text-blue-500" />
                   <span>Instant Access</span>
                 </div>
                 <div class="flex items-center space-x-2">
-                  <Icon name="heroicons:credit-card" class="w-4 h-4 text-purple-500" />
+                  <NuxtIcon name="heroicons:credit-card" class="w-4 h-4 text-purple-500" />
                   <span>Secure Payment</span>
                 </div>
                 <div class="flex items-center space-x-2">
-                  <Icon name="heroicons:arrow-path" class="w-4 h-4 text-yellow-500" />
+                  <NuxtIcon name="heroicons:arrow-path" class="w-4 h-4 text-yellow-500" />
                   <span>30-Day Guarantee</span>
                 </div>
               </div>
@@ -210,7 +210,7 @@
                   <span class="text-xs font-bold">AMEX</span>
                 </div>
                 <div class="w-8 h-5 bg-gray-200 rounded flex items-center justify-center">
-                  <Icon name="heroicons:device-phone-mobile" class="w-3 h-3" />
+                  <NuxtIcon name="heroicons:device-phone-mobile" class="w-3 h-3" />
                 </div>
               </div>
             </div>

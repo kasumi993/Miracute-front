@@ -7,18 +7,13 @@
         <div class="lg:col-span-2">
           <!-- Logo -->
           <NuxtLink to="/" class="flex items-center space-x-3 mb-6 hover:opacity-80 transition-opacity">
-            <div class="w-10 h-10">
-              <svg viewBox="0 0 100 100" class="w-full h-full">
-                <path d="M20 40 Q20 20, 40 20 Q50 25, 50 35 Q50 25, 60 20 Q80 20, 80 40 Q75 50, 65 50 L50 75 L35 50 Q25 50, 20 40 Z" 
-                      fill="url(#bowGradientFooter)" stroke="none"/>
-                <defs>
-                  <linearGradient id="bowGradientFooter" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" style="stop-color:#E8D5D5"/>
-                    <stop offset="100%" style="stop-color:#B8C4C2"/>
-                  </linearGradient>
-                </defs>
-              </svg>
-            </div>
+            <NuxtImg 
+              src="/logo.png" 
+              alt="Miracute Logo" 
+              width="40" 
+              height="40" 
+              class="w-10 h-10"
+            />
             <span class="text-2xl font-heading font-medium">miracute</span>
           </NuxtLink>
           
@@ -130,19 +125,19 @@
       <!-- Social Links -->
       <div class="flex justify-center space-x-6 mt-12 pt-8 border-t border-gray-800">
         <a href="#" class="text-gray-400 hover:text-white transition-colors">
-          <Icon name="heroicons:heart" class="w-6 h-6" />
+          <NuxtIcon name="heroicons:heart" class="w-6 h-6" />
           <span class="sr-only">Pinterest</span>
         </a>
         <a href="#" class="text-gray-400 hover:text-white transition-colors">
-          <Icon name="heroicons:chat-bubble-left-ellipsis" class="w-6 h-6" />
+          <NuxtIcon name="heroicons:chat-bubble-left-ellipsis" class="w-6 h-6" />
           <span class="sr-only">Instagram</span>
         </a>
         <a href="#" class="text-gray-400 hover:text-white transition-colors">
-          <Icon name="heroicons:globe-alt" class="w-6 h-6" />
+          <NuxtIcon name="heroicons:globe-alt" class="w-6 h-6" />
           <span class="sr-only">Twitter</span>
         </a>
         <a href="#" class="text-gray-400 hover:text-white transition-colors">
-          <Icon name="heroicons:envelope" class="w-6 h-6" />
+          <NuxtIcon name="heroicons:envelope" class="w-6 h-6" />
           <span class="sr-only">Facebook</span>
         </a>
       </div>
@@ -181,19 +176,19 @@
       <div class="container-custom py-4">
         <div class="flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-8 text-xs text-gray-500">
           <div class="flex items-center space-x-2">
-            <Icon name="heroicons:shield-check" class="w-4 h-4 text-green-500" />
+            <NuxtIcon name="heroicons:shield-check" class="w-4 h-4 text-green-500" />
             <span>Secure Checkout</span>
           </div>
           <div class="flex items-center space-x-2">
-            <Icon name="heroicons:arrow-down-tray" class="w-4 h-4 text-blue-500" />
+            <NuxtIcon name="heroicons:arrow-down-tray" class="w-4 h-4 text-blue-500" />
             <span>Instant Download</span>
           </div>
           <div class="flex items-center space-x-2">
-            <Icon name="heroicons:heart" class="w-4 h-4 text-red-500" />
+            <NuxtIcon name="heroicons:heart" class="w-4 h-4 text-red-500" />
             <span>Customer Support</span>
           </div>
           <div class="flex items-center space-x-2">
-            <Icon name="heroicons:arrow-path" class="w-4 h-4 text-yellow-500" />
+            <NuxtIcon name="heroicons:arrow-path" class="w-4 h-4 text-yellow-500" />
             <span>30-Day Guarantee</span>
           </div>
         </div>

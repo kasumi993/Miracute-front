@@ -15,18 +15,13 @@
           <div class="mb-8 animate-fade-in">
             <div class="inline-flex items-center space-x-3">
               <!-- Miracute Bow Icon -->
-              <div class="w-12 h-12 relative">
-                <svg viewBox="0 0 100 100" class="w-full h-full">
-                  <path d="M20 40 Q20 20, 40 20 Q50 25, 50 35 Q50 25, 60 20 Q80 20, 80 40 Q75 50, 65 50 L50 75 L35 50 Q25 50, 20 40 Z" 
-                        fill="url(#bowGradient)" stroke="none"/>
-                  <defs>
-                    <linearGradient id="bowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" style="stop-color:#E8D5D5"/>
-                      <stop offset="100%" style="stop-color:#B8C4C2"/>
-                    </linearGradient>
-                  </defs>
-                </svg>
-              </div>
+              <NuxtImg 
+                src="/logo.png" 
+                alt="Miracute Logo" 
+                width="48" 
+                height="48" 
+                class="w-12 h-12"
+              />
               <span class="text-4xl font-heading font-medium text-gray-900">miracute</span>
             </div>
           </div>
@@ -55,7 +50,7 @@
           <div class="flex flex-col sm:flex-row gap-4 justify-center items-center animate-slide-up">
             <NuxtLink to="/templates" class="btn-primary text-lg px-8 py-4">
               Browse Templates
-              <Icon name="heroicons:arrow-right" class="ml-2 w-5 h-5" />
+              <NuxtIcon name="heroicons:arrow-right" class="ml-2 w-5 h-5" />
             </NuxtLink>
             <NuxtLink to="/categories" class="btn-secondary text-lg px-8 py-4">
               View Categories
@@ -65,15 +60,15 @@
           <!-- Trust Indicators -->
           <div class="mt-16 flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-8 text-sm text-gray-500">
             <div class="flex items-center space-x-2">
-              <Icon name="heroicons:check-circle" class="w-5 h-5 text-green-500" />
+              <NuxtIcon name="heroicons:check-circle" class="w-5 h-5 text-green-500" />
               <span>Instant Download</span>
             </div>
             <div class="flex items-center space-x-2">
-              <Icon name="heroicons:device-phone-mobile" class="w-5 h-5 text-blue-500" />
+              <NuxtIcon name="heroicons:device-phone-mobile" class="w-5 h-5 text-blue-500" />
               <span>Mobile Responsive</span>
             </div>
             <div class="flex items-center space-x-2">
-              <Icon name="heroicons:heart" class="w-5 h-5 text-red-500" />
+              <NuxtIcon name="heroicons:heart" class="w-5 h-5 text-red-500" />
               <span>Easy to Customize</span>
             </div>
           </div>
@@ -158,7 +153,7 @@
                     </span>
                   </div>
                   <div class="flex items-center space-x-1">
-                    <Icon name="heroicons:star-solid" class="w-4 h-4 text-yellow-400" />
+                    <NuxtIcon name="heroicons:star-solid" class="w-4 h-4 text-yellow-400" />
                     <span class="text-sm text-gray-600">{{ product.rating }}</span>
                   </div>
                 </div>
@@ -170,7 +165,7 @@
         <div class="text-center mt-12">
           <NuxtLink to="/templates" class="btn-primary">
             View All Templates
-            <Icon name="heroicons:arrow-right" class="ml-2 w-5 h-5" />
+            <NuxtIcon name="heroicons:arrow-right" class="ml-2 w-5 h-5" />
           </NuxtLink>
         </div>
       </div>
@@ -191,7 +186,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div class="text-center p-8 rounded-2xl hover-glow">
             <div class="w-16 h-16 bg-brand-pink rounded-full flex items-center justify-center mx-auto mb-6">
-              <Icon name="heroicons:bolt" class="w-8 h-8 text-gray-700" />
+              <NuxtIcon name="heroicons:bolt" class="w-8 h-8 text-gray-700" />
             </div>
             <h3 class="font-heading font-medium text-xl text-gray-900 mb-4">Lightning Fast Setup</h3>
             <p class="text-gray-600 leading-relaxed">
@@ -201,7 +196,7 @@
           
           <div class="text-center p-8 rounded-2xl hover-glow">
             <div class="w-16 h-16 bg-brand-sage rounded-full flex items-center justify-center mx-auto mb-6">
-              <Icon name="heroicons:device-phone-mobile" class="w-8 h-8 text-gray-700" />
+              <NuxtIcon name="heroicons:device-phone-mobile" class="w-8 h-8 text-gray-700" />
             </div>
             <h3 class="font-heading font-medium text-xl text-gray-900 mb-4">Mobile Responsive</h3>
             <p class="text-gray-600 leading-relaxed">
@@ -211,7 +206,7 @@
           
           <div class="text-center p-8 rounded-2xl hover-glow">
             <div class="w-16 h-16 bg-brand-pink rounded-full flex items-center justify-center mx-auto mb-6">
-              <Icon name="heroicons:heart" class="w-8 h-8 text-gray-700" />
+              <NuxtIcon name="heroicons:heart" class="w-8 h-8 text-gray-700" />
             </div>
             <h3 class="font-heading font-medium text-xl text-gray-900 mb-4">Customer Support</h3>
             <p class="text-gray-600 leading-relaxed">
@@ -236,7 +231,7 @@
         </p>
         <NuxtLink to="/templates" class="btn-primary bg-white text-gray-900 hover:bg-gray-100 text-lg px-8 py-4">
           Start Browsing
-          <Icon name="heroicons:arrow-right" class="ml-2 w-5 h-5" />
+          <NuxtIcon name="heroicons:arrow-right" class="ml-2 w-5 h-5" />
         </NuxtLink>
       </div>
     </section>

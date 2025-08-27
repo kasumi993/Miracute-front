@@ -20,7 +20,7 @@
 
     <!-- Category Not Found -->
     <div v-else-if="!category" class="container-custom py-16 text-center">
-      <Icon name="heroicons:folder-open" class="w-16 h-16 text-gray-300 mx-auto mb-6" />
+      <NuxtIcon name="heroicons:folder-open" class="w-16 h-16 text-gray-300 mx-auto mb-6" />
       <h1 class="text-2xl font-heading font-medium text-gray-900 mb-2">Category Not Found</h1>
       <p class="text-gray-600 mb-6">The category you're looking for doesn't exist or has been removed.</p>
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
@@ -51,9 +51,9 @@
           <nav class="mb-8">
             <div class="flex items-center space-x-2 text-sm text-gray-600">
               <NuxtLink to="/" class="hover:text-gray-900">Home</NuxtLink>
-              <Icon name="heroicons:chevron-right" class="w-4 h-4" />
+              <NuxtIcon name="heroicons:chevron-right" class="w-4 h-4" />
               <NuxtLink to="/categories" class="hover:text-gray-900">Categories</NuxtLink>
-              <Icon name="heroicons:chevron-right" class="w-4 h-4" />
+              <NuxtIcon name="heroicons:chevron-right" class="w-4 h-4" />
               <span class="text-gray-900 font-medium">{{ category.name }}</span>
             </div>
           </nav>
@@ -69,15 +69,15 @@
             
             <div class="flex items-center space-x-6 text-sm text-gray-500">
               <div class="flex items-center space-x-2">
-                <Icon name="heroicons:squares-2x2" class="w-4 h-4" />
+                <NuxtIcon name="heroicons:squares-2x2" class="w-4 h-4" />
                 <span>{{ totalProducts }} templates</span>
               </div>
               <div class="flex items-center space-x-2">
-                <Icon name="heroicons:star" class="w-4 h-4" />
+                <NuxtIcon name="heroicons:star" class="w-4 h-4" />
                 <span>Professional Quality</span>
               </div>
               <div class="flex items-center space-x-2">
-                <Icon name="heroicons:arrow-down-tray" class="w-4 h-4" />
+                <NuxtIcon name="heroicons:arrow-down-tray" class="w-4 h-4" />
                 <span>Instant Download</span>
               </div>
             </div>
@@ -122,7 +122,7 @@
         </div>
 
         <div v-else-if="products.length === 0" class="text-center py-16">
-          <Icon name="heroicons:squares-2x2" class="w-16 h-16 text-gray-300 mx-auto mb-6" />
+          <NuxtIcon name="heroicons:squares-2x2" class="w-16 h-16 text-gray-300 mx-auto mb-6" />
           <h3 class="text-xl font-heading font-medium text-gray-900 mb-2">No templates found</h3>
           <p class="text-gray-600 mb-6">We're working on adding more templates to this category.</p>
           <NuxtLink to="/templates" class="btn-primary">
@@ -144,7 +144,7 @@
                     class="btn-primary">
               <span v-if="!isLoadingMore">Load More Templates</span>
               <span v-else class="flex items-center space-x-2">
-                <Icon name="heroicons:arrow-path" class="w-5 h-5 animate-spin" />
+                <NuxtIcon name="heroicons:arrow-path" class="w-5 h-5 animate-spin" />
                 <span>Loading...</span>
               </span>
             </button>
@@ -166,7 +166,7 @@
                     class="group">
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
               <div class="w-12 h-12 bg-brand-pink rounded-lg flex items-center justify-center mb-4">
-                <Icon name="heroicons:folder" class="w-6 h-6 text-gray-700" />
+                <NuxtIcon name="heroicons:folder" class="w-6 h-6 text-gray-700" />
               </div>
               <h3 class="font-heading font-medium text-lg text-gray-900 mb-2 group-hover:text-brand-brown transition-colors">
                 {{ relatedCategory.name }}

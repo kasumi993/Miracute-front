@@ -163,7 +163,7 @@
                         class="mr-3"
                       />
                       <span class="flex items-center">
-                        <Icon name="heroicons:credit-card" class="w-5 h-5 mr-2" />
+                        <NuxtIcon name="heroicons:credit-card" class="w-5 h-5 mr-2" />
                         Credit or Debit Card
                       </span>
                     </label>
@@ -211,7 +211,7 @@
                 size="lg"
                 class="w-full"
               >
-                <Icon name="heroicons:lock-closed" class="w-5 h-5 mr-2" />
+                <NuxtIcon name="heroicons:lock-closed" class="w-5 h-5 mr-2" />
                 Complete Purchase - ${{ total.toFixed(2) }}
               </Button>
             </form>

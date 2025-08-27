@@ -14,15 +14,16 @@ export default defineNuxtConfig({
   // Modules for SEO, Performance, and Functionality
   modules: [
     '@nuxtjs/supabase',
-    // 'nuxt-site-config',
-    // '@nuxtjs/seo',
-    // '@nuxt/image',
-    // '@nuxtjs/sitemap',
-    // '@nuxtjs/robots',
-    // '@nuxt/content',
+    // 'nuxt-site-config', // Temporarily disabled due to missing files
+    '@nuxtjs/seo',
+    '@nuxt/image',
+    '@nuxt/icon',
+    // '@nuxtjs/sitemap', // Temporarily disabled - depends on nuxt-site-config
+    // '@nuxtjs/robots', // Temporarily disabled - depends on nuxt-site-config
+    '@nuxt/content',
     '@nuxtjs/tailwindcss',
-    // '@pinia/nuxt',
-    // '@vueuse/nuxt'
+    '@pinia/nuxt',
+    '@vueuse/nuxt'
   ],
 
   // Supabase Configuration
@@ -34,28 +35,38 @@ export default defineNuxtConfig({
     }
   },
 
-  // SEO Module Configuration (commented out until modules are enabled)
-  // seo: {
-  //   meta: {
-  //     themeColor: '#F4F1ED'
-  //   }
-  // },
+  // Site Configuration (moved to nuxt-site-config module)
+  site: {
+    url: 'https://miracute.com',
+    name: 'Miracute',
+    description: 'Beautiful Human-crafted Canva Free website templates for weddings, therapists, and creative businesses. Thoughtfully designed templates that work without Canva Pro. Passion-driven design, not AI-generated.',
+    defaultLocale: 'en',
+    keywords: 'human crafted templates,canva templates, wedding website templates, therapist website templates, canva free templates, website templates, business templates, creative templates',
+    author: 'Miracute',
+  },
 
-  // Image Optimization (commented out until @nuxt/image module is enabled)
-  // image: {
-  //   quality: 85,
-  //   format: ['webp', 'avif', 'png', 'jpg'],
-  //   screens: {
-  //     'xs': 320,
-  //     'sm': 640,
-  //     'md': 768,
-  //     'lg': 1024,
-  //     'xl': 1280,
-  //     '2xl': 1536,
-  //   }
-  // },
+  // SEO Module Configuration
+  seo: {
+    meta: {
+      themeColor: '#F4F1ED'
+    }
+  },
 
-  // Sitemap Configuration (commented out until @nuxtjs/sitemap module is enabled)
+  // Image Optimization
+  image: {
+    quality: 85,
+    format: ['webp', 'avif', 'png', 'jpg'],
+    screens: {
+      'xs': 320,
+      'sm': 640,
+      'md': 768,
+      'lg': 1024,
+      'xl': 1280,
+      '2xl': 1536,
+    }
+  },
+
+  // Sitemap Configuration - Temporarily disabled
   // sitemap: {
   //   hostname: 'https://miracute.com',
   //   gzip: true,
@@ -65,7 +76,7 @@ export default defineNuxtConfig({
   //   }
   // },
 
-  // Robots.txt Configuration (commented out until @nuxtjs/robots module is enabled)
+  // Robots.txt Configuration - Temporarily disabled
   // robots: {
   //   UserAgent: '*',
   //   Allow: '/',
@@ -116,8 +127,8 @@ export default defineNuxtConfig({
   // Nitro Configuration for Vercel
   nitro: {
     preset: 'vercel',
-    prerender: {
-      routes: ['/sitemap.xml']
-    }
+    // prerender: {
+    //   routes: ['/sitemap.xml']
+    // }
   }
 })

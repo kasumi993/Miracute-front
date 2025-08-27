@@ -24,25 +24,25 @@
             <nav class="space-y-2">
               <NuxtLink to="/account" 
                         class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
-                <Icon name="heroicons:home" class="w-5 h-5" />
+                <NuxtIcon name="heroicons:home" class="w-5 h-5" />
                 <span>Dashboard</span>
               </NuxtLink>
               
               <NuxtLink to="/account/downloads" 
                         class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-900 bg-gray-100 font-medium">
-                <Icon name="heroicons:arrow-down-tray" class="w-5 h-5" />
+                <NuxtIcon name="heroicons:arrow-down-tray" class="w-5 h-5" />
                 <span>Downloads</span>
               </NuxtLink>
               
               <NuxtLink to="/account/orders" 
                         class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
-                <Icon name="heroicons:shopping-bag" class="w-5 h-5" />
+                <NuxtIcon name="heroicons:shopping-bag" class="w-5 h-5" />
                 <span>Order History</span>
               </NuxtLink>
               
               <NuxtLink to="/account/profile" 
                         class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
-                <Icon name="heroicons:user" class="w-5 h-5" />
+                <NuxtIcon name="heroicons:user" class="w-5 h-5" />
                 <span>Profile Settings</span>
               </NuxtLink>
             </nav>
@@ -86,7 +86,7 @@
 
           <!-- No Downloads -->
           <div v-else-if="filteredDownloads.length === 0" class="text-center py-16">
-            <Icon name="heroicons:arrow-down-tray" class="w-16 h-16 text-gray-300 mx-auto mb-6" />
+            <NuxtIcon name="heroicons:arrow-down-tray" class="w-16 h-16 text-gray-300 mx-auto mb-6" />
             <h3 class="text-xl font-heading font-medium text-gray-900 mb-2">
               <span v-if="filterStatus">No {{ filterStatus }} downloads found</span>
               <span v-else>No downloads yet</span>
@@ -135,17 +135,17 @@
                   <!-- Download Info -->
                   <div class="flex items-center space-x-6 text-xs text-gray-500">
                     <div class="flex items-center space-x-1">
-                      <Icon name="heroicons:arrow-down-tray" class="w-3 h-3" />
+                      <NuxtIcon name="heroicons:arrow-down-tray" class="w-3 h-3" />
                       <span>{{ download.download_count }}/{{ download.max_downloads }} downloads used</span>
                     </div>
                     
                     <div v-if="download.download_expires_at" class="flex items-center space-x-1">
-                      <Icon name="heroicons:clock" class="w-3 h-3" />
+                      <NuxtIcon name="heroicons:clock" class="w-3 h-3" />
                       <span>Expires {{ formatDate(download.download_expires_at) }}</span>
                     </div>
 
                     <div v-if="download.product?.file_formats?.length" class="flex items-center space-x-1">
-                      <Icon name="heroicons:document" class="w-3 h-3" />
+                      <NuxtIcon name="heroicons:document" class="w-3 h-3" />
                       <span>{{ download.product.file_formats.join(', ') }}</span>
                     </div>
                   </div>
@@ -159,7 +159,7 @@
                      target="_blank"
                      @click="trackDownload(download.id)"
                      class="btn-primary text-sm px-6 py-3">
-                    <Icon name="heroicons:arrow-down-tray" class="w-4 h-4 mr-2" />
+                    <NuxtIcon name="heroicons:arrow-down-tray" class="w-4 h-4 mr-2" />
                     Download
                   </a>
                   
@@ -167,13 +167,13 @@
                   <div v-else class="text-center">
                     <div v-if="download.is_expired" 
                          class="px-4 py-2 bg-red-50 text-red-700 text-sm rounded-lg border border-red-200">
-                      <Icon name="heroicons:clock" class="w-4 h-4 inline mr-1" />
+                      <NuxtIcon name="heroicons:clock" class="w-4 h-4 inline mr-1" />
                       Expired
                     </div>
                     
                     <div v-else-if="download.is_download_limit_reached" 
                          class="px-4 py-2 bg-yellow-50 text-yellow-700 text-sm rounded-lg border border-yellow-200">
-                      <Icon name="heroicons:exclamation-triangle" class="w-4 h-4 inline mr-1" />
+                      <NuxtIcon name="heroicons:exclamation-triangle" class="w-4 h-4 inline mr-1" />
                       Limit Reached
                     </div>
                     
@@ -211,7 +211,7 @@
                     class="btn-secondary">
               <span v-if="!isLoadingMore">Load More Downloads</span>
               <span v-else class="flex items-center space-x-2">
-                <Icon name="heroicons:arrow-path" class="w-5 h-5 animate-spin" />
+                <NuxtIcon name="heroicons:arrow-path" class="w-5 h-5 animate-spin" />
                 <span>Loading...</span>
               </span>
             </button>
@@ -220,7 +220,7 @@
           <!-- Download Tips -->
           <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-8">
             <h3 class="font-medium text-blue-900 mb-3 flex items-center">
-              <Icon name="heroicons:light-bulb" class="w-5 h-5 mr-2" />
+              <NuxtIcon name="heroicons:light-bulb" class="w-5 h-5 mr-2" />
               Download Tips
             </h3>
             <ul class="text-sm text-blue-800 space-y-1">

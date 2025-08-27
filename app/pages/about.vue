@@ -65,7 +65,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div class="text-center p-8">
             <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Icon name="heroicons:heart" class="w-8 h-8 text-blue-600" />
+              <NuxtIcon name="heroicons:heart" class="w-8 h-8 text-blue-600" />
             </div>
             <h3 class="text-xl font-heading font-medium text-gray-900 mb-4">Accessibility</h3>
             <p class="text-gray-600 leading-relaxed">
@@ -75,7 +75,7 @@
 
           <div class="text-center p-8">
             <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Icon name="heroicons:sparkles" class="w-8 h-8 text-green-600" />
+              <NuxtIcon name="heroicons:sparkles" class="w-8 h-8 text-green-600" />
             </div>
             <h3 class="text-xl font-heading font-medium text-gray-900 mb-4">Quality</h3>
             <p class="text-gray-600 leading-relaxed">
@@ -85,7 +85,7 @@
 
           <div class="text-center p-8">
             <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Icon name="heroicons:users" class="w-8 h-8 text-purple-600" />
+              <NuxtIcon name="heroicons:users" class="w-8 h-8 text-purple-600" />
             </div>
             <h3 class="text-xl font-heading font-medium text-gray-900 mb-4">Community</h3>
             <p class="text-gray-600 leading-relaxed">

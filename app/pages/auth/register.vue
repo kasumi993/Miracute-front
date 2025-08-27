@@ -5,18 +5,13 @@
       <div class="text-center">
         <!-- Logo -->
         <NuxtLink to="/" class="inline-flex items-center space-x-3 mb-8">
-          <div class="w-10 h-10">
-            <svg viewBox="0 0 100 100" class="w-full h-full">
-              <path d="M20 40 Q20 20, 40 20 Q50 25, 50 35 Q50 25, 60 20 Q80 20, 80 40 Q75 50, 65 50 L50 75 L35 50 Q25 50, 20 40 Z" 
-                    fill="url(#bowGradientRegister)" stroke="none"/>
-              <defs>
-                <linearGradient id="bowGradientRegister" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" style="stop-color:#E8D5D5"/>
-                  <stop offset="100%" style="stop-color:#B8C4C2"/>
-                </linearGradient>
-              </defs>
-            </svg>
-          </div>
+          <NuxtImg 
+            src="/logo.png" 
+            alt="Miracute Logo" 
+            width="40" 
+            height="40" 
+            class="w-10 h-10"
+          />
           <span class="text-3xl font-heading font-medium text-gray-900">miracute</span>
         </NuxtLink>
         
@@ -169,7 +164,7 @@
           <div v-if="auth.error.value" 
                class="p-4 bg-red-50 border border-red-200 rounded-lg">
             <div class="flex items-center space-x-2">
-              <Icon name="heroicons:exclamation-circle" class="w-5 h-5 text-red-500" />
+              <NuxtIcon name="heroicons:exclamation-circle" class="w-5 h-5 text-red-500" />
               <p class="text-sm text-red-700">{{ auth.error.value }}</p>
             </div>
           </div>
@@ -182,7 +177,7 @@
           >
             <span v-if="!auth.isLoading.value">Create account</span>
             <span v-else class="flex items-center justify-center space-x-2">
-              <Icon name="heroicons:arrow-path" class="w-5 h-5 animate-spin" />
+              <NuxtIcon name="heroicons:arrow-path" class="w-5 h-5 animate-spin" />
               <span>Creating account...</span>
             </span>
           </button>
@@ -218,7 +213,7 @@
               type="button"
               class="w-full inline-flex justify-center py-3 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
             >
-              <Icon name="heroicons:envelope" class="w-5 h-5 mr-2" />
+              <NuxtIcon name="heroicons:envelope" class="w-5 h-5 mr-2" />
               Magic Link
             </button>
           </div>
@@ -238,7 +233,7 @@
       <!-- Back to Home -->
       <div class="text-center">
         <NuxtLink to="/" class="text-sm text-gray-500 hover:text-gray-700 flex items-center justify-center space-x-1">
-          <Icon name="heroicons:arrow-left" class="w-4 h-4" />
+          <NuxtIcon name="heroicons:arrow-left" class="w-4 h-4" />
           <span>Back to Miracute</span>
         </NuxtLink>
       </div>

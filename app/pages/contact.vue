@@ -131,7 +131,7 @@
             >
               <span v-if="!isSubmitting">Send Message</span>
               <span v-else class="flex items-center justify-center space-x-2">
-                <Icon name="heroicons:arrow-path" class="w-5 h-5 animate-spin" />
+                <NuxtIcon name="heroicons:arrow-path" class="w-5 h-5 animate-spin" />
                 <span>Sending...</span>
               </span>
             </button>
@@ -140,7 +140,7 @@
           <!-- Success Message -->
           <div v-if="showSuccess" class="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
             <div class="flex items-center space-x-2">
-              <Icon name="heroicons:check-circle" class="w-5 h-5 text-green-600" />
+              <NuxtIcon name="heroicons:check-circle" class="w-5 h-5 text-green-600" />
               <p class="text-sm text-green-800">
                 Thank you for your message! We'll get back to you within 24 hours.
               </p>
@@ -157,7 +157,7 @@
             <div class="space-y-6">
               <div class="flex items-start space-x-4">
                 <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Icon name="heroicons:envelope" class="w-6 h-6 text-blue-600" />
+                  <NuxtIcon name="heroicons:envelope" class="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
                   <h3 class="font-medium text-gray-900 mb-1">Email</h3>
@@ -168,7 +168,7 @@
 
               <div class="flex items-start space-x-4">
                 <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Icon name="heroicons:chat-bubble-left-ellipsis" class="w-6 h-6 text-green-600" />
+                  <NuxtIcon name="heroicons:chat-bubble-left-ellipsis" class="w-6 h-6 text-green-600" />
                 </div>
                 <div>
                   <h3 class="font-medium text-gray-900 mb-1">Live Chat</h3>
@@ -179,7 +179,7 @@
 
               <div class="flex items-start space-x-4">
                 <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Icon name="heroicons:map-pin" class="w-6 h-6 text-purple-600" />
+                  <NuxtIcon name="heroicons:map-pin" class="w-6 h-6 text-purple-600" />
                 </div>
                 <div>
                   <h3 class="font-medium text-gray-900 mb-1">Address</h3>

@@ -18,7 +18,7 @@
 
     <!-- Product Not Found -->
     <div v-else-if="!product" class="container-custom py-16 text-center">
-      <Icon name="heroicons:exclamation-triangle" class="w-16 h-16 text-gray-300 mx-auto mb-4" />
+      <NuxtIcon name="heroicons:exclamation-triangle" class="w-16 h-16 text-gray-300 mx-auto mb-4" />
       <h1 class="text-2xl font-heading font-medium text-gray-900 mb-2">Template Not Found</h1>
       <p class="text-gray-600 mb-6">The template you're looking for doesn't exist or has been removed.</p>
       <NuxtLink to="/templates" class="btn-primary">
@@ -32,15 +32,15 @@
       <nav class="container-custom pt-8 pb-4">
         <div class="flex items-center space-x-2 text-sm text-gray-600">
           <NuxtLink to="/" class="hover:text-gray-900">Home</NuxtLink>
-          <Icon name="heroicons:chevron-right" class="w-4 h-4" />
+          <NuxtIcon name="heroicons:chevron-right" class="w-4 h-4" />
           <NuxtLink to="/templates" class="hover:text-gray-900">Templates</NuxtLink>
-          <Icon name="heroicons:chevron-right" class="w-4 h-4" />
+          <NuxtIcon name="heroicons:chevron-right" class="w-4 h-4" />
           <NuxtLink v-if="product.category" 
                     :to="`/categories/${product.category.slug}`"
                     class="hover:text-gray-900">
             {{ product.category.name }}
           </NuxtLink>
-          <Icon v-if="product.category" name="heroicons:chevron-right" class="w-4 h-4" />
+          <NuxtIcon v-if="product.category" name="heroicons:chevron-right" class="w-4 h-4" />
           <span class="text-gray-900 font-medium">{{ product.name }}</span>
         </div>
       </nav>
@@ -119,7 +119,7 @@
             <!-- Product Meta -->
             <div class="grid grid-cols-2 gap-4 py-4 border-t border-b border-gray-200">
               <div v-if="product.difficulty_level" class="flex items-center space-x-2">
-                <Icon name="heroicons:academic-cap" class="w-5 h-5 text-gray-500" />
+                <NuxtIcon name="heroicons:academic-cap" class="w-5 h-5 text-gray-500" />
                 <div>
                   <p class="text-sm text-gray-500">Difficulty</p>
                   <p class="font-medium">{{ product.difficulty_level }}</p>
@@ -127,7 +127,7 @@
               </div>
               
               <div v-if="product.file_formats?.length" class="flex items-center space-x-2">
-                <Icon name="heroicons:document" class="w-5 h-5 text-gray-500" />
+                <NuxtIcon name="heroicons:document" class="w-5 h-5 text-gray-500" />
                 <div>
                   <p class="text-sm text-gray-500">Formats</p>
                   <p class="font-medium">{{ product.file_formats.join(', ') }}</p>
@@ -135,7 +135,7 @@
               </div>
               
               <div v-if="product.file_size" class="flex items-center space-x-2">
-                <Icon name="heroicons:folder" class="w-5 h-5 text-gray-500" />
+                <NuxtIcon name="heroicons:folder" class="w-5 h-5 text-gray-500" />
                 <div>
                   <p class="text-sm text-gray-500">File Size</p>
                   <p class="font-medium">{{ product.file_size }}</p>
@@ -143,7 +143,7 @@
               </div>
               
               <div v-if="product.dimensions" class="flex items-center space-x-2">
-                <Icon name="heroicons:rectangle-stack" class="w-5 h-5 text-gray-500" />
+                <NuxtIcon name="heroicons:rectangle-stack" class="w-5 h-5 text-gray-500" />
                 <div>
                   <p class="text-sm text-gray-500">Dimensions</p>
                   <p class="font-medium">{{ product.dimensions }}</p>
@@ -171,14 +171,14 @@
                         class="btn-primary flex-1 text-lg px-8 py-4 disabled:opacity-50 disabled:cursor-not-allowed">
                   <span v-if="!cart.isLoading.value">Add to Cart - ${{ price.toFixed(2) }}</span>
                   <span v-else class="flex items-center justify-center space-x-2">
-                    <Icon name="heroicons:arrow-path" class="w-5 h-5 animate-spin" />
+                    <NuxtIcon name="heroicons:arrow-path" class="w-5 h-5 animate-spin" />
                     <span>Adding...</span>
                   </span>
                 </button>
                 
                 <button @click="toggleWishlist"
                         class="btn-secondary px-6 py-4">
-                  <Icon :name="isInWishlist ? 'heroicons:heart-solid' : 'heroicons:heart'" 
+                  <NuxtIcon :name="isInWishlist ? 'heroicons:heart-solid' : 'heroicons:heart'" 
                         :class="isInWishlist ? 'text-red-500' : ''"
                         class="w-6 h-6" />
                 </button>
@@ -187,15 +187,15 @@
               <!-- Trust Badges -->
               <div class="flex items-center justify-center space-x-6 text-sm text-gray-500 pt-4">
                 <div class="flex items-center space-x-2">
-                  <Icon name="heroicons:shield-check" class="w-5 h-5 text-green-500" />
+                  <NuxtIcon name="heroicons:shield-check" class="w-5 h-5 text-green-500" />
                   <span>Secure Payment</span>
                 </div>
                 <div class="flex items-center space-x-2">
-                  <Icon name="heroicons:arrow-down-tray" class="w-5 h-5 text-blue-500" />
+                  <NuxtIcon name="heroicons:arrow-down-tray" class="w-5 h-5 text-blue-500" />
                   <span>Instant Download</span>
                 </div>
                 <div class="flex items-center space-x-2">
-                  <Icon name="heroicons:arrow-path" class="w-5 h-5 text-yellow-500" />
+                  <NuxtIcon name="heroicons:arrow-path" class="w-5 h-5 text-yellow-500" />
                   <span>30-Day Guarantee</span>
                 </div>
               </div>
