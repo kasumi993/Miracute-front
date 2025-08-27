@@ -1,56 +1,112 @@
 <template>
-  <section class="hero-gradient min-h-screen flex items-center relative overflow-hidden">
-    <!-- Background Elements -->
-    <div class="absolute inset-0 opacity-10">
-      <div class="absolute top-20 right-20 w-32 h-32 bg-brand-sage rounded-full animate-float"></div>
-      <div class="absolute bottom-40 left-20 w-24 h-24 bg-brand-pink rounded-full animate-float" style="animation-delay: -2s"></div>
-      <div class="absolute top-1/2 right-1/3 w-16 h-16 bg-brand-sage rounded-full animate-float" style="animation-delay: -4s"></div>
-    </div>
-    
-    <div class="container-custom relative z-10">
-      <div class="max-w-4xl mx-auto text-center">
-        <!-- Hero Headline -->
-        <h1 class="text-5xl sm:text-6xl lg:text-7xl font-heading font-medium text-gray-900 mb-6 animate-slide-up">
-          Beautiful Website
-          <span class="block text-transparent bg-clip-text bg-gradient-to-r from-pink-300 to-green-300">
-            Templates
-          </span>
-          <span class="block">Made Simple</span>
+  <section class="bg-white">
+    <!-- Hero Content -->
+    <div class="container-custom pt-16 pb-20">
+      <!-- Main Hero Text -->
+      <div class="max-w-4xl mx-auto text-center mb-12">
+        <h1 class="text-4xl md:text-6xl font-heading font-bold text-gray-900 mb-6">
+          Beautiful Website Templates
+          <span class="text-brand-brown">Made Simple</span>
         </h1>
-        
-        <!-- Hero Description -->
-        <p class="text-xl sm:text-2xl text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed animate-slide-up">
-          Professional, customizable templates for businesses, weddings, therapists, and creative professionals. 
-          <span class="text-brand-brown font-medium">No coding required.</span>
+        <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+          Professional, mobile-ready designs for businesses, weddings, and creatives. 
+          No coding required—just download and customize.
         </p>
-        
-        <!-- CTA Buttons -->
-        <div class="flex flex-col sm:flex-row gap-4 justify-center items-center animate-slide-up">
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
           <NuxtLink to="/templates" class="btn-primary text-lg px-8 py-4">
             Browse Templates
             <Icon name="heroicons:arrow-right" class="ml-2 w-5 h-5" />
           </NuxtLink>
-          <NuxtLink to="/categories" class="btn-secondary text-lg px-8 py-4">
-            View Categories
+          <NuxtLink to="/about" class="btn-secondary text-lg px-8 py-4">
+            See Examples
           </NuxtLink>
         </div>
-        
-        <!-- Trust Indicators -->
-        <div class="mt-16 flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-8 text-sm text-gray-500">
-          <div class="flex items-center space-x-2">
-            <Icon name="heroicons:check-circle" class="w-5 h-5 text-green-500" />
-            <span>Instant Download</span>
+      </div>
+
+      <!-- Category Preview Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <!-- Wedding Category -->
+        <NuxtLink to="/categories/wedding-templates" class="group">
+          <div class="bg-[#e9d1be] rounded-3xl p-8 text-center hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+            <div class="w-16 h-16 bg-white rounded-2xl mx-auto mb-4 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Icon name="heroicons:heart" class="w-8 h-8 text-brand-brown" />
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Wedding</h3>
+            <span class="text-brand-brown font-medium text-sm group-hover:underline">Explore →</span>
           </div>
-          <div class="flex items-center space-x-2">
-            <Icon name="heroicons:device-phone-mobile" class="w-5 h-5 text-blue-500" />
-            <span>Mobile Responsive</span>
+        </NuxtLink>
+
+        <!-- Business Category -->
+        <NuxtLink to="/categories/business-templates" class="group">
+          <div class="bg-[#cdd3d7] rounded-3xl p-8 text-center hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+            <div class="w-16 h-16 bg-white rounded-2xl mx-auto mb-4 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Icon name="heroicons:briefcase" class="w-8 h-8 text-brand-brown" />
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Business</h3>
+            <span class="text-brand-brown font-medium text-sm group-hover:underline">Explore →</span>
           </div>
-          <div class="flex items-center space-x-2">
-            <Icon name="heroicons:heart" class="w-5 h-5 text-red-500" />
-            <span>Easy to Customize</span>
+        </NuxtLink>
+
+        <!-- Wellness Category -->
+        <NuxtLink to="/categories/therapist-templates" class="group">
+          <div class="bg-[#d7c6c8] rounded-3xl p-8 text-center hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+            <div class="w-16 h-16 bg-white rounded-2xl mx-auto mb-4 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Icon name="heroicons:hand-raised" class="w-8 h-8 text-brand-brown" />
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Wellness</h3>
+            <span class="text-brand-brown font-medium text-sm group-hover:underline">Explore →</span>
           </div>
+        </NuxtLink>
+
+        <!-- Portfolio Category -->
+        <NuxtLink to="/categories/portfolio-templates" class="group">
+          <div class="bg-[#cdd3d7] rounded-[100%] p-24 text-center hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Portfolio</h3>
+            <span class="text-brand-brown font-medium text-sm group-hover:underline">Explore →</span>
+          </div>
+        </NuxtLink>
+      </div>
+
+      <!-- Social Proof -->
+      <div class="text-center">
+        <p class="text-gray-500 mb-4">Self owned business that values quality and customer satisfaction.</p>
+        <div class="flex justify-center space-x-1 mb-2">
+          <Icon name="heroicons:star-20-solid" class="w-5 h-5 text-yellow-400" />
+          <Icon name="heroicons:star-20-solid" class="w-5 h-5 text-yellow-400" />
+          <Icon name="heroicons:star-20-solid" class="w-5 h-5 text-yellow-400" />
+          <Icon name="heroicons:star-20-solid" class="w-5 h-5 text-yellow-400" />
+          <Icon name="heroicons:star-20-solid" class="w-5 h-5 text-yellow-400" />
         </div>
       </div>
     </div>
   </section>
 </template>
+
+<script setup>
+const searchQuery = ref('')
+
+// Popular search terms for templates
+const popularSearches = ref([
+  'wedding websites',
+  'business templates',
+  'therapy sites',
+  'portfolio designs',
+  'canva templates'
+])
+
+// Top categories for navigation bar
+const topCategories = ref([
+  { name: 'Wedding', slug: 'wedding-templates', icon: 'heroicons:heart' },
+  { name: 'Business', slug: 'business-templates', icon: 'heroicons:briefcase' },
+  { name: 'Wellness', slug: 'therapist-templates', icon: 'heroicons:hand-raised' },
+  { name: 'Portfolio', slug: 'portfolio-templates', icon: 'heroicons:photo' },
+  { name: 'Canva', slug: 'canva-designs', icon: 'heroicons:paint-brush' },
+  { name: 'New', slug: 'new-templates', icon: 'heroicons:sparkles' }
+])
+
+const performSearch = () => {
+  if (searchQuery.value.trim()) {
+    navigateTo(`/search?q=${encodeURIComponent(searchQuery.value)}`)
+  }
+}
+</script>
