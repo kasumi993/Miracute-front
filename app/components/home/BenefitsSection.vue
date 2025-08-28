@@ -36,7 +36,6 @@ const benefits = ref([
     iconBg: 'bg-brand-pink'
   },
   {
-    icon: 'heroicons:device-phone-mobile',
     title: 'Works with Canva Free',
     description: 'All templates are optimized to work beautifully with Canva\'s free version. No premium subscriptions needed—just download and customize.',
     icon: 'heroicons:sparkles',
