@@ -9,15 +9,18 @@
         
         <!-- Creator Story -->
         <h2 class="text-3xl md:text-4xl font-heading font-bold text-gray-900 mb-6">
-          Hi, I'm the Designer Behind Miracute
+          Hi, I'm the Creative Mind Behind Miracute
         </h2>
         
         <div class="text-lg text-gray-600 space-y-4 mb-8 max-w-3xl mx-auto">
           <p>
-            Every template you see here is created by me personally—no team, no outsourcing, just one designer who cares deeply about helping you create something beautiful.
+            Behind every template is just me, a multi-passionate person with web development roots who believes creativity should stay human in an AI-driven world. 
+            I genuinely love what I do and hope you do too.
           </p>
           <p>
-            I started Miracute because I believe your special moments deserve designs that feel personal, not mass-produced. Whether it's your wedding day or launching your practice, I want to help you tell your story with elegance and style.
+            I started Miracute because I believe we can get designs that feel personal, cohesive and not mass-produced without breaking the bank. 
+            Whether it's your wedding day or launching your practice, I want to help you tell your story beautifully, and save money while doing it. 
+            So do not hesitate to contact me if you have any questions or need help.
           </p>
         </div>
         
@@ -27,7 +30,7 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-gray-600">
             <div class="flex items-start space-x-3">
               <div class="w-2 h-2 bg-brand-brown rounded-full mt-2 flex-shrink-0"></div>
-              <p>Every design is crafted with love and attention to detail</p>
+              <p>I personally design each element with your goals and budget in mind</p>
             </div>
             <div class="flex items-start space-x-3">
               <div class="w-2 h-2 bg-brand-brown rounded-full mt-2 flex-shrink-0"></div>
