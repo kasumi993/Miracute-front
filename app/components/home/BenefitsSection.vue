@@ -3,10 +3,10 @@
     <div class="container-custom">
       <div class="text-center mb-16">
         <h2 class="font-heading font-medium text-gray-900 mb-4">
-          Why Miracute Stands Out?
+          Why Choose Miracute Templates?
         </h2>
         <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-          Professional designs that work together as complete business systems, with personal support. Accessible to everyone regardless of budget or technical skills.
+          Every template is carefully crafted by a real designer who understands your needs. No mass-produced designs—just beautiful, personal creations made with love.
         </p>
       </div>
       
@@ -30,22 +30,23 @@
 <script setup>
 const benefits = ref([
   {
-    title: 'Ready in Minutes, Not Months',
-    description: 'Complete template bundles designed for quick setup. Everything you need to launch professionally : website, emails, and more—in one cohesive package.',
-    icon: 'heroicons:bolt',
+    title: 'Crafted with Personal Care',
+    description: 'Each template is thoughtfully designed by hand—no AI, no algorithms, just genuine creativity and attention to detail that makes your event truly special.',
+    icon: 'heroicons:heart',
     iconBg: 'bg-brand-pink'
   },
   {
-    title: 'Perfect on Every Device',
-    description: 'Every template is tested and optimized for mobile, tablet, and desktop. Your visitors get a flawless experience no matter how they find you.',
     icon: 'heroicons:device-phone-mobile',
+    title: 'Works with Canva Free',
+    description: 'All templates are optimized to work beautifully with Canva\'s free version. No premium subscriptions needed—just download and customize.',
+    icon: 'heroicons:sparkles',
     iconBg: 'bg-brand-sage'
   },
   {
-    title: 'Genuine Support, Not Bots',
-    description: 'Questions? You\'ll talk to a real person who genuinely cares about your success. No chatbots, no automated responses—just helpful, human support.',
-    icon: 'heroicons:heart',
-    iconBg: 'bg-brand-pink'
+    title: 'Real Person, Real Support',
+    description: 'When you have questions, you\'ll talk directly to the designer. Personal help from someone who truly cares about making your vision come to life.',
+    icon: 'heroicons:user-circle',
+    iconBg: 'bg-brand-warm'
   }
 ])
 </script>

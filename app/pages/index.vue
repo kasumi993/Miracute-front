@@ -9,6 +9,12 @@
     <!-- Benefits Section -->
     <HomeBenefitsSection />
 
+    <!-- About the Creator -->
+    <HomeCreatorSection />
+
+    <!-- Customer Testimonials -->
+    <HomeTestimonialSection />
+
     <!-- CTA Section -->
     <HomeCtaSection />
   </div>
