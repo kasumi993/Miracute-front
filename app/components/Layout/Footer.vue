@@ -19,13 +19,13 @@
           
           <!-- Description -->
           <p class="text-gray-300 leading-relaxed mb-6 max-w-md">
-            Beautiful, professional website templates for creative professionals and businesses. 
-            Easy to customize, mobile-responsive, and ready to launch.
+            Where creativity meets accessibility. Professional website templates crafted with passion, not algorithms. 
+            Complete bundles, genuine support, Canva Free compatible.
           </p>
           
           <!-- Newsletter Signup -->
           <div class="max-w-md">
-            <h3 class="font-heading font-medium text-lg mb-3">Stay Updated</h3>
+            <h3 class="font-heading font-medium text-lg mb-3">Join Our Creative Journey</h3>
             <p class="text-gray-400 text-sm mb-4">Get notified about new templates and design tips.</p>
             
             <form @submit.prevent="subscribeNewsletter" class="flex">

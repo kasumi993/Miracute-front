@@ -3,10 +3,10 @@
     <div class="container-custom">
       <div class="text-center mb-16">
         <h2 class="font-heading font-medium text-gray-900 mb-4">
-          Why Choose Miracute?
+          Why Miracute Stands Out?
         </h2>
         <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-          We make beautiful design accessible to everyone, no matter your technical skills.
+          Professional designs that work together as complete business systems, with personal support. Accessible to everyone regardless of budget or technical skills.
         </p>
       </div>
       
@@ -30,20 +30,20 @@
 <script setup>
 const benefits = ref([
   {
-    title: 'Lightning Fast Setup',
-    description: 'Download, customize, and launch your website in minutes. Our templates are designed for quick deployment.',
+    title: 'Ready in Minutes, Not Months',
+    description: 'Complete template bundles designed for quick setup. Everything you need to launch professionally : website, emails, and more—in one cohesive package.',
     icon: 'heroicons:bolt',
     iconBg: 'bg-brand-pink'
   },
   {
-    title: 'Mobile Responsive',
-    description: 'Every template looks perfect on all devices. Your visitors will have a great experience whether on desktop or mobile.',
+    title: 'Perfect on Every Device',
+    description: 'Every template is tested and optimized for mobile, tablet, and desktop. Your visitors get a flawless experience no matter how they find you.',
     icon: 'heroicons:device-phone-mobile',
     iconBg: 'bg-brand-sage'
   },
   {
-    title: 'Customer Support',
-    description: 'Need help? Our friendly support team is here to help you succeed with your new website.',
+    title: 'Genuine Support, Not Bots',
+    description: 'Questions? You\'ll talk to a real person who genuinely cares about your success. No chatbots, no automated responses—just helpful, human support.',
     icon: 'heroicons:heart',
     iconBg: 'bg-brand-pink'
   }
