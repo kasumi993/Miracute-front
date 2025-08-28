@@ -5,11 +5,15 @@
       <div class="container-custom py-16">
         <div class="max-w-3xl mx-auto text-center">
           <h1 class="text-4xl sm:text-5xl font-heading font-medium text-gray-900 mb-6">
-            Get in Touch
+            Let's Chat About Your Project
           </h1>
-          <p class="text-xl text-gray-600">
-            We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+          <p class="text-xl text-gray-600 mb-4">
+            Hi! I'm the designer behind every Miracute template. I'd love to help you find the perfect design for your special day or business.
           </p>
+          <div class="flex items-center justify-center space-x-2 text-brand-brown">
+            <Icon name="heroicons:clock" class="w-5 h-5" />
+            <span class="font-medium">Usually respond within a few hours</span>
+          </div>
         </div>
       </div>
     </section>
@@ -18,7 +22,7 @@
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
         <!-- Contact Form -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-          <h2 class="text-2xl font-heading font-medium text-gray-900 mb-6">Send us a Message</h2>
+          <h2 class="text-2xl font-heading font-medium text-gray-900 mb-6">Send me a Message</h2>
           
           <form @submit.prevent="submitForm" class="space-y-6">
             <!-- Name -->
@@ -68,13 +72,14 @@
                 ]"
               >
                 <option value="">Select a subject</option>
-                <option value="general">General Inquiry</option>
-                <option value="support">Technical Support</option>
-                <option value="billing">Billing Question</option>
-                <option value="template-request">Template Request</option>
-                <option value="partnership">Partnership Opportunity</option>
-                <option value="feedback">Feedback</option>
-                <option value="other">Other</option>
+                <option value="wedding-help">Wedding Template Help</option>
+                <option value="template-question">Template Questions</option>
+                <option value="customization">Need Customization Help</option>
+                <option value="canva-help">Canva Support</option>
+                <option value="custom-design">Custom Design Request</option>
+                <option value="billing">Order Questions</option>
+                <option value="feedback">Feedback & Suggestions</option>
+                <option value="other">Just Want to Say Hi</option>
               </select>
               <p v-if="errors.subject" class="mt-1 text-sm text-red-600">{{ errors.subject }}</p>
             </div>
@@ -103,7 +108,7 @@
                   'form-input',
                   errors.message ? 'border-red-500' : 'focus:ring-brand-sage'
                 ]"
-                placeholder="Tell us how we can help you..."
+                placeholder="Tell me about your project or how I can help you..."
               ></textarea>
               <p v-if="errors.message" class="mt-1 text-sm text-red-600">{{ errors.message }}</p>
             </div>
@@ -118,7 +123,7 @@
                 class="h-4 w-4 text-brand-sage focus:ring-brand-sage border-gray-300 rounded mt-0.5"
               >
               <label for="consent" class="text-sm text-gray-700">
-                I consent to having this website store my submitted information so they can respond to my inquiry. *
+                I consent to having my information stored so the designer can respond to my inquiry. *
               </label>
             </div>
             <p v-if="errors.consent" class="text-sm text-red-600">{{ errors.consent }}</p>
@@ -142,7 +147,7 @@
             <div class="flex items-center space-x-2">
               <Icon name="heroicons:check-circle" class="w-5 h-5 text-green-600" />
               <p class="text-sm text-green-800">
-                Thank you for your message! We'll get back to you within 24 hours.
+                Thank you for your message! I'll get back to you personally within a few hours.
               </p>
             </div>
           </div>
@@ -150,87 +155,66 @@
 
         <!-- Contact Information -->
         <div class="space-y-8">
-          <!-- Contact Details -->
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-            <h2 class="text-2xl font-heading font-medium text-gray-900 mb-6">Contact Information</h2>
+          <!-- Quick Contact -->
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+            <h2 class="text-xl font-heading font-medium text-gray-900 mb-4">Quick Contact</h2>
             
-            <div class="space-y-6">
-              <div class="flex items-start space-x-4">
-                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Icon name="heroicons:envelope" class="w-6 h-6 text-blue-600" />
+            <div class="space-y-4">
+              <!-- Email Contact -->
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-brand-sage/30 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Icon name="heroicons:envelope" class="w-5 h-5 text-brand-brown" />
                 </div>
                 <div>
-                  <h3 class="font-medium text-gray-900 mb-1">Email</h3>
-                  <p class="text-gray-600">support@miracute.com</p>
-                  <p class="text-sm text-gray-500">We typically respond within 24 hours</p>
+                  <p class="font-medium text-gray-900">hello@miracute.com</p>
+                  <p class="text-xs text-gray-500">Usually respond within 2-4 hours</p>
                 </div>
               </div>
 
-              <div class="flex items-start space-x-4">
-                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Icon name="heroicons:chat-bubble-left-ellipsis" class="w-6 h-6 text-green-600" />
-                </div>
-                <div>
-                  <h3 class="font-medium text-gray-900 mb-1">Live Chat</h3>
-                  <p class="text-gray-600">Available on our website</p>
-                  <p class="text-sm text-gray-500">Monday - Friday, 9 AM - 6 PM EST</p>
-                </div>
-              </div>
-
-              <div class="flex items-start space-x-4">
-                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Icon name="heroicons:map-pin" class="w-6 h-6 text-purple-600" />
-                </div>
-                <div>
-                  <h3 class="font-medium text-gray-900 mb-1">Address</h3>
-                  <p class="text-gray-600">
-                    123 Design Street<br>
-                    Creative District<br>
-                    New York, NY 10001
-                  </p>
-                </div>
+              <!-- Personal Note -->
+              <div class="bg-brand-pink/10 rounded-lg p-4">
+                <p class="text-sm text-gray-700">
+                  <Icon name="heroicons:heart" class="w-4 h-4 inline text-brand-brown mr-1" />
+                  I personally read and respond to every message. Whether you need Canva help or design advice—I'm here for you!
+                </p>
               </div>
             </div>
           </div>
 
           <!-- FAQ Section -->
           <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-            <h2 class="text-2xl font-heading font-medium text-gray-900 mb-6">Frequently Asked Questions</h2>
+            <h2 class="text-2xl font-heading font-medium text-gray-900 mb-6">Common Questions I Get</h2>
             
-            <div class="space-y-6">
-              <div>
-                <h3 class="font-medium text-gray-900 mb-2">How long does it take to receive my download?</h3>
-                <p class="text-sm text-gray-600">Downloads are available immediately after successful payment. You'll also receive an email with your download links.</p>
-              </div>
-
-              <div>
-                <h3 class="font-medium text-gray-900 mb-2">Can I customize the templates?</h3>
-                <p class="text-sm text-gray-600">Yes! All our templates are fully customizable. You can change colors, fonts, text, and images to match your brand.</p>
-              </div>
-
-              <div>
-                <h3 class="font-medium text-gray-900 mb-2">Do you offer refunds?</h3>
-                <p class="text-sm text-gray-600">We offer a 30-day money-back guarantee if you're not satisfied with your purchase. Contact us for assistance.</p>
-              </div>
-
-              <div>
-                <h3 class="font-medium text-gray-900 mb-2">Can I use templates for client work?</h3>
-                <p class="text-sm text-gray-600">Yes, our standard license allows you to use templates for client projects. Check our license terms for full details.</p>
+            <div class="space-y-3">
+              <div v-for="(faq, index) in faqs" :key="index" class="border border-gray-200 rounded-lg">
+                <button 
+                  @click="toggleFaq(index)"
+                  class="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 transition-colors"
+                >
+                  <span class="font-medium text-gray-900 text-sm">{{ faq.question }}</span>
+                  <Icon 
+                    name="heroicons:chevron-down" 
+                    class="w-4 h-4 text-gray-500 transition-transform duration-200"
+                    :class="{ 'rotate-180': openFaq === index }"
+                  />
+                </button>
+                <div 
+                  v-show="openFaq === index"
+                  class="px-4 pb-4 text-sm text-gray-600 leading-relaxed"
+                >
+                  {{ faq.answer }}
+                </div>
               </div>
             </div>
 
             <div class="mt-6 pt-6 border-t border-gray-200">
-              <NuxtLink to="/help" class="text-brand-brown hover:text-brand-brown/80 font-medium">
-                View all FAQs →
-              </NuxtLink>
+              <p class="text-sm text-gray-600 mb-2">Still have questions?</p>
+              <button class="text-brand-brown hover:text-brand-brown/80 font-medium" onclick="document.getElementById('message').focus()">
+                Ask me directly ↑
+              </button>
             </div>
           </div>
 
-          <!-- Response Time -->
-          <div class="bg-gradient-to-r from-brand-pink to-brand-sage rounded-2xl p-6 text-center">
-            <h3 class="text-lg font-heading font-medium text-gray-900 mb-2">Quick Response Guarantee</h3>
-            <p class="text-gray-700">We respond to all inquiries within 24 hours, often much sooner!</p>
-          </div>
         </div>
       </div>
     </div>
@@ -240,11 +224,11 @@
 <script setup>
 // SEO
 useSeoMeta({
-  title: 'Contact Us | Miracute - We\'re Here to Help',
-  description: 'Get in touch with the Miracute team. We\'re here to help with any questions about our website templates, billing, or technical support.',
-  keywords: 'contact miracute, customer support, template help, billing questions, technical support',
-  ogTitle: 'Contact Us | Miracute',
-  ogDescription: 'Get in touch with our team. We\'re here to help with any questions about our website templates.',
+  title: 'Contact the Designer | Miracute - Personal Template Support',
+  description: 'Get personal help from the designer behind Miracute templates. Questions about Canva, customization, or wedding templates? I\'m here to help personally.',
+  keywords: 'contact designer, canva help, wedding template support, personal designer, template customization help',
+  ogTitle: 'Contact the Designer | Miracute',
+  ogDescription: 'Get personal help from the designer behind Miracute templates. Real responses, not bots.',
   ogImage: '/images/og-contact.jpg'
 })
 
@@ -269,7 +253,36 @@ const errors = reactive({
 const isSubmitting = ref(false)
 const showSuccess = ref(false)
 
+// FAQ state
+const openFaq = ref(null)
+const faqs = ref([
+  {
+    question: "Do I need Canva Pro to use your templates?",
+    answer: "Nope! All my templates are designed to work perfectly with Canva's free version. You can customize everything without any paid subscription."
+  },
+  {
+    question: "Can you help me customize a template?",
+    answer: "Absolutely! I love helping customers personalize their templates. Just message me with what you need, and I'll walk you through it or even help make the changes."
+  },
+  {
+    question: "When will you add more template categories?",
+    answer: "I'm working on wellness/therapy templates this month and life coach designs next month. I prefer to take time and craft each collection thoughtfully rather than rush."
+  },
+  {
+    question: "Do you create custom designs?",
+    answer: "Yes! If you need something completely unique, I offer custom design services. Reach out and let's chat about your vision and timeline."
+  },
+  {
+    question: "What if I'm not happy with my purchase?",
+    answer: "I want you to love your templates! If something isn't working for you, message me within 30 days and I'll help fix it or offer a refund."
+  }
+])
+
 // Methods
+const toggleFaq = (index) => {
+  openFaq.value = openFaq.value === index ? null : index
+}
+
 const validateForm = () => {
   // Clear previous errors
   Object.keys(errors).forEach(key => {
