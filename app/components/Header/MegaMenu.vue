@@ -6,7 +6,7 @@
       @mouseleave="hideMenuDelayed"
       class="flex items-center space-x-1 text-gray-700 hover:text-gray-900 font-medium transition-colors uppercase tracking-wide text-sm px-4 py-2 rounded-lg hover:bg-gray-50"
     >
-      <span>Shop by Categories</span>
+      <span>Explore Templates</span>
       <Icon name="heroicons:chevron-down" class="w-4 h-4" />
     </button>
 
@@ -23,112 +23,101 @@
         v-show="isMenuOpen" 
         @mouseenter="showMenu"
         @mouseleave="hideMenuDelayed"
-        class="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-screen max-w-5xl bg-white rounded-2xl shadow-2xl border border-gray-100 py-8 px-8 z-50"
+        class="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-screen max-w-4xl bg-white rounded-2xl shadow-2xl border border-gray-100 py-8 px-8 z-50"
       >
-        <div class="grid grid-cols-4 gap-8">
-          <!-- Wedding Templates -->
+        <div class="grid grid-cols-3 gap-8">
+          <!-- Featured Collection -->
           <div class="space-y-4">
-            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-4 pb-2 border-b border-gray-200">
-              Wedding
+            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-4 pb-2 border-b border-brand-brown/20">
+              🌸 Available Now
             </h3>
-            <div class="space-y-3">
-              <NuxtLink to="/categories/wedding-templates" class="flex items-center space-x-3 text-sm text-gray-600 hover:text-gray-900 transition-colors group">
-                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-pink-400 to-rose-500 opacity-80 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <Icon name="heroicons:heart" class="w-6 h-6 text-white" />
+            <div class="space-y-4">
+              <NuxtLink to="/categories/wedding-templates" class="flex items-center space-x-3 text-sm text-gray-600 hover:text-gray-900 transition-colors group p-3 rounded-xl hover:bg-brand-pink/10">
+                <div class="w-12 h-12 rounded-lg bg-brand-pink flex items-center justify-center">
+                  <Icon name="heroicons:heart" class="w-6 h-6 text-brand-brown" />
                 </div>
                 <div>
-                  <div class="font-medium">Wedding Invitations</div>
-                  <div class="text-xs text-gray-500">Beautiful templates</div>
+                  <div class="font-semibold text-gray-900">Wedding Collection</div>
+                  <div class="text-xs text-gray-500">Wedding websites or wedding planner templates</div>
+                  <div class="text-xs text-brand-brown font-medium">Ready to download</div>
                 </div>
-              </NuxtLink>
-              <NuxtLink to="/categories/wedding-websites" class="block text-sm text-gray-600 hover:text-gray-900 transition-colors pl-15">
-                Wedding Websites
-              </NuxtLink>
-              <NuxtLink to="/categories/save-the-dates" class="block text-sm text-gray-600 hover:text-gray-900 transition-colors pl-15">
-                Save the Dates
               </NuxtLink>
             </div>
           </div>
 
-          <!-- Business & Professional -->
+          <!-- Coming Soon Collection -->
           <div class="space-y-4">
-            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-4 pb-2 border-b border-gray-200">
-              Business
+            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-4 pb-2 border-b border-brand-brown/20">
+              🎨 In Development
             </h3>
-            <div class="space-y-3">
-              <NuxtLink to="/categories/business-templates" class="flex items-center space-x-3 text-sm text-gray-600 hover:text-gray-900 transition-colors group">
-                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 opacity-80 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <Icon name="heroicons:briefcase" class="w-6 h-6 text-white" />
+            <div class="space-y-4">
+              <div class="flex items-center space-x-3 text-sm text-gray-500 p-3 rounded-xl bg-gray-50">
+                <div class="w-12 h-12 rounded-lg bg-brand-sage flex items-center justify-center">
+                  <Icon name="heroicons:hand-raised" class="w-6 h-6 text-brand-brown" />
                 </div>
                 <div>
-                  <div class="font-medium">Business Templates</div>
-                  <div class="text-xs text-gray-500">Professional designs</div>
+                  <div class="font-semibold text-gray-700">Wellness & Therapy</div>
+                  <div class="text-xs text-gray-500">Calming, professional designs</div>
+                  <div class="text-xs text-brand-brown font-medium">Coming this month</div>
                 </div>
-              </NuxtLink>
-              <NuxtLink to="/categories/therapist-templates" class="block text-sm text-gray-600 hover:text-gray-900 transition-colors pl-15">
-                Therapist Templates
-              </NuxtLink>
-              <NuxtLink to="/categories/coach-templates" class="block text-sm text-gray-600 hover:text-gray-900 transition-colors pl-15">
-                Coach Templates
-              </NuxtLink>
+              </div>
+              <div class="flex items-center space-x-3 text-sm text-gray-500 p-3 rounded-xl bg-gray-50">
+                <div class="w-12 h-12 rounded-lg bg-brand-warm flex items-center justify-center">
+                  <Icon name="heroicons:megaphone" class="w-6 h-6 text-brand-brown" />
+                </div>
+                <div>
+                  <div class="font-semibold text-gray-700">Life Coach Templates</div>
+                  <div class="text-xs text-gray-500">Inspiring, motivational designs</div>
+                  <div class="text-xs text-brand-brown font-medium">Coming next month</div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Creative & Personal -->
+          <!-- Why Choose Us -->
           <div class="space-y-4">
-            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-4 pb-2 border-b border-gray-200">
-              Creative
+            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-4 pb-2 border-b border-brand-brown/20">
+              ✨ The Miracute Difference
             </h3>
-            <div class="space-y-3">
-              <NuxtLink to="/categories/canva-templates" class="flex items-center space-x-3 text-sm text-gray-600 hover:text-gray-900 transition-colors group">
-                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-400 to-pink-500 opacity-80 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <Icon name="heroicons:sparkles" class="w-6 h-6 text-white" />
-                </div>
+            <div class="space-y-4 text-xs">
+              <div class="flex items-start space-x-3 p-2 rounded-lg">
+                <div class="w-2 h-2 bg-brand-brown rounded-full mt-1.5 flex-shrink-0"></div>
                 <div>
-                  <div class="font-medium">Canva Templates</div>
-                  <div class="text-xs text-gray-500">Ready-to-use designs</div>
+                  <div class="font-medium text-gray-900">Handcrafted Quality</div>
+                  <div class="text-gray-600">No AI, no mass production—just personal attention to every detail</div>
                 </div>
-              </NuxtLink>
-              <NuxtLink to="/categories/baby-templates" class="block text-sm text-gray-600 hover:text-gray-900 transition-colors pl-15">
-                Baby Templates
-              </NuxtLink>
-              <NuxtLink to="/categories/portfolio-templates" class="block text-sm text-gray-600 hover:text-gray-900 transition-colors pl-15">
-                Portfolio Templates
-              </NuxtLink>
+              </div>
+              <div class="flex items-start space-x-3 p-2 rounded-lg">
+                <div class="w-2 h-2 bg-brand-brown rounded-full mt-1.5 flex-shrink-0"></div>
+                <div>
+                  <div class="font-medium text-gray-900">Works with Canva Free</div>
+                  <div class="text-gray-600">All templates optimized for the free version—no premium needed</div>
+                </div>
+              </div>
+              <div class="flex items-start space-x-3 p-2 rounded-lg">
+                <div class="w-2 h-2 bg-brand-brown rounded-full mt-1.5 flex-shrink-0"></div>
+                <div>
+                  <div class="font-medium text-gray-900">Personal Support</div>
+                  <div class="text-gray-600">Direct access to the designer—real help when you need it</div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Bundles & More -->
-          <div class="space-y-4">
-            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-4 pb-2 border-b border-gray-200">
-              Special
-            </h3>
-            <div class="space-y-3">
-              <NuxtLink to="/categories/bundles" class="flex items-center space-x-3 text-sm text-gray-600 hover:text-gray-900 transition-colors group">
-                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-green-400 to-emerald-600 opacity-80 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <Icon name="heroicons:gift" class="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <div class="font-medium">Template Bundles</div>
-                  <div class="text-xs text-gray-500">Save with bundles</div>
-                </div>
-              </NuxtLink>
-              <NuxtLink to="/templates?featured=true" class="block text-sm text-gray-600 hover:text-gray-900 transition-colors pl-15">
-                Featured Templates
-              </NuxtLink>
-              <NuxtLink to="/templates?sort=newest" class="block text-sm text-gray-600 hover:text-gray-900 transition-colors pl-15">
-                New Arrivals
-              </NuxtLink>
-            </div>
-          </div>
         </div>
 
         <!-- Bottom CTA -->
-        <div class="mt-8 pt-6 border-t border-gray-200 text-center">
-          <NuxtLink to="/templates" class="inline-flex items-center space-x-2 text-brand-brown hover:text-brand-brown/80 font-medium">
-            <span>Browse All Templates</span>
-            <Icon name="heroicons:arrow-right" class="w-4 h-4" />
-          </NuxtLink>
+        <div class="mt-8 pt-6 border-t border-gray-200">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <NuxtLink to="/templates/wedding" class="flex items-center justify-center space-x-2 bg-brand-brown text-white px-4 py-3 rounded-xl font-medium hover:bg-brand-brown/90 transition-colors">
+              <Icon name="heroicons:heart" class="w-4 h-4" />
+              <span>View Wedding Templates</span>
+            </NuxtLink>
+            <NuxtLink to="/contact" class="flex items-center justify-center space-x-2 border-2 border-brand-brown text-brand-brown px-4 py-3 rounded-xl font-medium hover:bg-brand-brown hover:text-white transition-colors">
+              <Icon name="heroicons:chat-bubble-left-right" class="w-4 h-4" />
+              <span>Get Personal Help</span>
+            </NuxtLink>
+          </div>
         </div>
       </div>
     </Transition>
