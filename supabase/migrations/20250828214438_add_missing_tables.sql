@@ -189,9 +189,8 @@ CREATE INDEX idx_order_items_order ON public.order_items(order_id);
 CREATE INDEX idx_cart_user ON public.cart_items(user_id);
 CREATE INDEX idx_reviews_product ON public.product_reviews(product_id);
 
--- Full-text search indexes for SEO
-CREATE INDEX idx_products_search ON public.products USING gin(to_tsvector('english', name || ' ' || COALESCE(description, '') || ' ' || array_to_string(tags, ' ')));
-CREATE INDEX idx_categories_search ON public.categories USING gin(to_tsvector('english', name || ' ' || COALESCE(description, '')));
+-- Full-text search indexes for SEO - removed due to immutable function requirements
+-- These indexes are recreated in the product functions migration
 
 -- Row Level Security (RLS) Policies
 

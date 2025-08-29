@@ -1,49 +1,43 @@
 export default defineNuxtRouteMiddleware(async (to) => {
   const user = useSupabaseUser()
-  const supabase = useSupabaseClient()
+  
+  console.log('Admin middleware - checking user:', user.value?.email)
 
   // Check if user is authenticated
   if (!user.value) {
+    console.log('No user found, redirecting to login')
     const redirectTo = to.fullPath
     return navigateTo(`/auth/login?redirect=${encodeURIComponent(redirectTo)}`)
   }
 
-  try {
-    // Check if user has admin role
-    const { data: userProfile, error } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.value.id)
-      .single()
+  // Only run additional checks on client side to ensure proper auth context
+  if (process.client) {
+    const supabase = useSupabaseClient()
 
-    if (error) {
-      console.error('Error checking user role:', error)
-      throw createError({
-        statusCode: 500,
-        statusMessage: 'Failed to verify admin access'
-      })
+    try {
+      console.log('Checking user role for:', user.value.id)
+      
+      // Check if user has admin role from JWT metadata
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (!session) {
+        console.log('No session found, redirecting to login')
+        return navigateTo('/auth/login')
+      }
+
+      // Check JWT claims for admin role
+      const userRole = session.user.app_metadata?.role
+
+      if (userRole !== 'admin') {
+        console.log('User is not admin, redirecting...')
+        return navigateTo('/?error=not-admin')
+      }
+
+      console.log('Admin access granted')
+
+    } catch (error: any) {
+      console.error('Admin middleware error:', error)
+      return navigateTo('/?error=admin-middleware-error')
     }
-
-    // Check if user is admin
-    if (userProfile?.role !== 'admin') {
-      throw createError({
-        statusCode: 403,
-        statusMessage: 'Admin access required'
-      })
-    }
-
-  } catch (error: any) {
-    // Handle different types of errors
-    if (error.statusCode === 403) {
-      // User is not admin - redirect to home
-      throw createError({
-        statusCode: 403,
-        statusMessage: 'You do not have permission to access this area'
-      })
-    }
-
-    // Other errors - redirect to login
-    const redirectTo = to.fullPath
-    return navigateTo(`/auth/login?redirect=${encodeURIComponent(redirectTo)}`)
   }
 })

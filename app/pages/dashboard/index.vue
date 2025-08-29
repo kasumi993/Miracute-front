@@ -27,13 +27,13 @@
         <div class="lg:col-span-1">
           <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sticky top-24">
             <nav class="space-y-2">
-              <NuxtLink to="/admin" 
+              <NuxtLink to="/dashboard" 
                         class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-900 bg-gray-100 font-medium">
                 <Icon name="heroicons:home" class="w-5 h-5" />
                 <span>Dashboard</span>
               </NuxtLink>
               
-              <NuxtLink to="/admin/products" 
+              <NuxtLink to="/dashboard/products" 
                         class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
                 <Icon name="heroicons:squares-2x2" class="w-5 h-5" />
                 <span>Products</span>
@@ -43,13 +43,13 @@
                 </span>
               </NuxtLink>
               
-              <NuxtLink to="/admin/categories" 
+              <NuxtLink to="/dashboard/categories" 
                         class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
                 <Icon name="heroicons:folder" class="w-5 h-5" />
                 <span>Categories</span>
               </NuxtLink>
               
-              <NuxtLink to="/admin/orders" 
+              <NuxtLink to="/dashboard/orders" 
                         class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
                 <Icon name="heroicons:shopping-bag" class="w-5 h-5" />
                 <span>Orders</span>
@@ -59,13 +59,13 @@
                 </span>
               </NuxtLink>
               
-              <NuxtLink to="/admin/customers" 
+              <NuxtLink to="/dashboard/customers" 
                         class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
                 <Icon name="heroicons:users" class="w-5 h-5" />
                 <span>Customers</span>
               </NuxtLink>
               
-              <NuxtLink to="/admin/analytics" 
+              <NuxtLink to="/dashboard/analytics" 
                         class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
                 <Icon name="heroicons:chart-bar" class="w-5 h-5" />
                 <span>Analytics</span>
@@ -133,7 +133,7 @@
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
               <div class="flex items-center justify-between mb-6">
                 <h2 class="text-xl font-heading font-medium text-gray-900">Recent Orders</h2>
-                <NuxtLink to="/admin/orders" class="text-brand-brown hover:text-brand-brown/80 font-medium">
+                <NuxtLink to="/dashboard/orders" class="text-brand-brown hover:text-brand-brown/80 font-medium">
                   View All →
                 </NuxtLink>
               </div>
@@ -166,7 +166,7 @@
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
               <div class="flex items-center justify-between mb-6">
                 <h2 class="text-xl font-heading font-medium text-gray-900">Popular Products</h2>
-                <NuxtLink to="/admin/products" class="text-brand-brown hover:text-brand-brown/80 font-medium">
+                <NuxtLink to="/dashboard/products" class="text-brand-brown hover:text-brand-brown/80 font-medium">
                   View All →
                 </NuxtLink>
               </div>
@@ -209,25 +209,25 @@
             <h2 class="text-xl font-heading font-medium text-gray-900 mb-6">Quick Actions</h2>
             
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <NuxtLink to="/admin/products/create" 
+              <NuxtLink to="/dashboard/products/create" 
                         class="flex items-center space-x-3 p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-brand-sage hover:bg-gray-50 transition-colors">
                 <Icon name="heroicons:plus" class="w-5 h-5 text-gray-600" />
                 <span class="font-medium text-gray-700">Add Product</span>
               </NuxtLink>
 
-              <NuxtLink to="/admin/categories/create" 
+              <NuxtLink to="/dashboard/categories/create" 
                         class="flex items-center space-x-3 p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-brand-sage hover:bg-gray-50 transition-colors">
                 <Icon name="heroicons:folder-plus" class="w-5 h-5 text-gray-600" />
                 <span class="font-medium text-gray-700">Add Category</span>
               </NuxtLink>
 
-              <NuxtLink to="/admin/orders?status=pending" 
+              <NuxtLink to="/dashboard/orders?status=pending" 
                         class="flex items-center space-x-3 p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-brand-sage hover:bg-gray-50 transition-colors">
                 <Icon name="heroicons:clock" class="w-5 h-5 text-gray-600" />
                 <span class="font-medium text-gray-700">Pending Orders</span>
               </NuxtLink>
 
-              <NuxtLink to="/admin/analytics" 
+              <NuxtLink to="/dashboard/analytics" 
                         class="flex items-center space-x-3 p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-brand-sage hover:bg-gray-50 transition-colors">
                 <Icon name="heroicons:chart-bar" class="w-5 h-5 text-gray-600" />
                 <span class="font-medium text-gray-700">View Analytics</span>
@@ -244,7 +244,8 @@
 // Middleware
 definePageMeta({
   middleware: 'admin',
-  layout: 'admin'
+  layout: 'admin',
+  ssr: false // Disable SSR to avoid authentication issues
 })
 
 // SEO
@@ -270,12 +271,22 @@ const isLoading = ref(true)
 // Methods
 const loadDashboardData = async () => {
   try {
-    // Load dashboard statistics and recent data
+    console.log('Starting to load dashboard data...')
+    
+    // Load dashboard statistics and recent data with proper authentication
     const [statsData, ordersData, productsData] = await Promise.all([
-      $fetch('/api/admin/stats'),
-      $fetch('/api/admin/orders?limit=5'),
-      $fetch('/api/admin/products/popular?limit=5')
+      $fetch('/api/admin/stats', {
+        credentials: 'include'
+      }),
+      $fetch('/api/admin/orders?limit=5', {
+        credentials: 'include'
+      }),
+      $fetch('/api/admin/products/popular?limit=5', {
+        credentials: 'include'
+      })
     ])
+
+    console.log('Data loaded:', { statsData, ordersData, productsData })
 
     stats.value = statsData.data || stats.value
     recentOrders.value = ordersData.data || []
@@ -283,7 +294,8 @@ const loadDashboardData = async () => {
 
   } catch (error) {
     console.error('Failed to load dashboard data:', error)
-    useToast().error('Failed to load dashboard information')
+    console.error('Error details:', error)
+    useToast().error(`Failed to load dashboard: ${error.statusMessage || error.message}`)
   } finally {
     isLoading.value = false
   }

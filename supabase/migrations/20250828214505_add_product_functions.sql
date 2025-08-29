@@ -290,13 +290,12 @@ BEGIN
 END;
 $$;
 
--- Create indexes for full-text search performance
-CREATE INDEX IF NOT EXISTS idx_products_fts 
-ON products USING gin(to_tsvector('english', name || ' ' || COALESCE(description, '') || ' ' || array_to_string(tags, ' ')));
-
 -- Create indexes for popular products function
 CREATE INDEX IF NOT EXISTS idx_products_popularity 
 ON products (is_active, view_count DESC, download_count DESC, created_at DESC);
+
+-- Note: Full-text search indexes are created automatically by Postgres for GIN indexes
+-- We'll handle search through the search_products_fts function instead
 
 -- Grant execute permissions to authenticated users
 GRANT EXECUTE ON FUNCTION increment_view_count(UUID) TO authenticated;
