@@ -38,84 +38,84 @@
     </div>
 
     <!-- Hero Content -->
-    <div class="container-custom pt-16 pb-20 relative">
+    <div class="container-custom pt-12 pb-16 sm:pt-16 sm:pb-20 relative">
       <!-- Main Hero Text -->
-      <div class="max-w-4xl mx-auto text-center mb-12">
-        <h1 class="text-4xl md:text-5xl font-heading font-bold text-gray-900 mb-6">
+      <div class="max-w-4xl mx-auto text-center mb-8 sm:mb-12 px-4 sm:px-0">
+        <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-gray-900 mb-4 sm:mb-6 leading-tight">
           Beautiful Website and Email Templates
-          <span class="text-brand-brown">That actually work together</span>
+          <span class="text-brand-brown block sm:inline">That actually work together</span>
         </h1>
-        <p class="text-md md:text-lg text-gray-600 mb-8 max-w-4xl mx-auto">
+        <p class="text-base sm:text-lg md:text-xl text-gray-600 mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed">
           Complete template bundles for businesses, weddings, and creatives, crafted with genuine care, not AI algorithms. Every template works with Canva Free, so you save money for what matters most. Download, customize, and launch in minutes.
         </p>
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-          <NuxtLink to="/templates" class="btn-primary text-lg px-8 py-4">
+        <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center max-w-lg mx-auto sm:max-w-none">
+          <NuxtLink to="/templates" class="btn-primary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto justify-center">
             Find Your Perfect Bundle
-            <Icon name="heroicons:arrow-right" class="ml-2 w-5 h-5" />
+            <Icon name="heroicons:arrow-right" class="ml-2 w-4 sm:w-5 h-4 sm:h-5" />
           </NuxtLink>
-          <NuxtLink to="/about" class="btn-secondary text-lg px-8 py-4">
+          <NuxtLink to="/about" class="btn-secondary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto justify-center">
             See What's Possible
           </NuxtLink>
         </div>
       </div>
 
       <!-- Category Preview Cards -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+      <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8 sm:mb-12 px-4 sm:px-0">
 
       <!-- Canva Category -->
         <NuxtLink to="/categories/canva-templates" class="group block">
           <div class="text-center">
-            <div class="border-3 border-brand-brown/20 rounded-full w-20 h-20 mx-auto mb-3 flex items-center justify-center cursor-pointer hover:border-brand-brown hover:shadow-xl hover:bg-brand-brown/5 transition-all duration-200 group-hover:scale-110 active:scale-95">
-              <Icon name="simple-icons:canva" class="w-20 h-20 text-[#bdccd7]" />
+            <div class="border-2 sm:border-3 border-brand-brown/20 rounded-full w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-2 sm:mb-3 flex items-center justify-center cursor-pointer hover:border-brand-brown hover:shadow-xl hover:bg-brand-brown/5 transition-all duration-200 group-hover:scale-110 active:scale-95">
+              <Icon name="simple-icons:canva" class="w-16 h-16 sm:w-20 sm:h-20 text-[#bdccd7]" />
             </div>
-            <h3 class="text-sm font-medium text-gray-900 group-hover:text-brand-brown transition-colors">Canva</h3>
-            <p class="text-xs text-gray-500 mt-1">Ready-to-edit</p>
+            <h3 class="text-xs sm:text-sm font-medium text-gray-900 group-hover:text-brand-brown transition-colors">Canva</h3>
+            <p class="text-xs text-gray-500 mt-1 hidden sm:block">Ready-to-edit</p>
           </div>
         </NuxtLink>
 
         <!-- Wedding Category -->
         <NuxtLink to="/categories/wedding-templates" class="group block">
           <div class="text-center">
-            <div class="bg-[#e9d1be] border-3 border-brand-brown/20 rounded-full w-20 h-20 mx-auto mb-3 flex items-center justify-center cursor-pointer hover:border-brand-brown hover:shadow-xl hover:bg-brand-brown/5 transition-all duration-200 group-hover:scale-110 active:scale-95">
-              <Icon name="heroicons:heart" class="w-6 h-6 text-brand-brown" />
+            <div class="bg-[#e9d1be] border-2 sm:border-3 border-brand-brown/20 rounded-full w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-2 sm:mb-3 flex items-center justify-center cursor-pointer hover:border-brand-brown hover:shadow-xl hover:bg-brand-brown/5 transition-all duration-200 group-hover:scale-110 active:scale-95">
+              <Icon name="heroicons:heart" class="w-5 h-5 sm:w-6 sm:h-6 text-brand-brown" />
             </div>
-            <h3 class="text-sm font-medium text-gray-900 group-hover:text-brand-brown transition-colors">Wedding</h3>
-            <p class="text-xs text-gray-500 mt-1">Complete wedding flows & Wedding planner portfolios</p>
+            <h3 class="text-xs sm:text-sm font-medium text-gray-900 group-hover:text-brand-brown transition-colors">Wedding</h3>
+            <p class="text-xs text-gray-500 mt-1 hidden sm:block line-clamp-2">Complete wedding flows & Wedding planner portfolios</p>
           </div>
         </NuxtLink>
 
         <!-- Business Category -->
         <NuxtLink to="/categories/business-templates" class="group block">
           <div class="text-center">
-            <div class="bg-[#bbcfca] border-3 border-brand-brown/20 rounded-full w-20 h-20 mx-auto mb-3 flex items-center justify-center cursor-pointer hover:border-brand-brown hover:shadow-xl hover:bg-brand-brown/5 transition-all duration-200 group-hover:scale-110 active:scale-95">
-              <Icon name="heroicons:briefcase" class="w-6 h-6 text-brand-brown" />
+            <div class="bg-[#bbcfca] border-2 sm:border-3 border-brand-brown/20 rounded-full w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-2 sm:mb-3 flex items-center justify-center cursor-pointer hover:border-brand-brown hover:shadow-xl hover:bg-brand-brown/5 transition-all duration-200 group-hover:scale-110 active:scale-95">
+              <Icon name="heroicons:briefcase" class="w-5 h-5 sm:w-6 sm:h-6 text-brand-brown" />
             </div>
-            <h3 class="text-sm font-medium text-gray-900 group-hover:text-brand-brown transition-colors">Business</h3>
-            <p class="text-xs text-gray-500 mt-1">Professional website templates for businesses (Therapist, coaches, consultants, etc.)</p>
+            <h3 class="text-xs sm:text-sm font-medium text-gray-900 group-hover:text-brand-brown transition-colors">Business</h3>
+            <p class="text-xs text-gray-500 mt-1 hidden sm:block line-clamp-2">Professional website templates for businesses (Therapist, coaches, consultants, etc.)</p>
           </div>
         </NuxtLink>
 
         <!-- Portfolio Category -->
         <NuxtLink to="/categories/portfolio-templates" class="group block">
           <div class="text-center">
-            <div class="bg-[#d7c6c8] border-3 border-brand-brown/20 rounded-full w-20 h-20 mx-auto mb-3 flex items-center justify-center cursor-pointer hover:border-brand-brown hover:shadow-xl hover:bg-brand-brown/5 transition-all duration-200 group-hover:scale-110 active:scale-95">
-              <Icon name="heroicons:photo" class="w-6 h-6 text-brand-brown" />
+            <div class="bg-[#d7c6c8] border-2 sm:border-3 border-brand-brown/20 rounded-full w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-2 sm:mb-3 flex items-center justify-center cursor-pointer hover:border-brand-brown hover:shadow-xl hover:bg-brand-brown/5 transition-all duration-200 group-hover:scale-110 active:scale-95">
+              <Icon name="heroicons:photo" class="w-5 h-5 sm:w-6 sm:h-6 text-brand-brown" />
             </div>
-            <h3 class="text-sm font-medium text-gray-900 group-hover:text-brand-brown transition-colors">Portfolios and Showcases</h3>
-            <p class="text-xs text-gray-500 mt-1">Creative showcase & Trust-building templates for self-promotion</p>
+            <h3 class="text-xs sm:text-sm font-medium text-gray-900 group-hover:text-brand-brown transition-colors line-clamp-1">Portfolios and Showcases</h3>
+            <p class="text-xs text-gray-500 mt-1 hidden sm:block line-clamp-2">Creative showcase & Trust-building templates for self-promotion</p>
           </div>
         </NuxtLink>
       </div>
 
       <!-- Social Proof -->
-      <div class="text-center">
-        <p class="text-gray-500 mb-4">Where human creativity meets personal care—every template crafted with passion, not algorithms.</p>
+      <div class="text-center px-4 sm:px-0">
+        <p class="text-sm sm:text-base text-gray-500 mb-3 sm:mb-4 max-w-2xl mx-auto">Where human creativity meets personal care—every template crafted with passion, not algorithms.</p>
         <div class="flex justify-center space-x-1 mb-2">
-          <Icon name="heroicons:star-20-solid" class="w-5 h-5 text-yellow-400" />
-          <Icon name="heroicons:star-20-solid" class="w-5 h-5 text-yellow-400" />
-          <Icon name="heroicons:star-20-solid" class="w-5 h-5 text-yellow-400" />
-          <Icon name="heroicons:star-20-solid" class="w-5 h-5 text-yellow-400" />
-          <Icon name="heroicons:star-20-solid" class="w-5 h-5 text-yellow-400" />
+          <Icon name="heroicons:star-20-solid" class="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
+          <Icon name="heroicons:star-20-solid" class="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
+          <Icon name="heroicons:star-20-solid" class="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
+          <Icon name="heroicons:star-20-solid" class="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
+          <Icon name="heroicons:star-20-solid" class="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
         </div>
       </div>
     </div>
