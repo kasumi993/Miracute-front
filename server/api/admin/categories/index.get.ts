@@ -1,14 +1,13 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
-import type { Database, Category } from '~/types/database'
+import type { Database } from '~/types/database'
 
-export default defineEventHandler(async (event): Promise<Category[]> => {
+export default defineEventHandler(async (event) => {
   const supabase = serverSupabaseServiceRole<Database>(event)
 
   try {
     const { data, error } = await supabase
       .from('categories')
       .select('*')
-      .eq('is_active', true)
       .order('sort_order', { ascending: true })
 
     if (error) {
@@ -19,9 +18,14 @@ export default defineEventHandler(async (event): Promise<Category[]> => {
       })
     }
 
-    return data || []
+    return {
+      success: true,
+      data: data || []
+    }
 
   } catch (error: any) {
+    console.error('Error fetching categories:', error)
+    
     if (error.statusCode) {
       throw error
     }

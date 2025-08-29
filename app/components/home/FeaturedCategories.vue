@@ -16,8 +16,28 @@
         </NuxtLink>
       </div>
 
-      <!-- Horizontal Scrollable Template Cards -->
-      <div class="overflow-x-auto pb-4 px-4 sm:px-0 -mx-4 sm:mx-0">
+      <!-- Loading State -->
+      <div v-if="isLoading" class="overflow-x-auto pb-4 px-4 sm:px-0 -mx-4 sm:mx-0">
+        <div class="flex space-x-4 sm:space-x-6 min-w-max pl-4 sm:pl-0">
+          <div v-for="i in 4" :key="i" class="group flex-none w-72 sm:w-80 animate-pulse">
+            <div class="bg-white border-2 border-gray-100 rounded-2xl overflow-hidden">
+              <div class="bg-gray-200 h-44 sm:h-48"></div>
+              <div class="p-4 sm:p-5">
+                <div class="h-4 bg-gray-200 rounded mb-2"></div>
+                <div class="h-3 bg-gray-200 rounded mb-4"></div>
+                <div class="flex space-x-2">
+                  <div class="h-3 bg-gray-200 rounded w-16"></div>
+                  <div class="h-3 bg-gray-200 rounded w-16"></div>
+                  <div class="h-3 bg-gray-200 rounded w-16"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Products -->
+      <div v-else-if="featuredProducts.length > 0" class="overflow-x-auto pb-4 px-4 sm:px-0 -mx-4 sm:mx-0">
         <div class="flex space-x-4 sm:space-x-6 min-w-max pl-4 sm:pl-0">
           <div v-for="product in featuredProducts" :key="product.id" class="group flex-none w-72 sm:w-80">
             <NuxtLink :to="`/templates/${product.slug}`" class="block">
@@ -25,7 +45,7 @@
                 <!-- Template Preview - Compact -->
                 <div class="relative overflow-hidden bg-gray-100 h-44 sm:h-48">
                   <img 
-                    :src="product.previewImage" 
+                    :src="product.preview_images?.[0] || product.previewImage || 'https://images.unsplash.com/photo-1519741497674-611481863552?w=400&h=500&fit=crop&crop=center'" 
                     :alt="product.name"
                     class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     loading="lazy"
@@ -39,10 +59,10 @@
                   <!-- Category + Price badge -->
                   <div class="absolute top-2 sm:top-3 left-2 sm:left-3 flex space-x-1 sm:space-x-2">
                     <span class="bg-white/90 backdrop-blur px-2 py-1 rounded-full text-xs font-medium text-gray-700">
-                      {{ product.category }}
+                      {{ product.category?.name || product.category }}
                     </span>
                     <span class="bg-brand-brown text-white px-2 py-1 rounded-full text-xs font-bold">
-                      ${{ product.price }}
+                      ${{ parseFloat(product.price).toFixed(0) }}
                     </span>
                   </div>
                 </div>
@@ -55,11 +75,11 @@
                     </h3>
                     <div class="flex items-center space-x-1 ml-2 flex-shrink-0">
                       <Icon name="heroicons:star-20-solid" class="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400" />
-                      <span class="text-xs sm:text-sm font-medium text-gray-700">{{ product.rating }}</span>
+                      <span class="text-xs sm:text-sm font-medium text-gray-700">4.8</span>
                     </div>
                   </div>
                   <p class="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2">
-                    {{ product.description }}
+                    {{ product.short_description || product.description }}
                   </p>
                   <!-- Features Icons -->
                   <div class="flex items-center space-x-2 sm:space-x-4 text-xs text-gray-500">
@@ -75,14 +95,20 @@
                       <Icon name="simple-icons:canva" class="w-3 h-3" />
                       <span class="hidden sm:inline">Canva</span>
                     </div>
-                    <span class="text-gray-400 hidden sm:inline">+{{ product.reviews }} reviews</span>
-                    <span class="text-gray-400 sm:hidden">{{ product.reviews }} reviews</span>
+                    <span class="text-gray-400 hidden sm:inline">+{{ product.download_count || 45 }} downloads</span>
+                    <span class="text-gray-400 sm:hidden">{{ product.download_count || 45 }}</span>
                   </div>
                 </div>
               </div>
             </NuxtLink>
           </div>
         </div>
+      </div>
+
+      <!-- Empty State -->
+      <div v-else class="text-center py-12">
+        <Icon name="heroicons:squares-2x2" class="w-16 h-16 text-gray-300 mx-auto mb-4" />
+        <p class="text-gray-500 text-lg">No featured products available at the moment.</p>
       </div>
 
       <!-- Mobile CTA -->
@@ -98,50 +124,24 @@
 </template>
 
 <script setup>
-const featuredProducts = ref([
-  {
-    id: 1,
-    name: 'Complete Wedding Bundle',
-    slug: 'elegant-wedding-template',
-    category: 'Wedding',
-    description: 'Everything you need for your special day: website, email invitations, RSVP system, and thank you cards. Designed to work together seamlessly.',
-    previewImage: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=400&h=500&fit=crop&crop=center',
-    price: 59,
-    reviews: 127,
-    rating: 5
-  },
-  {
-    id: 2,
-    name: 'Professional Coach Template',
-    slug: 'modern-business-template',
-    category: 'Business',
-    description: 'Complete business system for coaches and consultants. Website, email sequences, and client onboarding materials.',
-    previewImage: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=400&h=500&fit=crop&crop=center',
-    price: 49,
-    reviews: 89,
-    rating: 5
-  },
-  {
-    id: 3,
-    name: 'Wellness Practice Bundle',
-    slug: 'therapy-practice-template',
-    category: 'Wellness',
-    description: 'Calming design system for therapists and wellness professionals. Includes intake forms and appointment scheduling.',
-    previewImage: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=500&fit=crop&crop=center',
-    price: 45,
-    reviews: 64,
-    rating: 5
-  },
-  {
-    id: 4,
-    name: 'Creative Portfolio System',
-    slug: 'creative-portfolio-template',
-    category: 'Portfolio',
-    description: 'Showcase your work beautifully with this complete portfolio system. Website, client presentation templates, and proposal forms.',
-    previewImage: 'https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=400&h=500&fit=crop&crop=center',
-    price: 52,
-    reviews: 156,
-    rating: 5
+const featuredProducts = ref([])
+const isLoading = ref(true)
+
+// Load featured products from API
+const loadFeaturedProducts = async () => {
+  try {
+    const response = await $fetch('/api/products?featured=true&limit=6')
+    featuredProducts.value = response.data || []
+  } catch (error) {
+    console.error('Error loading featured products:', error)
+    // Fallback to empty array
+    featuredProducts.value = []
+  } finally {
+    isLoading.value = false
   }
-])
+}
+
+onMounted(async () => {
+  await loadFeaturedProducts()
+})
 </script>

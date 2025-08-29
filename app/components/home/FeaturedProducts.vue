@@ -10,44 +10,66 @@
         </p>
       </div>
       
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- Loading State -->
+      <div v-if="isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div v-for="i in 6" :key="i" class="card-product animate-pulse">
+          <div class="relative aspect-[4/3] bg-gray-200 rounded-t-xl"></div>
+          <div class="p-6">
+            <div class="h-6 bg-gray-200 rounded mb-2"></div>
+            <div class="h-4 bg-gray-200 rounded mb-4"></div>
+            <div class="flex items-center justify-between">
+              <div class="h-6 bg-gray-200 rounded w-20"></div>
+              <div class="h-4 bg-gray-200 rounded w-12"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Products Grid -->
+      <div v-else-if="products.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <div v-for="product in products" :key="product.slug" 
              class="card-product group">
           <NuxtLink :to="`/templates/${product.slug}`">
             <div class="relative aspect-[4/3] overflow-hidden">
               <img 
-                :src="product.image" 
+                :src="product.preview_images?.[0] || 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=600&h=450&fit=crop'" 
                 :alt="product.name"
                 class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 loading="lazy"
               />
               <div class="absolute top-4 right-4">
                 <span class="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium">
-                  {{ product.category }}
+                  {{ product.category?.name || product.category }}
                 </span>
               </div>
             </div>
             <div class="p-6">
               <h3 class="font-heading font-medium text-xl text-gray-900 mb-2">{{ product.name }}</h3>
-              <p class="text-gray-600 mb-4 line-clamp-2">{{ product.description }}</p>
+              <p class="text-gray-600 mb-4 line-clamp-2">{{ product.short_description || product.description }}</p>
               <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-2">
-                  <span class="text-2xl font-bold text-gray-900">${{ product.price }}</span>
-                  <span v-if="product.comparePrice" class="text-lg text-gray-500 line-through">
-                    ${{ product.comparePrice }}
+                  <span class="text-2xl font-bold text-gray-900">${{ parseFloat(product.price).toFixed(2) }}</span>
+                  <span v-if="product.compare_at_price" class="text-lg text-gray-500 line-through">
+                    ${{ parseFloat(product.compare_at_price).toFixed(2) }}
                   </span>
                 </div>
                 <div class="flex items-center space-x-1">
                   <Icon name="heroicons:star-solid" class="w-4 h-4 text-yellow-400" />
-                  <span class="text-sm text-gray-600">{{ product.rating }}</span>
+                  <span class="text-sm text-gray-600">4.8</span>
                 </div>
               </div>
             </div>
           </NuxtLink>
         </div>
       </div>
+
+      <!-- Empty State -->
+      <div v-else class="text-center py-12">
+        <Icon name="heroicons:squares-2x2" class="w-16 h-16 text-gray-300 mx-auto mb-4" />
+        <p class="text-gray-500 text-lg">No featured products available at the moment.</p>
+      </div>
       
-      <div class="text-center mt-12">
+      <div v-if="!isLoading && products.length > 0" class="text-center mt-12">
         <NuxtLink to="/templates" class="btn-primary">
           View All Templates
           <Icon name="heroicons:arrow-right" class="ml-2 w-5 h-5" />
@@ -58,36 +80,24 @@
 </template>
 
 <script setup>
-const products = ref([
-  {
-    name: 'Elegant Rose Wedding Website',
-    slug: 'elegant-rose-wedding-website',
-    description: 'A stunning wedding website featuring elegant rose motifs and romantic typography.',
-    price: '29.99',
-    comparePrice: '39.99',
-    category: 'Wedding',
-    image: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=600&h=450&fit=crop',
-    rating: '4.9'
-  },
-  {
-    name: 'Professional Consulting Website',
-    slug: 'professional-consulting-website',
-    description: 'Sophisticated business template designed for consultants and professional services.',
-    price: '39.99',
-    comparePrice: '49.99',
-    category: 'Business',
-    image: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=600&h=450&fit=crop',
-    rating: '4.8'
-  },
-  {
-    name: 'Calm Therapy Practice',
-    slug: 'calm-therapy-practice-website',
-    description: 'Soothing and professional template designed specifically for therapy practices.',
-    price: '44.99',
-    comparePrice: '54.99',
-    category: 'Healthcare',
-    image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=600&h=450&fit=crop',
-    rating: '4.9'
+const products = ref([])
+const isLoading = ref(true)
+
+// Load featured products from API
+const loadFeaturedProducts = async () => {
+  try {
+    const response = await $fetch('/api/products?featured=true&limit=6')
+    products.value = response.data || []
+  } catch (error) {
+    console.error('Error loading featured products:', error)
+    // Fallback to empty array - could add error state here
+    products.value = []
+  } finally {
+    isLoading.value = false
   }
-])
+}
+
+onMounted(async () => {
+  await loadFeaturedProducts()
+})
 </script>

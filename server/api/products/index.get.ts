@@ -1,8 +1,8 @@
-import { serverSupabaseClient } from '#supabase/server'
+import { serverSupabaseServiceRole } from '#supabase/server'
 import type { Database, ProductSearchFilters, SearchResponse, ProductWithCategory } from '~/types/database'
 
 export default defineEventHandler(async (event): Promise<SearchResponse<ProductWithCategory>> => {
-  const supabase = await serverSupabaseClient<Database>(event)
+  const supabase = serverSupabaseServiceRole<Database>(event)
   
   // Parse query parameters
   const query = getQuery(event)

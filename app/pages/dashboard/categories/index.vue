@@ -151,14 +151,8 @@ const loadCategories = async () => {
   isLoading.value = true
   
   try {
-    const { data, error } = await supabase
-      .from('categories')
-      .select('*')
-      .order('sort_order', { ascending: true })
-    
-    if (error) throw error
-    
-    categories.value = data || []
+    const response = await $fetch('/api/admin/categories')
+    categories.value = response.data || []
   } catch (error) {
     console.error('Error loading categories:', error)
     useToast().error('Failed to load categories')
@@ -178,12 +172,10 @@ const formatDate = (date) => {
 
 const toggleCategoryStatus = async (category) => {
   try {
-    const { error } = await supabase
-      .from('categories')
-      .update({ is_active: !category.is_active })
-      .eq('id', category.id)
-    
-    if (error) throw error
+    const response = await $fetch(`/api/admin/categories/${category.id}`, {
+      method: 'PUT',
+      body: { is_active: !category.is_active }
+    })
     
     category.is_active = !category.is_active
     useToast().success(`Category ${category.is_active ? 'activated' : 'deactivated'}`)
@@ -199,12 +191,9 @@ const deleteCategory = async (category) => {
   }
   
   try {
-    const { error } = await supabase
-      .from('categories')
-      .delete()
-      .eq('id', category.id)
-    
-    if (error) throw error
+    await $fetch(`/api/admin/categories/${category.id}`, {
+      method: 'DELETE'
+    })
     
     useToast().success('Category deleted successfully')
     await loadCategories()

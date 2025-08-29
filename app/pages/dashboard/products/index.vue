@@ -86,7 +86,7 @@
                 
                 <td class="px-6 py-4 whitespace-nowrap">
                   <span class="text-sm text-gray-900">
-                    {{ getCategoryName(product.category_id) }}
+                    {{ product.category?.name || getCategoryName(product.category_id) }}
                   </span>
                 </td>
                 
@@ -217,7 +217,7 @@
                 <div class="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
                   <div>
                     <span class="text-gray-500">Category:</span>
-                    <span class="ml-1 text-gray-900">{{ getCategoryName(product.category_id) }}</span>
+                    <span class="ml-1 text-gray-900">{{ product.category?.name || getCategoryName(product.category_id) }}</span>
                   </div>
                   
                   <div>
@@ -303,21 +303,8 @@ const loadProducts = async () => {
   isLoading.value = true
   
   try {
-    const { data, error } = await supabase
-      .from('products')
-      .select(`
-        *,
-        categories (
-          id,
-          name
-        )
-      `)
-      .order('created_at', { ascending: false })
-    
-    if (error) throw error
-    
-    products.value = data || []
-    
+    const response = await $fetch('/api/admin/products')
+    products.value = response.data || []
   } catch (error) {
     console.error('Error loading products:', error)
     useToast().error('Failed to load products')
@@ -328,14 +315,8 @@ const loadProducts = async () => {
 
 const loadCategories = async () => {
   try {
-    const { data, error } = await supabase
-      .from('categories')
-      .select('id, name')
-      .eq('is_active', true)
-      .order('name')
-
-    if (error) throw error
-    categories.value = data || []
+    const response = await $fetch('/api/admin/categories')
+    categories.value = response.data.filter(cat => cat.is_active) || []
   } catch (error) {
     console.error('Error loading categories:', error)
   }

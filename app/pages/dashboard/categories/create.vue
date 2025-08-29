@@ -180,56 +180,19 @@ const createCategory = async () => {
 const addSampleCategories = async () => {
   isLoading.value = true
   
-  const sampleCategories = [
-    {
-      name: 'Wedding Templates',
-      slug: 'wedding-templates',
-      description: 'Beautiful wedding website templates for your special day. Complete packages with invitation designs, RSVP pages, and more.',
-      sort_order: 1,
-      is_active: true
-    },
-    {
-      name: 'Business Templates',
-      slug: 'business-templates',
-      description: 'Professional website templates for businesses, startups, and entrepreneurs. Perfect for coaches, consultants, and service providers.',
-      sort_order: 2,
-      is_active: true
-    },
-    {
-      name: 'Therapist Templates',
-      slug: 'therapist-templates',
-      description: 'Calming and professional website templates designed specifically for therapists, counselors, and wellness professionals.',
-      sort_order: 3,
-      is_active: true
-    },
-    {
-      name: 'Portfolio Templates',
-      slug: 'portfolio-templates',
-      description: 'Creative portfolio templates for artists, designers, photographers, and creative professionals to showcase their work.',
-      sort_order: 4,
-      is_active: true
-    },
-    {
-      name: 'Canva Templates',
-      slug: 'canva-templates',
-      description: 'Ready-to-use Canva templates that work with the free version. Easy to customize and download instantly.',
-      sort_order: 5,
-      is_active: true
-    }
-  ]
-  
   try {
-    const { error } = await supabase
-      .from('categories')
-      .insert(sampleCategories)
+    console.log('Adding sample categories via API...')
+    const response = await $fetch('/api/admin/categories/sample', {
+      method: 'POST'
+    })
     
-    if (error) throw error
+    console.log('API response:', response)
     
     useToast().success('Sample categories added successfully!')
     await navigateTo('/dashboard/categories')
   } catch (error) {
-    console.error('Error adding sample categories:', error)
-    useToast().error('Failed to add sample categories')
+    console.error('Full error details:', error)
+    useToast().error(`Failed to add sample categories: ${error.data?.message || error.message}`)
   } finally {
     isLoading.value = false
   }
