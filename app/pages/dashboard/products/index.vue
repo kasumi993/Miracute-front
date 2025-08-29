@@ -1,1 +1,292 @@
-<template><div><h1>Page</h1><!-- Content will be implemented here --></div></template><script setup>// Page will be implemented</script>
+<template>
+  <div class="min-h-screen bg-neutral-50 py-8">
+    <div class="container-custom">
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <h1 class="text-3xl font-heading font-medium text-gray-900">Products</h1>
+          <p class="text-gray-600 mt-2">Manage your digital templates and downloads</p>
+        </div>
+        
+        <NuxtLink to="/dashboard/products/create" class="btn-primary">
+          <Icon name="heroicons:plus" class="w-5 h-5 mr-2" />
+          Add Template
+        </NuxtLink>
+      </div>
+
+      <!-- Products Table -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Template
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Category
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Price
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  File
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Created
+                </th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr v-if="isLoading">
+                <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                  <Icon name="heroicons:arrow-path" class="w-5 h-5 animate-spin mx-auto" />
+                  <p class="mt-2">Loading products...</p>
+                </td>
+              </tr>
+              
+              <tr v-else-if="products.length === 0">
+                <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                  <Icon name="heroicons:squares-2x2" class="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                  <p>No products found</p>
+                  <NuxtLink to="/dashboard/products/create" class="text-brand-brown hover:text-brand-brown/80 font-medium">
+                    Create your first template →
+                  </NuxtLink>
+                </td>
+              </tr>
+
+              <tr v-for="product in products" :key="product.id" class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 h-12 w-12">
+                      <img 
+                        v-if="product.preview_images?.[0]" 
+                        class="h-12 w-12 rounded-lg object-cover"
+                        :src="product.preview_images[0]" 
+                        :alt="product.name"
+                      />
+                      <div v-else class="h-12 w-12 rounded-lg bg-gray-200 flex items-center justify-center">
+                        <Icon name="heroicons:photo" class="w-6 h-6 text-gray-400" />
+                      </div>
+                    </div>
+                    <div class="ml-4">
+                      <div class="text-sm font-medium text-gray-900">
+                        {{ product.name }}
+                      </div>
+                      <div class="text-sm text-gray-500">
+                        {{ product.short_description?.substring(0, 60) }}...
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="text-sm text-gray-900">
+                    {{ getCategoryName(product.category_id) }}
+                  </span>
+                </td>
+                
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">
+                    ${{ parseFloat(product.price).toFixed(2) }}
+                  </div>
+                  <div v-if="product.compare_at_price" class="text-sm text-gray-500 line-through">
+                    ${{ parseFloat(product.compare_at_price).toFixed(2) }}
+                  </div>
+                </td>
+                
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center space-x-2">
+                    <span 
+                      class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
+                      :class="{
+                        'bg-green-100 text-green-800': product.is_active,
+                        'bg-gray-100 text-gray-800': !product.is_active
+                      }"
+                    >
+                      {{ product.is_active ? 'Active' : 'Inactive' }}
+                    </span>
+                    <span 
+                      v-if="product.is_featured"
+                      class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800"
+                    >
+                      Featured
+                    </span>
+                  </div>
+                </td>
+                
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <Icon 
+                      :name="product.download_files?.length ? 'heroicons:document-check' : 'heroicons:document-minus'" 
+                      :class="product.download_files?.length ? 'text-green-600' : 'text-red-400'"
+                      class="w-5 h-5 mr-2" 
+                    />
+                    <span class="text-sm" :class="product.download_files?.length ? 'text-green-800' : 'text-red-600'">
+                      {{ product.download_files?.length ? 'Uploaded' : 'Missing' }}
+                    </span>
+                  </div>
+                </td>
+                
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {{ formatDate(product.created_at) }}
+                </td>
+                
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <div class="flex items-center justify-end space-x-2">                    
+                    <button
+                      @click="toggleProductStatus(product)"
+                      class="text-gray-600 hover:text-gray-900"
+                    >
+                      <Icon :name="product.is_active ? 'heroicons:eye-slash' : 'heroicons:eye'" class="w-4 h-4" />
+                    </button>
+                    
+                    <button
+                      @click="deleteProduct(product)"
+                      class="text-red-600 hover:text-red-900"
+                    >
+                      <Icon name="heroicons:trash" class="w-4 h-4" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+// Middleware
+definePageMeta({
+  middleware: 'admin',
+  layout: 'admin'
+})
+
+// SEO
+useSeoMeta({
+  title: 'Products | Dashboard',
+  description: 'Manage your digital templates and products',
+  robots: 'noindex, nofollow'
+})
+
+// Composables
+const supabase = useSupabaseClient()
+
+// State
+const isLoading = ref(false)
+const products = ref([])
+const categories = ref([])
+
+// Methods
+const loadProducts = async () => {
+  isLoading.value = true
+  
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .select(`
+        *,
+        categories (
+          id,
+          name
+        )
+      `)
+      .order('created_at', { ascending: false })
+    
+    if (error) throw error
+    
+    products.value = data || []
+    
+  } catch (error) {
+    console.error('Error loading products:', error)
+    useToast().error('Failed to load products')
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const loadCategories = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('categories')
+      .select('id, name')
+      .eq('is_active', true)
+      .order('name')
+
+    if (error) throw error
+    categories.value = data || []
+  } catch (error) {
+    console.error('Error loading categories:', error)
+  }
+}
+
+const getCategoryName = (categoryId) => {
+  if (!categoryId) return 'Uncategorized'
+  const category = categories.value.find(cat => cat.id === categoryId)
+  return category?.name || 'Unknown'
+}
+
+const formatDate = (date) => {
+  if (!date) return ''
+  return new Date(date).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  })
+}
+
+const toggleProductStatus = async (product) => {
+  try {
+    const { error } = await supabase
+      .from('products')
+      .update({ is_active: !product.is_active })
+      .eq('id', product.id)
+    
+    if (error) throw error
+    
+    product.is_active = !product.is_active
+    useToast().success(`Product ${product.is_active ? 'activated' : 'deactivated'}`)
+  } catch (error) {
+    console.error('Error updating product status:', error)
+    useToast().error('Failed to update product status')
+  }
+}
+
+const deleteProduct = async (product) => {
+  if (!confirm(`Are you sure you want to delete "${product.name}"? This action cannot be undone.`)) {
+    return
+  }
+  
+  try {
+    const { error } = await supabase
+      .from('products')
+      .delete()
+      .eq('id', product.id)
+    
+    if (error) throw error
+    
+    useToast().success('Product deleted successfully')
+    await loadProducts()
+  } catch (error) {
+    console.error('Error deleting product:', error)
+    useToast().error('Failed to delete product')
+  }
+}
+
+// Initialize
+onMounted(async () => {
+  await Promise.all([
+    loadCategories(),
+    loadProducts()
+  ])
+})
+</script>
