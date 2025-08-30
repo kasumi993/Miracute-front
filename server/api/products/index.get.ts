@@ -22,6 +22,8 @@ export default defineEventHandler(async (event): Promise<SearchResponse<ProductW
     featured: query.featured === 'true',
     sortBy: query.sortBy as any || 'newest'
   }
+  
+  const excludeId = query.exclude as string
 
   try {
     // Build the query
@@ -62,13 +64,18 @@ export default defineEventHandler(async (event): Promise<SearchResponse<ProductW
       dbQuery = dbQuery.overlaps('software_required', filters.software)
     }
 
-    // Full-text search
+    // Exclude specific product (for related products)
+    if (excludeId) {
+      dbQuery = dbQuery.neq('id', excludeId)
+    }
+
+    // Enhanced search functionality
     if (filters.search) {
-      const searchTerms = filters.search.trim().replace(/\s+/g, ' & ')
-      dbQuery = dbQuery.textSearch('fts', searchTerms, {
-        type: 'websearch',
-        config: 'english'
-      })
+      const searchTerm = filters.search.trim().toLowerCase()
+      console.log('API: Searching for:', searchTerm)
+      
+      // Use ilike for partial matches across multiple fields
+      dbQuery = dbQuery.or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,short_description.ilike.%${searchTerm}%`)
     }
 
     // Sorting

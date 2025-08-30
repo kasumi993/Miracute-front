@@ -51,12 +51,12 @@
                 <NuxtLink 
                   v-for="category in categories" 
                   :key="category.slug"
-                  :to="`/categories/${category.slug}`" 
+                  :to="`/templates?category=${category.slug}`" 
                   class="block text-sm text-gray-600 hover:text-gray-900 py-1"
                 >
                   {{ category.name }}
                 </NuxtLink>
-                <NuxtLink to="/categories" class="block text-sm text-gray-600 hover:text-gray-900 py-1 font-medium">
+                <NuxtLink to="/templates" class="block text-sm text-gray-600 hover:text-gray-900 py-1 font-medium">
                   View All Categories →
                 </NuxtLink>
               </div>

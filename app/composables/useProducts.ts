@@ -38,15 +38,10 @@ export const useProducts = () => {
   // Fetch all categories
   const fetchCategories = async () => {
     try {
-      const { data, error: fetchError } = await supabase
-        .from('categories')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order')
-
-      if (fetchError) throw fetchError
-
-      categories.value = data || []
+      const response = await $fetch('/api/categories')
+      const data = response.data || []
+      
+      categories.value = data
       return data
     } catch (err) {
       console.error('Error fetching categories:', err)
@@ -64,65 +59,30 @@ export const useProducts = () => {
     error.value = null
 
     try {
-      let query = supabase
-        .from('products')
-        .select(`
-          *,
-          category:categories(*)
-        `, { count: 'exact' })
-        .eq('is_active', true)
-
-      // Apply filters
-      if (filters.category) {
-        query = query.eq('category_id', filters.category)
+      // Build query parameters
+      const queryParams: any = {
+        page,
+        limit: PRODUCTS_PER_PAGE
       }
 
-      if (filters.minPrice) {
-        query = query.gte('price', filters.minPrice)
-      }
+      if (filters.category) queryParams.category = filters.category
+      if (filters.minPrice) queryParams.minPrice = filters.minPrice
+      if (filters.maxPrice) queryParams.maxPrice = filters.maxPrice
+      if (filters.featured) queryParams.featured = 'true'
+      if (filters.difficulty) queryParams.difficulty = filters.difficulty
+      if (filters.search) queryParams.search = filters.search
+      if (filters.tags?.length) queryParams.tags = filters.tags.join(',')
+      if (filters.software?.length) queryParams.software = filters.software.join(',')
+      if ((filters as any).sortBy) queryParams.sortBy = (filters as any).sortBy
 
-      if (filters.maxPrice) {
-        query = query.lte('price', filters.maxPrice)
-      }
+      const response = await $fetch('/api/products', { query: queryParams })
 
-      if (filters.featured) {
-        query = query.eq('is_featured', true)
-      }
+      const productsData = response.data || []
+      const total = response.pagination?.total || 0
+      const hasNext = response.pagination?.hasNext || false
 
-      if (filters.difficulty) {
-        query = query.eq('difficulty_level', filters.difficulty)
-      }
-
-      if (filters.tags && filters.tags.length > 0) {
-        query = query.overlaps('tags', filters.tags)
-      }
-
-      if (filters.software && filters.software.length > 0) {
-        query = query.overlaps('software_required', filters.software)
-      }
-
-      if (filters.search) {
-        query = query.textSearch('fts', filters.search, {
-          type: 'websearch',
-          config: 'english'
-        })
-      }
-
-      // Pagination
-      const from = (page - 1) * PRODUCTS_PER_PAGE
-      const to = from + PRODUCTS_PER_PAGE - 1
-
-      query = query
-        .range(from, to)
-        .order('created_at', { ascending: false })
-
-      const { data, count, error: fetchError } = await query
-
-      if (fetchError) throw fetchError
-
-      const productsData = data || []
-      totalProducts.value = count || 0
-      hasMore.value = (count || 0) > page * PRODUCTS_PER_PAGE
+      totalProducts.value = total
+      hasMore.value = hasNext
 
       if (append) {
         products.value = [...products.value, ...productsData]
@@ -133,8 +93,8 @@ export const useProducts = () => {
 
       return {
         products: productsData,
-        total: count || 0,
-        hasMore: hasMore.value
+        total,
+        hasMore: hasNext
       }
     } catch (err: any) {
       error.value = err.message || 'Failed to fetch products'
@@ -150,29 +110,12 @@ export const useProducts = () => {
     error.value = null
 
     try {
-      const { data, error: fetchError } = await supabase
-        .from('products')
-        .select(`
-          *,
-          category:categories(*)
-        `)
-        .eq('slug', slug)
-        .eq('is_active', true)
-        .single()
-
-      if (fetchError) {
-        if (fetchError.code === 'PGRST116') {
-          // Product not found
-          return null
-        }
-        throw fetchError
-      }
-
-      // Increment view count
-      await incrementViewCount(data.id)
-
-      return data
+      const response = await $fetch(`/api/products/${slug}`)
+      return response.data
     } catch (err: any) {
+      if (err.statusCode === 404) {
+        return null
+      }
       error.value = err.message || 'Failed to fetch product'
       throw err
     } finally {
@@ -237,21 +180,14 @@ export const useProducts = () => {
   // Get related products (same category, excluding current product)
   const getRelatedProducts = async (productId: string, categoryId: string, limit: number = 4) => {
     try {
-      const { data, error: fetchError } = await supabase
-        .from('products')
-        .select(`
-          *,
-          category:categories(*)
-        `)
-        .eq('category_id', categoryId)
-        .eq('is_active', true)
-        .neq('id', productId)
-        .limit(limit)
-        .order('created_at', { ascending: false })
-
-      if (fetchError) throw fetchError
-
-      return data || []
+      const response = await $fetch('/api/products', {
+        query: {
+          category: categoryId,
+          limit,
+          exclude: productId
+        }
+      })
+      return response.data || []
     } catch (err) {
       console.error('Error fetching related products:', err)
       return []

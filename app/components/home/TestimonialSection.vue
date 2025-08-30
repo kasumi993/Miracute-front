@@ -3,10 +3,10 @@
     <div class="container-custom">
       <div class="text-center mb-10 sm:mb-12 px-4 sm:px-0">
         <h2 class="text-xl sm:text-2xl md:text-3xl font-heading font-bold text-gray-900 mb-3 sm:mb-4">
-          What My Couples Say
+          What They say about Us
         </h2>
         <p class="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto">
-          Real feedback from real couples who used Miracute templates for their special day
+          Every template we create is born from passion and genuine care for your success. Here's what our customers say about the difference that human touch makes:
         </p>
       </div>
       
@@ -44,7 +44,7 @@
         <div class="grid grid-cols-3 gap-4 sm:gap-6 md:gap-8 text-center">
           <div>
             <div class="text-xl sm:text-2xl font-bold text-brand-brown mb-1 sm:mb-2">20+</div>
-            <p class="text-gray-600 text-xs sm:text-sm">Happy Couples<span class="hidden sm:inline"> Served</span></p>
+            <p class="text-gray-600 text-xs sm:text-sm">Happy Customers<span class="hidden sm:inline"> Served</span></p>
           </div>
           <div>
             <div class="text-xl sm:text-2xl font-bold text-brand-brown mb-1 sm:mb-2">5★</div>

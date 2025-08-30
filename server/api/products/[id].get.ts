@@ -1,9 +1,9 @@
-import { serverSupabaseClient } from '#supabase/server'
+import { serverSupabaseServiceRole } from '#supabase/server'
 import type { Database, ProductWithCategory } from '~/types/database'
 
-export default defineEventHandler(async (event): Promise<ProductWithCategory | null> => {
-  const supabase = await serverSupabaseClient<Database>(event)
-  const slug = getRouterParam(event, 'slug')
+export default defineEventHandler(async (event): Promise<{ data: ProductWithCategory | null }> => {
+  const supabase = serverSupabaseServiceRole<Database>(event)
+  const slug = getRouterParam(event, 'id')
 
   if (!slug) {
     throw createError({
@@ -26,20 +26,14 @@ export default defineEventHandler(async (event): Promise<ProductWithCategory | n
     if (error) {
       if (error.code === 'PGRST116') {
         // Product not found
-        throw createError({
-          statusCode: 404,
-          statusMessage: 'Product not found'
-        })
+        return { data: null }
       }
       throw error
     }
 
-    // Increment view count asynchronously (don't wait for it)
-    if (data?.id) {
-      supabase.rpc('increment_view_count', { product_id: data.id }).catch(console.error)
-    }
+    // TODO: Implement view count increment later
 
-    return data as ProductWithCategory
+    return { data: data as ProductWithCategory }
 
   } catch (error: any) {
     if (error.statusCode) {

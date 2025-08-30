@@ -1,14 +1,14 @@
 <template>
   <div class="relative">
-    <button 
-      @click="toggleMenu"
+    <NuxtLink 
+      to="/templates"
       @mouseenter="showMenu"
       @mouseleave="hideMenuDelayed"
       class="flex items-center space-x-1 text-gray-700 hover:text-gray-900 font-medium transition-colors uppercase tracking-wide text-sm px-4 py-2 rounded-lg hover:bg-gray-50"
     >
       <span>Explore Templates</span>
       <Icon name="heroicons:chevron-down" class="w-4 h-4" />
-    </button>
+    </NuxtLink>
 
     <!-- Categories Mega Menu -->
     <Transition
@@ -32,7 +32,7 @@
               🌸 Available Now
             </h3>
             <div class="space-y-4">
-              <NuxtLink to="/categories/wedding-templates" class="flex items-center space-x-3 text-sm text-gray-600 hover:text-gray-900 transition-colors group p-3 rounded-xl hover:bg-brand-pink/10">
+              <NuxtLink to="/templates?category=wedding-templates" class="flex items-center space-x-3 text-sm text-gray-600 hover:text-gray-900 transition-colors group p-3 rounded-xl hover:bg-brand-pink/10">
                 <div class="w-12 h-12 rounded-lg bg-brand-pink flex items-center justify-center">
                   <Icon name="heroicons:heart" class="w-6 h-6 text-brand-brown" />
                 </div>
@@ -109,7 +109,7 @@
         <!-- Bottom CTA -->
         <div class="mt-8 pt-6 border-t border-gray-200">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <NuxtLink to="/templates/wedding" class="flex items-center justify-center space-x-2 bg-brand-brown text-white px-4 py-3 rounded-xl font-medium hover:bg-brand-brown/90 transition-colors">
+            <NuxtLink to="/templates?category=wedding-templates" class="flex items-center justify-center space-x-2 bg-brand-brown text-white px-4 py-3 rounded-xl font-medium hover:bg-brand-brown/90 transition-colors">
               <Icon name="heroicons:heart" class="w-4 h-4" />
               <span>View Wedding Templates</span>
             </NuxtLink>
@@ -144,9 +144,6 @@ const hideMenuDelayed = () => {
   }, 150)
 }
 
-const toggleMenu = () => {
-  isMenuOpen.value = !isMenuOpen.value
-}
 
 // Cleanup
 onUnmounted(() => {

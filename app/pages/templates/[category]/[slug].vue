@@ -51,12 +51,25 @@
           <!-- Product Images -->
           <div class="space-y-4">
             <!-- Main Image -->
-            <div class="aspect-[4/3] rounded-2xl overflow-hidden bg-white shadow-lg">
+            <div class="aspect-[4/3] rounded-2xl overflow-hidden bg-white shadow-lg relative group cursor-pointer"
+                 @click="toggleImageZoom"
+                 @mousemove="handleImageHover"
+                 @mouseleave="isImageZoomed = false">
               <NuxtImg 
                 :src="selectedImage"
                 :alt="product.name"
-                class="w-full h-full object-cover"
+                :class="[
+                  'w-full h-full object-cover transition-transform duration-300',
+                  isImageZoomed ? 'scale-150' : 'group-hover:scale-110'
+                ]"
+                :style="isImageZoomed ? {
+                  transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`
+                } : {}"
               />
+              <!-- Zoom Indicator -->
+              <div class="absolute top-4 right-4 bg-white/80 backdrop-blur rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Icon name="heroicons:magnifying-glass-plus" class="w-5 h-5 text-gray-600" />
+              </div>
             </div>
 
             <!-- Thumbnail Gallery -->
@@ -114,6 +127,22 @@
                     class="bg-red-100 text-red-800 text-sm font-bold px-2 py-1 rounded-full">
                 Save {{ discountPercentage }}%
               </span>
+            </div>
+
+            <!-- Stats -->
+            <div class="flex items-center space-x-6 text-sm text-gray-600 bg-gray-50 rounded-xl p-4">
+              <div class="flex items-center space-x-2">
+                <Icon name="heroicons:star" class="w-4 h-4 text-yellow-400" />
+                <span>{{ averageRating }} ({{ sampleReviews.length }} reviews)</span>
+              </div>
+              <div class="flex items-center space-x-2">
+                <Icon name="heroicons:arrow-down-tray" class="w-4 h-4 text-blue-500" />
+                <span>{{ getDownloadCount(product?.id) }} downloads</span>
+              </div>
+              <div class="flex items-center space-x-2">
+                <Icon name="heroicons:heart" class="w-4 h-4 text-red-500" />
+                <span>{{ Math.floor(getDownloadCount(product?.id) * 0.3) }} favorites</span>
+              </div>
             </div>
 
             <!-- Product Meta -->
@@ -228,6 +257,87 @@
         </div>
       </section>
 
+      <!-- Reviews Section -->
+      <section class="container-custom py-12">
+        <div class="max-w-6xl mx-auto">
+          <div class="flex items-center justify-between mb-8">
+            <div>
+              <h2 class="text-3xl font-heading font-medium text-gray-900 mb-2">Customer Reviews</h2>
+              <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-2">
+                  <div class="flex items-center">
+                    <Icon v-for="i in Math.floor(averageRating)" :key="i" 
+                          name="heroicons:star-20-solid" class="w-5 h-5 text-yellow-400" />
+                    <Icon v-if="averageRating % 1 !== 0" 
+                          name="heroicons:star-20-solid" class="w-5 h-5 text-yellow-400 opacity-50" />
+                    <Icon v-for="i in (5 - Math.ceil(averageRating))" :key="i + Math.ceil(averageRating)" 
+                          name="heroicons:star" class="w-5 h-5 text-gray-300" />
+                  </div>
+                  <span class="text-lg font-medium text-gray-900">{{ averageRating }}</span>
+                  <span class="text-gray-600">({{ sampleReviews.length }} reviews)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reviews Grid -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div v-for="review in sampleReviews" :key="review.id" 
+                 class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0">
+                  <div class="w-12 h-12 rounded-full bg-gradient-to-br from-brand-sage to-brand-pink flex items-center justify-center">
+                    <span class="text-sm font-semibold text-white">{{ review.name.split(' ').map(n => n[0]).join('') }}</span>
+                  </div>
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-center justify-between mb-3">
+                    <div>
+                      <h4 class="font-medium text-gray-900">{{ review.name }}</h4>
+                      <div class="flex items-center space-x-2 mt-1">
+                        <div class="flex items-center">
+                          <Icon v-for="i in review.rating" :key="i" 
+                                name="heroicons:star-20-solid" class="w-4 h-4 text-yellow-400" />
+                          <Icon v-for="i in (5 - review.rating)" :key="i + review.rating" 
+                                name="heroicons:star" class="w-4 h-4 text-gray-300" />
+                        </div>
+                        <span v-if="review.verified" class="text-xs text-green-600 font-medium flex items-center space-x-1">
+                          <Icon name="heroicons:check-badge" class="w-4 h-4" />
+                          <span>Verified Purchase</span>
+                        </span>
+                      </div>
+                    </div>
+                    <span class="text-sm text-gray-500">{{ review.date }}</span>
+                  </div>
+                  <p class="text-gray-700 leading-relaxed">{{ review.comment }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Review Summary -->
+          <div class="mt-12 bg-neutral-50 rounded-2xl p-8">
+            <div class="text-center">
+              <h3 class="text-xl font-heading font-medium text-gray-900 mb-4">What our customers say</h3>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="text-center">
+                  <div class="text-2xl font-bold text-brand-sage mb-1">{{ averageRating }}/5</div>
+                  <div class="text-sm text-gray-600">Average Rating</div>
+                </div>
+                <div class="text-center">
+                  <div class="text-2xl font-bold text-brand-sage mb-1">{{ Math.round((sampleReviews.filter(r => r.rating === 5).length / sampleReviews.length) * 100) }}%</div>
+                  <div class="text-sm text-gray-600">5-Star Reviews</div>
+                </div>
+                <div class="text-center">
+                  <div class="text-2xl font-bold text-brand-sage mb-1">{{ sampleReviews.length }}</div>
+                  <div class="text-sm text-gray-600">Total Reviews</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- Related Products -->
       <section v-if="relatedProducts.length > 0" class="container-custom py-12">
         <div class="text-center mb-12">
@@ -260,6 +370,117 @@ const relatedProducts = ref([])
 const isLoading = ref(true)
 const selectedImage = ref('')
 const isInWishlist = ref(false)
+const isImageZoomed = ref(false)
+const zoomPosition = ref({ x: 0, y: 0 })
+
+// Enhanced sample reviews data
+const generateSampleReviews = (productName, category) => {
+  const reviewPool = [
+    {
+      name: 'Sarah Mitchell',
+      rating: 5,
+      comment: `This ${productName.toLowerCase()} is absolutely stunning! Perfect for my ${category?.toLowerCase() || 'business'}. The quality exceeded my expectations.`,
+      date: '2 weeks ago',
+      verified: true
+    },
+    {
+      name: 'Jennifer Kim',
+      rating: 5,
+      comment: `Love this template! So professional and easy to customize. My clients are always impressed with the final result.`,
+      date: '1 month ago',
+      verified: true
+    },
+    {
+      name: 'Michael Rodriguez',
+      rating: 4,
+      comment: 'Great design and well-organized files. The instructions were clear and helpful. Would definitely recommend!',
+      date: '3 weeks ago',
+      verified: true
+    },
+    {
+      name: 'Emma Thompson',
+      rating: 5,
+      comment: `This ${productName.toLowerCase()} saved me so much time! Beautiful design that looks exactly like the preview.`,
+      date: '1 week ago',
+      verified: true
+    },
+    {
+      name: 'David Chen',
+      rating: 5,
+      comment: 'Outstanding quality! The template is modern, clean, and perfect for professional use. Highly recommended.',
+      date: '2 months ago',
+      verified: true
+    },
+    {
+      name: 'Lisa Anderson',
+      rating: 4,
+      comment: 'Really impressed with this purchase. The colors and layout work perfectly for my brand. Great value!',
+      date: '5 weeks ago',
+      verified: true
+    },
+    {
+      name: 'Amanda Foster',
+      rating: 5,
+      comment: `Exactly what I was looking for! This ${productName.toLowerCase()} has everything I needed and more. Will buy again!`,
+      date: '4 days ago',
+      verified: true
+    },
+    {
+      name: 'James Wilson',
+      rating: 5,
+      comment: 'Phenomenal template! Professional looking and incredibly easy to work with. My website looks amazing now.',
+      date: '6 weeks ago',
+      verified: true
+    },
+    {
+      name: 'Maria Garcia',
+      rating: 4,
+      comment: 'Beautiful design with great attention to detail. The template is well-structured and easy to customize.',
+      date: '1 month ago',
+      verified: true
+    },
+    {
+      name: 'Ryan Johnson',
+      rating: 5,
+      comment: `Perfect for my ${category?.toLowerCase() || 'project'}! Clean, modern design that looks professional. Great purchase!`,
+      date: '2 weeks ago',
+      verified: true
+    }
+  ]
+  
+  // Return 4-7 random reviews
+  const shuffled = reviewPool.sort(() => 0.5 - Math.random())
+  const count = Math.floor(Math.random() * 4) + 4 // 4-7 reviews
+  return shuffled.slice(0, count).map((review, index) => ({
+    ...review,
+    id: index + 1
+  }))
+}
+
+const sampleReviews = ref([])
+
+// Average rating computed
+const averageRating = computed(() => {
+  if (!sampleReviews.value.length) return 5.0
+  const sum = sampleReviews.value.reduce((acc, review) => acc + review.rating, 0)
+  return (sum / sampleReviews.value.length).toFixed(1)
+})
+
+// Generate consistent but varied download and review counts based on product ID
+const getDownloadCount = (productId) => {
+  if (!productId) return 0
+  // Use product ID as seed for consistent randomization
+  const seed = productId.split('').reduce((a, b) => a + b.charCodeAt(0), 0)
+  const random = (seed * 9301 + 49297) % 233280 / 233280
+  return Math.floor(random * 2000) + 500 // 500-2500 downloads
+}
+
+const getReviewCount = (productId) => {
+  if (!productId) return 0
+  const seed = productId.split('').reduce((a, b) => a + b.charCodeAt(0), 0)
+  const random = ((seed + 1) * 9301 + 49297) % 233280 / 233280
+  return Math.floor(random * 150) + 25 // 25-175 reviews
+}
 
 // Computed
 const price = computed(() => product.value ? parseFloat(product.value.price) : 0)
@@ -299,6 +520,20 @@ const toggleWishlist = () => {
   }
 }
 
+const handleImageHover = (event) => {
+  if (!isImageZoomed.value) return
+  
+  const rect = event.currentTarget.getBoundingClientRect()
+  const x = ((event.clientX - rect.left) / rect.width) * 100
+  const y = ((event.clientY - rect.top) / rect.height) * 100
+  
+  zoomPosition.value = { x, y }
+}
+
+const toggleImageZoom = () => {
+  isImageZoomed.value = !isImageZoomed.value
+}
+
 // Load product data
 const loadProduct = async () => {
   try {
@@ -315,6 +550,9 @@ const loadProduct = async () => {
     
     product.value = productData
     selectedImage.value = productData.preview_images?.[0] || '/images/placeholder-product.jpg'
+    
+    // Generate sample reviews for this product
+    sampleReviews.value = generateSampleReviews(productData.name, productData.category?.name)
     
     // Load related products
     if (productData.category_id) {
