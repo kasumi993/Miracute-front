@@ -262,17 +262,6 @@
 
     <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <!-- Loading State -->
-      <div v-if="isLoading && products.length === 0" 
-           class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
-        <div v-for="i in 20" :key="i" class="animate-pulse">
-          <div class="aspect-[4/5] bg-gray-200 rounded-2xl mb-3"></div>
-          <div class="h-4 bg-gray-200 rounded mb-2"></div>
-          <div class="h-3 bg-gray-200 rounded w-3/4 mb-1"></div>
-          <div class="h-4 bg-gray-200 rounded w-1/2"></div>
-        </div>
-      </div>
-
       <!-- Search Results Header -->
       <div v-if="searchQuery && products.length > 0" class="mb-6 p-4 bg-brand-sage/5 rounded-xl border border-brand-sage/20">
         <div class="flex items-center space-x-3">
@@ -288,134 +277,19 @@
         </div>
       </div>
 
-      <!-- Products Grid - Etsy Style -->
-      <div v-if="products.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
-        <div v-for="product in products" :key="product.id" class="group">
-          <NuxtLink :to="`/templates/${product.slug}`" class="block">
-            <!-- Large Image Card -->
-            <div class="aspect-[4/5] bg-white rounded-2xl overflow-hidden mb-3 group-hover:shadow-xl transition-all duration-300 relative border border-gray-100">
-              <img 
-                v-if="product.preview_images?.[0]"
-                :src="product.preview_images[0]" 
-                :alt="product.name"
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              >
-              <div v-else class="w-full h-full flex items-center justify-center text-gray-400 bg-gray-50">
-                <Icon name="heroicons:photo" class="w-20 h-20" />
-              </div>
-              
-              <!-- Software Type Badge -->
-              <div class="absolute top-3 left-3">
-                <span v-if="product.software_required?.length" class="bg-black/70 text-white px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur">
-                  {{ product.software_required[0] }}
-                </span>
-              </div>
-              
-              <!-- Favorite Button -->
-              <button class="absolute top-3 right-3 w-9 h-9 bg-white/90 backdrop-blur rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-white hover:scale-110 shadow-lg">
-                <Icon name="heroicons:heart" class="w-5 h-5 text-gray-600 hover:text-red-500 transition-colors" />
-              </button>
+      <!-- Products Grid -->
+      <ProductGrid 
+        :products="products"
+        :is-loading="isLoading || isInitialLoad"
+        :columns="{ sm: 1, md: 2, lg: 3, xl: 4, '2xl': 5 }"
+        :skeleton-count="20"
+        :empty-title="emptyTitle"
+        :empty-message="emptyMessage"
+      />
 
-              <!-- Quick Preview Badge (on hover) -->
-              <div class="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                <div class="bg-white/95 backdrop-blur rounded-lg px-3 py-2 text-center">
-                  <span class="text-xs font-medium text-gray-800">Quick Preview</span>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Product Info -->
-            <div class="space-y-2 px-1">
-              <!-- Title and Price -->
-              <div class="flex items-start justify-between">
-                <h3 class="text-sm font-medium text-gray-900 line-clamp-2 group-hover:text-brand-sage transition-colors flex-1 pr-2 leading-tight">
-                  {{ product.name }}
-                </h3>
-              </div>
-              
-              <!-- Seller Info (Mock) -->
-              <div class="flex items-center space-x-2 text-xs text-gray-500">
-                <div class="w-4 h-4 rounded-full bg-gradient-to-br from-brand-sage to-brand-pink flex items-center justify-center">
-                  <span class="text-[8px] text-white font-medium">M</span>
-                </div>
-                <span>Miracute</span>
-              </div>
-              
-              <!-- Rating -->
-              <div class="flex items-center space-x-2">
-                <div class="flex items-center">
-                  <Icon name="heroicons:star-20-solid" class="w-4 h-4 text-yellow-400" />
-                  <Icon name="heroicons:star-20-solid" class="w-4 h-4 text-yellow-400" />
-                  <Icon name="heroicons:star-20-solid" class="w-4 h-4 text-yellow-400" />
-                  <Icon name="heroicons:star-20-solid" class="w-4 h-4 text-yellow-400" />
-                  <Icon name="heroicons:star-20-solid" class="w-4 h-4 text-yellow-400" />
-                </div>
-                <span class="text-xs text-gray-600">({{ getReviewCount(product) }})</span>
-              </div>
-
-              <!-- Price -->
-              <div class="flex items-center space-x-2">
-                <span class="text-lg font-bold text-gray-900">
-                  ${{ parseFloat(product.price).toFixed(2) }}
-                </span>
-                <span v-if="product.compare_at_price" class="text-sm text-gray-500 line-through">
-                  ${{ parseFloat(product.compare_at_price).toFixed(2) }}
-                </span>
-                <span v-if="product.compare_at_price" class="text-xs text-green-600 font-medium">
-                  {{ Math.round(((parseFloat(product.compare_at_price) - parseFloat(product.price)) / parseFloat(product.compare_at_price)) * 100) }}% OFF
-                </span>
-              </div>
-              
-              <!-- Category Tag -->
-              <div v-if="product.category?.name" class="pt-1">
-                <span class="inline-block bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs">
-                  {{ product.category.name }}
-                </span>
-              </div>
-            </div>
-          </NuxtLink>
-        </div>
-      </div>
-
-      <!-- No Results -->
-      <div v-else-if="!isLoading" class="text-center py-20">
-        <Icon name="heroicons:magnifying-glass" class="w-20 h-20 text-gray-300 mx-auto mb-6" />
-        <h3 class="text-2xl font-medium text-gray-900 mb-4">
-          <span v-if="searchQuery">No results for "{{ searchQuery }}"</span>
-          <span v-else>No templates found</span>
-        </h3>
-        <p class="text-gray-600 mb-8 max-w-md mx-auto">
-          <span v-if="searchQuery">
-            We couldn't find any templates matching "{{ searchQuery }}". Try different keywords or browse our categories below.
-          </span>
-          <span v-else>
-            We couldn't find any templates matching your filters. Try adjusting your search criteria.
-          </span>
-        </p>
-        
-        <!-- Search Suggestions -->
-        <div v-if="searchQuery" class="mb-8">
-          <p class="text-sm text-gray-500 mb-4">Try searching for:</p>
-          <div class="flex flex-wrap justify-center gap-2 max-w-lg mx-auto">
-            <button
-              v-for="suggestion in searchSuggestions.slice(0, 6)"
-              :key="suggestion"
-              @click="selectSuggestion(suggestion)"
-              class="bg-gray-100 hover:bg-brand-sage hover:text-white px-3 py-1 rounded-full text-sm transition-colors"
-            >
-              {{ suggestion }}
-            </button>
-          </div>
-        </div>
-        
-        <button @click="clearFilters" class="bg-brand-sage text-white px-6 py-3 rounded-lg hover:bg-brand-sage/90 transition-colors font-medium">
-          <span v-if="searchQuery">Clear search</span>
-          <span v-else>Clear all filters</span>
-        </button>
-      </div>
 
       <!-- Load More -->
-      <div v-if="hasMore && !isLoading" class="text-center mt-12">
+      <div v-if="hasMore && !isLoading && !isInitialLoad" class="text-center mt-12">
         <button 
           @click="loadMore" 
           :disabled="isLoadingMore"
@@ -465,6 +339,7 @@ const isLoadingMore = ref(false)
 const isSearching = ref(false)
 const showSearchSuggestions = ref(false)
 const searchInput = ref(null)
+const isInitialLoad = ref(true)
 
 const filters = reactive({
   category: '',
@@ -542,14 +417,12 @@ const hideSearchSuggestions = () => {
 
 // Debounced search
 const debouncedSearch = debounce(() => {
-  console.log('Debounced search triggered with:', searchQuery.value)
   searchProducts()
 }, 300)
 
 // Search method
 const searchProducts = async () => {
   try {
-    console.log('searchProducts called with query:', searchQuery.value)
     isSearching.value = true
     resetPagination()
     
@@ -562,14 +435,13 @@ const searchProducts = async () => {
       sortBy: sortBy.value
     }
 
-    console.log('Search filters:', searchFilters)
     await fetchProducts(searchFilters)
-    console.log('Products fetched:', products.value.length)
     
   } catch (error) {
     console.error('Search error:', error)
   } finally {
     isSearching.value = false
+    isInitialLoad.value = false
   }
 }
 
@@ -620,6 +492,17 @@ watch([() => filters.minPrice, () => filters.maxPrice], debounce(() => {
 
 watch(sortBy, () => {
   searchProducts()
+})
+
+// Computed
+const emptyTitle = computed(() => {
+  return searchQuery.value ? `No results for "${searchQuery.value}"` : 'No templates found'
+})
+
+const emptyMessage = computed(() => {
+  return searchQuery.value 
+    ? `We couldn't find any templates matching "${searchQuery.value}". Try different keywords or browse our categories.`
+    : 'We couldn\'t find any templates matching your criteria. Try adjusting your filters.'
 })
 
 // Click outside handler

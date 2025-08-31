@@ -1,154 +1,102 @@
 <template>
-  <div class="card-product group">
-    <NuxtLink :to="`/templates/${product.slug}`">
-      <!-- Product Image -->
-      <div class="relative aspect-[4/3] overflow-hidden">
-        <NuxtImg 
-          :src="product.preview_images?.[0] || '/images/placeholder-product.jpg'"
+  <div class="group">
+    <NuxtLink :to="`/templates/${product.slug}`" class="block">
+      <!-- Large Image Card - Etsy Style -->
+      <div class="aspect-[4/5] bg-white rounded-2xl overflow-hidden mb-3 group-hover:shadow-xl transition-all duration-300 relative border border-gray-100">
+        <img 
+          v-if="product.preview_images?.[0]"
+          :src="product.preview_images[0]" 
           :alt="product.name"
-          class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-          loading="lazy"
-        />
+          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+        >
+        <div v-else class="w-full h-full flex items-center justify-center text-gray-400 bg-gray-50">
+          <Icon name="heroicons:photo" class="w-20 h-20" />
+        </div>
         
-        <!-- Overlay on Hover -->
-        <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <div class="absolute bottom-4 left-4 right-4">
-            <button class="btn-primary w-full text-sm">
-              View Template
-            </button>
+        <!-- Software Type Badge -->
+        <div class="absolute top-3 left-3">
+          <span v-if="product.software_required?.length" class="bg-black/70 text-white px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur">
+            {{ product.software_required[0] }}
+          </span>
+        </div>
+        
+        <!-- Favorite Button -->
+        <button @click.prevent="toggleWishlist" class="absolute top-3 right-3 w-9 h-9 bg-white/90 backdrop-blur rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-white hover:scale-110 shadow-lg">
+          <Icon :name="isInWishlist ? 'heroicons:heart-solid' : 'heroicons:heart'" 
+                :class="isInWishlist ? 'text-red-500' : 'text-gray-600'"
+                class="w-5 h-5 hover:text-red-500 transition-colors" />
+        </button>
+
+        <!-- Quick Add to Cart Button -->
+        <button 
+          @click.prevent="quickAddToCart"
+          class="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+        >
+          <div class="bg-brand-brown/95 backdrop-blur text-white rounded-lg px-3 py-2 text-center font-medium text-sm hover:bg-brand-brown transition-colors">
+            <span>Add to Cart</span>
           </div>
+        </button>
+      </div>
+      
+      <!-- Product Info - Etsy Style -->
+      <div class="space-y-2 px-1">
+        <!-- Title and Price -->
+        <div class="flex items-start justify-between">
+          <h3 class="text-sm font-medium text-gray-900 line-clamp-2 group-hover:text-brand-sage transition-colors flex-1 pr-2 leading-tight">
+            {{ product.name }}
+          </h3>
+        </div>
+        
+        <!-- Seller Info -->
+        <div class="flex items-center space-x-2 text-xs text-gray-500">
+          <div class="w-4 h-4 rounded-full bg-gradient-to-br from-brand-sage to-brand-pink flex items-center justify-center">
+            <span class="text-[8px] text-white font-medium">M</span>
+          </div>
+          <span>Miracute</span>
+        </div>
+        
+        <!-- Rating -->
+        <div class="flex items-center space-x-2">
+          <div class="flex items-center">
+            <Icon name="heroicons:star-20-solid" class="w-4 h-4 text-yellow-400" />
+            <Icon name="heroicons:star-20-solid" class="w-4 h-4 text-yellow-400" />
+            <Icon name="heroicons:star-20-solid" class="w-4 h-4 text-yellow-400" />
+            <Icon name="heroicons:star-20-solid" class="w-4 h-4 text-yellow-400" />
+            <Icon name="heroicons:star-20-solid" class="w-4 h-4 text-yellow-400" />
+          </div>
+          <span class="text-xs text-gray-600">({{ getReviewCount(product) }})</span>
         </div>
 
-        <!-- Badges -->
-        <div class="absolute top-4 left-4 flex flex-col space-y-2">
-          <span v-if="product.is_featured"
-                class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-1 rounded-full">
-            Featured
+        <!-- Price -->
+        <div class="flex items-center space-x-2">
+          <span class="text-lg font-bold text-gray-900">
+            ${{ price.toFixed(2) }}
           </span>
-          
-          <span v-if="product.category"
-                class="bg-white/90 backdrop-blur-sm text-gray-800 text-xs font-medium px-2 py-1 rounded-full">
+          <span v-if="comparePrice" class="text-sm text-gray-500 line-through">
+            ${{ comparePrice.toFixed(2) }}
+          </span>
+          <span v-if="hasDiscount" class="text-xs text-green-600 font-medium">
+            {{ discountPercentage }}% OFF
+          </span>
+        </div>
+        
+        <!-- Category Tag -->
+        <div v-if="product.category?.name" class="pt-1">
+          <span class="inline-block bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs">
             {{ product.category.name }}
           </span>
         </div>
 
-        <!-- Discount Badge -->
-        <div v-if="hasDiscount" class="absolute top-4 right-4">
-          <span class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-            -{{ discountPercentage }}%
-          </span>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="absolute top-4 right-4 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-             :class="{ 'right-16': hasDiscount }">
-          <button @click.prevent="toggleWishlist"
-                  class="w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-colors">
-            <Icon :name="isInWishlist ? 'heroicons:heart-solid' : 'heroicons:heart'" 
-                  :class="isInWishlist ? 'text-red-500' : 'text-gray-600'"
-                  class="w-4 h-4" />
-          </button>
-          
-          <button @click.prevent="quickAddToCart"
-                  :disabled="cart.isLoading.value"
-                  class="w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white transition-colors disabled:opacity-50">
-            <Icon v-if="!cart.isLoading.value" name="heroicons:shopping-bag" class="w-4 h-4 text-gray-600" />
-            <Icon v-else name="heroicons:arrow-path" class="w-4 h-4 text-gray-600 animate-spin" />
-          </button>
-        </div>
-      </div>
-
-      <!-- Product Info -->
-      <div class="p-6">
-        <!-- Product Name -->
-        <h3 class="font-heading font-medium text-lg text-gray-900 mb-2 group-hover:text-brand-brown transition-colors line-clamp-2">
-          {{ product.name }}
-        </h3>
-
-        <!-- Short Description -->
-        <p class="text-gray-600 text-sm mb-4 line-clamp-2">
-          {{ product.short_description || product.description }}
-        </p>
-
-        <!-- Product Meta -->
-        <div class="flex items-center space-x-3 mb-4 text-xs text-gray-500">
-          <div v-if="product.difficulty_level" class="flex items-center space-x-1">
-            <Icon name="heroicons:academic-cap" class="w-3 h-3" />
-            <span>{{ product.difficulty_level }}</span>
-          </div>
-          
-          <div v-if="product.file_formats?.length" class="flex items-center space-x-1">
-            <Icon name="heroicons:document" class="w-3 h-3" />
-            <span>{{ product.file_formats.join(', ') }}</span>
-          </div>
-          
-          <div v-if="product.view_count > 0" class="flex items-center space-x-1">
-            <Icon name="heroicons:eye" class="w-3 h-3" />
-            <span>{{ formatViews(product.view_count) }}</span>
-          </div>
-        </div>
-
-        <!-- Tags -->
-        <div v-if="product.tags?.length" class="flex flex-wrap gap-1 mb-4">
-          <span v-for="tag in product.tags.slice(0, 3)" 
-                :key="tag"
-                class="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
-            {{ tag }}
-          </span>
-          <span v-if="product.tags.length > 3" 
-                class="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
-            +{{ product.tags.length - 3 }}
-          </span>
-        </div>
-
-        <!-- Pricing and Actions -->
-        <div class="flex items-center justify-between">
-          <!-- Price -->
-          <div class="flex items-center space-x-2">
-            <span class="text-2xl font-bold text-gray-900">
-              ${{ price.toFixed(2) }}
-            </span>
-            <span v-if="comparePrice" 
-                  class="text-lg text-gray-500 line-through">
-              ${{ comparePrice.toFixed(2) }}
-            </span>
-          </div>
-
-          <!-- Add to Cart Button -->
-          <button @click.prevent="addToCart"
-                  :disabled="cart.isLoading.value"
-                  class="btn-primary text-sm px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed">
-            <span v-if="!cart.isLoading.value">Add to Cart</span>
-            <span v-else class="flex items-center space-x-1">
-              <Icon name="heroicons:arrow-path" class="w-4 h-4 animate-spin" />
-              <span>Adding...</span>
-            </span>
-          </button>
-        </div>
-
-        <!-- Download Info -->
-        <div class="flex items-center justify-center space-x-4 text-xs text-gray-500 mt-4 pt-4 border-t border-gray-100">
-          <div class="flex items-center space-x-1">
-            <Icon name="heroicons:arrow-down-tray" class="w-3 h-3" />
-            <span>Instant Download</span>
-          </div>
-          <div class="flex items-center space-x-1">
-            <Icon name="heroicons:device-phone-mobile" class="w-3 h-3" />
-            <span>Mobile Ready</span>
-          </div>
-          <div class="flex items-center space-x-1">
-            <Icon name="heroicons:heart" class="w-3 h-3" />
-            <span>Easy Setup</span>
-          </div>
-        </div>
       </div>
     </NuxtLink>
   </div>
 </template>
 
 <script setup lang="ts">
+import type { Product } from '~/composables/useCart'
+
 interface Props {
-  product: any // Replace with proper Product type
+  product: Product
 }
 
 const props = defineProps<Props>()
@@ -174,23 +122,10 @@ const discountPercentage = computed(() => {
 // Wishlist state (placeholder - implement with your wishlist system)
 const isInWishlist = ref(false)
 
-// Methods
-const addToCart = async () => {
-  try {
-    await cart.addItem(props.product)
-    cart.openDrawer()
-  } catch (error) {
-    console.error('Failed to add to cart:', error)
-  }
-}
-
-const quickAddToCart = async () => {
-  try {
-    await cart.addItem(props.product)
-    // Show success toast but don't open drawer for quick add
-  } catch (error) {
-    console.error('Failed to add to cart:', error)
-  }
+// Cart methods
+const quickAddToCart = () => {
+  cart.addItem(props.product)
+  cart.openCart()
 }
 
 const toggleWishlist = () => {
@@ -214,6 +149,15 @@ const formatViews = (views: number) => {
     return Math.floor(views / 100) / 10 + 'K'
   }
   return views.toString()
+}
+
+const getReviewCount = (product: any) => {
+  // Mock review count based on product ID for consistent display
+  const hash = product.id.split('').reduce((a: number, b: string) => {
+    a = ((a << 5) - a) + b.charCodeAt(0)
+    return a & a
+  }, 0)
+  return Math.abs(hash % 500) + 50 // Between 50-549 reviews
 }
 
 // Initialize wishlist status

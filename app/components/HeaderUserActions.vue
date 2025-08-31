@@ -19,16 +19,16 @@
     </NuxtLink>
 
     <!-- Cart -->
-    <NuxtLink to="/cart" class="relative p-2 text-gray-700 hover:text-gray-900 transition-colors">
+    <button @click="cart.toggleCart()" class="relative p-2 text-gray-700 hover:text-gray-900 transition-colors">
       <Icon name="heroicons:shopping-bag" class="w-6 h-6" />
       <!-- Cart Badge -->
       <span 
-        v-if="cartItemsCount > 0" 
-        class="absolute -top-1 -right-1 bg-brand-sage text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium"
+        v-if="cart.itemCount.value > 0" 
+        class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium min-w-[20px]"
       >
-        {{ cartItemsCount > 9 ? '9+' : cartItemsCount }}
+        {{ cart.itemCount.value }}
       </span>
-    </NuxtLink>
+    </button>
 
     <!-- Authentication Actions -->
     <div v-if="isAuthenticated" class="hidden lg:flex items-center">
@@ -108,6 +108,7 @@
 <script setup>
 // Composables
 const auth = useAuth()
+const cart = useCart()
 const route = useRoute()
 
 // Emits
@@ -115,7 +116,6 @@ defineEmits(['toggleMobileSearch', 'toggleMobileMenu'])
 
 // State
 const isUserMenuOpen = ref(false)
-const cartItemsCount = ref(0) // This would come from cart store
 
 // Computed
 const isAuthenticated = computed(() => auth.isAuthenticated.value)
@@ -136,6 +136,7 @@ const handleSignOut = async () => {
   await auth.signOut()
 }
 
+
 // Close user menu when clicking outside
 const closeUserMenuOnClickOutside = (event) => {
   if (isUserMenuOpen.value && !event.target.closest('.relative')) {
@@ -146,6 +147,7 @@ const closeUserMenuOnClickOutside = (event) => {
 // Lifecycle
 onMounted(() => {
   document.addEventListener('click', closeUserMenuOnClickOutside)
+  // Cart is initialized in the layout, no need to initialize again
 })
 
 onUnmounted(() => {

@@ -257,16 +257,18 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import type { Product } from '~/composables/useCart'
 // Get route params
 const route = useRoute()
 const slug = route.params.slug
 
 // Composables
 const { fetchProduct, getRelatedProducts } = useProducts()
+const cart = useCart()
 
 // State
-const product = ref(null)
+const product = ref<Product | null>(null)
 const relatedProducts = ref([])
 const isLoading = ref(true)
 const selectedImage = ref('')
@@ -358,13 +360,12 @@ const getDownloadCount = () => {
 
 // Methods
 const addToCart = () => {
-  // Add to cart functionality
-  console.log('Adding to cart:', product.value.name)
+  cart.addItem(product.value)
+  cart.openCart()
 }
 
 const toggleFavorite = () => {
   // Toggle favorite functionality
-  console.log('Toggle favorite:', product.value.name)
 }
 
 // Load product data
