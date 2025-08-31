@@ -19,14 +19,14 @@
     </NuxtLink>
 
     <!-- Cart -->
-    <button @click="cart.toggleCart()" class="relative p-2 text-gray-700 hover:text-gray-900 transition-colors">
+    <button @click="cartCounter.goToCart()" class="relative p-2 text-gray-700 hover:text-gray-900 transition-colors">
       <Icon name="heroicons:shopping-bag" class="w-6 h-6" />
       <!-- Cart Badge -->
       <span 
-        v-if="cart.itemCount.value > 0" 
+        v-if="cartCounter.cartCount.value > 0" 
         class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium min-w-[20px]"
       >
-        {{ cart.itemCount.value }}
+        {{ cartCounter.cartCount.value }}
       </span>
     </button>
 
@@ -108,7 +108,7 @@
 <script setup>
 // Composables
 const auth = useAuth()
-const cart = useCart()
+const cartCounter = useCartCounter()
 const route = useRoute()
 
 // Emits
@@ -147,7 +147,6 @@ const closeUserMenuOnClickOutside = (event) => {
 // Lifecycle
 onMounted(() => {
   document.addEventListener('click', closeUserMenuOnClickOutside)
-  // Cart is initialized in the layout, no need to initialize again
 })
 
 onUnmounted(() => {

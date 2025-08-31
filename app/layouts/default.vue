@@ -11,8 +11,6 @@
     <!-- Footer -->
     <LayoutFooter />
 
-    <!-- Cart Drawer -->
-    <CartDrawer />
 
     <!-- Loading Overlay -->
     <Transition

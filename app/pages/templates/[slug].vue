@@ -131,9 +131,13 @@
               <div class="flex space-x-4">
                 <button 
                   @click="addToCart"
-                  class="flex-1 bg-black text-white px-6 py-3 rounded font-medium hover:bg-gray-800 transition-colors"
+                  :class="[
+                    'flex-1 px-6 py-3 rounded font-medium transition-colors',
+                    isProductInCart ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-black text-white hover:bg-gray-800'
+                  ]"
                 >
-                  Add to cart
+                  <span v-if="isProductInCart">✓ Added to Cart</span>
+                  <span v-else>Add to cart</span>
                 </button>
                 <button 
                   @click="toggleFavorite"
@@ -258,14 +262,30 @@
 </template>
 
 <script setup lang="ts">
-import type { Product } from '~/composables/useCart'
+interface Product {
+  id: string
+  name: string
+  slug: string
+  price: string
+  compare_at_price?: string
+  preview_images?: string[]
+  category?: {
+    id: string
+    name: string
+    slug: string
+  }
+  software_required?: string[]
+  is_featured?: boolean
+  description?: string
+  short_description?: string
+}
 // Get route params
 const route = useRoute()
 const slug = route.params.slug
 
 // Composables
 const { fetchProduct, getRelatedProducts } = useProducts()
-const cart = useCart()
+const cartCounter = useCartCounter()
 
 // State
 const product = ref<Product | null>(null)
@@ -359,9 +379,12 @@ const getDownloadCount = () => {
 }
 
 // Methods
+const isProductInCart = computed(() => {
+  return product.value ? cartCounter.isInCart(product.value.id) : false
+})
+
 const addToCart = () => {
-  cart.addItem(product.value)
-  cart.openCart()
+  cartCounter.addToCart(product.value)
 }
 
 const toggleFavorite = () => {

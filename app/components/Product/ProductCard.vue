@@ -32,8 +32,12 @@
           @click.prevent="quickAddToCart"
           class="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
         >
-          <div class="bg-brand-brown/95 backdrop-blur text-white rounded-lg px-3 py-2 text-center font-medium text-sm hover:bg-brand-brown transition-colors">
-            <span>Add to Cart</span>
+          <div :class="[
+            'backdrop-blur text-white rounded-lg px-3 py-2 text-center font-medium text-sm transition-colors',
+            isProductInCart ? 'bg-green-600/95 hover:bg-green-600' : 'bg-brand-brown/95 hover:bg-brand-brown'
+          ]">
+            <span v-if="isProductInCart">✓ In Cart</span>
+            <span v-else>Add to Cart</span>
           </div>
         </button>
       </div>
@@ -93,7 +97,21 @@
 </template>
 
 <script setup lang="ts">
-import type { Product } from '~/composables/useCart'
+interface Product {
+  id: string
+  name: string
+  slug: string
+  price: string
+  compare_at_price?: string
+  preview_images?: string[]
+  category?: {
+    id: string
+    name: string
+    slug: string
+  }
+  software_required?: string[]
+  is_featured?: boolean
+}
 
 interface Props {
   product: Product
@@ -102,7 +120,7 @@ interface Props {
 const props = defineProps<Props>()
 
 // Composables
-const cart = useCart()
+const cartCounter = useCartCounter()
 
 // Computed
 const price = computed(() => parseFloat(props.product.price))
@@ -119,13 +137,16 @@ const discountPercentage = computed(() => {
   return Math.round(((comparePrice.value! - price.value) / comparePrice.value!) * 100)
 })
 
+const isProductInCart = computed(() => {
+  return cartCounter.isInCart(props.product.id)
+})
+
 // Wishlist state (placeholder - implement with your wishlist system)
 const isInWishlist = ref(false)
 
 // Cart methods
 const quickAddToCart = () => {
-  cart.addItem(props.product)
-  cart.openCart()
+  cartCounter.addToCart(props.product)
 }
 
 const toggleWishlist = () => {
