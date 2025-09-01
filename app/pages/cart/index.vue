@@ -142,30 +142,25 @@
       </div>
 
       <!-- Empty Cart State -->
-      <div v-else class="text-center py-16">
-        <div class="bg-white rounded-3xl shadow-xl border border-gray-200 p-12 max-w-md mx-auto">
-          <div class="w-24 h-24 bg-gradient-to-br from-brand-brown/10 to-brand-pink/10 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Icon name="heroicons:shopping-bag" class="w-12 h-12 text-brand-brown/60" />
+      <div v-else class="text-center py-24">
+        <div class="max-w-md mx-auto">
+          <!-- Simple Icon -->
+          <div class="w-20 h-20 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
+            <Icon name="heroicons:shopping-cart" class="w-10 h-10 text-gray-400" />
           </div>
-          <h3 class="text-2xl font-bold text-gray-900 mb-3">Your cart is empty</h3>
-          <p class="text-gray-600 mb-8">Discover beautiful templates and start building your dream website today!</p>
           
+          <!-- Simple Text -->
+          <h3 class="text-2xl font-semibold text-gray-900 mb-3">Your cart is empty</h3>
+          <p class="text-gray-600 mb-8">Browse our templates to get started</p>
+          
+          <!-- Single Button -->
           <NuxtLink 
             to="/templates" 
-            class="inline-flex items-center space-x-2 bg-gradient-to-r from-brand-brown to-brand-brown/90 hover:from-brand-brown/90 hover:to-brand-brown text-white font-semibold py-3 px-8 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
+            class="inline-flex items-center space-x-2 bg-gray-900 hover:bg-gray-800 text-white font-medium py-3 px-6 rounded-lg transition-colors"
           >
-            <Icon name="heroicons:sparkles" class="w-5 h-5" />
             <span>Browse Templates</span>
+            <Icon name="heroicons:arrow-right" class="w-4 h-4" />
           </NuxtLink>
-          
-          <div class="mt-8 pt-6 border-t border-gray-100">
-            <p class="text-sm text-gray-500 mb-4">Popular categories:</p>
-            <div class="flex flex-wrap gap-2 justify-center">
-              <NuxtLink to="/templates?category=business" class="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-sm text-gray-700 transition-colors">Business</NuxtLink>
-              <NuxtLink to="/templates?category=portfolio" class="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-sm text-gray-700 transition-colors">Portfolio</NuxtLink>
-              <NuxtLink to="/templates?category=wedding" class="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-sm text-gray-700 transition-colors">Wedding</NuxtLink>
-            </div>
-          </div>
         </div>
       </div>
     </div>

@@ -1,256 +1,45 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <div class="container-custom py-12">
-      <div class="max-w-4xl mx-auto">
-        <!-- Header -->
-        <div class="mb-8">
-          <h1 class="text-3xl font-bold text-gray-900 mb-2">Checkout</h1>
-          <p class="text-gray-600">Review your order and complete your purchase</p>
+  <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Breadcrumb -->
+      <nav class="flex items-center space-x-2 text-sm mb-6">
+        <NuxtLink to="/" class="text-gray-500 hover:text-brand-brown transition-colors">Home</NuxtLink>
+        <Icon name="heroicons:chevron-right" class="w-4 h-4 text-gray-400" />
+        <NuxtLink to="/cart" class="text-gray-500 hover:text-brand-brown transition-colors">Cart</NuxtLink>
+        <Icon name="heroicons:chevron-right" class="w-4 h-4 text-gray-400" />
+        <span class="text-gray-900 font-medium">Checkout</span>
+      </nav>
+
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Secure Checkout</h1>
+        <p class="text-gray-600">Complete your purchase securely</p>
+      </div>
+
+      <div class="grid lg:grid-cols-3 gap-8">
+        <!-- Checkout Forms -->
+        <div class="lg:col-span-2 space-y-6">
+          <!-- Customer Information -->
+          <CustomerInformation 
+            v-model="customerData" 
+            :is-using-stored-info="isUsingStoredInfo"
+            @submit="handleCustomerSubmit"
+          />
+          
+          <!-- Payment Method -->
+          <PaymentMethod 
+            v-model="paymentData"
+            ref="paymentMethodRef"
+          />
         </div>
 
-        <div class="grid lg:grid-cols-2 gap-8">
-          <!-- Order Summary -->
-          <div class="lg:order-2">
-            <div class="card sticky top-4">
-              <div class="p-6">
-                <h2 class="text-xl font-semibold mb-4">Order Summary</h2>
-                
-                <!-- Cart Items -->
-                <div class="space-y-4 mb-6">
-                  <div
-                    v-for="item in cartItems"
-                    :key="item.id"
-                    class="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg"
-                  >
-                    <NuxtImg
-                      :src="item.product.thumbnail_url"
-                      :alt="item.product.name"
-                      class="w-16 h-16 object-cover rounded-lg"
-                    />
-                    <div class="flex-1">
-                      <h3 class="font-medium text-gray-900">{{ item.product.name }}</h3>
-                      <p class="text-sm text-gray-600">{{ item.product.category?.name }}</p>
-                    </div>
-                    <div class="text-right">
-                      <p class="font-semibold">${{ item.product.price }}</p>
-                      <p class="text-sm text-gray-600">Qty: {{ item.quantity }}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Totals -->
-                <div class="border-t pt-4 space-y-2">
-                  <div class="flex justify-between">
-                    <span>Subtotal</span>
-                    <span>${{ subtotal.toFixed(2) }}</span>
-                  </div>
-                  <div class="flex justify-between">
-                    <span>Tax</span>
-                    <span>${{ tax.toFixed(2) }}</span>
-                  </div>
-                  <div class="flex justify-between text-lg font-semibold border-t pt-2">
-                    <span>Total</span>
-                    <span>${{ total.toFixed(2) }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Checkout Form -->
-          <div class="lg:order-1">
-            <form @submit.prevent="handleSubmit">
-              <!-- Customer Information -->
-              <div class="card mb-6">
-                <div class="p-6">
-                  <h3 class="text-lg font-semibold mb-4">Customer Information</h3>
-                  
-                  <!-- Account Options for Guest Users -->
-                  <div v-if="!user" class="mb-6">
-                    <!-- Sign In Option -->
-                    <div class="p-4 bg-blue-50 rounded-lg mb-4">
-                      <p class="text-sm text-blue-700 mb-3">
-                        Already have an account? 
-                        <NuxtLink to="/auth/login" class="font-medium underline">Sign in</NuxtLink>
-                        for faster checkout.
-                      </p>
-                    </div>
-                    
-                    <!-- Account Creation Option -->
-                    <div class="border rounded-lg p-4">
-                      <label class="flex items-center mb-3">
-                        <input
-                          v-model="form.createAccount"
-                          type="checkbox"
-                          class="mr-3"
-                        />
-                        <span class="text-sm font-medium text-gray-700">
-                          Create an account for faster future purchases (optional)
-                        </span>
-                      </label>
-                      
-                      <div v-if="form.createAccount" class="pl-6 space-y-3">
-                        <p class="text-xs text-gray-600">
-                          We'll create your account using your email. You can set a password after your purchase.
-                        </p>
-                        <label class="flex items-start">
-                          <input
-                            v-model="form.emailUpdates"
-                            type="checkbox"
-                            class="mt-1 mr-3"
-                          />
-                          <span class="text-xs text-gray-700">
-                            Send me updates about new templates and special offers
-                          </span>
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="grid md:grid-cols-2 gap-4">
-                    <Input
-                      v-model="form.firstName"
-                      label="First Name"
-                      required
-                      :error="errors.firstName"
-                    />
-                    <Input
-                      v-model="form.lastName"
-                      label="Last Name"
-                      required
-                      :error="errors.lastName"
-                    />
-                    <Input
-                      v-model="form.email"
-                      label="Email"
-                      type="email"
-                      required
-                      :error="errors.email"
-                      class="md:col-span-2"
-                      placeholder="We'll use this for your receipt and download links"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <!-- Billing Address -->
-              <div class="card mb-6">
-                <div class="p-6">
-                  <h3 class="text-lg font-semibold mb-4">Billing Address</h3>
-                  
-                  <div class="space-y-4">
-                    <Input
-                      v-model="form.address.line1"
-                      label="Address Line 1"
-                      required
-                      :error="errors['address.line1']"
-                    />
-                    <Input
-                      v-model="form.address.line2"
-                      label="Address Line 2 (Optional)"
-                    />
-                    <div class="grid md:grid-cols-3 gap-4">
-                      <Input
-                        v-model="form.address.city"
-                        label="City"
-                        required
-                        :error="errors['address.city']"
-                      />
-                      <Input
-                        v-model="form.address.state"
-                        label="State"
-                        required
-                        :error="errors['address.state']"
-                      />
-                      <Input
-                        v-model="form.address.postalCode"
-                        label="ZIP Code"
-                        required
-                        :error="errors['address.postalCode']"
-                      />
-                    </div>
-                    <select
-                      v-model="form.address.country"
-                      class="form-input"
-                      required
-                    >
-                      <option value="">Select Country</option>
-                      <option value="US">United States</option>
-                      <option value="CA">Canada</option>
-                      <option value="UK">United Kingdom</option>
-                      <option value="AU">Australia</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Payment Method -->
-              <div class="card mb-6">
-                <div class="p-6">
-                  <h3 class="text-lg font-semibold mb-4">Payment Method</h3>
-                  
-                  <div class="space-y-4">
-                    <label class="flex items-center">
-                      <input
-                        v-model="form.paymentMethod"
-                        type="radio"
-                        value="card"
-                        class="mr-3"
-                      />
-                      <span class="flex items-center">
-                        <Icon name="heroicons:credit-card" class="w-5 h-5 mr-2" />
-                        Credit or Debit Card
-                      </span>
-                    </label>
-                    
-                    <!-- Stripe Elements would be integrated here -->
-                    <div v-if="form.paymentMethod === 'card'" class="pl-8">
-                      <div class="p-4 bg-gray-50 rounded-lg">
-                        <p class="text-sm text-gray-600 mb-2">
-                          Payment processing is handled securely by Stripe.
-                        </p>
-                        <div id="stripe-elements" class="mt-4">
-                          <!-- Stripe Elements will be mounted here -->
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Terms and Conditions -->
-              <div class="card mb-6">
-                <div class="p-6">
-                  <label class="flex items-start">
-                    <input
-                      v-model="form.agreeToTerms"
-                      type="checkbox"
-                      required
-                      class="mt-1 mr-3"
-                    />
-                    <span class="text-sm text-gray-700">
-                      I agree to the 
-                      <NuxtLink to="/terms" class="text-blue-600 underline">Terms of Service</NuxtLink>
-                      and 
-                      <NuxtLink to="/privacy" class="text-blue-600 underline">Privacy Policy</NuxtLink>
-                    </span>
-                  </label>
-                </div>
-              </div>
-
-              <!-- Submit Button -->
-              <Button
-                type="submit"
-                :loading="processing"
-                :disabled="!canProceed"
-                size="lg"
-                class="w-full"
-              >
-                <Icon name="heroicons:lock-closed" class="w-5 h-5 mr-2" />
-                Complete Purchase - ${{ total.toFixed(2) }}
-              </Button>
-            </form>
-          </div>
+        <!-- Order Summary Sidebar -->
+        <div class="lg:col-span-1">
+          <OrderSummary 
+            :can-complete="canCompleteOrder" 
+            :is-processing="isProcessingOrder"
+            @complete-order="handleCompleteOrder"
+          />
         </div>
       </div>
     </div>
@@ -258,127 +47,141 @@
 </template>
 
 <script setup lang="ts">
+import CustomerInformation from '~/components/Checkout/CustomerInformation.vue'
+import PaymentMethod from '~/components/Checkout/PaymentMethod.vue'
+import OrderSummary from '~/components/Checkout/OrderSummary.vue'
+import type { CustomerForm } from '~/components/Checkout/CustomerInformation.vue'
+import type { PaymentData } from '~/components/Checkout/PaymentMethod.vue'
+
 definePageMeta({
   layout: 'default'
 })
 
-const { user } = useAuth()
-const { items: cartItems, total: cartTotal, clearCart } = useCart()
+// Composables
+const cartCounter = useCartCounter()
+const { saveCheckoutInfo, loadSavedCheckoutInfo, hasSavedInfo } = useSavedCheckout()
 const toast = useToast()
 const router = useRouter()
 
 // Redirect if cart is empty
-if (!cartItems.value.length) {
+if (!cartCounter.cartCount.value) {
   await navigateTo('/cart')
 }
 
+// Component refs
+const paymentMethodRef = ref()
+
 // Form data
-const form = reactive({
-  firstName: user.value?.user_metadata?.firstName || '',
-  lastName: user.value?.user_metadata?.lastName || '',
-  email: user.value?.email || '',
-  createAccount: false,
-  emailUpdates: true,
-  address: {
-    line1: '',
-    line2: '',
-    city: '',
-    state: '',
-    postalCode: '',
-    country: 'US'
-  },
-  paymentMethod: 'card',
-  agreeToTerms: false
+const customerData = ref<CustomerForm>({
+  firstName: '',
+  lastName: '',
+  email: '',
+  country: '',
+  newsletter: false,
+  saveInfo: true
+})
+const paymentData = ref<PaymentData>({
+  method: 'card'
+})
+const isUsingStoredInfo = ref(false)
+
+// Load saved checkout information on mount
+onMounted(() => {
+  const savedInfo = loadSavedCheckoutInfo()
+  if (savedInfo && hasSavedInfo()) {
+    customerData.value = {
+      firstName: savedInfo.firstName || '',
+      lastName: savedInfo.lastName || '',
+      email: savedInfo.email || '',
+      country: savedInfo.country || '',
+      newsletter: savedInfo.newsletter || false,
+      saveInfo: savedInfo.saveInfo || true
+    }
+    isUsingStoredInfo.value = true
+    console.log('Loaded saved checkout information')
+  }
 })
 
-const errors = ref<Record<string, string>>({})
-const processing = ref(false)
+// Order processing state
+const isProcessingOrder = ref(false)
 
-// Computed values
-const subtotal = computed(() => cartTotal.value)
-const tax = computed(() => subtotal.value * 0.08) // 8% tax rate
-const total = computed(() => subtotal.value + tax.value)
-
-const canProceed = computed(() => {
-  return form.firstName && 
-         form.lastName && 
-         form.email && 
-         form.address.line1 && 
-         form.address.city && 
-         form.address.state && 
-         form.address.postalCode && 
-         form.address.country && 
-         form.paymentMethod && 
-         form.agreeToTerms &&
-         cartItems.value.length > 0
+// Computed
+const canCompleteOrder = computed(() => {
+  const isValid = customerData.value &&
+         paymentData.value &&
+         customerData.value.firstName.trim() !== '' &&
+         customerData.value.lastName.trim() !== '' &&
+         customerData.value.email.trim() !== '' &&
+         customerData.value.country.trim() !== '' &&
+         paymentData.value.method &&
+         cartCounter.cartCount.value > 0
+  
+  return isValid
 })
 
-// Validation
-const validateForm = () => {
-  errors.value = {}
-  
-  if (!form.firstName) errors.value.firstName = 'First name is required'
-  if (!form.lastName) errors.value.lastName = 'Last name is required'
-  if (!form.email) errors.value.email = 'Email is required'
-  if (!form.address.line1) errors.value['address.line1'] = 'Address is required'
-  if (!form.address.city) errors.value['address.city'] = 'City is required'
-  if (!form.address.state) errors.value['address.state'] = 'State is required'
-  if (!form.address.postalCode) errors.value['address.postalCode'] = 'ZIP code is required'
-  
-  return Object.keys(errors.value).length === 0
+// Handlers
+const handleCustomerSubmit = (data: CustomerForm) => {
+  console.log('Customer data submitted:', data)
 }
 
-// Submit handler
-const handleSubmit = async () => {
-  if (!validateForm()) return
-  
-  processing.value = true
-  
-  try {
-    // Create checkout session
-    const { data } = await $fetch('/api/payments/create-checkout-session', {
-      method: 'POST',
-      body: {
-        items: cartItems.value.map(item => ({
-          product_id: item.product.id,
-          quantity: item.quantity
-        })),
-        customer_info: {
-          email: form.email,
-          name: `${form.firstName} ${form.lastName}`,
-          firstName: form.firstName,
-          lastName: form.lastName
-        },
-        billing_address: form.address,
-        create_account: form.createAccount && !user.value,
-        email_updates: form.emailUpdates,
-        user_id: user.value?.id || null
-      }
-    })
-    
-    if (data?.url) {
-      // Redirect to Stripe Checkout
-      await navigateToExternal(data.url)
-    } else {
-      throw new Error('Failed to create checkout session')
+const handleCompleteOrder = async () => {
+  if (!canCompleteOrder.value) {
+    toast.error('Please fill out all required fields to continue')
+    return
+  }
+
+  // Validate payment method is selected
+  if (!paymentData.value?.method) {
+    toast.error('Please select a payment method')
+    return
+  }
+
+  // Validate payment if card method is selected
+  if (paymentData.value?.method === 'card') {
+    if (!paymentMethodRef.value) {
+      toast.error('Payment method not initialized')
+      return
     }
     
+    const isPaymentValid = paymentMethodRef.value.validatePayment()
+    if (!isPaymentValid) {
+      toast.error('Please fill out all card details correctly')
+      return
+    }
+  }
+
+  isProcessingOrder.value = true
+
+  try {
+    // Prepare order data
+    const orderData = {
+      customer: customerData.value,
+      payment: paymentData.value,
+      items: cartCounter.cartItems.value,
+      total: cartCounter.cartTotal.value
+    }
+
+    console.log('Processing order:', orderData)
+
+    // TODO: Implement actual payment processing
+    await new Promise(resolve => setTimeout(resolve, 2000)) // Simulate processing
+    
+    // Save checkout information if user opted in (excluding card details)
+    if (customerData.value) {
+      saveCheckoutInfo(customerData.value)
+    }
+    
+    // Clear cart and redirect to success page
+    cartCounter.clearCart()
+    console.log('Order completed successfully!')
+    await navigateTo('/order-success')
+    
   } catch (error) {
-    console.error('Checkout error:', error)
-    toast.error('Failed to process payment. Please try again.')
+    console.error('Order processing error:', error)
   } finally {
-    processing.value = false
+    isProcessingOrder.value = false
   }
 }
-
-// Load user data if available
-onMounted(() => {
-  if (user.value) {
-    form.firstName = user.value.user_metadata?.firstName || ''
-    form.lastName = user.value.user_metadata?.lastName || ''
-    form.email = user.value.email || ''
-  }
-})
 
 // SEO
 useSeoMeta({

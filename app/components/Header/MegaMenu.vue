@@ -109,9 +109,9 @@
         <!-- Bottom CTA -->
         <div class="mt-8 pt-6 border-t border-gray-200">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <NuxtLink to="/templates?category=wedding-templates" class="flex items-center justify-center space-x-2 bg-brand-brown text-white px-4 py-3 rounded-xl font-medium hover:bg-brand-brown/90 transition-colors">
+            <NuxtLink to="/templates" class="flex items-center justify-center space-x-2 bg-brand-brown text-white px-4 py-3 rounded-xl font-medium hover:bg-brand-brown/90 transition-colors">
               <Icon name="heroicons:heart" class="w-4 h-4" />
-              <span>View Wedding Templates</span>
+              <span>View All Templates</span>
             </NuxtLink>
             <NuxtLink to="/contact" class="flex items-center justify-center space-x-2 border-2 border-brand-brown text-brand-brown px-4 py-3 rounded-xl font-medium hover:bg-brand-brown hover:text-white transition-colors">
               <Icon name="heroicons:chat-bubble-left-right" class="w-4 h-4" />

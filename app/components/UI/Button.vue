@@ -18,6 +18,8 @@
 </template>
 
 <script setup lang="ts">
+import Loading from './Loading.vue'
+
 interface ButtonProps {
   variant?: 'primary' | 'secondary' | 'soft' | 'ghost' | 'danger'
   size?: 'sm' | 'md' | 'lg'
