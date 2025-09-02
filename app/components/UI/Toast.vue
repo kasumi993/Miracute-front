@@ -10,10 +10,10 @@
         leave-to-class="transform translate-x-full opacity-0"
       >
         <div
-          v-for="toast in toasts.value"
+          v-for="toast in toasts"
           :key="toast.id"
           :class="[
-            'max-w-sm w-full shadow-lg rounded-lg pointer-events-auto overflow-hidden',
+            'max-w-md min-w-80 shadow-lg rounded-lg pointer-events-auto overflow-hidden',
             getToastClasses(toast.type)
           ]"
         >
