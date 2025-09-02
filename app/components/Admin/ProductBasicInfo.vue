@@ -19,6 +19,7 @@
       </p>
     </div>
 
+
     <!-- Template Type -->
     <div class="mb-6">
       <UISelect
@@ -65,19 +66,14 @@
 
     <!-- Full Description -->
     <div class="mb-6">
-      <label for="description" class="form-label">Full Description *</label>
-      <textarea
-        id="description"
-        :value="product.description"
-        @input="updateProduct('description', ($event.target as HTMLTextAreaElement).value)"
-        required
-        rows="8"
-        class="form-input"
-        placeholder="Detailed description of what buyers will get, how to use it, what's included, etc."
+      <UITipTapEditor
+        :model-value="product.description"
+        @update:model-value="updateProduct('description', $event)"
+        label="Full Description *"
+        placeholder="Detailed description of what buyers will get, how to use it, what's included, etc. Use formatting to make it engaging!"
+        help-text="Explain what's included, how to customize, software requirements, etc. You can use bold, italic, lists, and more to make your description engaging."
+        :required="true"
       />
-      <p class="mt-1 text-sm text-gray-500">
-        Explain what's included, how to customize, software requirements, etc.
-      </p>
     </div>
 
     <!-- Tags -->

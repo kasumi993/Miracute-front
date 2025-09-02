@@ -36,6 +36,15 @@
             @update:tags-input="tagsInput = $event"
           />
 
+          <!-- Product Images -->
+          <AdminProductImageUpload
+            :images="product.preview_images || []"
+            :is-uploading="isUploading"
+            :upload-progress="uploadProgress"
+            @update:images="updateProductImages"
+            @upload-images="handleImageUpload"
+          />
+
           <!-- File Upload Component -->
           <ProductFileUpload
             :product="product"
@@ -307,6 +316,59 @@ const removeUploadedFile = async () => {
     console.error('Error removing file:', error)
     useToast().error('Failed to remove file')
   }
+}
+
+// Image upload handler
+const handleImageUpload = async (files) => {
+  if (!files || files.length === 0) return
+
+  const currentImages = product.value.preview_images || []
+  const remainingSlots = 10 - currentImages.length
+  
+  if (remainingSlots <= 0) {
+    useToast().warning('Maximum 10 images allowed')
+    return
+  }
+
+  const filesToUpload = Array.from(files).slice(0, remainingSlots)
+  
+  try {
+    isUploading.value = true
+    uploadProgress.value = 0
+    
+    // Create FormData for multipart upload
+    const formData = new FormData()
+    filesToUpload.forEach((file, index) => {
+      formData.append(`file-${index}`, file)
+    })
+    
+    // Upload via server API
+    const response = await $fetch('/api/admin/upload-images', {
+      method: 'POST',
+      body: formData,
+      onUploadProgress: (progress) => {
+        uploadProgress.value = Math.round((progress.loaded / progress.total) * 100)
+      }
+    })
+
+    // Update product with new images
+    const newImages = [...currentImages, ...response.urls]
+    product.value.preview_images = newImages
+
+    useToast().success(response.message)
+    
+  } catch (error) {
+    console.error('Error uploading images:', error)
+    useToast().error(error.data?.message || 'Failed to upload images. Please try again.')
+  } finally {
+    isUploading.value = false
+    uploadProgress.value = 0
+  }
+}
+
+// Update product images
+const updateProductImages = (newImages) => {
+  product.value.preview_images = newImages
 }
 
 const saveProduct = async () => {
