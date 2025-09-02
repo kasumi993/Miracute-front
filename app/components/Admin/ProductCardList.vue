@@ -107,7 +107,6 @@
               @edit="(product) => $emit('edit', product)"
               @toggle-status="(product) => $emit('toggleStatus', product)"
               @delete="(product) => $emit('delete', product)"
-              @click.stop
             />
           </div>
         </div>

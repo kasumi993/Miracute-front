@@ -181,18 +181,18 @@ const loadTemplateTypes = async () => {
 
 const toggleProductStatus = async (product: any) => {
   try {
-    const { error } = await supabase
-      .from('products')
-      .update({ is_active: !product.is_active })
-      .eq('id', product.id)
+    const newStatus = !product.is_active
     
-    if (error) throw error
+    const response = await $fetch(`/api/admin/products/${product.id}`, {
+      method: 'PATCH',
+      body: { is_active: newStatus }
+    })
     
-    product.is_active = !product.is_active
+    product.is_active = newStatus
     useToast().success(`Product ${product.is_active ? 'activated' : 'deactivated'}`)
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error updating product status:', error)
-    useToast().error('Failed to update product status')
+    useToast().error(error.data?.message || 'Failed to update product status')
   }
 }
 
@@ -202,18 +202,15 @@ const deleteProduct = async (product: any) => {
   }
   
   try {
-    const { error } = await supabase
-      .from('products')
-      .delete()
-      .eq('id', product.id)
-    
-    if (error) throw error
+    await $fetch(`/api/admin/products/${product.id}`, {
+      method: 'DELETE'
+    })
     
     useToast().success('Product deleted successfully')
     await loadProducts()
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error deleting product:', error)
-    useToast().error('Failed to delete product')
+    useToast().error(error.data?.message || 'Failed to delete product')
   }
 }
 

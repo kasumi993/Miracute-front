@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-center justify-end space-x-2">
     <button
-      @click="$emit('edit', product)"
+      @click.stop="$emit('edit', product)"
       class="text-blue-600 hover:text-blue-900 p-1"
       title="Edit"
     >
@@ -9,7 +9,7 @@
     </button>
     
     <button
-      @click="$emit('toggleStatus', product)"
+      @click.stop="$emit('toggleStatus', product)"
       class="text-gray-600 hover:text-gray-900 p-1"
       :title="product.is_active ? 'Deactivate' : 'Activate'"
     >
@@ -17,7 +17,7 @@
     </button>
     
     <button
-      @click="$emit('delete', product)"
+      @click.stop="$emit('delete', product)"
       class="text-red-600 hover:text-red-900 p-1"
       title="Delete"
     >
