@@ -10,367 +10,63 @@
             Back to Products
           </NuxtLink>
         </div>
-        <h1 class="text-3xl font-heading font-medium text-gray-900">Create New Template</h1>
-        <p class="text-gray-600 mt-2">Add a new digital template to your marketplace</p>
+        <h1 class="text-3xl font-heading font-medium text-gray-900">{{ isEditing ? 'Edit Template' : 'Create New Template' }}</h1>
+        <p class="text-gray-600 mt-2">{{ isEditing ? 'Update your digital template' : 'Add a new digital template to your marketplace' }}</p>
       </div>
 
-      <form @submit.prevent="saveProduct" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Loading State -->
+      <div v-if="isInitialLoading" class="flex items-center justify-center py-20">
+        <div class="text-center">
+          <Icon name="heroicons:arrow-path" class="w-8 h-8 animate-spin mx-auto mb-4 text-brand-brown" />
+          <p class="text-gray-600">Loading product data...</p>
+        </div>
+      </div>
+
+
+      <form v-if="!isInitialLoading" @submit.prevent="saveProduct" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Main Content -->
         <div class="lg:col-span-2 space-y-6">
-          <!-- Basic Information -->
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6">Basic Information</h2>
-            
-            <!-- Product Name -->
-            <div class="mb-6">
-              <label for="name" class="form-label">Template Title *</label>
-              <input
-                id="name"
-                v-model="product.name"
-                type="text"
-                required
-                class="form-input"
-                placeholder="e.g., Modern Instagram Story Templates Pack"
-              />
-              <p class="mt-1 text-sm text-gray-500">
-                Include what it is, what it's for, and style keywords buyers might search for
-              </p>
-            </div>
+          <!-- Basic Information Component -->
+          <ProductBasicInfo
+            :product="product"
+            :categories="categories"
+            :tags-input="tagsInput"
+            @update:product="product = $event"
+            @update:tags-input="tagsInput = $event"
+          />
 
-            <!-- Template Type -->
-            <div class="mb-6">
-              <label for="templateType" class="form-label">Template Type *</label>
-              <select
-                id="templateType"
-                v-model="product.templateType"
-                required
-                class="form-input"
-              >
-                <option value="canva">Canva Template</option>
-                <option value="photoshop">Photoshop Template (PSD)</option>
-                <option value="figma">Figma Template</option>
-                <option value="wordpress">WordPress Theme</option>
-                <option value="squarespace">Squarespace Template</option>
-                <option value="notion">Notion Template</option>
-                <option value="powerpoint">PowerPoint Template</option>
-                <option value="google-slides">Google Slides Template</option>
-                <option value="illustrator">Illustrator Template (AI)</option>
-                <option value="indesign">InDesign Template</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
+          <!-- File Upload Component -->
+          <ProductFileUpload
+            :product="product"
+            :is-uploading="isUploading"
+            :upload-progress="uploadProgress"
+            :uploaded-file-name="uploadedFileName"
+            :uploaded-file-size="uploadedFileSize"
+            @update:product="product = $event"
+            @upload-file="handleFileUpload"
+            @remove-file="removeUploadedFile"
+          />
 
-            <!-- Category -->
-            <div class="mb-6">
-              <label for="category" class="form-label">Category *</label>
-              <select
-                id="category"
-                v-model="product.category_id"
-                required
-                class="form-input"
-              >
-                <option value="">Select a category</option>
-                <option v-for="category in categories" :key="category.id" :value="category.id">
-                  {{ category.name }}
-                </option>
-              </select>
-            </div>
-
-            <!-- Short Description -->
-            <div class="mb-6">
-              <label for="shortDescription" class="form-label">Short Description *</label>
-              <textarea
-                id="shortDescription"
-                v-model="product.short_description"
-                required
-                rows="2"
-                class="form-input"
-                maxlength="160"
-                placeholder="Brief description that appears in listings (160 characters max)"
-              />
-              <div class="mt-1 text-sm text-gray-500 text-right">
-                {{ product.short_description?.length || 0 }}/160
-              </div>
-            </div>
-
-            <!-- Full Description -->
-            <div class="mb-6">
-              <label for="description" class="form-label">Full Description *</label>
-              <textarea
-                id="description"
-                v-model="product.description"
-                required
-                rows="8"
-                class="form-input"
-                placeholder="Detailed description of what buyers will get, how to use it, what's included, etc."
-              />
-              <p class="mt-1 text-sm text-gray-500">
-                Explain what's included, how to customize, software requirements, etc.
-              </p>
-            </div>
-
-            <!-- Tags -->
-            <div class="mb-6">
-              <label for="tags" class="form-label">Tags</label>
-              <input
-                id="tags"
-                v-model="tagsInput"
-                type="text"
-                class="form-input"
-                placeholder="social media, instagram, modern, minimalist (separated by commas)"
-              />
-              <p class="mt-1 text-sm text-gray-500">
-                Add keywords buyers might search for (separated by commas)
-              </p>
-            </div>
-          </div>
-
-          <!-- Digital Files -->
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6">Digital Download File *</h2>
-            
-            <div class="border-2 border-dashed border-blue-300 rounded-lg p-8 text-center bg-blue-50">
-              <Icon name="heroicons:document-arrow-down" class="w-12 h-12 text-blue-400 mx-auto mb-4" />
-              <h3 class="text-lg font-medium text-gray-900 mb-2">Upload Template Access PDF</h3>
-              <p class="text-gray-600 mb-4">
-                Upload the PDF file that buyers will download. This should contain the template link and access instructions.
-              </p>
-              <input
-                type="file"
-                accept=".pdf"
-                @change="handleFileUpload"
-                class="hidden"
-                ref="fileInput"
-              />
-              <button
-                type="button"
-                @click="$refs.fileInput.click()"
-                :disabled="isUploading"
-                class="btn-primary"
-              >
-                <span v-if="!isUploading">Choose PDF File</span>
-                <span v-else class="flex items-center">
-                  <Icon name="heroicons:arrow-path" class="w-4 h-4 mr-2 animate-spin" />
-                  Uploading...
-                </span>
-              </button>
-              <p class="text-sm text-gray-500 mt-2">
-                PDF files only, maximum 10MB
-              </p>
-            </div>
-
-            <!-- Uploaded File Display -->
-            <div v-if="product.download_files?.length" class="mt-6">
-              <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-                <div class="flex items-center">
-                  <Icon name="heroicons:document-check" class="w-8 h-8 text-green-600 mr-3" />
-                  <div class="flex-1">
-                    <p class="font-medium text-green-800">File uploaded successfully!</p>
-                    <p class="text-sm text-green-600">{{ uploadedFileName }}</p>
-                    <p class="text-xs text-green-500 mt-1">Size: {{ formatFileSize(uploadedFileSize) }}</p>
-                  </div>
-                  <button
-                    type="button"
-                    @click="removeUploadedFile"
-                    class="text-red-600 hover:text-red-800"
-                  >
-                    <Icon name="heroicons:trash" class="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Upload Progress -->
-            <div v-if="uploadProgress > 0 && uploadProgress < 100" class="mt-4">
-              <div class="flex items-center justify-between text-sm text-gray-600 mb-2">
-                <span>Uploading...</span>
-                <span>{{ uploadProgress }}%</span>
-              </div>
-              <div class="w-full bg-gray-200 rounded-full h-2">
-                <div 
-                  class="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                  :style="{ width: uploadProgress + '%' }"
-                ></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Technical Details -->
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6">Technical Details</h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <!-- File Formats -->
-              <div>
-                <label for="fileFormats" class="form-label">File Formats Included *</label>
-                <input
-                  id="fileFormats"
-                  v-model="fileFormatsInput"
-                  type="text"
-                  required
-                  class="form-input"
-                  placeholder="PSD, PNG, JPG (separated by commas)"
-                />
-              </div>
-
-              <!-- File Size -->
-              <div>
-                <label for="fileSize" class="form-label">Total File Size</label>
-                <input
-                  id="fileSize"
-                  v-model="product.file_size"
-                  type="text"
-                  class="form-input"
-                  placeholder="e.g., 15.2 MB"
-                />
-              </div>
-
-              <!-- Dimensions -->
-              <div>
-                <label for="dimensions" class="form-label">Dimensions</label>
-                <input
-                  id="dimensions"
-                  v-model="product.dimensions"
-                  type="text"
-                  class="form-input"
-                  placeholder="e.g., 1080x1080px (Instagram Post)"
-                />
-              </div>
-
-              <!-- Software Required -->
-              <div>
-                <label for="softwareRequired" class="form-label">Software Required</label>
-                <input
-                  id="softwareRequired"
-                  v-model="softwareRequiredInput"
-                  type="text"
-                  class="form-input"
-                  placeholder="Canva, Photoshop CC 2020+ (separated by commas)"
-                />
-              </div>
-
-              <!-- Difficulty Level -->
-              <div>
-                <label for="difficultyLevel" class="form-label">Difficulty Level</label>
-                <select
-                  id="difficultyLevel"
-                  v-model="product.difficulty_level"
-                  class="form-input"
-                >
-                  <option value="">Select difficulty</option>
-                  <option value="Beginner">Beginner - No experience needed</option>
-                  <option value="Intermediate">Intermediate - Some experience helpful</option>
-                  <option value="Advanced">Advanced - Experienced users</option>
-                </select>
-              </div>
-            </div>
-          </div>
+          <!-- Technical Details Component -->
+          <ProductTechnicalDetails
+            :product="product"
+            :file-formats-input="fileFormatsInput"
+            :software-required-input="softwareRequiredInput"
+            @update:product="product = $event"
+            @update:file-formats-input="fileFormatsInput = $event"
+            @update:software-required-input="softwareRequiredInput = $event"
+          />
         </div>
 
         <!-- Sidebar -->
-        <div class="lg:col-span-1 space-y-6">
-          <!-- Pricing -->
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Pricing</h3>
-            
-            <div class="mb-4">
-              <label for="price" class="form-label">Price *</label>
-              <div class="relative">
-                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
-                <input
-                  id="price"
-                  v-model="product.price"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  required
-                  class="form-input pl-8"
-                  placeholder="9.99"
-                />
-              </div>
-            </div>
-
-            <div class="mb-4">
-              <label for="compareAtPrice" class="form-label">Compare at price (optional)</label>
-              <div class="relative">
-                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
-                <input
-                  id="compareAtPrice"
-                  v-model="product.compare_at_price"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  class="form-input pl-8"
-                  placeholder="19.99"
-                />
-              </div>
-              <p class="mt-1 text-sm text-gray-500">
-                Original price to show savings
-              </p>
-            </div>
-          </div>
-
-          <!-- Visibility & Status -->
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Visibility</h3>
-            
-            <div class="space-y-4">
-              <label class="flex items-center">
-                <input
-                  v-model="product.is_active"
-                  type="checkbox"
-                  class="form-checkbox"
-                />
-                <span class="ml-2 text-sm font-medium text-gray-700">
-                  Product is active and visible to customers
-                </span>
-              </label>
-
-              <label class="flex items-center">
-                <input
-                  v-model="product.is_featured"
-                  type="checkbox"
-                  class="form-checkbox"
-                />
-                <span class="ml-2 text-sm font-medium text-gray-700">
-                  Feature this product (shows in featured section)
-                </span>
-              </label>
-            </div>
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-            <div class="space-y-3">
-              <button
-                type="submit"
-                :disabled="isLoading"
-                class="btn-primary w-full"
-              >
-                <span v-if="!isLoading">Create Template</span>
-                <span v-else class="flex items-center justify-center">
-                  <Icon name="heroicons:arrow-path" class="w-4 h-4 mr-2 animate-spin" />
-                  Creating...
-                </span>
-              </button>
-
-              <button
-                type="button"
-                @click="saveDraft"
-                :disabled="isLoading"
-                class="btn-secondary w-full"
-              >
-                Save as Draft
-              </button>
-
-              <NuxtLink
-                to="/dashboard/products"
-                class="btn-outline w-full block text-center"
-              >
-                Cancel
-              </NuxtLink>
-            </div>
-          </div>
+        <div class="lg:col-span-1">
+          <ProductPricingVisibility
+            :product="product"
+            :is-loading="isLoading"
+            :is-editing="isEditing"
+            @update:product="product = $event"
+            @save-draft="saveDraft"
+          />
         </div>
       </form>
     </div>
@@ -378,6 +74,12 @@
 </template>
 
 <script setup>
+// Component imports
+import ProductBasicInfo from '~/components/Admin/ProductBasicInfo.vue'
+import ProductFileUpload from '~/components/Admin/ProductFileUpload.vue'
+import ProductTechnicalDetails from '~/components/Admin/ProductTechnicalDetails.vue'
+import ProductPricingVisibility from '~/components/Admin/ProductPricingVisibility.vue'
+
 // Middleware
 definePageMeta({
   middleware: 'admin',
@@ -394,10 +96,12 @@ useSeoMeta({
 // Composables
 const supabase = useSupabaseClient()
 const router = useRouter()
+const route = useRoute()
 
 // State
 const isLoading = ref(false)
 const isUploading = ref(false)
+const isInitialLoading = ref(false)
 const uploadProgress = ref(0)
 const uploadedFileName = ref('')
 const uploadedFileSize = ref(0)
@@ -405,6 +109,10 @@ const categories = ref([])
 const tagsInput = ref('')
 const fileFormatsInput = ref('')
 const softwareRequiredInput = ref('')
+
+// Edit mode
+const isEditing = ref(false)
+const editProductId = ref(null)
 
 const product = ref({
   name: '',
@@ -447,6 +155,64 @@ const loadCategories = async () => {
   }
 }
 
+const loadProduct = async (productId) => {
+  isInitialLoading.value = true
+  
+  try {
+    const response = await $fetch(`/api/admin/products/${productId}`)
+
+    if (!response.success || !response.data) {
+      throw new Error('Product not found or invalid response')
+    }
+
+    const data = response.data
+
+    // Populate form with existing data
+    product.value = {
+      id: data.id,
+      name: data.name || '',
+      slug: data.slug || '',
+      description: data.description || '',
+      short_description: data.short_description || '',
+      price: data.price || '',
+      compare_at_price: data.compare_at_price || '',
+      category_id: data.category_id || '',
+      templateType: data.templateType || 'canva',
+      preview_images: data.preview_images || [],
+      download_files: data.download_files || [],
+      file_size: data.file_size || '',
+      file_formats: data.file_formats || [],
+      tags: data.tags || [],
+      difficulty_level: data.difficulty_level || '',
+      software_required: data.software_required || [],
+      dimensions: data.dimensions || '',
+      is_active: data.is_active ?? true,
+      is_featured: data.is_featured ?? false,
+      seo_title: data.seo_title || '',
+      seo_description: data.seo_description || '',
+      meta_keywords: data.meta_keywords || []
+    }
+
+    // Populate input fields for arrays
+    tagsInput.value = (data.tags || []).join(', ')
+    fileFormatsInput.value = (data.file_formats || []).join(', ')
+    softwareRequiredInput.value = (data.software_required || []).join(', ')
+
+    // Set uploaded file info if file exists
+    if (data.download_files?.length) {
+      uploadedFileName.value = data.download_files[0].split('/').pop() || 'Unknown file'
+      uploadedFileSize.value = 0 // We don't store original file size
+    }
+
+  } catch (error) {
+    console.error('Error loading product:', error)
+    useToast().error(`Failed to load product: ${error.message}`)
+    // Don't redirect immediately, let user decide what to do
+  } finally {
+    isInitialLoading.value = false
+  }
+}
+
 const generateSlug = (name) => {
   return name
     .toLowerCase()
@@ -464,8 +230,7 @@ const formatFileSize = (bytes) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
-const handleFileUpload = async (event) => {
-  const file = event.target.files[0]
+const handleFileUpload = async (file) => {
   if (!file) return
 
   // Validate file type
@@ -511,8 +276,6 @@ const handleFileUpload = async (event) => {
     useToast().error('Failed to upload file. Please try again.')
   } finally {
     isUploading.value = false
-    // Reset file input
-    event.target.value = ''
   }
 }
 
@@ -564,19 +327,38 @@ const saveProduct = async () => {
       product.value.compare_at_price = parseFloat(product.value.compare_at_price)
     }
     
-    const { data, error } = await supabase
-      .from('products')
-      .insert([product.value])
-      .select()
-      .single()
+    let data, error
+    
+    if (isEditing.value) {
+      // Update existing product
+      const updateData = { ...product.value }
+      delete updateData.id // Remove ID from update data
+      
+      ({ data, error } = await supabase
+        .from('products')
+        .update(updateData)
+        .eq('id', editProductId.value)
+        .select()
+        .single())
+        
+      if (error) throw error
+      useToast().success('Template updated successfully!')
+    } else {
+      // Create new product
+      ({ data, error } = await supabase
+        .from('products')
+        .insert([product.value])
+        .select()
+        .single())
+        
+      if (error) throw error
+      useToast().success('Template created successfully!')
+    }
 
-    if (error) throw error
-
-    useToast().success('Template created successfully!')
     await router.push(`/dashboard/products`)
   } catch (error) {
-    console.error('Error creating product:', error)
-    useToast().error('Failed to create template. Please try again.')
+    console.error('Error saving product:', error)
+    useToast().error(`Failed to ${isEditing.value ? 'update' : 'create'} template. Please try again.`)
   } finally {
     isLoading.value = false
   }
@@ -589,13 +371,70 @@ const saveDraft = async () => {
 
 // Initialize
 onMounted(async () => {
-  await loadCategories()
+  try {
+    // Always load categories first
+    await loadCategories()
+    
+    // Check if we're editing an existing product
+    const editId = route.query.edit
+    if (editId) {
+      isEditing.value = true
+      editProductId.value = editId
+      await loadProduct(editId)
+    }
+  } catch (error) {
+    console.error('Error during initialization:', error)
+    useToast().error('Failed to initialize page')
+  }
 })
 
 // Watch for name changes to suggest SEO title
 watch(() => product.value.name, (newName) => {
   if (!product.value.seo_title) {
     product.value.seo_title = newName
+  }
+})
+
+// Watch for route changes (in case user navigates from create to edit or vice versa)
+watch(() => route.query.edit, async (editId) => {
+  if (editId && editId !== editProductId.value) {
+    console.log('Route changed to edit product:', editId)
+    isEditing.value = true
+    editProductId.value = editId
+    await loadProduct(editId)
+  } else if (!editId && isEditing.value) {
+    console.log('Route changed to create mode')
+    isEditing.value = false
+    editProductId.value = null
+    // Reset form to empty state
+    product.value = {
+      name: '',
+      slug: '',
+      description: '',
+      short_description: '',
+      price: '',
+      compare_at_price: '',
+      category_id: '',
+      templateType: 'canva',
+      preview_images: [],
+      download_files: [],
+      file_size: '',
+      file_formats: [],
+      tags: [],
+      difficulty_level: '',
+      software_required: [],
+      dimensions: '',
+      is_active: true,
+      is_featured: false,
+      seo_title: '',
+      seo_description: '',
+      meta_keywords: []
+    }
+    tagsInput.value = ''
+    fileFormatsInput.value = ''
+    softwareRequiredInput.value = ''
+    uploadedFileName.value = ''
+    uploadedFileSize.value = 0
   }
 })
 </script>

@@ -25,9 +25,17 @@
         <div v-else-if="products.length === 0" class="p-8 text-center text-gray-500">
           <Icon name="heroicons:squares-2x2" class="w-16 h-16 mx-auto mb-4 text-gray-300" />
           <p class="text-lg font-medium mb-2">No products found</p>
-          <NuxtLink to="/dashboard/products/create" class="text-brand-brown hover:text-brand-brown/80 font-medium">
-            Create your first template →
-          </NuxtLink>
+          <div class="space-y-3">
+            <NuxtLink to="/dashboard/products/create" class="block text-brand-brown hover:text-brand-brown/80 font-medium">
+              Create your first template →
+            </NuxtLink>
+            <button
+              @click="createSampleProducts"
+              class="text-blue-600 hover:text-blue-800 font-medium text-sm"
+            >
+              Create sample products for testing
+            </button>
+          </div>
         </div>
 
         <!-- Desktop Table View (hidden on mobile) -->
@@ -59,7 +67,7 @@
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="product in products" :key="product.id" class="hover:bg-gray-50">
+              <tr v-for="product in products" :key="product.id" class="hover:bg-gray-50 cursor-pointer" @click="editProduct(product)">
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center">
                     <div class="flex-shrink-0 h-12 w-12">
@@ -137,9 +145,17 @@
                 </td>
                 
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <div class="flex items-center justify-end space-x-2">                    
+                  <div class="flex items-center justify-end space-x-2">
                     <button
-                      @click="toggleProductStatus(product)"
+                      @click.stop="editProduct(product)"
+                      class="text-blue-600 hover:text-blue-900 p-1"
+                      title="Edit"
+                    >
+                      <Icon name="heroicons:pencil" class="w-4 h-4" />
+                    </button>
+                    
+                    <button
+                      @click.stop="toggleProductStatus(product)"
                       class="text-gray-600 hover:text-gray-900 p-1"
                       :title="product.is_active ? 'Deactivate' : 'Activate'"
                     >
@@ -147,7 +163,7 @@
                     </button>
                     
                     <button
-                      @click="deleteProduct(product)"
+                      @click.stop="deleteProduct(product)"
                       class="text-red-600 hover:text-red-900 p-1"
                       title="Delete"
                     >
@@ -165,7 +181,8 @@
           <div 
             v-for="product in products" 
             :key="product.id" 
-            class="p-4 hover:bg-gray-50 transition-colors"
+            class="p-4 hover:bg-gray-50 transition-colors cursor-pointer"
+            @click="editProduct(product)"
           >
             <div class="flex items-start space-x-4">
               <!-- Product Image -->
@@ -196,7 +213,15 @@
                   <!-- Actions -->
                   <div class="flex items-center space-x-1 flex-shrink-0">
                     <button
-                      @click="toggleProductStatus(product)"
+                      @click.stop="editProduct(product)"
+                      class="text-blue-600 hover:text-blue-900 p-2"
+                      title="Edit"
+                    >
+                      <Icon name="heroicons:pencil" class="w-4 h-4" />
+                    </button>
+                    
+                    <button
+                      @click.stop="toggleProductStatus(product)"
                       class="text-gray-600 hover:text-gray-900 p-2"
                       :title="product.is_active ? 'Deactivate' : 'Activate'"
                     >
@@ -204,7 +229,7 @@
                     </button>
                     
                     <button
-                      @click="deleteProduct(product)"
+                      @click.stop="deleteProduct(product)"
                       class="text-red-600 hover:text-red-900 p-2"
                       title="Delete"
                     >
@@ -372,6 +397,24 @@ const deleteProduct = async (product) => {
   } catch (error) {
     console.error('Error deleting product:', error)
     useToast().error('Failed to delete product')
+  }
+}
+
+const editProduct = (product) => {
+  // Navigate to create page with product ID as query parameter
+  navigateTo(`/dashboard/products/create?edit=${product.id}`)
+}
+
+const createSampleProducts = async () => {
+  try {
+    const response = await $fetch('/api/admin/products/sample', {
+      method: 'POST'
+    })
+    useToast().success('Sample products created successfully!')
+    await loadProducts()
+  } catch (error) {
+    console.error('Error creating sample products:', error)
+    useToast().error('Failed to create sample products')
   }
 }
 
