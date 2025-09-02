@@ -1,32 +1,21 @@
 <template>
-  <div class="min-h-screen bg-neutral-50">
-    <!-- Admin Header -->
-    <div class="bg-white border-b border-gray-200">
-      <div class="container-custom py-6">
-        <div class="flex items-center justify-between">
-          <div>
-            <h1 class="text-3xl font-heading font-medium text-gray-900">Admin Dashboard</h1>
-            <p class="text-gray-600 mt-1">Manage your Miracute platform</p>
-          </div>
-          
-          <div class="flex items-center space-x-4">
-            <NuxtLink to="/" class="text-brand-brown hover:text-brand-brown/80 font-medium">
-              ← Back to Site
-            </NuxtLink>
-            <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-              <Icon name="heroicons:shield-check" class="w-4 h-4 text-red-600" />
+  <div class="min-h-screen bg-neutral-50 flex">
+    <!-- Sidebar Navigation -->
+    <div class="hidden lg:flex w-64 flex-col bg-white border-r border-gray-200">
+      <div class="flex flex-col h-full">
+        <!-- Admin Header (Sidebar) -->
+        <div class="p-6 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-xl font-heading font-medium text-gray-900">Admin</h2>
+              <p class="text-gray-600 text-sm mt-1">Dashboard</p>
             </div>
           </div>
         </div>
-      </div>
-    </div>
-
-    <div class="container-custom py-8">
-      <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        <!-- Sidebar Navigation -->
-        <div class="lg:col-span-1">
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sticky top-24">
-            <nav class="space-y-2">
+        
+        <!-- Navigation -->
+        <div class="flex-1 p-6">
+          <nav class="space-y-2">
               <NuxtLink to="/dashboard" 
                         class="flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors"
                         :class="$route.path === '/dashboard' ? 'text-gray-900 bg-gray-100 font-medium' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'">
@@ -69,13 +58,37 @@
                 <span>Analytics</span>
               </NuxtLink>
             </nav>
+        </div>
+        
+        <!-- Back to Site Link -->
+        <div class="p-6 border-t border-gray-200">
+          <NuxtLink to="/" class="flex items-center space-x-2 text-brand-brown hover:text-brand-brown/80 font-medium text-sm">
+            <Icon name="heroicons:arrow-left" class="w-4 h-4" />
+            <span>Back to Site</span>
+          </NuxtLink>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col">
+      <!-- Top Header -->
+      <div class="bg-white border-b border-gray-200 lg:hidden">
+        <div class="px-4 py-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h1 class="text-xl font-heading font-medium text-gray-900">Admin Dashboard</h1>
+            </div>
+            <NuxtLink to="/" class="text-brand-brown hover:text-brand-brown/80 font-medium text-sm">
+              ← Back
+            </NuxtLink>
           </div>
         </div>
+      </div>
 
-        <!-- Main Content -->
-        <div class="lg:col-span-3">
-          <slot />
-        </div>
+      <!-- Page Content -->
+      <div class="flex-1 p-4 lg:p-8">
+        <slot />
       </div>
     </div>
 

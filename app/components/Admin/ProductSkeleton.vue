@@ -35,6 +35,34 @@
     </td>
   </tr>
 
+  <div v-else-if="type === 'card'" class="animate-pulse bg-white rounded-xl border border-gray-200 overflow-hidden">
+    <!-- Image skeleton -->
+    <div class="w-full h-48 bg-gray-200"></div>
+    
+    <!-- Content skeleton -->
+    <div class="p-4">
+      <!-- Title -->
+      <div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+      <!-- Category -->
+      <div class="h-3 bg-gray-200 rounded w-1/2 mb-3"></div>
+      
+      <!-- Price and status -->
+      <div class="flex items-center justify-between mb-3">
+        <div class="h-5 bg-gray-200 rounded w-16"></div>
+        <div class="h-4 w-4 bg-gray-200 rounded"></div>
+      </div>
+      
+      <!-- Stats row -->
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="h-3 bg-gray-200 rounded w-8"></div>
+          <div class="h-3 bg-gray-200 rounded w-8"></div>
+        </div>
+        <div class="h-3 bg-gray-200 rounded w-12"></div>
+      </div>
+    </div>
+  </div>
+
   <div v-else class="animate-pulse p-4 border-b border-gray-200">
     <div class="flex items-start space-x-4">
       <!-- Product Image -->
@@ -72,7 +100,7 @@
 
 <script setup lang="ts">
 interface Props {
-  type?: 'desktop' | 'mobile'
+  type?: 'desktop' | 'mobile' | 'card'
 }
 
 withDefaults(defineProps<Props>(), {

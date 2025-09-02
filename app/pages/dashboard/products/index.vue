@@ -29,38 +29,24 @@
       @clear-filters="clearFilters"
     />
 
-    <!-- Products List -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-      <!-- Empty States -->
-      <AdminProductEmptyState 
-        v-if="products.length === 0 && !isLoading"
-        :type="searchQuery || hasActiveFilters ? 'no-results' : 'empty'"
-        @create-samples="createSampleProducts"
-        @clear-all="() => { clearFilters(); clearSearch(); }"
-      />
+    <!-- Empty States -->
+    <AdminProductEmptyState 
+      v-if="products.length === 0 && !isLoading"
+      :type="searchQuery || hasActiveFilters ? 'no-results' : 'empty'"
+      @create-samples="createSampleProducts"
+      @clear-all="() => { clearFilters(); clearSearch(); }"
+    />
 
-      <!-- Products Table (Desktop) -->
-      <AdminProductTable
-        v-else
-        :products="products"
-        :categories="categories"
-        :is-loading="isLoading"
-        @edit="editProduct"
-        @toggle-status="toggleProductStatus"
-        @delete="deleteProduct"
-      />
-
-      <!-- Products Cards (Mobile) -->
-      <AdminProductCardList
-        v-if="products.length > 0"
-        :products="products"
-        :categories="categories"
-        :is-loading="isLoading"
-        @edit="editProduct"
-        @toggle-status="toggleProductStatus"
-        @delete="deleteProduct"
-      />
-    </div>
+    <!-- Products Grid -->
+    <AdminProductGrid
+      v-else
+      :products="products"
+      :categories="categories"
+      :is-loading="isLoading"
+      @edit="editProduct"
+      @toggle-status="toggleProductStatus"
+      @delete="deleteProduct"
+    />
 
     <!-- Infinite Scroll Loader -->
     <AdminInfiniteScrollLoader
