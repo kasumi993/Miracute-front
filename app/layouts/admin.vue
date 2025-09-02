@@ -57,6 +57,13 @@
                 <Icon name="heroicons:chart-bar" class="w-5 h-5" />
                 <span>Analytics</span>
               </NuxtLink>
+              
+              <NuxtLink to="/dashboard/maintenance" 
+                        class="flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors"
+                        :class="$route.path.startsWith('/dashboard/maintenance') ? 'text-gray-900 bg-gray-100 font-medium' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'">
+                <Icon name="heroicons:cog-6-tooth" class="w-5 h-5" />
+                <span>Maintenance</span>
+              </NuxtLink>
             </nav>
         </div>
         
