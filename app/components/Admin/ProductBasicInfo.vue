@@ -21,43 +21,28 @@
 
     <!-- Template Type -->
     <div class="mb-6">
-      <label for="templateType" class="form-label">Template Type *</label>
-      <select
-        id="templateType"
-        :value="product.templateType"
-        @change="updateProduct('templateType', ($event.target as HTMLSelectElement).value)"
+      <UISelect
+        :model-value="product.templateType"
+        @update:model-value="updateProduct('templateType', $event)"
+        label="Template Type *"
+        placeholder="Select template type"
+        :options="templateTypeOptions"
         required
-        class="form-input"
-      >
-        <option value="canva">Canva Template</option>
-        <option value="photoshop">Photoshop Template (PSD)</option>
-        <option value="figma">Figma Template</option>
-        <option value="wordpress">WordPress Theme</option>
-        <option value="squarespace">Squarespace Template</option>
-        <option value="notion">Notion Template</option>
-        <option value="powerpoint">PowerPoint Template</option>
-        <option value="google-slides">Google Slides Template</option>
-        <option value="illustrator">Illustrator Template (AI)</option>
-        <option value="indesign">InDesign Template</option>
-        <option value="other">Other</option>
-      </select>
+      />
     </div>
 
     <!-- Category -->
     <div class="mb-6">
-      <label for="category" class="form-label">Category *</label>
-      <select
-        id="category"
-        :value="product.category_id"
-        @change="updateProduct('category_id', ($event.target as HTMLSelectElement).value)"
+      <UISelect
+        :model-value="product.category_id"
+        @update:model-value="updateProduct('category_id', $event)"
+        label="Category *"
+        placeholder="Select a category"
+        :options="categoryOptions"
+        option-value="id"
+        option-label="name"
         required
-        class="form-input"
-      >
-        <option value="">Select a category</option>
-        <option v-for="category in categories" :key="category.id" :value="category.id">
-          {{ category.name }}
-        </option>
-      </select>
+      />
     </div>
 
     <!-- Short Description -->
@@ -117,6 +102,7 @@
 interface Props {
   product: any
   categories: any[]
+  templateTypes: any[]
   tagsInput: string
 }
 
@@ -128,7 +114,15 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-// Helper functions to update specific fields
+const templateTypeOptions = computed(() => 
+  (props.templateTypes || []).map(type => ({
+    value: type.slug,
+    label: type.name
+  }))
+)
+
+const categoryOptions = computed(() => props.categories || [])
+
 const updateProduct = (field: string, value: any) => {
   const updatedProduct = { ...props.product, [field]: value }
   emit('update:product', updatedProduct)

@@ -79,24 +79,16 @@
       </div>
     </div>
 
-    <!-- Toast Notifications -->
-    <div id="toast-container"></div>
+    <UIToast />
   </div>
 </template>
 
 <script setup>
-// This layout is specifically for admin pages
-// It's cleaner and focused on admin functionality
-
-// Global loading state for admin operations
 const isAdminLoading = ref(false)
 
-// Initialize admin-specific functionality
 onMounted(async () => {
-  // Any admin-specific initialization can go here
 })
 
-// Page metadata for admin pages
 useHead({
   titleTemplate: (title) => title ? `${title} | Admin` : 'Admin | Miracute',
   meta: [
@@ -104,7 +96,3 @@ useHead({
   ]
 })
 </script>
-
-<style scoped>
-/* Admin-specific styles can go here */
-</style>

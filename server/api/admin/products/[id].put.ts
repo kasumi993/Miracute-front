@@ -4,7 +4,7 @@ import type { Database } from '~/types/database'
 export default defineEventHandler(async (event) => {
   const supabase = serverSupabaseServiceRole<Database>(event)
   const productId = getRouterParam(event, 'id')
-
+  
   if (!productId) {
     throw createError({
       statusCode: 400,
@@ -12,62 +12,41 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  // Get the request body
+  const body = await readBody(event)
+  
+  if (!body) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Request body is required'
+    })
+  }
+
   try {
-    // Define the base columns we know exist
-    const baseColumns = `
-      id,
-      name,
-      slug,
-      description,
-      short_description,
-      price,
-      compare_at_price,
-      category_id,
-      preview_images,
-      download_files,
-      file_size,
-      file_formats,
-      seo_title,
-      seo_description,
-      meta_keywords,
-      tags,
-      difficulty_level,
-      software_required,
-      dimensions,
-      is_active,
-      is_featured,
-      stock_quantity,
-      view_count,
-      download_count,
-      created_at,
-      updated_at,
-      category:categories (
-        id,
-        name
-      )
-    `
+    // Create a copy of body to potentially modify
+    let updateData = { ...body }
     
-    // Try to fetch with template_type first
+    // Try to update with template_type first
     let { data, error } = await supabase
       .from('products')
-      .select(`${baseColumns}, template_type`)
+      .update(updateData)
       .eq('id', productId)
+      .select()
       .single()
 
     // If error is about missing template_type column, try without it
     if (error && error.message && error.message.includes('template_type')) {
+      const { template_type, ...updateDataWithoutTemplateType } = updateData
+      
       const result = await supabase
         .from('products')
-        .select(baseColumns)
+        .update(updateDataWithoutTemplateType)
         .eq('id', productId)
+        .select()
         .single()
         
       data = result.data
       error = result.error
-      
-      if (data && !error) {
-        data.template_type = 'canva'
-      }
     }
 
     if (error) {
@@ -79,7 +58,7 @@ export default defineEventHandler(async (event) => {
       }
       throw createError({
         statusCode: 500,
-        statusMessage: 'Failed to fetch product',
+        statusMessage: 'Failed to update product',
         data: error
       })
     }
@@ -90,7 +69,7 @@ export default defineEventHandler(async (event) => {
     }
 
   } catch (error: any) {
-    console.error('Error fetching product:', error)
+    console.error('Error updating product:', error)
     
     if (error.statusCode) {
       throw error
@@ -98,7 +77,7 @@ export default defineEventHandler(async (event) => {
     
     throw createError({
       statusCode: 500,
-      statusMessage: 'Failed to fetch product',
+      statusMessage: 'Failed to update product',
       data: error
     })
   }

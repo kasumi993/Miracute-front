@@ -124,7 +124,6 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-// Helper function to update specific fields
 const updateProduct = (field: string, value: any) => {
   const updatedProduct = { ...props.product, [field]: value }
   emit('update:product', updatedProduct)

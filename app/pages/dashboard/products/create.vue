@@ -30,6 +30,7 @@
           <ProductBasicInfo
             :product="product"
             :categories="categories"
+            :template-types="templateTypes"
             :tags-input="tagsInput"
             @update:product="product = $event"
             @update:tags-input="tagsInput = $event"
@@ -106,6 +107,7 @@ const uploadProgress = ref(0)
 const uploadedFileName = ref('')
 const uploadedFileSize = ref(0)
 const categories = ref([])
+const templateTypes = ref([])
 const tagsInput = ref('')
 const fileFormatsInput = ref('')
 const softwareRequiredInput = ref('')
@@ -141,17 +143,21 @@ const product = ref({
 // Methods
 const loadCategories = async () => {
   try {
-    const { data, error } = await supabase
-      .from('categories')
-      .select('id, name')
-      .eq('is_active', true)
-      .order('name')
-
-    if (error) throw error
-    categories.value = data || []
+    const response = await $fetch('/api/admin/categories')
+    categories.value = response.data.filter(cat => cat.is_active) || []
   } catch (error) {
     console.error('Error loading categories:', error)
     useToast().error('Failed to load categories')
+  }
+}
+
+const loadTemplateTypes = async () => {
+  try {
+    const response = await $fetch('/api/admin/template-types')
+    templateTypes.value = response.data || []
+  } catch (error) {
+    console.error('Error loading template types:', error)
+    useToast().error('Failed to load template types')
   }
 }
 
@@ -177,7 +183,7 @@ const loadProduct = async (productId) => {
       price: data.price || '',
       compare_at_price: data.compare_at_price || '',
       category_id: data.category_id || '',
-      templateType: data.templateType || 'canva',
+      templateType: data.template_type || 'canva',
       preview_images: data.preview_images || [],
       download_files: data.download_files || [],
       file_size: data.file_size || '',
@@ -305,6 +311,21 @@ const removeUploadedFile = async () => {
 
 const saveProduct = async () => {
   // Validate required fields
+  if (!product.value.name || product.value.name.trim() === '') {
+    useToast().error('Please enter a product name')
+    return
+  }
+
+  if (!product.value.short_description || product.value.short_description.trim() === '') {
+    useToast().error('Please enter a short description')
+    return
+  }
+
+  if (!product.value.description || product.value.description.trim() === '') {
+    useToast().error('Please enter a full description')
+    return
+  }
+
   if (!product.value.download_files?.length) {
     useToast().error('Please upload a PDF file for the template download')
     return
@@ -321,44 +342,116 @@ const saveProduct = async () => {
     // Generate slug
     product.value.slug = generateSlug(product.value.name)
     
-    // Convert prices to numbers
-    product.value.price = parseFloat(product.value.price)
-    if (product.value.compare_at_price) {
-      product.value.compare_at_price = parseFloat(product.value.compare_at_price)
+    // Convert and validate prices
+    const price = parseFloat(product.value.price)
+    if (isNaN(price) || price <= 0) {
+      useToast().error('Please enter a valid price greater than 0')
+      return
+    }
+    product.value.price = price
+    
+    // Handle compare_at_price (optional field)
+    if (product.value.compare_at_price && product.value.compare_at_price.toString().trim() !== '') {
+      const comparePrice = parseFloat(product.value.compare_at_price)
+      if (isNaN(comparePrice) || comparePrice <= 0) {
+        useToast().error('Please enter a valid compare price or leave it empty')
+        return
+      }
+      product.value.compare_at_price = comparePrice
+    } else {
+      // Set to null for empty/invalid compare_at_price
+      product.value.compare_at_price = null
     }
     
-    let data, error
+    // Prepare clean data object for database operations
+    const cleanProductData = {
+      name: product.value.name,
+      slug: product.value.slug,
+      description: product.value.description || null,
+      short_description: product.value.short_description || null,
+      price: product.value.price,
+      compare_at_price: product.value.compare_at_price,
+      category_id: product.value.category_id || null,
+      template_type: product.value.templateType,
+      preview_images: product.value.preview_images || null,
+      download_files: product.value.download_files || null,
+      file_size: product.value.file_size || null,
+      file_formats: product.value.file_formats || null,
+      tags: product.value.tags || null,
+      difficulty_level: product.value.difficulty_level || null,
+      software_required: product.value.software_required || null,
+      dimensions: product.value.dimensions || null,
+      is_active: product.value.is_active,
+      is_featured: product.value.is_featured,
+      seo_title: product.value.seo_title || null,
+      seo_description: product.value.seo_description || null,
+      meta_keywords: product.value.meta_keywords || null
+    }
     
     if (isEditing.value) {
-      // Update existing product
-      const updateData = { ...product.value }
-      delete updateData.id // Remove ID from update data
+      const response = await $fetch(`/api/admin/products/${editProductId.value}`, {
+        method: 'PUT',
+        body: cleanProductData
+      })
       
-      ({ data, error } = await supabase
-        .from('products')
-        .update(updateData)
-        .eq('id', editProductId.value)
-        .select()
-        .single())
-        
-      if (error) throw error
+      if (!response.success) throw new Error('Failed to update product')
       useToast().success('Template updated successfully!')
     } else {
-      // Create new product
-      ({ data, error } = await supabase
-        .from('products')
-        .insert([product.value])
-        .select()
-        .single())
-        
-      if (error) throw error
+      const response = await $fetch('/api/admin/products', {
+        method: 'POST',
+        body: cleanProductData
+      })
+      
+      if (!response.success) throw new Error('Failed to create product')
       useToast().success('Template created successfully!')
     }
 
     await router.push(`/dashboard/products`)
   } catch (error) {
     console.error('Error saving product:', error)
-    useToast().error(`Failed to ${isEditing.value ? 'update' : 'create'} template. Please try again.`)
+    let errorMessage = `Failed to ${isEditing.value ? 'update' : 'create'} template. Please try again.`
+    
+    if (error.statusCode) {
+      switch (error.statusCode) {
+        case 400:
+          errorMessage = 'Invalid product data. Please check all required fields.'
+          break
+        case 401:
+          errorMessage = 'You are not authorized to perform this action.'
+          break
+        case 403:
+          errorMessage = 'Access denied. Admin privileges required.'
+          break
+        case 404:
+          errorMessage = isEditing.value ? 'Product not found.' : 'Resource not found.'
+          break
+        case 409:
+          errorMessage = 'A product with this name or slug already exists.'
+          break
+        case 422:
+          errorMessage = 'Validation failed. Please check your input data.'
+          break
+        case 500:
+          errorMessage = 'Server error occurred. Please try again later.'
+          break
+        default:
+          errorMessage = `Server error (${error.statusCode}). Please try again.`
+      }
+    } else if (error.message) {
+      if (error.message.includes('template_type')) {
+        errorMessage = 'Invalid template type selected. Please choose a valid template type.'
+      } else if (error.message.includes('category')) {
+        errorMessage = 'Invalid category selected. Please choose a valid category.'
+      } else if (error.message.includes('duplicate')) {
+        errorMessage = 'A product with this name already exists. Please choose a different name.'
+      } else if (error.message.includes('validation')) {
+        errorMessage = 'Please check all required fields and try again.'
+      } else if (error.message.includes('network') || error.message.includes('fetch')) {
+        errorMessage = 'Network error. Please check your connection and try again.'
+      }
+    }
+    
+    useToast().error(errorMessage)
   } finally {
     isLoading.value = false
   }
@@ -369,13 +462,13 @@ const saveDraft = async () => {
   await saveProduct()
 }
 
-// Initialize
 onMounted(async () => {
   try {
-    // Always load categories first
-    await loadCategories()
+    await Promise.all([
+      loadCategories(),
+      loadTemplateTypes()
+    ])
     
-    // Check if we're editing an existing product
     const editId = route.query.edit
     if (editId) {
       isEditing.value = true
@@ -388,25 +481,20 @@ onMounted(async () => {
   }
 })
 
-// Watch for name changes to suggest SEO title
 watch(() => product.value.name, (newName) => {
   if (!product.value.seo_title) {
     product.value.seo_title = newName
   }
 })
 
-// Watch for route changes (in case user navigates from create to edit or vice versa)
 watch(() => route.query.edit, async (editId) => {
   if (editId && editId !== editProductId.value) {
-    console.log('Route changed to edit product:', editId)
     isEditing.value = true
     editProductId.value = editId
     await loadProduct(editId)
   } else if (!editId && isEditing.value) {
-    console.log('Route changed to create mode')
     isEditing.value = false
     editProductId.value = null
-    // Reset form to empty state
     product.value = {
       name: '',
       slug: '',

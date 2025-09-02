@@ -29,11 +29,15 @@
         </div>
       </div>
     </Transition>
+
+    <!-- Toast Notifications -->
+    <UIToast />
   </div>
 </template>
 
 <script setup>
 const isGlobalLoading = ref(false)
+
 useHead({
   titleTemplate: (title) => title ? `${title} | Miracute` : 'Miracute - Beautiful Website Templates',
   meta: [

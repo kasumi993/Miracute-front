@@ -14,13 +14,11 @@
         <NuxtLink to="/contact" class="hover:text-gray-700 transition-colors">Contact</NuxtLink>
       </div>
     </footer>
+
+    <!-- Toast Notifications -->
+    <UIToast />
   </div>
 </template>
 
 <script setup>
-// This layout is minimal and focused on authentication flows
 </script>
-
-<style scoped>
-/* Any auth-specific styles can go here */
-</style>

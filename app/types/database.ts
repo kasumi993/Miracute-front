@@ -82,6 +82,44 @@ export interface Database {
           updated_at?: string
         }
       }
+      template_types: {
+        Row: {
+          id: string
+          name: string
+          slug: string
+          description: string | null
+          icon: string | null
+          color: string
+          sort_order: number
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          slug: string
+          description?: string | null
+          icon?: string | null
+          color?: string
+          sort_order?: number
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          slug?: string
+          description?: string | null
+          icon?: string | null
+          color?: string
+          sort_order?: number
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
       products: {
         Row: {
           id: string
@@ -92,6 +130,7 @@ export interface Database {
           price: string
           compare_at_price: string | null
           category_id: string | null
+          template_type: string
           preview_images: string[] | null
           download_files: string[] | null
           file_size: string | null
@@ -120,6 +159,7 @@ export interface Database {
           price: string
           compare_at_price?: string | null
           category_id?: string | null
+          template_type?: string
           preview_images?: string[] | null
           download_files?: string[] | null
           file_size?: string | null
@@ -148,6 +188,7 @@ export interface Database {
           price?: string
           compare_at_price?: string | null
           category_id?: string | null
+          template_type?: string
           preview_images?: string[] | null
           download_files?: string[] | null
           file_size?: string | null
