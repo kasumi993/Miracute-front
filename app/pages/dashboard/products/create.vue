@@ -464,20 +464,25 @@ const saveDraft = async () => {
 
 onMounted(async () => {
   try {
+    const editId = route.query.edit
+    if (editId) {
+      isInitialLoading.value = true
+      isEditing.value = true
+      editProductId.value = editId
+    }
+    
     await Promise.all([
       loadCategories(),
       loadTemplateTypes()
     ])
     
-    const editId = route.query.edit
     if (editId) {
-      isEditing.value = true
-      editProductId.value = editId
       await loadProduct(editId)
     }
   } catch (error) {
     console.error('Error during initialization:', error)
     useToast().error('Failed to initialize page')
+    isInitialLoading.value = false
   }
 })
 
@@ -489,12 +494,14 @@ watch(() => product.value.name, (newName) => {
 
 watch(() => route.query.edit, async (editId) => {
   if (editId && editId !== editProductId.value) {
+    isInitialLoading.value = true
     isEditing.value = true
     editProductId.value = editId
     await loadProduct(editId)
   } else if (!editId && isEditing.value) {
     isEditing.value = false
     editProductId.value = null
+    isInitialLoading.value = false
     product.value = {
       name: '',
       slug: '',
