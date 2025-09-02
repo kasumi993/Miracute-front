@@ -61,6 +61,8 @@
     "@tiptap/extension-text-style": "^3.3.1",
     "@tiptap/starter-kit": "^3.3.1",
     "@tiptap/vue-3": "^3.3.1",
+    "@types/nodemailer": "^7.0.1",
+    "nodemailer": "^7.0.6",
     "pinia": "^2.1.7",
     "stripe": "^14.9.0",
     "vue-toastification": "^2.0.0-rc.5",
