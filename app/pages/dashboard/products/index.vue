@@ -13,302 +13,72 @@
       </NuxtLink>
     </div>
 
-      <!-- Products List -->
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-        <!-- Loading State -->
-        <div v-if="isLoading" class="p-8 text-center text-gray-500">
-          <Icon name="heroicons:arrow-path" class="w-8 h-8 animate-spin mx-auto mb-4" />
-          <p>Loading products...</p>
-        </div>
-        
-        <!-- Empty State -->
-        <div v-else-if="products.length === 0" class="p-8 text-center text-gray-500">
-          <Icon name="heroicons:squares-2x2" class="w-16 h-16 mx-auto mb-4 text-gray-300" />
-          <p class="text-lg font-medium mb-2">No products found</p>
-          <div class="space-y-3">
-            <NuxtLink to="/dashboard/products/create" class="block text-brand-brown hover:text-brand-brown/80 font-medium">
-              Create your first template →
-            </NuxtLink>
-            <button
-              @click="createSampleProducts"
-              class="text-blue-600 hover:text-blue-800 font-medium text-sm"
-            >
-              Create sample products for testing
-            </button>
-          </div>
-        </div>
+    <!-- Search and Filters -->
+    <AdminSearchFilterBar
+      v-model:search-query="searchQuery"
+      v-model:selected-category="selectedCategory"
+      v-model:selected-status="selectedStatus"
+      v-model:selected-template-type="selectedTemplateType"
+      :categories="categories"
+      :template-types="templateTypes"
+      :filtered-count="filteredProductsCount"
+      :total-count="totalProductsCount"
+      @search="onSearch"
+      @filter-change="onFilterChange"
+      @clear-search="clearSearch"
+      @clear-filters="clearFilters"
+    />
 
-        <!-- Desktop Table View (hidden on mobile) -->
-        <div v-else class="hidden lg:block overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Template
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Category
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Price
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  File
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Created
-                </th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="product in products" :key="product.id" class="hover:bg-gray-50 cursor-pointer" @click="editProduct(product)">
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="flex items-center">
-                    <div class="flex-shrink-0 h-12 w-12">
-                      <img 
-                        v-if="product.preview_images?.[0]" 
-                        class="h-12 w-12 rounded-lg object-cover"
-                        :src="product.preview_images[0]" 
-                        :alt="product.name"
-                      />
-                      <div v-else class="h-12 w-12 rounded-lg bg-gray-200 flex items-center justify-center">
-                        <Icon name="heroicons:photo" class="w-6 h-6 text-gray-400" />
-                      </div>
-                    </div>
-                    <div class="ml-4">
-                      <div class="text-sm font-medium text-gray-900">
-                        {{ product.name }}
-                      </div>
-                      <div class="text-sm text-gray-500">
-                        {{ product.short_description?.substring(0, 60) }}...
-                      </div>
-                    </div>
-                  </div>
-                </td>
-                
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="text-sm text-gray-900">
-                    {{ product.category?.name || getCategoryName(product.category_id) }}
-                  </span>
-                </td>
-                
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm text-gray-900">
-                    ${{ parseFloat(product.price).toFixed(2) }}
-                  </div>
-                  <div v-if="product.compare_at_price" class="text-sm text-gray-500 line-through">
-                    ${{ parseFloat(product.compare_at_price).toFixed(2) }}
-                  </div>
-                </td>
-                
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="flex items-center space-x-2">
-                    <span 
-                      class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-                      :class="{
-                        'bg-green-100 text-green-800': product.is_active,
-                        'bg-gray-100 text-gray-800': !product.is_active
-                      }"
-                    >
-                      {{ product.is_active ? 'Active' : 'Inactive' }}
-                    </span>
-                    <span 
-                      v-if="product.is_featured"
-                      class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800"
-                    >
-                      Featured
-                    </span>
-                  </div>
-                </td>
-                
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="flex items-center">
-                    <Icon 
-                      :name="product.download_files?.length ? 'heroicons:document-check' : 'heroicons:document-minus'" 
-                      :class="product.download_files?.length ? 'text-green-600' : 'text-red-400'"
-                      class="w-5 h-5 mr-2" 
-                    />
-                    <span class="text-sm" :class="product.download_files?.length ? 'text-green-800' : 'text-red-600'">
-                      {{ product.download_files?.length ? 'Uploaded' : 'Missing' }}
-                    </span>
-                  </div>
-                </td>
-                
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {{ formatDate(product.created_at) }}
-                </td>
-                
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <div class="flex items-center justify-end space-x-2">
-                    <button
-                      @click.stop="editProduct(product)"
-                      class="text-blue-600 hover:text-blue-900 p-1"
-                      title="Edit"
-                    >
-                      <Icon name="heroicons:pencil" class="w-4 h-4" />
-                    </button>
-                    
-                    <button
-                      @click.stop="toggleProductStatus(product)"
-                      class="text-gray-600 hover:text-gray-900 p-1"
-                      :title="product.is_active ? 'Deactivate' : 'Activate'"
-                    >
-                      <Icon :name="product.is_active ? 'heroicons:eye-slash' : 'heroicons:eye'" class="w-4 h-4" />
-                    </button>
-                    
-                    <button
-                      @click.stop="deleteProduct(product)"
-                      class="text-red-600 hover:text-red-900 p-1"
-                      title="Delete"
-                    >
-                      <Icon name="heroicons:trash" class="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+    <!-- Products List -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+      <!-- Empty States -->
+      <AdminProductEmptyState 
+        v-if="products.length === 0 && !isLoading"
+        :type="searchQuery || hasActiveFilters ? 'no-results' : 'empty'"
+        @create-samples="createSampleProducts"
+        @clear-all="() => { clearFilters(); clearSearch(); }"
+      />
 
-        <!-- Mobile Card View (hidden on desktop) -->
-        <div v-if="!isLoading && products.length > 0" class="lg:hidden divide-y divide-gray-200">
-          <div 
-            v-for="product in products" 
-            :key="product.id" 
-            class="p-4 hover:bg-gray-50 transition-colors cursor-pointer"
-            @click="editProduct(product)"
-          >
-            <div class="flex items-start space-x-4">
-              <!-- Product Image -->
-              <div class="flex-shrink-0">
-                <img 
-                  v-if="product.preview_images?.[0]" 
-                  class="h-16 w-16 sm:h-20 sm:w-20 rounded-lg object-cover"
-                  :src="product.preview_images[0]" 
-                  :alt="product.name"
-                />
-                <div v-else class="h-16 w-16 sm:h-20 sm:w-20 rounded-lg bg-gray-200 flex items-center justify-center">
-                  <Icon name="heroicons:photo" class="w-8 h-8 text-gray-400" />
-                </div>
-              </div>
+      <!-- Products Table (Desktop) -->
+      <AdminProductTable
+        v-else
+        :products="products"
+        :categories="categories"
+        :is-loading="isLoading"
+        @edit="editProduct"
+        @toggle-status="toggleProductStatus"
+        @delete="deleteProduct"
+      />
 
-              <!-- Product Details -->
-              <div class="flex-1 min-w-0">
-                <div class="flex items-start justify-between">
-                  <div class="flex-1 min-w-0">
-                    <h3 class="text-sm font-semibold text-gray-900 truncate pr-2">
-                      {{ product.name }}
-                    </h3>
-                    <p class="text-xs text-gray-500 mt-1 line-clamp-2">
-                      {{ product.short_description }}
-                    </p>
-                  </div>
+      <!-- Products Cards (Mobile) -->
+      <AdminProductCardList
+        v-if="products.length > 0"
+        :products="products"
+        :categories="categories"
+        :is-loading="isLoading"
+        @edit="editProduct"
+        @toggle-status="toggleProductStatus"
+        @delete="deleteProduct"
+      />
+    </div>
 
-                  <!-- Actions -->
-                  <div class="flex items-center space-x-1 flex-shrink-0">
-                    <button
-                      @click.stop="editProduct(product)"
-                      class="text-blue-600 hover:text-blue-900 p-2"
-                      title="Edit"
-                    >
-                      <Icon name="heroicons:pencil" class="w-4 h-4" />
-                    </button>
-                    
-                    <button
-                      @click.stop="toggleProductStatus(product)"
-                      class="text-gray-600 hover:text-gray-900 p-2"
-                      :title="product.is_active ? 'Deactivate' : 'Activate'"
-                    >
-                      <Icon :name="product.is_active ? 'heroicons:eye-slash' : 'heroicons:eye'" class="w-4 h-4" />
-                    </button>
-                    
-                    <button
-                      @click.stop="deleteProduct(product)"
-                      class="text-red-600 hover:text-red-900 p-2"
-                      title="Delete"
-                    >
-                      <Icon name="heroicons:trash" class="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Meta Information -->
-                <div class="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
-                  <div>
-                    <span class="text-gray-500">Category:</span>
-                    <span class="ml-1 text-gray-900">{{ product.category?.name || getCategoryName(product.category_id) }}</span>
-                  </div>
-                  
-                  <div>
-                    <span class="text-gray-500">Price:</span>
-                    <span class="ml-1 font-medium text-gray-900">
-                      ${{ parseFloat(product.price).toFixed(2) }}
-                    </span>
-                    <span v-if="product.compare_at_price" class="ml-1 text-gray-500 line-through">
-                      ${{ parseFloat(product.compare_at_price).toFixed(2) }}
-                    </span>
-                  </div>
-
-                  <div>
-                    <span class="text-gray-500">Status:</span>
-                    <span 
-                      class="ml-1 inline-flex px-2 py-0.5 text-xs font-medium rounded-full"
-                      :class="{
-                        'bg-green-100 text-green-800': product.is_active,
-                        'bg-gray-100 text-gray-800': !product.is_active
-                      }"
-                    >
-                      {{ product.is_active ? 'Active' : 'Inactive' }}
-                    </span>
-                    <span 
-                      v-if="product.is_featured"
-                      class="ml-1 inline-flex px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-800"
-                    >
-                      Featured
-                    </span>
-                  </div>
-
-                  <div>
-                    <span class="text-gray-500">File:</span>
-                    <span 
-                      class="ml-1 inline-flex items-center"
-                      :class="product.download_files?.length ? 'text-green-800' : 'text-red-600'"
-                    >
-                      <Icon 
-                        :name="product.download_files?.length ? 'heroicons:document-check' : 'heroicons:document-minus'" 
-                        class="w-3 h-3 mr-1" 
-                      />
-                      {{ product.download_files?.length ? 'Uploaded' : 'Missing' }}
-                    </span>
-                  </div>
-
-                  <div class="col-span-2">
-                    <span class="text-gray-500">Created:</span>
-                    <span class="ml-1 text-gray-900">{{ formatDate(product.created_at) }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- Infinite Scroll Loader -->
+    <AdminInfiniteScrollLoader
+      :has-next-page="pagination.hasNextPage"
+      :is-initial-loading="isLoading"
+      :is-loading-more="isLoadingMore"
+      @load-more="loadMoreProducts"
+    />
   </div>
 </template>
 
-<script setup>
-// Middleware
+<script setup lang="ts">
+// Middleware and SEO
 definePageMeta({
   middleware: 'admin',
   layout: 'admin'
 })
 
-// SEO
 useSeoMeta({
   title: 'Products | Dashboard',
   description: 'Manage your digital templates and products',
@@ -320,22 +90,75 @@ const supabase = useSupabaseClient()
 
 // State
 const isLoading = ref(false)
+const isLoadingMore = ref(false)
 const products = ref([])
 const categories = ref([])
+const templateTypes = ref([])
+const pagination = ref({
+  page: 1,
+  limit: 20,
+  total: 0,
+  totalPages: 0,
+  hasNextPage: false,
+  hasPreviousPage: false
+})
+
+// Search and Filter State
+const searchQuery = ref('')
+const selectedCategory = ref('')
+const selectedStatus = ref('')
+const selectedTemplateType = ref('')
+
+// Computed properties
+const hasActiveFilters = computed(() => {
+  return selectedCategory.value || selectedStatus.value || selectedTemplateType.value
+})
+
+const filteredProductsCount = computed(() => pagination.value.total)
+const totalProductsCount = computed(() => pagination.value.total)
 
 // Methods
-const loadProducts = async () => {
-  isLoading.value = true
+const loadProducts = async (reset = true) => {
+  if (reset) {
+    isLoading.value = true
+    pagination.value.page = 1
+  } else {
+    isLoadingMore.value = true
+  }
   
   try {
-    const response = await $fetch('/api/admin/products')
-    products.value = response.data || []
+    const params = new URLSearchParams()
+    if (searchQuery.value) params.append('search', searchQuery.value)
+    if (selectedCategory.value) params.append('category', selectedCategory.value)
+    if (selectedStatus.value) params.append('status', selectedStatus.value)
+    if (selectedTemplateType.value) params.append('template_type', selectedTemplateType.value)
+    params.append('page', pagination.value.page.toString())
+    params.append('limit', pagination.value.limit.toString())
+    
+    const response = await $fetch(`/api/admin/products?${params.toString()}`)
+    
+    if (reset) {
+      products.value = response.data || []
+    } else {
+      products.value.push(...(response.data || []))
+    }
+    
+    pagination.value = response.pagination || pagination.value
+    
   } catch (error) {
     console.error('Error loading products:', error)
     useToast().error('Failed to load products')
   } finally {
     isLoading.value = false
+    isLoadingMore.value = false
   }
+}
+
+const loadMoreProducts = async () => {
+  if (!pagination.value.hasNextPage || isLoadingMore.value) return
+  
+  pagination.value.page += 1
+  await loadProducts(false)
 }
 
 const loadCategories = async () => {
@@ -347,22 +170,16 @@ const loadCategories = async () => {
   }
 }
 
-const getCategoryName = (categoryId) => {
-  if (!categoryId) return 'Uncategorized'
-  const category = categories.value.find(cat => cat.id === categoryId)
-  return category?.name || 'Unknown'
+const loadTemplateTypes = async () => {
+  try {
+    const response = await $fetch('/api/admin/template-types')
+    templateTypes.value = response.data || []
+  } catch (error) {
+    console.error('Error loading template types:', error)
+  }
 }
 
-const formatDate = (date) => {
-  if (!date) return ''
-  return new Date(date).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  })
-}
-
-const toggleProductStatus = async (product) => {
+const toggleProductStatus = async (product: any) => {
   try {
     const { error } = await supabase
       .from('products')
@@ -379,7 +196,7 @@ const toggleProductStatus = async (product) => {
   }
 }
 
-const deleteProduct = async (product) => {
+const deleteProduct = async (product: any) => {
   if (!confirm(`Are you sure you want to delete "${product.name}"? This action cannot be undone.`)) {
     return
   }
@@ -400,8 +217,7 @@ const deleteProduct = async (product) => {
   }
 }
 
-const editProduct = (product) => {
-  // Navigate to create page with product ID as query parameter
+const editProduct = (product: any) => {
   navigateTo(`/dashboard/products/create?edit=${product.id}`)
 }
 
@@ -418,10 +234,32 @@ const createSampleProducts = async () => {
   }
 }
 
+// Search and Filter Methods
+const onSearch = useDebounceFn(() => {
+  loadProducts(true)
+}, 300)
+
+const onFilterChange = () => {
+  loadProducts(true)
+}
+
+const clearSearch = () => {
+  searchQuery.value = ''
+  loadProducts(true)
+}
+
+const clearFilters = () => {
+  selectedCategory.value = ''
+  selectedStatus.value = ''
+  selectedTemplateType.value = ''
+  loadProducts(true)
+}
+
 // Initialize
 onMounted(async () => {
   await Promise.all([
     loadCategories(),
+    loadTemplateTypes(),
     loadProducts()
   ])
 })

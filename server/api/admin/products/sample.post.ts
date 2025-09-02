@@ -3,6 +3,22 @@ import type { Database } from '~/types/database'
 
 export default defineEventHandler(async (event) => {
   const supabase = serverSupabaseServiceRole<Database>(event)
+  
+  // Parse query to see if we should clear existing data
+  const query = getQuery(event)
+  const clearExisting = query.clear === 'true'
+
+  // Clear existing products if requested
+  if (clearExisting) {
+    const { error: deleteError } = await supabase
+      .from('products')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000') // Delete all
+    
+    if (deleteError) {
+      console.log('Warning: Could not clear existing products:', deleteError)
+    }
+  }
 
   // First, get the category IDs to use in products
   const { data: categories, error: catError } = await supabase
@@ -23,7 +39,82 @@ export default defineEventHandler(async (event) => {
     categoryMap[cat.slug] = cat.id
   })
 
-  const sampleProducts = [
+  // Generate more products for pagination testing
+  const templateNames = [
+    'Modern Business Card Collection', 'Instagram Story Templates Pack', 'Wedding Invitation Suite', 
+    'Professional Resume Template', 'Social Media Quote Templates', 'Minimalist Logo Design Kit',
+    'E-commerce Banner Bundle', 'Newsletter Email Templates', 'Real Estate Flyer Pack',
+    'Food Menu Design Templates', 'Fitness Poster Collection', 'Travel Brochure Templates',
+    'Corporate Presentation Pack', 'Birthday Invitation Set', 'Holiday Greeting Cards',
+    'Blog Graphics Bundle', 'Podcast Cover Templates', 'YouTube Thumbnail Pack',
+    'Pinterest Pin Templates', 'Facebook Ad Templates', 'LinkedIn Banner Set',
+    'Conference Poster Templates', 'Fashion Lookbook Design', 'Photography Price List',
+    'Spa Treatment Menu', 'Coffee Shop Branding Kit', 'Tech Startup Pitch Deck',
+    'Wellness Workshop Flyer', 'Children Birthday Invites', 'Graduation Announcement Pack',
+    'Mother\'s Day Cards Bundle', 'Father\'s Day Gift Tags', 'Christmas Party Invites',
+    'New Year Social Posts', 'Valentine\'s Day Templates', 'Easter Greeting Cards',
+    'Summer Sale Banners', 'Back to School Pack', 'Halloween Costume Contest',
+    'Thanksgiving Dinner Menu', 'Black Friday Sale Kit', 'Cyber Monday Banners',
+    'Winter Holiday Cards', 'Spring Cleaning Flyers', 'Beach Party Invitations',
+    'Baby Shower Templates', 'Bridal Shower Pack', 'Retirement Party Kit',
+    'Housewarming Invites', 'Art Gallery Exhibition', 'Music Festival Poster',
+    'Book Club Meeting Flyer', 'Yoga Class Schedule', 'Cooking Class Menu',
+    'Garden Party Invitations', 'Wine Tasting Event', 'Charity Fundraiser Kit',
+    'School Fundraiser Pack', 'Community Event Flyer', 'Local Business Promo',
+    'Health Fair Banner', 'Job Fair Poster', 'Career Workshop Flyer'
+  ]
+
+  const categoryKeys = Object.keys(categoryMap)
+  const templateTypes = ['canva', 'photoshop', 'figma', 'illustrator']
+  const difficulties = ['beginner', 'intermediate', 'advanced']
+  const unsplashImages = [
+    'https://images.unsplash.com/photo-1618044619888-009e412ff12a?w=400',
+    'https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=400',
+    'https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400',
+    'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400',
+    'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=400',
+    'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400',
+    'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=400',
+    'https://images.unsplash.com/photo-1606800052052-a08af7148866?w=400'
+  ]
+
+  const sampleProducts = templateNames.map((name, index) => {
+    const randomCategory = categoryKeys[Math.floor(Math.random() * categoryKeys.length)]
+    const price = (Math.random() * 50 + 15).toFixed(2) // Between $15-65
+    const isActive = Math.random() > 0.1 // 90% active
+    const isFeatured = Math.random() > 0.7 // 30% featured
+    const templateType = templateTypes[Math.floor(Math.random() * templateTypes.length)]
+    const difficulty = difficulties[Math.floor(Math.random() * difficulties.length)]
+    
+    return {
+      name,
+      slug: name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''),
+      description: `Professional ${name.toLowerCase()} perfect for businesses and individuals. Features modern design and easy customization. Includes multiple variations and color schemes.`,
+      short_description: `Professional ${name.toLowerCase().substring(0, 50)}...`,
+      price: parseFloat(price),
+      compare_at_price: Math.random() > 0.5 ? parseFloat((parseFloat(price) * 1.5).toFixed(2)) : null,
+      category_id: categoryMap[randomCategory],
+      template_type: templateType,
+      tags: [`${templateType}`, 'professional', 'modern', 'customizable'],
+      software_required: templateType === 'canva' ? ['Canva'] : ['Canva', 'Photoshop'],
+      difficulty_level: difficulty,
+      file_size: `${Math.floor(Math.random() * 40 + 5)} MB`,
+      file_formats: templateType === 'canva' ? ['CANVA'] : ['PSD', 'AI', 'PDF'],
+      preview_images: [
+        unsplashImages[Math.floor(Math.random() * unsplashImages.length)],
+        unsplashImages[Math.floor(Math.random() * unsplashImages.length)]
+      ],
+      download_files: [`${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.zip`],
+      is_featured: isFeatured,
+      is_active: isActive,
+      view_count: Math.floor(Math.random() * 500),
+      download_count: Math.floor(Math.random() * 50),
+      stock_quantity: null
+    }
+  })
+
+  // Add the original high-quality samples
+  const premiumSamples = [
     {
       name: 'Elegant Wedding Invitation Suite',
       slug: 'elegant-wedding-invitation-suite',
@@ -158,10 +249,13 @@ export default defineEventHandler(async (event) => {
     }
   ]
 
+  // Combine generated products with premium samples
+  const allProducts = [...sampleProducts, ...premiumSamples]
+
   try {
     const { data, error } = await supabase
       .from('products')
-      .insert(sampleProducts)
+      .insert(allProducts)
       .select()
 
     if (error) {
@@ -175,7 +269,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       data,
-      message: 'Sample products created successfully'
+      message: `${allProducts.length} sample products created successfully`
     }
 
   } catch (error: any) {
