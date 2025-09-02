@@ -69,6 +69,21 @@
       :is-loading-more="isLoadingMore"
       @load-more="loadMoreProducts"
     />
+
+    <!-- Delete Confirmation Modal -->
+    <UIConfirmationModal
+      :is-open="showDeleteModal"
+      :title="deleteModalTitle"
+      :message="deleteModalMessage"
+      confirm-text="Delete Product"
+      cancel-text="Cancel"
+      loading-text="Deleting..."
+      :is-loading="isDeleting"
+      variant="danger"
+      @confirm="confirmDelete"
+      @cancel="cancelDelete"
+      @close="cancelDelete"
+    />
   </div>
 </template>
 
@@ -109,6 +124,11 @@ const selectedCategory = ref('')
 const selectedStatus = ref('')
 const selectedTemplateType = ref('')
 
+// Delete Modal State
+const showDeleteModal = ref(false)
+const productToDelete = ref(null)
+const isDeleting = ref(false)
+
 // Computed properties
 const hasActiveFilters = computed(() => {
   return selectedCategory.value || selectedStatus.value || selectedTemplateType.value
@@ -116,6 +136,14 @@ const hasActiveFilters = computed(() => {
 
 const filteredProductsCount = computed(() => pagination.value.total)
 const totalProductsCount = computed(() => pagination.value.total)
+
+const deleteModalTitle = computed(() => {
+  return `Delete ${productToDelete.value?.name || 'Product'}?`
+})
+
+const deleteModalMessage = computed(() => {
+  return `Are you sure you want to delete '${productToDelete.value?.name}'? This action cannot be undone and will permanently remove the product from your store.`
+})
 
 // Methods
 const loadProducts = async (reset = true) => {
@@ -196,22 +224,36 @@ const toggleProductStatus = async (product: any) => {
   }
 }
 
-const deleteProduct = async (product: any) => {
-  if (!confirm(`Are you sure you want to delete "${product.name}"? This action cannot be undone.`)) {
-    return
-  }
+const deleteProduct = (product: any) => {
+  productToDelete.value = product
+  showDeleteModal.value = true
+}
+
+const confirmDelete = async () => {
+  if (!productToDelete.value) return
+  
+  isDeleting.value = true
   
   try {
-    await $fetch(`/api/admin/products/${product.id}`, {
+    await $fetch(`/api/admin/products/${productToDelete.value.id}`, {
       method: 'DELETE'
     })
     
     useToast().success('Product deleted successfully')
     await loadProducts()
+    cancelDelete()
   } catch (error: any) {
     console.error('Error deleting product:', error)
     useToast().error(error.data?.message || 'Failed to delete product')
+  } finally {
+    isDeleting.value = false
   }
+}
+
+const cancelDelete = () => {
+  showDeleteModal.value = false
+  productToDelete.value = null
+  isDeleting.value = false
 }
 
 const editProduct = (product: any) => {
