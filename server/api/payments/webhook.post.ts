@@ -1,7 +1,7 @@
 import Stripe from 'stripe'
 import { serverSupabaseServiceRole } from '#supabase/server'
 import type { Database } from '~/types/database'
-import nodemailer from 'nodemailer'
+import * as brevo from '@getbrevo/brevo'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
@@ -138,7 +138,7 @@ export default defineEventHandler(async (event) => {
 
         // Send confirmation email to customer
         try {
-          await sendCustomerOrderConfirmation(finalOrder)
+          await sendOrderConfirmation(finalOrder)
         } catch (emailError) {
           console.error('Failed to send customer confirmation email:', emailError)
           // Don't throw error - order processing should continue even if email fails
@@ -372,178 +372,148 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  // Email functions
-  function createEmailTransporter() {
-    const config = useRuntimeConfig()
-    
-    return nodemailer.createTransporter({
-      host: config.smtpHost || 'smtp.gmail.com',
-      port: parseInt(config.smtpPort || '587'),
-      secure: false,
-      auth: {
-        user: config.smtpUser,
-        pass: config.smtpPassword
-      }
-    })
-  }
-
-  async function sendAdminOrderNotification(orderData: any) {
+  // Inline email functions
+  async function sendOrderConfirmation(order: any) {
     try {
-      const transporter = createEmailTransporter()
       const config = useRuntimeConfig()
+      const apiInstance = new brevo.TransactionalEmailsApi()
+      apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, config.brevoApiKey)
       
-      const itemsList = orderData.order_items
-        .map((item: any) => `• ${item.product.name} (${item.quantity}x) - $${parseFloat(item.unit_price).toFixed(2)}`)
-        .join('\n')
+      const itemsHtml = order.order_items?.map((item: any) => `
+        <tr>
+          <td style="padding: 10px; border-bottom: 1px solid #eee;">
+            <strong>${item.product?.name || item.product_name || 'Product'}</strong><br>
+            <small style="color: #666;">Quantity: ${item.quantity}</small>
+          </td>
+          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">
+            $${parseFloat(item.unit_price).toFixed(2)}
+          </td>
+        </tr>
+      `).join('') || ''
       
-      const totalAmount = parseFloat(orderData.total_amount).toFixed(2)
-      const orderDate = new Date(orderData.created_at).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      })
-      
-      const subject = `🎉 New Order #${orderData.order_number} - $${totalAmount}`
       const htmlContent = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: linear-gradient(135deg, #8B4513, #A0522D); color: white; padding: 30px; text-align: center;">
-            <h1 style="margin: 0; font-size: 28px;">🎉 New Order Received!</h1>
-            <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">You have a new order on Miracute</p>
+            <h1 style="margin: 0; font-size: 28px;">Order Confirmation ✨</h1>
+            <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Thank you for your purchase!</p>
           </div>
           
           <div style="padding: 30px; background: #f9f9f9;">
             <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
               <h2 style="color: #8B4513; margin-top: 0;">Order Details</h2>
-              <table style="width: 100%; border-collapse: collapse;">
-                <tr>
-                  <td style="padding: 8px 0; font-weight: bold;">Order Number:</td>
-                  <td style="padding: 8px 0;">#${orderData.order_number}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 8px 0; font-weight: bold;">Date:</td>
-                  <td style="padding: 8px 0;">${orderDate}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 8px 0; font-weight: bold;">Customer:</td>
-                  <td style="padding: 8px 0;">${orderData.customer_name || 'Guest'} (${orderData.customer_email})</td>
-                </tr>
-                <tr>
-                  <td style="padding: 8px 0; font-weight: bold;">Total Amount:</td>
-                  <td style="padding: 8px 0; font-size: 18px; font-weight: bold; color: #8B4513;">$${totalAmount}</td>
-                </tr>
-              </table>
+              <p><strong>Order ID:</strong> ${order.id}</p>
+              <p><strong>Total:</strong> $${parseFloat(order.total_amount).toFixed(2)}</p>
             </div>
             
             <div style="background: white; padding: 20px; border-radius: 8px;">
-              <h2 style="color: #8B4513; margin-top: 0;">Order Items</h2>
-              <div style="font-family: monospace; background: #f5f5f5; padding: 15px; border-radius: 4px; white-space: pre-line;">${itemsList}</div>
-            </div>
-            
-            <div style="text-align: center; margin-top: 30px;">
-              <a href="${config.public.siteUrl}/dashboard/orders/${orderData.id}" 
-                 style="background: #8B4513; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
-                View Order in Dashboard
-              </a>
-            </div>
-          </div>
-        </div>
-      `
-      
-      await transporter.sendMail({
-        from: `"Miracute Orders" <${config.smtpUser}>`,
-        to: 'hello@miracute.com',
-        subject,
-        html: htmlContent
-      })
-      
-      console.log('Admin order notification sent successfully')
-      
-    } catch (error) {
-      console.error('Failed to send admin notification:', error)
-      throw error
-    }
-  }
-
-  async function sendCustomerOrderConfirmation(orderData: any) {
-    try {
-      const transporter = createEmailTransporter()
-      const config = useRuntimeConfig()
-      
-      const itemsList = orderData.order_items
-        .map((item: any) => `• ${item.product.name} (${item.quantity}x) - $${parseFloat(item.unit_price).toFixed(2)}`)
-        .join('\n')
-      
-      const totalAmount = parseFloat(orderData.total_amount).toFixed(2)
-      const orderDate = new Date(orderData.created_at).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      })
-      
-      const subject = `Order Confirmation #${orderData.order_number} - Thank you for your purchase!`
-      const htmlContent = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <div style="background: linear-gradient(135deg, #8B4513, #A0522D); color: white; padding: 30px; text-align: center;">
-            <h1 style="margin: 0; font-size: 28px;">Thank you for your order!</h1>
-            <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Your templates are ready for download</p>
-          </div>
-          
-          <div style="padding: 30px; background: #f9f9f9;">
-            <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-              <h2 style="color: #8B4513; margin-top: 0;">Order Summary</h2>
+              <h2 style="color: #8B4513; margin-top: 0;">Your Templates</h2>
               <table style="width: 100%; border-collapse: collapse;">
-                <tr>
-                  <td style="padding: 8px 0; font-weight: bold;">Order Number:</td>
-                  <td style="padding: 8px 0;">#${orderData.order_number}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 8px 0; font-weight: bold;">Date:</td>
-                  <td style="padding: 8px 0;">${orderDate}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 8px 0; font-weight: bold;">Total Amount:</td>
-                  <td style="padding: 8px 0; font-size: 18px; font-weight: bold; color: #8B4513;">$${totalAmount}</td>
-                </tr>
+                ${itemsHtml}
               </table>
-            </div>
-            
-            <div style="background: white; padding: 20px; border-radius: 8px;">
-              <h2 style="color: #8B4513; margin-top: 0;">Your Items</h2>
-              <div style="font-family: monospace; background: #f5f5f5; padding: 15px; border-radius: 4px; white-space: pre-line;">${itemsList}</div>
-            </div>
-            
-            <div style="text-align: center; margin-top: 30px;">
-              <p style="margin-bottom: 20px; font-size: 16px;">Your download links will be available in your account dashboard.</p>
-              <a href="${config.public.siteUrl}/account/orders" 
-                 style="background: #8B4513; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
-                Access Your Downloads
-              </a>
             </div>
           </div>
           
           <div style="text-align: center; padding: 20px; color: #666; font-size: 14px;">
-            <p>Need help? Contact us at hello@miracute.com</p>
-            <p style="margin-top: 10px;">Thank you for choosing Miracute! ✨</p>
+            <p>Download your templates from your account dashboard</p>
+            <p>Thank you for choosing Miracute! ✨</p>
           </div>
         </div>
       `
       
-      await transporter.sendMail({
-        from: `"Miracute" <${config.smtpUser}>`,
-        to: orderData.customer_email,
-        subject,
-        html: htmlContent
-      })
+      const sendSmtpEmail = new brevo.SendSmtpEmail()
+      sendSmtpEmail.to = [{ email: order.customer_email, name: order.customer_name || order.customer_email.split('@')[0] }]
+      sendSmtpEmail.subject = `Your Miracute Templates are Ready! - Order ${order.id}`
+      sendSmtpEmail.htmlContent = htmlContent
+      sendSmtpEmail.sender = { email: 'hello@miracute.com', name: 'Miracute' }
       
-      console.log('Customer order confirmation sent successfully')
+      await apiInstance.sendTransacEmail(sendSmtpEmail)
+      return { success: true }
       
-    } catch (error) {
-      console.error('Failed to send customer confirmation:', error)
-      throw error
+    } catch (error: any) {
+      console.error('Failed to send order confirmation email:', error)
+      return { success: false, error: error.message }
     }
   }
+
+  async function sendAdminOrderNotification(order: any) {
+    try {
+      const config = useRuntimeConfig()
+      const apiInstance = new brevo.TransactionalEmailsApi()
+      apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, config.brevoApiKey)
+      
+      const itemsHtml = order.order_items?.map((item: any) => `
+        <tr>
+          <td style="padding: 10px; border-bottom: 1px solid #eee;">
+            <strong>${item.product?.name || item.product_name || 'Product'}</strong><br>
+            <small style="color: #666;">Qty: ${item.quantity} × $${parseFloat(item.unit_price).toFixed(2)}</small>
+          </td>
+          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">
+            $${parseFloat(item.total_price || item.unit_price).toFixed(2)}
+          </td>
+        </tr>
+      `).join('') || ''
+      
+      const htmlContent = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #8B4513, #A0522D); color: white; padding: 30px; text-align: center;">
+            <h1 style="margin: 0; font-size: 28px;">🎉 New Order!</h1>
+            <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Someone just purchased your templates</p>
+          </div>
+          
+          <div style="padding: 30px; background: #f9f9f9;">
+            <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+              <h2 style="color: #8B4513; margin-top: 0;">Order Information</h2>
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="padding: 8px 0; font-weight: bold;">Order ID:</td>
+                  <td style="padding: 8px 0;">${order.id}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; font-weight: bold;">Customer:</td>
+                  <td style="padding: 8px 0;">${order.customer_email}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; font-weight: bold;">Total:</td>
+                  <td style="padding: 8px 0; color: #28a745; font-weight: bold;">$${parseFloat(order.total_amount).toFixed(2)}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; font-weight: bold;">Status:</td>
+                  <td style="padding: 8px 0;">
+                    <span style="background: #28a745; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px;">
+                      ${order.status?.toUpperCase() || 'COMPLETED'}
+                    </span>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px;">
+              <h2 style="color: #8B4513; margin-top: 0;">Items Purchased</h2>
+              <table style="width: 100%; border-collapse: collapse;">
+                ${itemsHtml}
+              </table>
+            </div>
+          </div>
+          
+          <div style="text-align: center; padding: 20px; color: #666; font-size: 14px;">
+            <p>🎨 Another happy customer with your amazing templates!</p>
+          </div>
+        </div>
+      `
+      
+      const sendSmtpEmail = new brevo.SendSmtpEmail()
+      sendSmtpEmail.to = [{ email: 'hello@miracute.com', name: 'Miracute Admin' }]
+      sendSmtpEmail.subject = `💰 New Order: $${parseFloat(order.total_amount).toFixed(2)} - ${order.id}`
+      sendSmtpEmail.htmlContent = htmlContent
+      sendSmtpEmail.sender = { email: 'orders@miracute.com', name: 'Miracute Orders' }
+      
+      await apiInstance.sendTransacEmail(sendSmtpEmail)
+      return { success: true }
+      
+    } catch (error: any) {
+      console.error('Failed to send admin order notification:', error)
+      return { success: false, error: error.message }
+    }
+  }
+
 })

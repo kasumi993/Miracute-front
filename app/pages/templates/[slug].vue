@@ -41,40 +41,215 @@
 
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Main Content -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
-          <!-- Product Images -->
-          <div class="space-y-4">
-            <!-- Main Image -->
-            <div class="aspect-[4/3] rounded-lg overflow-hidden bg-gray-100">
-              <img 
-                v-if="selectedImage"
-                :src="selectedImage" 
-                :alt="product.name"
-                class="w-full h-full object-cover"
-              >
-              <div v-else class="w-full h-full flex items-center justify-center">
-                <Icon name="heroicons:photo" class="w-16 h-16 text-gray-400" />
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-16 mb-16">
+          <!-- Left Column: Images + Trust Badges + Product Details -->
+          <div class="lg:col-span-3 space-y-6">
+            <!-- Product Images Carousel - Etsy Style -->
+            <div class="flex space-x-4">
+              <!-- Vertical Thumbnail Strip -->
+              <div v-if="product.preview_images?.length > 1" class="flex-shrink-0">
+                <div class="flex flex-col space-y-2 max-h-96 overflow-y-auto">
+                  <button
+                    v-for="(image, index) in product.preview_images"
+                    :key="index"
+                    @click="goToImage(index)"
+                    :class="[
+                      'w-16 h-16 rounded-lg overflow-hidden border-2 transition-all duration-200 flex-shrink-0',
+                      currentImageIndex === index 
+                        ? 'border-brand-brown ring-2 ring-brand-brown/20' 
+                        : 'border-gray-200 hover:border-gray-300'
+                    ]"
+                  >
+                    <img :src="image" :alt="`Thumbnail ${index + 1}`" class="w-full h-full object-cover" />
+                  </button>
+                </div>
+              </div>
+
+              <!-- Main Image Container -->
+              <div class="relative flex-1 flex items-start">
+                <div class="relative w-full max-w-full" style="aspect-ratio: 1/1;">
+                  <div class="rounded-lg overflow-hidden bg-gray-100 group w-full h-full">
+                  <img 
+                    v-if="selectedImage"
+                    :src="selectedImage" 
+                    :alt="product.name"
+                    class="w-full h-full object-cover transition-all duration-300"
+                  >
+                  <div v-else class="w-full h-full flex items-center justify-center">
+                    <Icon name="heroicons:photo" class="w-16 h-16 text-gray-400" />
+                  </div>
+
+                  <!-- Navigation Arrows -->
+                  <div v-if="product.preview_images?.length > 1" class="absolute inset-0 flex items-center justify-between p-4">
+                    <!-- Previous Button -->
+                    <button 
+                      @click="previousImage"
+                      class="w-10 h-10 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110"
+                      :disabled="currentImageIndex === 0"
+                      :class="currentImageIndex === 0 ? 'opacity-50 cursor-not-allowed' : ''"
+                    >
+                      <Icon name="heroicons:chevron-left" class="w-5 h-5 text-gray-700" />
+                    </button>
+
+                    <!-- Next Button -->
+                    <button 
+                      @click="nextImage"
+                      class="w-10 h-10 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110"
+                      :disabled="currentImageIndex === product.preview_images.length - 1"
+                      :class="currentImageIndex === product.preview_images.length - 1 ? 'opacity-50 cursor-not-allowed' : ''"
+                    >
+                      <Icon name="heroicons:chevron-right" class="w-5 h-5 text-gray-700" />
+                    </button>
+                  </div>
+
+                  <!-- Image Counter -->
+                  <div v-if="product.preview_images?.length > 1" class="absolute bottom-4 right-4 bg-black/60 text-white text-xs px-2 py-1 rounded backdrop-blur">
+                    {{ currentImageIndex + 1 }} / {{ product.preview_images.length }}
+                  </div>
+
+                  <!-- Zoom Icon -->
+                  <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <div class="w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg cursor-pointer">
+                      <Icon name="heroicons:magnifying-glass-plus" class="w-4 h-4 text-gray-700" />
+                    </div>
+                  </div>
+                  </div>
+                </div>
+
+                <!-- Thumbnail Dots Navigation (Mobile Only) -->
+                <div v-if="product.preview_images?.length > 1" class="flex justify-center space-x-2 mt-4 md:hidden">
+                  <button
+                    v-for="(image, index) in product.preview_images"
+                    :key="index"
+                    @click="goToImage(index)"
+                    :class="[
+                      'w-2 h-2 rounded-full transition-all duration-200',
+                      currentImageIndex === index 
+                        ? 'bg-brand-brown scale-125' 
+                        : 'bg-gray-300 hover:bg-gray-400'
+                    ]"
+                  />
+                </div>
               </div>
             </div>
 
-            <!-- Thumbnail Gallery -->
-            <div v-if="product.preview_images?.length > 1" class="grid grid-cols-4 gap-2">
+            <!-- What We Offer -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+              <div class="text-center mb-5">
+                <h4 class="text-xl font-bold text-gray-900 mb-2">What's Included</h4>
+                <p class="text-sm text-gray-500">Everything you need for success</p>
+              </div>
+              
+              <div class="space-y-4">
+                <div class="relative pl-8">
+                  <div class="absolute left-0 top-1 w-6 h-6 bg-gradient-to-br from-brand-sage to-brand-sage/80 rounded-full flex items-center justify-center">
+                    <Icon name="heroicons:sparkles" class="w-3 h-3 text-white" />
+                  </div>
+                  <div>
+                    <h5 class="font-semibold text-gray-900 text-sm">Premium Design</h5>
+                    <p class="text-xs text-gray-500 mt-1">Professionally crafted templates</p>
+                  </div>
+                </div>
+                
+                <div class="relative pl-8">
+                  <div class="absolute left-0 top-1 w-6 h-6 bg-gradient-to-br from-brand-pink to-brand-pink/80 rounded-full flex items-center justify-center">
+                    <Icon name="heroicons:pencil-square" class="w-3 h-3 text-white" />
+                  </div>
+                  <div>
+                    <h5 class="font-semibold text-gray-900 text-sm">Easy Editing</h5>
+                    <p class="text-xs text-gray-500 mt-1">Customize colors, text & layout</p>
+                  </div>
+                </div>
+                
+                <div class="relative pl-8">
+                  <div class="absolute left-0 top-1 w-6 h-6 bg-gradient-to-br from-brand-brown to-brand-brown/80 rounded-full flex items-center justify-center">
+                    <Icon name="heroicons:chat-bubble-left-ellipsis" class="w-3 h-3 text-white" />
+                  </div>
+                  <div>
+                    <h5 class="font-semibold text-gray-900 text-sm">30 Days Support</h5>
+                    <p class="text-xs text-gray-500 mt-1">Personal help from the designer</p>
+                  </div>
+                </div>
+                
+                <div class="relative pl-8">
+                  <div class="absolute left-0 top-1 w-6 h-6 bg-gradient-to-br from-brand-sage/70 to-brand-pink/70 rounded-full flex items-center justify-center">
+                    <Icon name="heroicons:building-office" class="w-3 h-3 text-white" />
+                  </div>
+                  <div>
+                    <h5 class="font-semibold text-gray-900 text-sm">Commercial Rights</h5>
+                    <p class="text-xs text-gray-500 mt-1">Use for client & business projects</p>
+                  </div>
+                </div>
+                
+                <div class="mt-4 p-3 bg-gradient-to-r from-brand-sage/10 to-brand-pink/10 rounded-xl border border-brand-sage/20">
+                  <div class="flex items-center justify-center space-x-2">
+                    <Icon name="heroicons:infinity" class="w-5 h-5 text-brand-sage" />
+                    <span class="text-sm font-semibold text-gray-900">Lifetime Access</span>
+                  </div>
+                  <p class="text-center text-xs text-gray-600 mt-1">Download forever, no subscriptions</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reviews Section -->
+            <div>
+              <div class="mb-6">
+                <h2 class="text-xl font-medium text-gray-900 mb-2">Reviews</h2>
+                <div class="flex items-center space-x-4 text-sm text-gray-600">
+                  <div class="flex items-center space-x-1">
+                    <div class="flex items-center">
+                      <Icon name="heroicons:star-20-solid" class="w-4 h-4 text-yellow-400" />
+                      <Icon name="heroicons:star-20-solid" class="w-4 h-4 text-yellow-400" />
+                      <Icon name="heroicons:star-20-solid" class="w-4 h-4 text-yellow-400" />
+                      <Icon name="heroicons:star-20-solid" class="w-4 h-4 text-yellow-400" />
+                      <Icon name="heroicons:star-20-solid" class="w-4 h-4 text-yellow-400" />
+                    </div>
+                    <span class="font-medium">5.0</span>
+                  </div>
+                  <span>{{ getReviewCount() }} reviews</span>
+                </div>
+              </div>
+              
+              <div class="space-y-4">
+                <div 
+                  v-for="review in (showAllReviews ? sampleReviews : sampleReviews.slice(0, 4))" 
+                  :key="review.id" 
+                  class="border-b border-gray-100 pb-4 last:border-b-0"
+                >
+                  <div class="flex items-start space-x-3">
+                    <div class="flex-shrink-0">
+                      <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                        <span class="text-xs font-medium text-gray-600">{{ review.name.charAt(0) }}</span>
+                      </div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center space-x-2 mb-1">
+                        <h4 class="text-sm font-medium text-gray-900">{{ review.name }}</h4>
+                        <div class="flex items-center">
+                          <Icon v-for="i in review.rating" :key="i" name="heroicons:star-20-solid" class="w-3 h-3 text-yellow-400" />
+                          <Icon v-for="i in (5 - review.rating)" :key="i + review.rating" name="heroicons:star" class="w-3 h-3 text-gray-300" />
+                        </div>
+                        <span class="text-xs text-gray-500">{{ review.date }}</span>
+                      </div>
+                      <p class="text-sm text-gray-700" :class="showAllReviews ? '' : 'line-clamp-3'">{{ review.comment }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
               <button 
-                v-for="(image, index) in product.preview_images.slice(0, 4)" 
-                :key="index"
-                @click="selectedImage = image"
-                :class="[
-                  'aspect-square rounded overflow-hidden border-2 transition-colors',
-                  selectedImage === image ? 'border-brand-brown' : 'border-transparent hover:border-gray-300'
-                ]"
+                v-if="sampleReviews.length > 4"
+                @click="toggleReviews"
+                class="mt-6 text-sm text-brand-sage hover:text-brand-sage-dark font-medium transition-colors"
               >
-                <img :src="image" :alt="`Preview ${index + 1}`" class="w-full h-full object-cover" />
+                {{ showAllReviews ? 'Show less' : `See all ${getReviewCount()} reviews` }}
               </button>
             </div>
+
           </div>
 
-          <!-- Product Info -->
-          <div class="space-y-6">
+          <!-- Right Column: Product Info + Actions + Description -->
+          <div class="lg:col-span-2 space-y-6">
             <!-- Category and Software -->
             <div class="flex items-center space-x-3">
               <span v-if="product.category?.name" class="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">
@@ -127,133 +302,153 @@
             </div>
 
             <!-- Actions -->
-            <div class="space-y-4">
-              <div class="flex space-x-4">
+            <div class="space-y-3">
+              <!-- Buy Now Button -->
+              <button 
+                @click="buyNow"
+                class="w-full bg-brand-sage text-white px-6 py-3 rounded-lg font-medium hover:bg-brand-sage-dark transition-colors"
+              >
+                Buy Now
+              </button>
+              
+              <!-- Add to Cart + Wishlist -->
+              <div class="flex space-x-3">
                 <button 
                   @click="addToCart"
                   :class="[
-                    'flex-1 px-6 py-3 rounded font-medium transition-colors',
-                    isProductInCart ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-black text-white hover:bg-gray-800'
+                    'flex-1 px-6 py-3 rounded-lg font-medium transition-colors border',
+                    isProductInCart 
+                      ? 'bg-green-50 text-green-700 border-green-300 hover:bg-green-100' 
+                      : 'bg-white text-gray-900 border-gray-300 hover:bg-gray-50'
                   ]"
                 >
                   <span v-if="isProductInCart">✓ Added to Cart</span>
-                  <span v-else>Add to cart</span>
+                  <span v-else>Add to Cart</span>
                 </button>
                 <button 
                   @click="toggleFavorite"
-                  class="px-6 py-3 border border-gray-300 rounded hover:border-gray-400 transition-colors"
+                  :class="[
+                    'px-6 py-3 border rounded-lg transition-all',
+                    product && wishlist.isInWishlist(product.id) ? 
+                      'border-red-300 bg-red-50 text-red-600 hover:border-red-400' : 
+                      'border-gray-300 hover:border-gray-400'
+                  ]"
                 >
-                  <Icon name="heroicons:heart" class="w-5 h-5" />
+                  <Icon 
+                    :name="product && wishlist.isInWishlist(product.id) ? 'heroicons:heart-solid' : 'heroicons:heart'" 
+                    :class="product && wishlist.isInWishlist(product.id) ? 'text-red-500' : 'text-gray-600'"
+                    class="w-5 h-5" 
+                  />
                 </button>
               </div>
-              
-              <!-- Trust badges -->
-              <div class="flex items-center justify-center space-x-6 text-sm text-gray-500 py-4">
-                <div class="flex items-center space-x-1">
-                  <Icon name="heroicons:shield-check" class="w-4 h-4" />
-                  <span>Secure</span>
-                </div>
-                <div class="flex items-center space-x-1">
-                  <Icon name="heroicons:arrow-down-tray" class="w-4 h-4" />
-                  <span>Instant download</span>
-                </div>
-                <div class="flex items-center space-x-1">
-                  <Icon name="heroicons:arrow-path" class="w-4 h-4" />
-                  <span>30-day guarantee</span>
-                </div>
+            </div>
+
+            <!-- Trust Badges -->
+            <div class="flex items-center justify-center space-x-6 text-sm text-gray-600 py-4 border-t border-gray-200">
+              <div class="flex items-center space-x-1">
+                <Icon name="heroicons:shield-check" class="w-4 h-4 text-green-600" />
+                <span>Secure Payment</span>
+              </div>
+              <div class="flex items-center space-x-1">
+                <Icon name="heroicons:arrow-down-tray" class="w-4 h-4 text-blue-600" />
+                <span>Instant Download</span>
+              </div>
+              <div class="flex items-center space-x-1">
+                <Icon name="heroicons:arrow-path" class="w-4 h-4 text-amber-600" />
+                <span>30-Day Guarantee</span>
               </div>
             </div>
 
-            <!-- Product Meta -->
+            <!-- Description -->
             <div class="border-t border-gray-200 pt-6">
-              <dl class="grid grid-cols-2 gap-4 text-sm">
-                <div v-if="product.difficulty_level">
-                  <dt class="text-gray-500">Difficulty</dt>
-                  <dd class="font-medium">{{ product.difficulty_level }}</dd>
+              <h2 class="text-xl font-medium text-gray-900 mb-4">Description</h2>
+              <div class="prose prose-gray max-w-none">
+                <p class="text-gray-700 leading-relaxed">{{ product.description }}</p>
+              </div>
+              
+              <!-- Product Details -->
+              <div class="mt-6 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <div class="text-center mb-5">
+                  <h3 class="text-lg font-bold text-gray-900 mb-2">Technical Specs</h3>
+                  <p class="text-sm text-gray-500">Everything you need to know</p>
                 </div>
-                <div v-if="product.file_formats?.length">
-                  <dt class="text-gray-500">Formats</dt>
-                  <dd class="font-medium">{{ product.file_formats.join(', ') }}</dd>
-                </div>
-                <div v-if="product.file_size">
-                  <dt class="text-gray-500">File size</dt>
-                  <dd class="font-medium">{{ product.file_size }}</dd>
-                </div>
-                <div v-if="product.dimensions">
-                  <dt class="text-gray-500">Dimensions</dt>
-                  <dd class="font-medium">{{ product.dimensions }}</dd>
-                </div>
-              </dl>
-            </div>
-          </div>
-        </div>
-
-        <!-- Reviews Section -->
-        <div class="mb-16">
-          <div class="border-b border-gray-200 pb-4 mb-8">
-            <h2 class="text-2xl font-medium text-gray-900">Reviews ({{ getReviewCount() }})</h2>
-          </div>
-          
-          <div class="space-y-6">
-            <div v-for="review in sampleReviews" :key="review.id" class="border-b border-gray-200 pb-6">
-              <div class="flex items-start space-x-4">
-                <div class="flex-shrink-0">
-                  <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                    <span class="text-sm font-medium text-gray-600">{{ review.name.charAt(0) }}</span>
-                  </div>
-                </div>
-                <div class="flex-1">
-                  <div class="flex items-center space-x-2 mb-2">
-                    <h4 class="font-medium text-gray-900">{{ review.name }}</h4>
-                    <div class="flex items-center">
-                      <Icon v-for="i in review.rating" :key="i" name="heroicons:star-20-solid" class="w-4 h-4 text-yellow-400" />
-                      <Icon v-for="i in (5 - review.rating)" :key="i + review.rating" name="heroicons:star" class="w-4 h-4 text-gray-300" />
+                
+                <div class="space-y-3">
+                  <div v-if="product.difficulty_level" class="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-xl border border-gray-100">
+                    <div class="flex items-center space-x-3">
+                      <div class="w-8 h-8 bg-brand-sage rounded-lg flex items-center justify-center">
+                        <Icon name="heroicons:academic-cap" class="w-4 h-4 text-white" />
+                      </div>
+                      <span class="text-sm font-medium text-gray-700">Difficulty Level</span>
                     </div>
-                    <span class="text-sm text-gray-500">{{ review.date }}</span>
+                    <span class="text-sm font-semibold text-brand-brown">{{ product.difficulty_level }}</span>
                   </div>
-                  <p class="text-gray-700">{{ review.comment }}</p>
+                  
+                  <div v-if="product.template_type" class="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-xl border border-gray-100">
+                    <div class="flex items-center space-x-3">
+                      <div class="w-8 h-8 bg-brand-pink rounded-lg flex items-center justify-center">
+                        <Icon name="heroicons:tag" class="w-4 h-4 text-white" />
+                      </div>
+                      <span class="text-sm font-medium text-gray-700">Template Type</span>
+                    </div>
+                    <span class="text-sm font-semibold text-brand-brown">{{ product.template_type }}</span>
+                  </div>
+                  
+                  <div v-if="product.file_size" class="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-xl border border-gray-100">
+                    <div class="flex items-center space-x-3">
+                      <div class="w-8 h-8 bg-brand-brown rounded-lg flex items-center justify-center">
+                        <Icon name="heroicons:cloud-arrow-down" class="w-4 h-4 text-white" />
+                      </div>
+                      <span class="text-sm font-medium text-gray-700">Download Size</span>
+                    </div>
+                    <span class="text-sm font-semibold text-brand-brown">{{ product.file_size }}</span>
+                  </div>
+                  
+                  <div v-if="product.dimensions" class="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-xl border border-gray-100">
+                    <div class="flex items-center space-x-3">
+                      <div class="w-8 h-8 bg-gradient-to-br from-brand-sage to-brand-pink rounded-lg flex items-center justify-center">
+                        <Icon name="heroicons:arrows-pointing-out" class="w-4 h-4 text-white" />
+                      </div>
+                      <span class="text-sm font-medium text-gray-700">Dimensions</span>
+                    </div>
+                    <span class="text-sm font-semibold text-brand-brown">{{ product.dimensions }}</span>
+                  </div>
+                  
+                  <div v-if="product.software_required?.length" class="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-xl border border-gray-100">
+                    <div class="flex items-center space-x-3">
+                      <div class="w-8 h-8 bg-gradient-to-br from-brand-pink to-brand-brown rounded-lg flex items-center justify-center">
+                        <Icon name="heroicons:computer-desktop" class="w-4 h-4 text-white" />
+                      </div>
+                      <span class="text-sm font-medium text-gray-700">Required Software</span>
+                    </div>
+                    <span class="text-sm font-semibold text-brand-brown">{{ product.software_required.join(', ') }}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Tags -->
+              <div v-if="product.tags?.length" class="mt-6">
+                <h3 class="font-medium text-gray-900 mb-3">Tags</h3>
+                <div class="flex flex-wrap gap-2">
+                  <span v-for="tag in product.tags" :key="tag" class="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
+                    {{ tag }}
+                  </span>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Description -->
-        <div class="mb-16">
-          <h2 class="text-2xl font-medium text-gray-900 mb-6">Description</h2>
-          <div class="prose prose-gray max-w-none">
-            <p class="text-gray-700 leading-relaxed">{{ product.description }}</p>
-          </div>
-          
-          <!-- Tags -->
-          <div v-if="product.tags?.length" class="mt-6">
-            <h3 class="font-medium text-gray-900 mb-3">Tags</h3>
-            <div class="flex flex-wrap gap-2">
-              <span v-for="tag in product.tags" :key="tag" class="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
-                {{ tag }}
-              </span>
-            </div>
-          </div>
-        </div>
 
         <!-- Related Products -->
         <div v-if="relatedProducts.length > 0">
           <h2 class="text-2xl font-medium text-gray-900 mb-6">Similar templates</h2>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div v-for="related in relatedProducts" :key="related.id" class="group">
-              <NuxtLink :to="`/templates/${related.slug}`" class="block">
-                <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-2">
-                  <img 
-                    v-if="related.preview_images?.[0]"
-                    :src="related.preview_images[0]" 
-                    :alt="related.name"
-                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                  >
-                </div>
-                <h3 class="text-sm font-medium text-gray-900 group-hover:text-brand-brown">{{ related.name }}</h3>
-                <p class="text-sm text-gray-600">${{ parseFloat(related.price).toFixed(2) }}</p>
-              </NuxtLink>
-            </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <ProductCard 
+              v-for="related in relatedProducts" 
+              :key="related.id" 
+              :product="related"
+            />
           </div>
         </div>
       </div>
@@ -278,6 +473,11 @@ interface Product {
   is_featured?: boolean
   description?: string
   short_description?: string
+  template_type?: string
+  difficulty_level?: string
+  file_formats?: string[]
+  file_size?: string
+  dimensions?: string
 }
 // Get route params
 const route = useRoute()
@@ -286,12 +486,16 @@ const slug = route.params.slug
 // Composables
 const { fetchProduct, getRelatedProducts } = useProducts()
 const cartCounter = useCartCounter()
+const wishlist = useWishlist()
+const toast = useToast()
 
 // State
 const product = ref<Product | null>(null)
 const relatedProducts = ref([])
 const isLoading = ref(true)
 const selectedImage = ref('')
+const showAllReviews = ref(false)
+const currentImageIndex = ref(0)
 
 // Enhanced sample reviews data
 const generateSampleReviews = (productName) => {
@@ -387,8 +591,58 @@ const addToCart = () => {
   cartCounter.addToCart(product.value)
 }
 
+const buyNow = () => {
+  // Add to cart first
+  cartCounter.addToCart(product.value)
+  // Navigate directly to checkout
+  navigateTo('/cart/checkout')
+}
+
 const toggleFavorite = () => {
-  // Toggle favorite functionality
+  if (!product.value) return
+  
+  const success = wishlist.toggleWishlist(product.value)
+  
+  if (success) {
+    if (wishlist.isInWishlist(product.value.id)) {
+      toast.show('Added to wishlist', 'success')
+    } else {
+      toast.show('Removed from wishlist', 'success')
+    }
+  }
+}
+
+const toggleReviews = () => {
+  showAllReviews.value = !showAllReviews.value
+}
+
+// Image carousel methods
+const goToImage = (index) => {
+  if (product.value?.preview_images && index >= 0 && index < product.value.preview_images.length) {
+    currentImageIndex.value = index
+    selectedImage.value = product.value.preview_images[index]
+  }
+}
+
+const nextImage = () => {
+  if (product.value?.preview_images && currentImageIndex.value < product.value.preview_images.length - 1) {
+    goToImage(currentImageIndex.value + 1)
+  }
+}
+
+const previousImage = () => {
+  if (currentImageIndex.value > 0) {
+    goToImage(currentImageIndex.value - 1)
+  }
+}
+
+// Keyboard navigation
+const handleKeydown = (event) => {
+  if (event.key === 'ArrowLeft') {
+    previousImage()
+  } else if (event.key === 'ArrowRight') {
+    nextImage()
+  }
 }
 
 // Load product data
@@ -407,6 +661,7 @@ const loadProduct = async () => {
     
     product.value = productData
     selectedImage.value = productData.preview_images?.[0] || ''
+    currentImageIndex.value = 0
     
     // Generate sample reviews for this product
     sampleReviews.value = generateSampleReviews(productData.name)
@@ -446,6 +701,13 @@ const loadProduct = async () => {
 // Initialize
 onMounted(() => {
   loadProduct()
+  // Add keyboard navigation
+  document.addEventListener('keydown', handleKeydown)
+})
+
+onUnmounted(() => {
+  // Clean up keyboard event listener
+  document.removeEventListener('keydown', handleKeydown)
 })
 
 // Watch for slug changes

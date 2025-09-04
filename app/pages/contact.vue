@@ -336,34 +336,44 @@ const submitForm = async () => {
   isSubmitting.value = true
 
   try {
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
-    // Here you would send the form data to your backend
-    // const response = await $fetch('/api/contact', {
-    //   method: 'POST',
-    //   body: form
-    // })
-
-    // Reset form
-    Object.keys(form).forEach(key => {
-      if (typeof form[key] === 'boolean') {
-        form[key] = false
-      } else {
-        form[key] = ''
+    // Send form data to API
+    const response = await $fetch('/api/contact/submit', {
+      method: 'POST',
+      body: {
+        name: form.name,
+        email: form.email,
+        subject: form.subject,
+        message: form.message,
+        phone: form.orderNumber, // Using orderNumber field as additional info
+        source: 'contact_form'
       }
     })
 
-    showSuccess.value = true
+    if (response.success) {
+      // Reset form
+      Object.keys(form).forEach(key => {
+        if (typeof form[key] === 'boolean') {
+          form[key] = false
+        } else {
+          form[key] = ''
+        }
+      })
 
-    // Hide success message after 10 seconds
-    setTimeout(() => {
-      showSuccess.value = false
-    }, 10000)
+      showSuccess.value = true
+      useToast().success('Message sent successfully! We\'ll get back to you soon.')
+
+      // Hide success message after 10 seconds
+      setTimeout(() => {
+        showSuccess.value = false
+      }, 10000)
+    } else {
+      throw new Error(response.message || 'Failed to send message')
+    }
 
   } catch (error) {
     console.error('Contact form submission failed:', error)
-    useToast().error('Failed to send message. Please try again.')
+    const errorMessage = error.data?.message || error.message || 'Failed to send message. Please try again.'
+    useToast().error(errorMessage)
   } finally {
     isSubmitting.value = false
   }

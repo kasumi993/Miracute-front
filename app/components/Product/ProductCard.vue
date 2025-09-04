@@ -121,6 +121,8 @@ const props = defineProps<Props>()
 
 // Composables
 const cartCounter = useCartCounter()
+const wishlist = useWishlist()
+const toast = useToast()
 
 // Computed
 const price = computed(() => parseFloat(props.product.price))
@@ -141,8 +143,8 @@ const isProductInCart = computed(() => {
   return cartCounter.isInCart(props.product.id)
 })
 
-// Wishlist state (placeholder - implement with your wishlist system)
-const isInWishlist = ref(false)
+// Wishlist state
+const isInWishlist = computed(() => wishlist.isInWishlist(props.product.id))
 
 // Cart methods
 const quickAddToCart = () => {
@@ -150,16 +152,14 @@ const quickAddToCart = () => {
 }
 
 const toggleWishlist = () => {
-  // Implement wishlist toggle
-  isInWishlist.value = !isInWishlist.value
+  const success = wishlist.toggleWishlist(props.product)
   
-  // Here you would call your wishlist API
-  if (isInWishlist.value) {
-    // Add to wishlist
-    useToast().success('Added to wishlist')
-  } else {
-    // Remove from wishlist
-    useToast().success('Removed from wishlist')
+  if (success) {
+    if (wishlist.isInWishlist(props.product.id)) {
+      toast.show('Added to wishlist', 'success')
+    } else {
+      toast.show('Removed from wishlist', 'success')
+    }
   }
 }
 
@@ -181,9 +181,4 @@ const getReviewCount = (product: any) => {
   return Math.abs(hash % 500) + 50 // Between 50-549 reviews
 }
 
-// Initialize wishlist status
-onMounted(() => {
-  // Check if product is in user's wishlist
-  // This would be implemented with your wishlist system
-})
 </script>
