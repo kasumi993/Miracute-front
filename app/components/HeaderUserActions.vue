@@ -18,6 +18,18 @@
       <span>My Downloads</span>
     </NuxtLink>
 
+    <!-- Wishlist -->
+    <button @click="wishlist.goToWishlist()" class="relative p-2 text-gray-700 hover:text-gray-900 transition-colors">
+      <Icon name="heroicons:heart" class="w-6 h-6" />
+      <!-- Wishlist Badge -->
+      <span 
+        v-if="wishlist.wishlistCount.value > 0" 
+        class="absolute -top-1 -right-1 bg-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium min-w-[20px]"
+      >
+        {{ wishlist.wishlistCount.value }}
+      </span>
+    </button>
+
     <!-- Cart -->
     <button @click="cartCounter.goToCart()" class="relative p-2 text-gray-700 hover:text-gray-900 transition-colors">
       <Icon name="heroicons:shopping-bag" class="w-6 h-6" />
@@ -109,6 +121,7 @@
 // Composables
 const auth = useAuth()
 const cartCounter = useCartCounter()
+const wishlist = useWishlist()
 const route = useRoute()
 
 // Emits
