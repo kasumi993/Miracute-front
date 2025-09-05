@@ -193,57 +193,12 @@
 
             <!-- Reviews Section -->
             <div>
-              <div class="mb-6">
-                <h2 class="text-xl font-medium text-gray-900 mb-2">Reviews</h2>
-                <div class="flex items-center space-x-4 text-sm text-gray-600">
-                  <div class="flex items-center space-x-1">
-                    <div class="flex items-center">
-                      <Icon name="heroicons:star-20-solid" class="w-4 h-4 text-yellow-400" />
-                      <Icon name="heroicons:star-20-solid" class="w-4 h-4 text-yellow-400" />
-                      <Icon name="heroicons:star-20-solid" class="w-4 h-4 text-yellow-400" />
-                      <Icon name="heroicons:star-20-solid" class="w-4 h-4 text-yellow-400" />
-                      <Icon name="heroicons:star-20-solid" class="w-4 h-4 text-yellow-400" />
-                    </div>
-                    <span class="font-medium">5.0</span>
-                  </div>
-                  <span>{{ getReviewCount() }} reviews</span>
-                </div>
-              </div>
-              
-              <div class="space-y-4">
-                <div 
-                  v-for="review in (showAllReviews ? sampleReviews : sampleReviews.slice(0, 4))" 
-                  :key="review.id" 
-                  class="border-b border-gray-100 pb-4 last:border-b-0"
-                >
-                  <div class="flex items-start space-x-3">
-                    <div class="flex-shrink-0">
-                      <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                        <span class="text-xs font-medium text-gray-600">{{ review.name.charAt(0) }}</span>
-                      </div>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <div class="flex items-center space-x-2 mb-1">
-                        <h4 class="text-sm font-medium text-gray-900">{{ review.name }}</h4>
-                        <div class="flex items-center">
-                          <Icon v-for="i in review.rating" :key="i" name="heroicons:star-20-solid" class="w-3 h-3 text-yellow-400" />
-                          <Icon v-for="i in (5 - review.rating)" :key="i + review.rating" name="heroicons:star" class="w-3 h-3 text-gray-300" />
-                        </div>
-                        <span class="text-xs text-gray-500">{{ review.date }}</span>
-                      </div>
-                      <p class="text-sm text-gray-700" :class="showAllReviews ? '' : 'line-clamp-3'">{{ review.comment }}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <button 
-                v-if="sampleReviews.length > 4"
-                @click="toggleReviews"
-                class="mt-6 text-sm text-brand-sage hover:text-brand-sage-dark font-medium transition-colors"
-              >
-                {{ showAllReviews ? 'Show less' : `See all ${getReviewCount()} reviews` }}
-              </button>
+              <ReviewsList
+                :product-id="product.id"
+                :user-id="user?.id"
+                :can-write-review="!!user && canUserReview"
+                ref="reviewsList"
+              />
             </div>
 
           </div>
@@ -488,78 +443,16 @@ const { fetchProduct, getRelatedProducts } = useProducts()
 const cartCounter = useCartCounter()
 const wishlist = useWishlist()
 const toast = useToast()
+const user = useSupabaseUser()
+const auth = useAuth()
 
 // State
 const product = ref<Product | null>(null)
 const relatedProducts = ref([])
 const isLoading = ref(true)
 const selectedImage = ref('')
-const showAllReviews = ref(false)
 const currentImageIndex = ref(0)
-
-// Enhanced sample reviews data
-const generateSampleReviews = (productName) => {
-  const reviewPool = [
-    {
-      name: 'Sarah M.',
-      rating: 5,
-      comment: `Amazing ${productName.toLowerCase()}! So easy to customize and looks incredibly professional. My clients love the final result.`,
-      date: '2 weeks ago'
-    },
-    {
-      name: 'Jennifer K.',
-      rating: 5,
-      comment: `Perfect for my business. The design is elegant and the files are well organized. Highly recommend this ${productName.toLowerCase()}!`,
-      date: '1 month ago'
-    },
-    {
-      name: 'Michael R.',
-      rating: 4,
-      comment: 'Great quality and fast download. Everything was exactly as described. Will definitely buy more templates.',
-      date: '1 month ago'
-    },
-    {
-      name: 'Emma L.',
-      rating: 5,
-      comment: `This ${productName.toLowerCase()} saved me hours of work! Clean design and super easy to edit. Worth every penny.`,
-      date: '3 weeks ago'
-    },
-    {
-      name: 'David P.',
-      rating: 5,
-      comment: 'Exceeded my expectations. The template is beautifully designed and came with clear instructions. Perfect!',
-      date: '2 months ago'
-    },
-    {
-      name: 'Lisa Chen',
-      rating: 4,
-      comment: 'Really impressed with the quality. The layout is modern and the colors work perfectly for my brand.',
-      date: '5 weeks ago'
-    },
-    {
-      name: 'Amanda R.',
-      rating: 5,
-      comment: `Love this ${productName.toLowerCase()}! It\'s exactly what I was looking for. The customization options are endless.`,
-      date: '1 week ago'
-    },
-    {
-      name: 'James W.',
-      rating: 5,
-      comment: 'Outstanding template! Professional looking and easy to work with. My website looks amazing now.',
-      date: '6 weeks ago'
-    }
-  ]
-  
-  // Return 3-5 random reviews
-  const shuffled = reviewPool.sort(() => 0.5 - Math.random())
-  const count = Math.floor(Math.random() * 3) + 3 // 3-5 reviews
-  return shuffled.slice(0, count).map((review, index) => ({
-    ...review,
-    id: index + 1
-  }))
-}
-
-const sampleReviews = ref([])
+const reviewsList = ref(null)
 
 // Computed
 const hasDiscount = computed(() => 
@@ -573,13 +466,37 @@ const discountPercentage = computed(() => {
   return Math.round(((original - current) / original) * 100)
 })
 
-// Helper methods
-const getReviewCount = () => {
-  return product.value?.review_count || Math.floor(Math.random() * 100) + 25
-}
+// State for purchase verification
+const hasPurchased = ref(false)
+const isAdmin = ref(false)
+const checkingPurchase = ref(true)
 
+// Check if user can write a review (must have purchased the product or be admin)
+const canUserReview = computed(() => {
+  if (!user.value || !product.value || checkingPurchase.value) {
+    return false
+  }
+  
+  // Admin can always review
+  if (auth.isAdmin.value) {
+    return true
+  }
+  
+  // Regular users must have purchased the product
+  return hasPurchased.value
+})
+
+// Helper methods
 const getDownloadCount = () => {
   return product.value?.download_count || Math.floor(Math.random() * 500) + 100
+}
+
+const getReviewCount = () => {
+  // Access the stats from the ReviewsList component if available
+  if (reviewsList.value && reviewsList.value.stats) {
+    return reviewsList.value.stats.total_reviews || 0
+  }
+  return 0
 }
 
 // Methods
@@ -612,9 +529,35 @@ const toggleFavorite = () => {
   }
 }
 
-const toggleReviews = () => {
-  showAllReviews.value = !showAllReviews.value
+// Check if user has purchased this product or is admin
+const checkUserReviewEligibility = async () => {
+  if (!user.value || !product.value) {
+    checkingPurchase.value = false
+    return
+  }
+
+  try {
+    // Check if user has purchased this product
+    const purchaseResponse = await $fetch(`/api/account/orders`, {
+      query: { product_id: product.value.id }
+    })
+
+    // Check if any paid order contains this product
+    const hasValidPurchase = purchaseResponse?.data?.some(order => 
+      order.payment_status === 'paid' && 
+      order.order_items?.some(item => item.product_id === product.value.id)
+    )
+
+    hasPurchased.value = hasValidPurchase || false
+
+  } catch (error) {
+    console.error('Error checking purchase history:', error)
+    hasPurchased.value = false
+  } finally {
+    checkingPurchase.value = false
+  }
 }
+
 
 // Image carousel methods
 const goToImage = (index) => {
@@ -663,8 +606,6 @@ const loadProduct = async () => {
     selectedImage.value = productData.preview_images?.[0] || ''
     currentImageIndex.value = 0
     
-    // Generate sample reviews for this product
-    sampleReviews.value = generateSampleReviews(productData.name)
     
     // Load related products
     if (productData.category_id) {
@@ -699,8 +640,10 @@ const loadProduct = async () => {
 }
 
 // Initialize
-onMounted(() => {
-  loadProduct()
+onMounted(async () => {
+  await loadProduct()
+  // Check user review eligibility after product loads
+  await checkUserReviewEligibility()
   // Add keyboard navigation
   document.addEventListener('keydown', handleKeydown)
 })
@@ -711,7 +654,19 @@ onUnmounted(() => {
 })
 
 // Watch for slug changes
-watch(() => route.params.slug, () => {
-  loadProduct()
+watch(() => route.params.slug, async () => {
+  await loadProduct()
+  await checkUserReviewEligibility()
+})
+
+// Watch for user authentication changes
+watch(user, async (newUser) => {
+  if (newUser) {
+    await checkUserReviewEligibility()
+  } else {
+    // Reset state when user logs out
+    hasPurchased.value = false
+    checkingPurchase.value = false
+  }
 })
 </script>

@@ -177,16 +177,36 @@ const loadOrderData = async () => {
   }
 
   try {
-    // Fetch order data from our API
-    const { data } = await $fetch(`/api/orders/checkout-session/${sessionId}`)
+    // Process payment success and send emails
+    const response = await $fetch('/api/payments/success', {
+      method: 'POST',
+      body: {
+        session_id: sessionId
+      }
+    })
     
-    if (data) {
-      orderData.value = data.order
-      orderItems.value = data.items || []
+    if (response.success) {
+      console.log('Payment processed successfully:', response)
+      
+      // Clear cart after successful payment processing
+      const cart = useCart()
+      await cart.clearCart()
+      
+      // Show success message
+      useToast().success('Your order has been processed successfully! Emails have been sent.')
+      
+      // Redirect to the order success page
+      await navigateTo(`/order-success?order_id=${response.order_id}`)
+      return
+      
+    } else {
+      console.error('Payment processing failed:', response)
+      useToast().error('There was an issue processing your payment. Please contact support.')
     }
 
   } catch (error) {
-    console.error('Failed to load order data:', error)
+    console.error('Failed to process payment success:', error)
+    useToast().error('There was an issue processing your order. Please contact support.')
   } finally {
     isLoading.value = false
   }

@@ -3,9 +3,11 @@ import type { User, Session } from '@supabase/supabase-js'
 interface AuthUser {
   id: string
   email: string
-  full_name?: string
+  first_name?: string
+  last_name?: string
   avatar_url?: string
   role: 'customer' | 'admin'
+  country?: string
   created_at: string
 }
 
@@ -22,11 +24,13 @@ export const useAuth = () => {
   const isAuthenticated = computed(() => !!user.value)
   const isAdmin = computed(() => authUser.value?.role === 'admin')
   const userInitials = computed(() => {
-    if (!authUser.value?.full_name) return user.value?.email?.charAt(0).toUpperCase() || 'U'
-    const names = authUser.value.full_name.split(' ')
-    return names.length > 1 
-      ? `${names[0].charAt(0)}${names[1].charAt(0)}`.toUpperCase()
-      : names[0].charAt(0).toUpperCase()
+    if (authUser.value?.first_name && authUser.value?.last_name) {
+      return `${authUser.value.first_name.charAt(0)}${authUser.value.last_name.charAt(0)}`.toUpperCase()
+    }
+    if (authUser.value?.first_name) {
+      return authUser.value.first_name.charAt(0).toUpperCase()
+    }
+    return user.value?.email?.charAt(0).toUpperCase() || 'U'
   })
 
   // Fetch user profile data
@@ -59,29 +63,55 @@ export const useAuth = () => {
     }
   }
 
-  // Create user profile in database
+  // Create user profile in database using server-side API
   const createUserProfile = async () => {
     if (!user.value) return
 
     try {
-      const { data, error: insertError } = await supabase
-        .from('users')
-        .insert({
-          id: user.value.id,
-          email: user.value.email!,
-          full_name: user.value.user_metadata?.full_name || null,
-          avatar_url: user.value.user_metadata?.avatar_url || null,
-          role: 'customer'
-        })
-        .select()
-        .single()
-
-      if (insertError) throw insertError
+      console.log('Creating user profile for:', user.value.id, user.value.email)
       
-      authUser.value = data
+      // Extract name from metadata - could be full_name or separate first/last names
+      const metaData = user.value.user_metadata || {}
+      let firstName = metaData.first_name || null
+      let lastName = metaData.last_name || null
+      
+      // If we only have full_name, try to split it
+      if (!firstName && !lastName && metaData.full_name) {
+        const nameParts = metaData.full_name.split(' ')
+        firstName = nameParts[0] || null
+        lastName = nameParts.slice(1).join(' ') || null
+      }
+      
+      const response = await $fetch('/api/auth/create-user-profile', {
+        method: 'POST',
+        body: {
+          user_id: user.value.id,
+          email: user.value.email,
+          first_name: firstName,
+          last_name: lastName,
+          avatar_url: metaData.avatar_url || null
+        }
+      })
+      
+      console.log('User profile creation response:', response)
+      
+      if (response.success) {
+        if (response.user) {
+          // User profile was created successfully
+          authUser.value = response.user
+          // Fetch the profile to ensure we have the latest data
+          await fetchUserProfile()
+        } else {
+          // User profile creation was skipped (likely due to unverified email)
+          console.log('User profile creation skipped:', response.message)
+          authUser.value = null
+        }
+      }
+      
     } catch (err) {
       console.error('Error creating user profile:', err)
       error.value = 'Failed to create user profile'
+      throw err
     }
   }
 
@@ -208,10 +238,17 @@ export const useAuth = () => {
 
     // Listen for auth changes
     supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state changed:', event, session?.user?.id)
+      
       if (event === 'SIGNED_IN' && session?.user) {
-        await fetchUserProfile()
+        try {
+          await fetchUserProfile()
+        } catch (error) {
+          console.error('Failed to fetch user profile after sign in:', error)
+        }
       } else if (event === 'SIGNED_OUT') {
         authUser.value = null
+        console.log('User signed out, cleared auth user')
       }
     })
   }

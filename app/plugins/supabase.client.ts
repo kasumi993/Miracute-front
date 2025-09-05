@@ -1,6 +1,10 @@
 export default defineNuxtPlugin(() => {
   const supabase = useSupabaseClient()
   const user = useSupabaseUser()
+  
+  // Initialize auth composable
+  const auth = useAuth()
+  auth.init()
 
   supabase.auth.onAuthStateChange((event) => {
     if (event === 'SIGNED_IN') {

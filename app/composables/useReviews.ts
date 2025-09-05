@@ -1,0 +1,153 @@
+export const useReviews = () => {
+  // Get reviews for a product
+  const getProductReviews = async (productId: string) => {
+    try {
+      const response = await $fetch(`/api/reviews/${productId}`)
+      return response
+    } catch (error) {
+      console.error('Error fetching reviews:', error)
+      throw error
+    }
+  }
+  
+  // Submit a new review
+  const submitReview = async (reviewData: {
+    product_id: string
+    user_id: string
+    rating: number
+    title?: string
+    comment?: string
+  }) => {
+    try {
+      const response = await $fetch('/api/reviews/submit', {
+        method: 'POST',
+        body: reviewData
+      })
+      return response
+    } catch (error) {
+      console.error('Error submitting review:', error)
+      throw error
+    }
+  }
+  
+  // Admin functions
+  const getAdminReviews = async (params: {
+    page?: number
+    limit?: number
+    status?: 'approved' | 'pending' | 'all'
+    product_id?: string
+    rating?: number
+  } = {}) => {
+    try {
+      const queryParams = new URLSearchParams()
+      
+      if (params.page) queryParams.append('page', params.page.toString())
+      if (params.limit) queryParams.append('limit', params.limit.toString())
+      if (params.status) queryParams.append('status', params.status)
+      if (params.product_id) queryParams.append('product_id', params.product_id)
+      if (params.rating) queryParams.append('rating', params.rating.toString())
+      
+      const response = await $fetch(`/api/admin/reviews?${queryParams.toString()}`)
+      return response
+    } catch (error) {
+      console.error('Error fetching admin reviews:', error)
+      throw error
+    }
+  }
+  
+  // Update review (admin)
+  const updateReview = async (reviewId: string, updates: {
+    is_approved?: boolean
+    title?: string
+    comment?: string
+    rating?: number
+  }) => {
+    try {
+      const response = await $fetch(`/api/admin/reviews/${reviewId}`, {
+        method: 'PATCH',
+        body: updates
+      })
+      return response
+    } catch (error) {
+      console.error('Error updating review:', error)
+      throw error
+    }
+  }
+  
+  // Delete review (admin)
+  const deleteReview = async (reviewId: string) => {
+    try {
+      const response = await $fetch(`/api/admin/reviews/${reviewId}`, {
+        method: 'DELETE'
+      })
+      return response
+    } catch (error) {
+      console.error('Error deleting review:', error)
+      throw error
+    }
+  }
+  
+  // Create review (admin)
+  const createReview = async (reviewData: {
+    product_id: string
+    user_id: string
+    rating: number
+    title?: string
+    comment?: string
+    is_verified_purchase?: boolean
+    is_approved?: boolean
+    force_override?: boolean
+  }) => {
+    try {
+      const response = await $fetch('/api/admin/reviews/create', {
+        method: 'POST',
+        body: reviewData
+      })
+      return response
+    } catch (error) {
+      console.error('Error creating review:', error)
+      throw error
+    }
+  }
+  
+  // Approve review (admin)
+  const approveReview = async (reviewId: string) => {
+    return updateReview(reviewId, { is_approved: true })
+  }
+  
+  // Reject review (admin)
+  const rejectReview = async (reviewId: string) => {
+    return updateReview(reviewId, { is_approved: false })
+  }
+  
+  // Helper function to format rating display
+  const formatRating = (rating: number) => {
+    const labels = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent']
+    return labels[rating] || 'Unknown'
+  }
+  
+  // Helper function to get rating color
+  const getRatingColor = (rating: number) => {
+    if (rating >= 4) return 'text-green-600'
+    if (rating >= 3) return 'text-yellow-600'
+    return 'text-red-600'
+  }
+  
+  return {
+    // Public functions
+    getProductReviews,
+    submitReview,
+    
+    // Admin functions
+    getAdminReviews,
+    updateReview,
+    deleteReview,
+    createReview,
+    approveReview,
+    rejectReview,
+    
+    // Helper functions
+    formatRating,
+    getRatingColor
+  }
+}

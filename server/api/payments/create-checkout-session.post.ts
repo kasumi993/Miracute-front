@@ -192,17 +192,28 @@ export default defineEventHandler(async (event) => {
       // }
     })
 
+    // Generate order number
+    const generateOrderNumber = (): string => {
+      const timestamp = Date.now().toString()
+      const random = Math.random().toString(36).substring(2, 6).toUpperCase()
+      return `MIR${timestamp.slice(-6)}${random}`
+    }
+
     // Create pending order in database
     const orderData = {
       user_id: effectiveUserId || null,
       subtotal: totalAmount.toString(),
       total_amount: totalAmount.toString(),
       customer_email: customerEmail,
+      customer_name: customer_info?.name || `${customer_info?.firstName || ''} ${customer_info?.lastName || ''}`.trim() || null,
       status: 'pending' as const,
       payment_status: 'pending' as const,
       stripe_payment_intent_id: session.payment_intent as string,
+      order_number: generateOrderNumber(),
       notes: `Stripe Checkout Session: ${session.id}${create_account && newlyCreatedUserId ? ' - Account created during checkout' : ''}`
     }
+
+    console.log('Creating pending order with data:', { ...orderData, notes: '...' })
 
     const { data: order, error: orderError } = await supabase
       .from('orders')
@@ -212,8 +223,9 @@ export default defineEventHandler(async (event) => {
 
     if (orderError || !order) {
       console.error('Failed to create order:', orderError)
-      // Don't throw error here as checkout session is already created
-      // We can handle this in the webhook
+      // Continue - we can handle this in the payment success endpoint
+    } else {
+      console.log('Successfully created pending order:', order.id)
     }
 
     // Create order items if order was created successfully
@@ -234,12 +246,16 @@ export default defineEventHandler(async (event) => {
         }
       })
 
+      console.log('Creating order items:', orderItems.length, 'items')
+
       const { error: itemsError } = await supabase
         .from('order_items')
         .insert(orderItems)
 
       if (itemsError) {
         console.error('Failed to create order items:', itemsError)
+      } else {
+        console.log('Successfully created order items')
       }
     }
 

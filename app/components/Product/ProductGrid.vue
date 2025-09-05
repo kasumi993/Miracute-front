@@ -1,10 +1,10 @@
 <template>
   <div class="product-grid">
     <!-- Loading State -->
-    <div v-if="isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div v-if="isLoading" :class="gridClass">
       <div v-for="n in skeletonCount" :key="n" class="animate-pulse">
-        <div class="bg-gray-200 aspect-[4/3] rounded-lg mb-4"></div>
-        <div class="space-y-2">
+        <div class="bg-gray-200 aspect-[4/5] rounded-2xl mb-3"></div>
+        <div class="space-y-2 px-1">
           <div class="h-4 bg-gray-200 rounded w-3/4"></div>
           <div class="h-3 bg-gray-200 rounded w-1/2"></div>
           <div class="h-6 bg-gray-200 rounded w-1/4"></div>

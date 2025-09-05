@@ -308,14 +308,14 @@ const paymentData = computed<PaymentData>(() => ({
   ...(selectedMethod.value === 'card' && { cardDetails: cardDetails.value })
 }))
 
-// Watch for changes and emit updates
+// Watch for changes and emit updates (prevent recursive loop)
 watch([selectedMethod, cardDetails], () => {
   emit('update:modelValue', paymentData.value)
-}, { deep: true })
+}, { deep: true, flush: 'sync' })
 
-// Initialize with props
+// Initialize with props (prevent recursive loop)
 watch(() => props.modelValue, (value) => {
-  if (value) {
+  if (value && value !== paymentData.value) {
     selectedMethod.value = value.method
     if (value.cardDetails) {
       cardDetails.value = { ...value.cardDetails }

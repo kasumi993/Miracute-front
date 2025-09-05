@@ -1,5 +1,14 @@
 <template>
-  <div>
+  <!-- Loading State -->
+  <div v-if="isCheckingAccess" class="min-h-screen flex items-center justify-center bg-gray-50">
+    <div class="text-center">
+      <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-brand-brown mb-4"></div>
+      <p class="text-gray-600 font-medium">Verifying access...</p>
+    </div>
+  </div>
+
+  <!-- Dashboard Content -->
+  <div v-else-if="hasAdminAccess">
           <!-- Quick Stats -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
@@ -165,8 +174,7 @@
 // Middleware
 definePageMeta({
   middleware: 'admin',
-  layout: 'admin',
-  ssr: false // Disable SSR to avoid authentication issues
+  layout: 'admin'
 })
 
 // SEO
@@ -188,6 +196,8 @@ const stats = ref({
 const recentOrders = ref([])
 const popularProducts = ref([])
 const isLoading = ref(true)
+const isCheckingAccess = ref(true)
+const hasAdminAccess = ref(false)
 
 // Methods
 const loadDashboardData = async () => {
@@ -243,8 +253,52 @@ const getStatusColor = (status) => {
   }
 }
 
-// Initialize
+// Initialize and check access immediately
 onMounted(async () => {
-  await loadDashboardData()
+  console.log('Dashboard mounted, checking access...')
+  
+  const supabase = useSupabaseClient()
+  const router = useRouter()
+  
+  try {
+    const { data: { session } } = await supabase.auth.getSession()
+    console.log('Dashboard - Session found:', !!session)
+    
+    if (!session || !session.user) {
+      console.log('Dashboard: No session, redirecting to home...')
+      // Use window.location for cleaner redirect that handles layout properly
+      if (process.client) {
+        window.location.replace('/')
+      }
+      return
+    }
+    
+    const userRole = session.user.app_metadata?.role
+    console.log('Dashboard - User role:', userRole)
+    
+    if (userRole !== 'admin') {
+      console.log('Dashboard: Not admin, redirecting to home...')
+      // Use window.location for cleaner redirect that handles layout properly
+      if (process.client) {
+        window.location.replace('/')
+      }
+      return
+    }
+    
+    console.log('Dashboard: Admin access granted, loading data...')
+    // Set access to true and stop checking
+    hasAdminAccess.value = true
+    isCheckingAccess.value = false
+    
+    // Load dashboard data
+    await loadDashboardData()
+    
+  } catch (error) {
+    console.error('Dashboard access error:', error)
+    // Use window.location for cleaner redirect that handles layout properly
+    if (process.client) {
+      window.location.replace('/')
+    }
+  }
 })
 </script>

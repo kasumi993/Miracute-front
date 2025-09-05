@@ -1,5 +1,9 @@
 <template>
-  <div>
+  <!-- Admin Loading State -->
+  <AdminLoader v-if="isCheckingAccess" />
+  
+  <!-- Admin Content -->
+  <div v-else-if="hasAdminAccess">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8 space-y-4 sm:space-y-0">
       <div>
@@ -74,6 +78,9 @@
 </template>
 
 <script setup lang="ts">
+// Admin Guard
+const { isCheckingAccess, hasAdminAccess } = useAdminGuard()
+
 // Middleware and SEO
 definePageMeta({
   middleware: 'admin',

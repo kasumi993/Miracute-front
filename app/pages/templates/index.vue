@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-neutral-50">
     <!-- Top Bar with Search and Filters -->
     <div class="border-b border-gray-200 bg-white sticky top-0 z-40">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
         <!-- Breadcrumb Row -->
         <div class="py-3 border-b border-gray-100">
           <nav class="flex items-center space-x-2 text-sm">
@@ -53,7 +53,7 @@
                 <!-- Search Suggestions Dropdown -->
                 <div 
                   v-if="showSearchSuggestions && filteredSuggestions.length > 0"
-                  class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto"
+                  class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto"
                 >
                   <div class="p-2">
                     <div class="text-xs font-medium text-gray-500 mb-2">
@@ -63,10 +63,10 @@
                       v-for="suggestion in filteredSuggestions"
                       :key="suggestion"
                       @click="selectSuggestion(suggestion)"
-                      class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded flex items-center space-x-2"
+                      class="w-full text-left px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-100 rounded flex items-center space-x-2 touch-manipulation"
                     >
-                      <Icon name="heroicons:magnifying-glass" class="w-4 h-4 text-gray-400" />
-                      <span>{{ suggestion }}</span>
+                      <Icon name="heroicons:magnifying-glass" class="w-4 h-4 text-gray-400 flex-shrink-0" />
+                      <span class="truncate">{{ suggestion }}</span>
                     </button>
                   </div>
                 </div>
@@ -185,7 +185,7 @@
                 <!-- Search Suggestions Dropdown -->
                 <div 
                   v-if="showSearchSuggestions && filteredSuggestions.length > 0"
-                  class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto"
+                  class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto"
                 >
                   <div class="p-2">
                     <div class="text-xs font-medium text-gray-500 mb-2">
@@ -195,10 +195,10 @@
                       v-for="suggestion in filteredSuggestions"
                       :key="suggestion"
                       @click="selectSuggestion(suggestion)"
-                      class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded flex items-center space-x-2"
+                      class="w-full text-left px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-100 rounded flex items-center space-x-2 touch-manipulation"
                     >
-                      <Icon name="heroicons:magnifying-glass" class="w-4 h-4 text-gray-400" />
-                      <span>{{ suggestion }}</span>
+                      <Icon name="heroicons:magnifying-glass" class="w-4 h-4 text-gray-400 flex-shrink-0" />
+                      <span class="truncate">{{ suggestion }}</span>
                     </button>
                   </div>
                 </div>
@@ -206,53 +206,85 @@
             </div>
 
             <!-- Filters Row -->
-            <div class="flex flex-wrap items-center gap-2">
-              <!-- Category Filter -->
-              <div class="relative flex-shrink-0">
-                <select 
-                  v-model="filters.category" 
-                  class="appearance-none bg-white border border-gray-300 rounded-lg px-3 py-2 pr-8 text-sm focus:ring-2 focus:ring-brand-sage focus:border-transparent min-w-[100px]"
-                >
-                  <option value="">Categories</option>
-                  <option v-for="category in categories" :key="category.id" :value="category.id">
-                    {{ category.name }}
-                  </option>
-                </select>
-                <Icon name="heroicons:chevron-down" class="absolute right-2 top-2.5 w-4 h-4 text-gray-400 pointer-events-none" />
+            <div class="space-y-3">
+              <!-- First Row: Category and Sort -->
+              <div class="flex flex-wrap items-center gap-2">
+                <!-- Category Filter -->
+                <div class="relative flex-1 min-w-[120px] max-w-[180px]">
+                  <select 
+                    v-model="filters.category" 
+                    class="appearance-none bg-white border border-gray-300 rounded-lg px-3 py-2 pr-8 text-sm focus:ring-2 focus:ring-brand-sage focus:border-transparent w-full"
+                  >
+                    <option value="">All Categories</option>
+                    <option v-for="category in categories" :key="category.id" :value="category.id">
+                      {{ category.name }}
+                    </option>
+                  </select>
+                  <Icon name="heroicons:chevron-down" class="absolute right-2 top-2.5 w-4 h-4 text-gray-400 pointer-events-none" />
+                </div>
+
+                <!-- Sort Dropdown -->
+                <div class="relative flex-1 min-w-[100px] max-w-[140px]">
+                  <select 
+                    v-model="sortBy" 
+                    class="appearance-none bg-white border border-gray-300 rounded-lg px-3 py-2 pr-8 text-sm focus:ring-2 focus:ring-brand-sage focus:border-transparent w-full"
+                  >
+                    <option value="newest">Recent</option>
+                    <option value="price_asc">Low Price</option>
+                    <option value="price_desc">High Price</option>
+                    <option value="popular">Popular</option>
+                  </select>
+                  <Icon name="heroicons:chevron-down" class="absolute right-2 top-2.5 w-4 h-4 text-gray-400 pointer-events-none" />
+                </div>
+
+                <!-- Featured Toggle -->
+                <label class="flex items-center space-x-2 cursor-pointer bg-white border border-gray-300 rounded-lg px-3 py-2 flex-shrink-0">
+                  <input
+                    v-model="filters.featured"
+                    type="checkbox"
+                    class="text-brand-sage focus:ring-brand-sage rounded border-gray-300"
+                  >
+                  <span class="text-sm text-gray-700">Featured</span>
+                </label>
               </div>
 
-              <!-- Sort Dropdown -->
-              <div class="relative flex-shrink-0">
-                <select 
-                  v-model="sortBy" 
-                  class="appearance-none bg-white border border-gray-300 rounded-lg px-3 py-2 pr-8 text-sm focus:ring-2 focus:ring-brand-sage focus:border-transparent min-w-[80px]"
-                >
-                  <option value="newest">Recent</option>
-                  <option value="price_asc">Low Price</option>
-                  <option value="price_desc">High Price</option>
-                  <option value="popular">Popular</option>
-                </select>
-                <Icon name="heroicons:chevron-down" class="absolute right-2 top-2.5 w-4 h-4 text-gray-400 pointer-events-none" />
-              </div>
+              <!-- Second Row: Price Range and Results -->
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <!-- Price Range -->
+                <div class="flex items-center space-x-2">
+                  <span class="text-sm text-gray-600 whitespace-nowrap">Price:</span>
+                  <div class="flex items-center space-x-1">
+                    <input
+                      v-model="filters.minPrice"
+                      type="number"
+                      placeholder="Min"
+                      class="w-20 sm:w-16 px-2 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-sage focus:border-transparent"
+                    >
+                    <span class="text-gray-400">-</span>
+                    <input
+                      v-model="filters.maxPrice"
+                      type="number"
+                      placeholder="Max"
+                      class="w-20 sm:w-16 px-2 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-sage focus:border-transparent"
+                    >
+                  </div>
+                  <button 
+                    @click="clearFilters" 
+                    class="text-sm text-gray-500 hover:text-gray-700 underline px-2 whitespace-nowrap"
+                  >
+                    Clear
+                  </button>
+                </div>
 
-              <!-- Featured Toggle -->
-              <label class="flex items-center space-x-2 cursor-pointer bg-white border border-gray-300 rounded-lg px-3 py-2 flex-shrink-0">
-                <input
-                  v-model="filters.featured"
-                  type="checkbox"
-                  class="text-brand-sage focus:ring-brand-sage rounded border-gray-300"
-                >
-                <span class="text-sm text-gray-700">Featured</span>
-              </label>
-
-              <!-- Results Count -->
-              <div class="text-sm text-gray-600 ml-auto">
-                <span v-if="searchQuery">
-                  {{ totalProducts }} result{{ totalProducts !== 1 ? 's' : '' }}
-                </span>
-                <span v-else>
-                  {{ totalProducts }} templates
-                </span>
+                <!-- Results Count -->
+                <div class="text-sm text-gray-600">
+                  <span v-if="searchQuery">
+                    {{ totalProducts }} result{{ totalProducts !== 1 ? 's' : '' }}
+                  </span>
+                  <span v-else>
+                    {{ totalProducts }} templates
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -261,7 +293,7 @@
     </div>
 
     <!-- Main Content -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-8">
       <!-- Search Results Header -->
       <div v-if="searchQuery && products.length > 0" class="mb-6 p-4 bg-brand-sage/5 rounded-xl border border-brand-sage/20">
         <div class="flex items-center space-x-3">
@@ -281,7 +313,8 @@
       <ProductGrid 
         :products="products"
         :is-loading="isLoading || isInitialLoad"
-        :columns="{ sm: 1, md: 2, lg: 3, xl: 4, '2xl': 5 }"
+        :columns="{ sm: 2, md: 2, lg: 3, xl: 4, '2xl': 5 }"
+        :gap="2"
         :skeleton-count="20"
         :empty-title="emptyTitle"
         :empty-message="emptyMessage"

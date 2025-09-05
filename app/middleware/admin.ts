@@ -1,30 +1,9 @@
-export default defineNuxtRouteMiddleware(async (to) => {
-  const user = useSupabaseUser()
-
-  if (!user.value) {
-    const redirectTo = to.fullPath
-    return navigateTo(`/auth/login?redirect=${encodeURIComponent(redirectTo)}`)
+export default defineNuxtRouteMiddleware(() => {
+  // Simple middleware that just ensures we're on client side
+  // The actual admin check is handled by page components with proper loading states
+  if (import.meta.server) {
+    return
   }
-
-  if (process.client) {
-    const supabase = useSupabaseClient()
-
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      
-      if (!session) {
-        return navigateTo('/auth/login')
-      }
-
-      const userRole = session.user.app_metadata?.role
-
-      if (userRole !== 'admin') {
-        return navigateTo('/?error=not-admin')
-      }
-
-    } catch (error: any) {
-      console.error('Admin middleware error:', error)
-      return navigateTo('/?error=admin-middleware-error')
-    }
-  }
+  
+  // Let the page component handle the admin verification with loading state
 })

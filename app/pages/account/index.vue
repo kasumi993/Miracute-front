@@ -15,11 +15,11 @@
             <div class="text-right">
               <p class="text-sm text-gray-500">Member since</p>
               <p class="font-medium">
-                {{ formatDate(auth.authUser.value?.created_at) }}
+                {{ formatDate(user?.created_at) }}
               </p>
             </div>
             <div class="w-12 h-12 bg-brand-pink rounded-full flex items-center justify-center text-lg font-medium text-gray-700">
-              {{ auth.userInitials.value }}
+              {{ getUserInitials() }}
             </div>
           </div>
         </div>
@@ -205,7 +205,8 @@ useSeoMeta({
 })
 
 // Composables
-const auth = useAuth()
+const user = useSupabaseUser()
+const auth = useAuth() // Keep for backwards compatibility with signOut method
 
 // State
 const stats = ref({
@@ -268,6 +269,16 @@ const getStatusColor = (status) => {
     default:
       return 'text-gray-600'
   }
+}
+
+const getUserInitials = () => {
+  if (!user.value?.user_metadata?.full_name) {
+    return user.value?.email?.charAt(0).toUpperCase() || 'U'
+  }
+  const names = user.value.user_metadata.full_name.split(' ')
+  return names.length > 1 
+    ? `${names[0].charAt(0)}${names[1].charAt(0)}`.toUpperCase()
+    : names[0].charAt(0).toUpperCase()
 }
 
 // Initialize

@@ -1,5 +1,9 @@
 <template>
-  <div>
+  <!-- Admin Loading State -->
+  <AdminLoader v-if="isCheckingAccess" />
+  
+  <!-- Admin Content -->
+  <div v-else-if="hasAdminAccess">
     <!-- Header -->
     <div class="flex justify-between items-center mb-8">
       <div>
@@ -229,6 +233,9 @@
 <script setup lang="ts">
 import type { Order } from '~/types/database'
 import { useDebounceFn } from '@vueuse/core'
+
+// Admin Guard
+const { isCheckingAccess, hasAdminAccess } = useAdminGuard()
 
 // Middleware and SEO
 definePageMeta({

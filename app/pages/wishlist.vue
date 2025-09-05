@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-neutral-50">
     <!-- Hero Section -->
     <section class="bg-white border-b border-gray-200">
-      <div class="container-custom py-16">
+      <div class="container-custom py-8 sm:py-16">
         <div class="max-w-3xl mx-auto text-center">
           <h1 class="text-4xl sm:text-5xl font-heading font-medium text-gray-900 mb-6">
             My Wishlist
@@ -19,7 +19,7 @@
     </section>
 
     <!-- Wishlist Content -->
-    <div class="container-custom py-16">
+    <div class="container-custom py-8 sm:py-16">
       <!-- Empty State -->
       <div v-if="wishlist.wishlistCount.value === 0" class="text-center py-16">
         <div class="max-w-md mx-auto">
@@ -54,7 +54,7 @@
         </div>
 
         <!-- Items Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-8">
           <div
             v-for="item in wishlist.wishlistItems.value"
             :key="item.id"
@@ -88,26 +88,27 @@
               </div>
 
               <!-- Product Info -->
-              <div class="p-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-2 line-clamp-2 group-hover:text-brand-sage transition-colors">
+              <div class="p-3 sm:p-6">
+                <h3 class="text-sm sm:text-lg font-medium text-gray-900 mb-2 line-clamp-2 group-hover:text-brand-sage transition-colors">
                   {{ item.name }}
                 </h3>
                 
-                <p v-if="item.category" class="text-sm text-gray-500 mb-4">
+                <p v-if="item.category" class="text-xs sm:text-sm text-gray-500 mb-2 sm:mb-4 hidden sm:block">
                   {{ item.category }}
                 </p>
                 
-                <div class="flex items-center justify-between">
-                  <span class="text-xl font-semibold text-gray-900">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0">
+                  <span class="text-lg sm:text-xl font-semibold text-gray-900">
                     ${{ parseFloat(item.price).toFixed(2) }}
                   </span>
                   
                   <!-- Add to Cart Button -->
                   <button
                     @click.prevent="handleAddToCart(item)"
-                    class="btn-primary px-4 py-2 text-sm hover:scale-105 transition-transform"
+                    class="btn-primary px-2 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm hover:scale-105 transition-transform w-full sm:w-auto"
                   >
-                    Add to Cart
+                    <span class="sm:hidden">+</span>
+                    <span class="hidden sm:inline">Add to Cart</span>
                   </button>
                 </div>
               </div>

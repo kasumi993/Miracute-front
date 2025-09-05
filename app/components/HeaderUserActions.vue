@@ -100,7 +100,7 @@
     <!-- Sign In/Sign Up (for guests) -->
     <div v-else class="hidden lg:flex items-center">
       <NuxtLink 
-        :to="`/auth/login?redirect=${encodeURIComponent($route.fullPath)}`" 
+        :to="getLoginUrl()" 
         class="btn-primary px-6 py-2 text-sm"
       >
         Access Downloads
@@ -119,7 +119,7 @@
 
 <script setup>
 // Composables
-const auth = useAuth()
+const user = useSupabaseUser()
 const cartCounter = useCartCounter()
 const wishlist = useWishlist()
 const route = useRoute()
@@ -131,11 +131,19 @@ defineEmits(['toggleMobileSearch', 'toggleMobileMenu'])
 const isUserMenuOpen = ref(false)
 
 // Computed
-const isAuthenticated = computed(() => auth.isAuthenticated.value)
-const userEmail = computed(() => auth.authUser.value?.email || '')
-const userInitials = computed(() => auth.userInitials.value || 'U')
+const isAuthenticated = computed(() => !!user.value)
+const userEmail = computed(() => user.value?.email || '')
+const userInitials = computed(() => {
+  if (!user.value?.user_metadata?.full_name) {
+    return user.value?.email?.charAt(0).toUpperCase() || 'U'
+  }
+  const names = user.value.user_metadata.full_name.split(' ')
+  return names.length > 1 
+    ? `${names[0].charAt(0)}${names[1].charAt(0)}`.toUpperCase()
+    : names[0].charAt(0).toUpperCase()
+})
 const accountType = computed(() => {
-  const provider = auth.authUser.value?.app_metadata?.provider
+  const provider = user.value?.app_metadata?.provider
   return provider === 'google' ? 'Google Account' : 'Magic Link Account'
 })
 
@@ -144,9 +152,22 @@ const toggleUserMenu = () => {
   isUserMenuOpen.value = !isUserMenuOpen.value
 }
 
+const getLoginUrl = () => {
+  const { getLoginUrl } = useAuthRedirect()
+  return getLoginUrl()
+}
+
 const handleSignOut = async () => {
   isUserMenuOpen.value = false
-  await auth.signOut()
+  const supabase = useSupabaseClient()
+  try {
+    await supabase.auth.signOut()
+    useToast().success('Signed out successfully')
+    await navigateTo('/')
+  } catch (error) {
+    console.error('Sign out error:', error)
+    useToast().error('Failed to sign out')
+  }
 }
 
 

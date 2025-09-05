@@ -25,7 +25,7 @@
     >
       <div v-show="showMobileMenu" class="lg:hidden border-t border-gray-200 bg-white">
         <div class="px-4 py-3 space-y-3">
-          <NuxtLink to="/templates" class="block text-gray-700 hover:text-gray-900 font-medium py-2">
+          <NuxtLink to="/templates" @click="closeMenu" class="block text-gray-700 hover:text-gray-900 font-medium py-2">
             Templates
           </NuxtLink>
           
@@ -52,36 +52,37 @@
                   v-for="category in categories" 
                   :key="category.slug"
                   :to="`/templates?category=${category.slug}`" 
+                  @click="closeMenu"
                   class="block text-sm text-gray-600 hover:text-gray-900 py-1"
                 >
                   {{ category.name }}
                 </NuxtLink>
-                <NuxtLink to="/templates" class="block text-sm text-gray-600 hover:text-gray-900 py-1 font-medium">
+                <NuxtLink to="/templates" @click="closeMenu" class="block text-sm text-gray-600 hover:text-gray-900 py-1 font-medium">
                   View All Categories →
                 </NuxtLink>
               </div>
             </Transition>
           </div>
 
-          <NuxtLink to="/blog" class="block text-gray-700 hover:text-gray-900 font-medium py-2">
+          <NuxtLink to="/blog" @click="closeMenu" class="block text-gray-700 hover:text-gray-900 font-medium py-2">
             Blog
           </NuxtLink>
 
-          <NuxtLink to="/about" class="block text-gray-700 hover:text-gray-900 font-medium py-2">
+          <NuxtLink to="/about" @click="closeMenu" class="block text-gray-700 hover:text-gray-900 font-medium py-2">
             About
           </NuxtLink>
 
-          <NuxtLink to="/contact" class="block text-gray-700 hover:text-gray-900 font-medium py-2">
+          <NuxtLink to="/contact" @click="closeMenu" class="block text-gray-700 hover:text-gray-900 font-medium py-2">
             Contact
           </NuxtLink>
 
           <!-- Authentication Actions for Mobile -->
           <div class="pt-4 border-t border-gray-200">
             <template v-if="isAuthenticated">
-              <NuxtLink to="/account" class="block text-gray-700 hover:text-gray-900 font-medium py-2">
+              <NuxtLink to="/account" @click="closeMenu" class="block text-gray-700 hover:text-gray-900 font-medium py-2">
                 My Downloads
               </NuxtLink>
-              <NuxtLink to="/account/preferences" class="block text-gray-700 hover:text-gray-900 font-medium py-2">
+              <NuxtLink to="/account/preferences" @click="closeMenu" class="block text-gray-700 hover:text-gray-900 font-medium py-2">
                 Preferences
               </NuxtLink>
               <button 
@@ -94,6 +95,7 @@
             <template v-else>
               <NuxtLink 
                 :to="`/auth/login?redirect=${encodeURIComponent($route.fullPath)}`"
+                @click="closeMenu"
                 class="block text-gray-700 hover:text-gray-900 font-medium py-2"
               >
                 Access Downloads
@@ -119,6 +121,9 @@ const props = defineProps({
   }
 })
 
+// Emits
+const emit = defineEmits(['close-menu'])
+
 // Composables
 const auth = useAuth()
 const route = useRoute()
@@ -139,6 +144,11 @@ const categories = [
 const isAuthenticated = computed(() => auth.isAuthenticated.value)
 
 // Methods
+const closeMenu = () => {
+  emit('close-menu')
+  showCategories.value = false
+}
+
 const toggleCategories = () => {
   showCategories.value = !showCategories.value
 }
@@ -146,9 +156,11 @@ const toggleCategories = () => {
 const handleSearch = (query) => {
   // Search functionality would be handled here
   console.log('Mobile search:', query)
+  closeMenu()
 }
 
 const handleSignOut = async () => {
   await auth.signOut()
+  closeMenu()
 }
 </script>

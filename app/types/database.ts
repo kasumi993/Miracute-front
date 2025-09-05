@@ -13,30 +13,36 @@ export interface Database {
         Row: {
           id: string
           email: string
-          full_name: string | null
+          first_name: string | null
+          last_name: string | null
           avatar_url: string | null
           role: 'customer' | 'admin'
           stripe_customer_id: string | null
+          country: string | null
           created_at: string
           updated_at: string
         }
         Insert: {
           id: string
           email: string
-          full_name?: string | null
+          first_name?: string | null
+          last_name?: string | null
           avatar_url?: string | null
           role?: 'customer' | 'admin'
           stripe_customer_id?: string | null
+          country?: string | null
           created_at?: string
           updated_at?: string
         }
         Update: {
           id?: string
           email?: string
-          full_name?: string | null
+          first_name?: string | null
+          last_name?: string | null
           avatar_url?: string | null
           role?: 'customer' | 'admin'
           stripe_customer_id?: string | null
+          country?: string | null
           created_at?: string
           updated_at?: string
         }

@@ -43,49 +43,47 @@
       </div>
       
       <!-- Product Info - Etsy Style -->
-      <div class="space-y-2 px-1">
-        <!-- Title and Price -->
-        <div class="flex items-start justify-between">
-          <h3 class="text-sm font-medium text-gray-900 line-clamp-2 group-hover:text-brand-sage transition-colors flex-1 pr-2 leading-tight">
-            {{ product.name }}
-          </h3>
-        </div>
+      <div class="space-y-1 sm:space-y-2 px-0.5 sm:px-1">
+        <!-- Title -->
+        <h3 class="text-xs sm:text-base font-medium text-gray-900 line-clamp-2 group-hover:text-brand-sage transition-colors leading-tight">
+          {{ product.name }}
+        </h3>
         
-        <!-- Seller Info -->
-        <div class="flex items-center space-x-2 text-xs text-gray-500">
+        <!-- Seller Info - Hidden on mobile for compactness -->
+        <div class="hidden sm:flex items-center space-x-2 text-xs text-gray-500">
           <div class="w-4 h-4 rounded-full bg-gradient-to-br from-brand-sage to-brand-pink flex items-center justify-center">
             <span class="text-[8px] text-white font-medium">M</span>
           </div>
           <span>Miracute</span>
         </div>
         
-        <!-- Rating -->
-        <div class="flex items-center space-x-2">
+        <!-- Rating - Compact on mobile -->
+        <div class="flex items-center space-x-1 sm:space-x-2">
           <div class="flex items-center">
-            <Icon name="heroicons:star-20-solid" class="w-4 h-4 text-yellow-400" />
-            <Icon name="heroicons:star-20-solid" class="w-4 h-4 text-yellow-400" />
-            <Icon name="heroicons:star-20-solid" class="w-4 h-4 text-yellow-400" />
-            <Icon name="heroicons:star-20-solid" class="w-4 h-4 text-yellow-400" />
-            <Icon name="heroicons:star-20-solid" class="w-4 h-4 text-yellow-400" />
+            <Icon name="heroicons:star-20-solid" class="w-2.5 h-2.5 sm:w-4 sm:h-4 text-yellow-400" />
+            <Icon name="heroicons:star-20-solid" class="w-2.5 h-2.5 sm:w-4 sm:h-4 text-yellow-400" />
+            <Icon name="heroicons:star-20-solid" class="w-2.5 h-2.5 sm:w-4 sm:h-4 text-yellow-400" />
+            <Icon name="heroicons:star-20-solid" class="w-2.5 h-2.5 sm:w-4 sm:h-4 text-yellow-400" />
+            <Icon name="heroicons:star-20-solid" class="w-2.5 h-2.5 sm:w-4 sm:h-4 text-yellow-400" />
           </div>
-          <span class="text-xs text-gray-600">({{ getReviewCount(product) }})</span>
+          <span class="text-[10px] sm:text-xs text-gray-600">({{ getReviewCount(product) }})</span>
         </div>
 
         <!-- Price -->
-        <div class="flex items-center space-x-2">
-          <span class="text-lg font-bold text-gray-900">
+        <div class="flex items-center space-x-1 sm:space-x-2 flex-wrap">
+          <span class="text-sm sm:text-lg font-bold text-gray-900">
             ${{ price.toFixed(2) }}
           </span>
-          <span v-if="comparePrice" class="text-sm text-gray-500 line-through">
+          <span v-if="comparePrice" class="text-[10px] sm:text-sm text-gray-500 line-through">
             ${{ comparePrice.toFixed(2) }}
           </span>
-          <span v-if="hasDiscount" class="text-xs text-green-600 font-medium">
+          <span v-if="hasDiscount" class="text-[9px] sm:text-xs text-green-600 font-medium">
             {{ discountPercentage }}% OFF
           </span>
         </div>
         
-        <!-- Category Tag -->
-        <div v-if="product.category?.name" class="pt-1">
+        <!-- Category Tag - Hidden on mobile -->
+        <div v-if="product.category?.name" class="pt-1 hidden sm:block">
           <span class="inline-block bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs">
             {{ product.category.name }}
           </span>

@@ -12,15 +12,16 @@
           />
         </NuxtLink>
         
-        <h2 class="text-3xl font-heading font-medium text-gray-900">Access Your Downloads</h2>
-        <p class="mt-2 text-gray-600">Sign in to view and download your purchased templates</p>
+        <h2 class="text-3xl font-heading font-medium text-gray-900">Welcome to Miracute</h2>
+        <p class="mt-2 text-gray-600">Sign in or create an account to access your templates</p>
       </div>
 
       <!-- Simple Authentication -->
       <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
         <!-- Magic Link Form -->
         <div class="mb-8">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Sign in with Email</h3>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">Sign In / Register</h3>
+          <p class="text-sm text-gray-600 mb-4">Enter your email to sign in or create a new account</p>
           <form @submit.prevent="sendMagicLink" class="space-y-4">
             <div>
               <label for="email" class="form-label">Email address</label>
@@ -46,7 +47,7 @@
             >
               <span v-if="!isLoading" class="flex items-center justify-center space-x-2">
                 <Icon name="heroicons:envelope" class="w-5 h-5" />
-                <span>Send Magic Link</span>
+                <span>Continue with Email</span>
               </span>
               <span v-else class="flex items-center justify-center space-x-2">
                 <Icon name="heroicons:arrow-path" class="w-5 h-5 animate-spin" />
@@ -60,7 +61,7 @@
             <div class="flex items-center space-x-2">
               <Icon name="heroicons:check-circle" class="w-5 h-5 text-green-600" />
               <p class="text-sm text-green-800">
-                Magic link sent! Check your email and click the link to sign in.
+                Check your email! We've sent you a secure link to sign in or create your account.
               </p>
             </div>
           </div>
@@ -74,8 +75,34 @@
           </div>
 
           <p class="mt-3 text-sm text-gray-600">
-            We'll send you a secure link to sign in instantly. No password required!
+            We'll send you a secure link to access your account instantly. For new users, this will automatically create your account. No password required!
           </p>
+          
+          <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div class="flex items-start space-x-2">
+              <Icon name="heroicons:information-circle" class="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+              <div class="text-xs text-blue-800">
+                <p class="font-medium">Magic Link Tips:</p>
+                <ul class="mt-1 space-y-0.5 text-blue-700">
+                  <li>• Click the link directly from your email app</li>
+                  <li>• Each link can only be used once</li>
+                  <li>• Links expire after 1 hour</li>
+                  <li>• Use the same device/browser where possible</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alternative: Simple Registration -->
+        <div class="mb-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <div class="flex items-start space-x-2">
+            <Icon name="heroicons:exclamation-triangle" class="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+            <div class="text-sm text-yellow-800">
+              <p class="font-medium">Having trouble with magic links?</p>
+              <p class="mt-1">Magic links can be unreliable in development. Try Google sign-in as an alternative.</p>
+            </div>
+          </div>
         </div>
 
         <!-- Divider -->
@@ -184,27 +211,60 @@ const sendMagicLink = async () => {
 
   try {
     // Build redirect URL with original destination
-    const redirectUrl = new URL(`${window.location.origin}/auth/callback`)
+    // Use localhost in development, production URL in production
+    const isDev = process.dev || window.location.hostname === 'localhost'
+    const baseUrl = isDev ? window.location.origin : (useRuntimeConfig().public.siteUrl || window.location.origin)
+    const redirectUrl = new URL(`${baseUrl}/auth/callback`)
     if (route.query.redirect) {
       redirectUrl.searchParams.set('redirect', route.query.redirect)
     }
+    
+    console.log('Development mode:', isDev)
+    console.log('Base URL:', baseUrl)
+    console.log('Sending magic link with redirect URL:', redirectUrl.toString())
 
     const { error } = await supabase.auth.signInWithOtp({
       email: email.value,
       options: {
         emailRedirectTo: redirectUrl.toString(),
+        shouldCreateUser: true, // Explicitly allow user creation
+        data: {
+          timestamp: Date.now(),
+          request_id: Math.random().toString(36).substring(2, 15)
+        }
       }
     })
 
-    if (error) throw error
+    if (error) {
+      console.error('Auth error details:', error)
+      throw error
+    }
 
     showSuccess.value = true
     useToast().success('Magic link sent to your email!')
     
   } catch (error) {
     console.error('Magic link error:', error)
-    errorMessage.value = 'Failed to send magic link. Please try again.'
-    useToast().error('Failed to send magic link')
+    
+    // Provide more specific error messages
+    let errorMsg = 'Failed to send magic link. Please try again.'
+    
+    if (error.message?.includes('Invalid login credentials')) {
+      errorMsg = 'There was an issue with your email. Please check and try again.'
+    } else if (error.message?.includes('Email not confirmed')) {
+      errorMsg = 'Please check your email and click the confirmation link.'
+    } else if (error.message?.includes('Email rate limit exceeded') || error.message?.includes('too_many_requests')) {
+      errorMsg = 'Too many requests. Please wait a few minutes before requesting another magic link.'
+    } else if (error.message?.includes('Invalid email')) {
+      errorMsg = 'Please enter a valid email address.'
+    } else if (error.message?.includes('Email sending failed')) {
+      errorMsg = 'Email delivery failed. Please check your email address and try again.'
+    } else if (error.message) {
+      errorMsg = error.message
+    }
+    
+    errorMessage.value = errorMsg
+    useToast().error(errorMsg)
   } finally {
     isLoading.value = false
   }
@@ -234,8 +294,14 @@ const signInWithGoogle = async () => {
 
   } catch (error) {
     console.error('Google sign in error:', error)
-    errorMessage.value = 'Failed to sign in with Google. Please try again.'
-    useToast().error('Google sign in failed')
+    
+    let errorMsg = 'Failed to sign in with Google. Please try again.'
+    if (error.message) {
+      errorMsg = error.message
+    }
+    
+    errorMessage.value = errorMsg
+    useToast().error(errorMsg)
     isLoading.value = false
   }
 }
@@ -245,6 +311,16 @@ onMounted(() => {
   const emailInput = document.getElementById('email')
   if (emailInput) {
     emailInput.focus()
+  }
+  
+  // Check for error parameters in URL
+  const error = route.query.error
+  if (error === 'admin-required') {
+    errorMessage.value = 'Admin access required. Please sign in with an admin account.'
+    useToast().error('Admin access required. Please sign in with an admin account.')
+  } else if (error === 'auth-error') {
+    errorMessage.value = 'Authentication error occurred. Please try signing in again.'
+    useToast().error('Authentication error occurred. Please try signing in again.')
   }
 })
 </script>

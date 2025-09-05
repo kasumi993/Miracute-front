@@ -67,6 +67,7 @@
       <HeaderMobileMenu 
         :show-mobile-search="showMobileSearch" 
         :show-mobile-menu="showMobileMenu" 
+        @close-menu="closeMobileMenu"
       />
   </header>
 </template>
@@ -95,9 +96,15 @@ const toggleMobileSearch = () => {
   showMobileMenu.value = false
 }
 
+const closeMobileMenu = () => {
+  showMobileMenu.value = false
+  showMobileSearch.value = false
+}
+
 // Close mobile menu when route changes
 const route = useRoute()
 watch(() => route.path, () => {
   showMobileMenu.value = false
+  showMobileSearch.value = false
 })
 </script>

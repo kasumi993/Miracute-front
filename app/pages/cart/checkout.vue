@@ -59,7 +59,8 @@ definePageMeta({
 
 // Composables
 const cartCounter = useCartCounter()
-const { saveCheckoutInfo, loadSavedCheckoutInfo, hasSavedInfo } = useSavedCheckout()
+const { getCheckoutPrefillData, updateProfileFromCheckout, hasCompleteProfile } = useUserProfile()
+const auth = useAuth()
 const toast = useToast()
 const router = useRouter()
 
@@ -85,22 +86,141 @@ const paymentData = ref<PaymentData>({
 })
 const isUsingStoredInfo = ref(false)
 
-// Load saved checkout information on mount
-onMounted(() => {
-  const savedInfo = loadSavedCheckoutInfo()
-  if (savedInfo && hasSavedInfo()) {
-    customerData.value = {
-      firstName: savedInfo.firstName || '',
-      lastName: savedInfo.lastName || '',
-      email: savedInfo.email || '',
-      country: savedInfo.country || '',
-      newsletter: savedInfo.newsletter || false,
-      saveInfo: savedInfo.saveInfo || true
+// Function to prefill customer data
+const prefillCustomerData = async () => {
+  console.log('Attempting to prefill customer data...')
+  console.log('Auth state:', { 
+    isAuthenticated: auth.isAuthenticated.value, 
+    hasUser: !!auth.user.value,
+    hasAuthUser: !!auth.authUser.value 
+  })
+  
+  // Always detect country from IP, even for unauthenticated users
+  let detectedCountry = ''
+  try {
+    const countryResponse = await $fetch('/api/geolocation/country')
+    if (countryResponse.success && countryResponse.country) {
+      detectedCountry = countryResponse.country
+      console.log('Detected country from IP:', detectedCountry)
     }
-    isUsingStoredInfo.value = true
-    console.log('Loaded saved checkout information')
+  } catch (error) {
+    console.error('Error detecting country:', error)
   }
+  
+  if (!auth.isAuthenticated.value) {
+    console.log('User not authenticated, only prefilling country')
+    // Still prefill country for unauthenticated users
+    if (detectedCountry && !customerData.value.country) {
+      await nextTick()
+      customerData.value = {
+        ...customerData.value,
+        country: detectedCountry
+      }
+      console.log('Country prefilled for guest user:', detectedCountry)
+    }
+    return
+  }
+
+  // Always ensure we have the latest user profile
+  try {
+    await auth.fetchUserProfile()
+  } catch (error) {
+    console.error('Error fetching user profile:', error)
+  }
+  
+  // Get the user email from either profile or Supabase user
+  const userEmail = auth.authUser.value?.email || auth.user.value?.email || ''
+  
+  const prefillData = getCheckoutPrefillData()
+  console.log('Prefill data:', prefillData)
+  console.log('Auth user:', auth.authUser.value)
+  console.log('Supabase user email:', auth.user.value?.email)
+  console.log('Final email to use:', userEmail)
+  console.log('Detected country:', detectedCountry)
+  
+  // Only prefill if we don't already have data or if the email is empty
+  if (!customerData.value.email || customerData.value.email !== userEmail) {
+    // Create new object to avoid reactivity issues
+    const newData = {
+      firstName: prefillData.firstName || customerData.value.firstName,
+      lastName: prefillData.lastName || customerData.value.lastName,
+      email: userEmail, // Always use the user's email
+      country: prefillData.country || detectedCountry || customerData.value.country,
+      newsletter: customerData.value.newsletter,
+      saveInfo: customerData.value.saveInfo
+    }
+    
+    // Update in nextTick to avoid recursive updates
+    await nextTick()
+    customerData.value = newData
+    
+    console.log('Customer data updated:', customerData.value)
+    
+    // Set using stored info flag if we have complete profile data
+    isUsingStoredInfo.value = hasCompleteProfile.value
+  } else if (detectedCountry && !customerData.value.country) {
+    // Just update country if other data is already filled
+    await nextTick()
+    customerData.value = {
+      ...customerData.value,
+      country: detectedCountry
+    }
+    console.log('Country updated for existing user data:', detectedCountry)
+  }
+}
+
+// Load user profile information on mount
+onMounted(async () => {
+  console.log('Checkout page mounted')
+  // Wait for auth to initialize
+  await auth.init()
+  await prefillCustomerData()
 })
+
+// Use flags to prevent recursive updates
+const isUpdatingCustomerData = ref(false)
+const lastPrefillTime = ref(0)
+
+// Debounced prefill function to prevent rapid successive calls
+const debouncedPrefill = async () => {
+  const now = Date.now()
+  if (now - lastPrefillTime.value < 500) { // Debounce for 500ms
+    return
+  }
+  
+  lastPrefillTime.value = now
+  isUpdatingCustomerData.value = true
+  
+  try {
+    await prefillCustomerData()
+  } finally {
+    isUpdatingCustomerData.value = false
+  }
+}
+
+// Watch for auth state changes (but not customerData changes to avoid loops)
+watch(() => auth.isAuthenticated.value, async (isAuth, wasAuth) => {
+  if (isUpdatingCustomerData.value) return
+  
+  console.log('Auth state changed:', { wasAuth, isAuth })
+  
+  // Only run when becoming authenticated
+  if (isAuth && !wasAuth) {
+    console.log('User logged in, prefilling data')
+    await debouncedPrefill()
+  }
+}, { immediate: false })
+
+// Watch for user data becoming available (when navigating while logged in)
+watch(() => auth.user.value, async (newUser) => {
+  if (isUpdatingCustomerData.value) return
+  
+  // Only prefill if we have a user but no email yet
+  if (newUser && auth.isAuthenticated.value && !customerData.value.email) {
+    console.log('User data available, prefilling email')
+    await debouncedPrefill()
+  }
+}, { immediate: false })
 
 // Order processing state
 const isProcessingOrder = ref(false)
@@ -163,12 +283,33 @@ const handleCompleteOrder = async () => {
 
     console.log('Processing order:', orderData)
 
-    // TODO: Implement actual payment processing
-    await new Promise(resolve => setTimeout(resolve, 2000)) // Simulate processing
+    // Simulate payment processing with proper validation
+    if (paymentData.value.method === 'card') {
+      // Simulate Stripe card validation
+      console.log('Validating card details...')
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      
+      // Simulate successful payment
+      console.log('Payment processed successfully')
+    } else {
+      // Other payment methods
+      console.log(`Processing ${paymentData.value.method} payment...`)
+      await new Promise(resolve => setTimeout(resolve, 1000))
+    }
     
-    // Save checkout information if user opted in (excluding card details)
-    if (customerData.value) {
-      saveCheckoutInfo(customerData.value)
+    // Save user information to database if user is authenticated and opted in
+    if (auth.isAuthenticated.value && customerData.value.saveInfo) {
+      try {
+        await updateProfileFromCheckout({
+          firstName: customerData.value.firstName,
+          lastName: customerData.value.lastName,
+          country: customerData.value.country
+        })
+        console.log('User profile updated with checkout information')
+      } catch (error) {
+        console.error('Failed to update user profile:', error)
+        // Don't fail the order if profile update fails
+      }
     }
     
     // Clear cart and redirect to success page
