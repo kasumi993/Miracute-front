@@ -313,7 +313,7 @@
       <ProductGrid 
         :products="products"
         :is-loading="isLoading || isInitialLoad"
-        :columns="{ sm: 2, md: 2, lg: 3, xl: 4, '2xl': 5 }"
+        :columns="{ sm: 2, md: 4, lg: 4, xl: 4, '2xl': 5 }"
         :gap="2"
         :skeleton-count="20"
         :empty-title="emptyTitle"
@@ -551,7 +551,7 @@ onMounted(async () => {
   await fetchCategories()
   
   // Handle URL search params
-  const urlSearch = route.query.q
+  const urlSearch = route.query.search || route.query.q
   if (urlSearch) {
     searchQuery.value = urlSearch
   }
@@ -577,6 +577,15 @@ onUnmounted(() => {
   // Remove click outside listener
   document.removeEventListener('click', handleClickOutside)
 })
+
+// Watch route changes to handle direct URL navigation
+watch(() => route.query, (newQuery) => {
+  const newSearch = newQuery.search || newQuery.q
+  if (newSearch !== searchQuery.value) {
+    searchQuery.value = newSearch || ''
+    searchProducts()
+  }
+}, { immediate: true })
 
 // Helper function for debouncing
 function debounce(func, wait) {

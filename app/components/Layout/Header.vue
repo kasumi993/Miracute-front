@@ -13,7 +13,7 @@
 
           <!-- Search Bar (Center) -->
           <div class="hidden md:flex flex-1 max-w-2xl mx-8">
-            <HeaderSearchBar v-model="searchQuery" @search="handleSearch" />
+            <HeaderSearchBar v-model="searchQuery" />
           </div>
 
           <!-- Right Side: Cart, Track Order, Auth -->
@@ -79,12 +79,6 @@ const showMobileMenu = ref(false)
 const showMobileSearch = ref(false)
 
 // Methods
-const handleSearch = (query) => {
-  if (query.trim()) {
-    navigateTo(`/search?q=${encodeURIComponent(query)}`)
-    showMobileSearch.value = false
-  }
-}
 
 const toggleMobileMenu = () => {
   showMobileMenu.value = !showMobileMenu.value
