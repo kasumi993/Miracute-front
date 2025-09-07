@@ -1,10 +1,10 @@
-import { serverSupabaseServiceRole } from '#supabase/server'
+import { validateAdminAccess } from '../../utils/adminAuth'
 import type { Database } from '~/types/database'
 
 export default defineEventHandler(async (event) => {
   try {
     const config = useRuntimeConfig()
-    const supabase = serverSupabaseServiceRole<Database>(event)
+    const { supabase } = await validateAdminAccess(event)
     
     // Get the most recent paid order for testing
     const { data: orders, error } = await supabase

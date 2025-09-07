@@ -1,8 +1,8 @@
-import { serverSupabaseServiceRole } from '#supabase/server'
-import type { Database } from '~/app/types/database'
+import { validateAdminAccess } from '../../../utils/adminAuth'
+import type { Database } from '~/types/database'
 
 export default defineEventHandler(async (event) => {
-  const supabase = serverSupabaseServiceRole<Database>(event)
+  const { supabase } = await validateAdminAccess(event)
   const query = getQuery(event)
   
   // Get pagination parameters

@@ -1,8 +1,8 @@
-import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
+import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
 import type { Database } from '~/types/database'
 
 export default defineEventHandler(async (event) => {
-  const supabase = await serverSupabaseClient<Database>(event)
+  const supabase = await serverSupabaseServiceRole<Database>(event)
   const user = await serverSupabaseUser(event)
 
   if (!user) {
@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
     // Get total orders count and amount
     const { data: orderStats, error: orderError } = await supabase
       .from('orders')
-      .select('total_amount, status')
+      .select('id, total_amount, status')
       .eq('user_id', user.id)
 
     if (orderError) throw orderError

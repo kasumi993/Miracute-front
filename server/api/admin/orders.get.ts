@@ -1,30 +1,8 @@
-import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
-import type { Database } from '~/types/database'
+import { validateAdminAccess } from '../../utils/adminAuth'
 
 export default defineEventHandler(async (event) => {
-  const supabase = await serverSupabaseClient<Database>(event)
-  const user = await serverSupabaseUser(event)
-
-  if (!user) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Authentication required'
-    })
-  }
-
-  // Check admin role
-  const { data: userData, error: userError } = await supabase
-    .from('users')
-    .select('role')
-    .eq('id', user.id)
-    .single()
-
-  if (userError || userData?.role !== 'admin') {
-    throw createError({
-      statusCode: 403,
-      statusMessage: 'Admin access required'
-    })
-  }
+  // Validate admin access and get authenticated supabase client
+  const { supabase } = await validateAdminAccess(event)
 
   const query = getQuery(event)
   const limit = parseInt(query.limit as string) || 20

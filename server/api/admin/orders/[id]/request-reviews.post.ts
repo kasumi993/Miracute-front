@@ -1,9 +1,9 @@
-import { serverSupabaseServiceRole } from '#supabase/server'
-import type { Database } from '~/app/types/database'
+import { validateAdminAccess } from '../../../../utils/adminAuth'
+import type { Database } from '~/types/database'
 import * as brevo from '@getbrevo/brevo'
 
 export default defineEventHandler(async (event) => {
-  const supabase = serverSupabaseServiceRole<Database>(event)
+  const { supabase } = await validateAdminAccess(event)
   const orderId = getRouterParam(event, 'id')
   
   if (!orderId) {
