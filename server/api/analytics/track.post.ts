@@ -1,4 +1,4 @@
-import { createAnalyticsTracker } from '~/server/utils/analyticsTracker'
+import { createAnalyticsTracker } from '../../utils/analyticsTracker'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
     // Get session ID from cookies or generate new one
     let sessionId = getCookie(event, 'analytics_session')
     if (!sessionId) {
-      const { generateSessionId } = await import('~/server/utils/analyticsTracker')
+      const { generateSessionId } = await import('../../utils/analyticsTracker')
       sessionId = generateSessionId()
       setCookie(event, 'analytics_session', sessionId, {
         maxAge: 60 * 60 * 24 * 30, // 30 days

@@ -1,4 +1,4 @@
-import { createAnalyticsTracker, extractRequestData, generateSessionId } from '~/server/utils/analyticsTracker'
+import { createAnalyticsTracker, extractRequestData, generateSessionId } from '../utils/analyticsTracker'
 
 /**
  * Analytics middleware to track page views automatically
