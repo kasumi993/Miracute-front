@@ -10,7 +10,7 @@
   <!-- Dashboard Content -->
   <div v-else-if="hasAdminAccess">
           <!-- Quick Stats -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
               <div class="flex items-center space-x-3">
                 <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -55,6 +55,18 @@
                 <div>
                   <p class="text-2xl font-bold text-gray-900">{{ stats.totalProducts }}</p>
                   <p class="text-sm text-gray-600">Total Products</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+              <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+                  <Icon name="heroicons:eye" class="w-6 h-6 text-indigo-600" />
+                </div>
+                <div>
+                  <p class="text-2xl font-bold text-gray-900">{{ stats.storeViewsToday }}</p>
+                  <p class="text-sm text-gray-600">Store Views Today</p>
                 </div>
               </div>
             </div>
@@ -137,6 +149,98 @@
             </div>
           </div>
 
+          <!-- Business Metrics -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+              <div class="flex items-center space-x-3 mb-4">
+                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                  <Icon name="heroicons:banknotes" class="w-5 h-5 text-green-600" />
+                </div>
+                <h3 class="text-lg font-heading font-medium text-gray-900">Revenue Metrics</h3>
+              </div>
+              <div class="space-y-4">
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <span class="text-sm font-medium text-gray-600">Monthly Revenue</span>
+                  <span class="text-lg font-semibold text-green-600">${{ stats.monthlyRevenue }}</span>
+                </div>
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <span class="text-sm font-medium text-gray-600">Average Order Value</span>
+                  <span class="text-lg font-semibold text-blue-600">${{ stats.averageOrderValue }}</span>
+                </div>
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <span class="text-sm font-medium text-gray-600">Completion Rate</span>
+                  <div class="flex items-center space-x-2">
+                    <span class="text-lg font-semibold text-gray-900">{{ stats.orderCompletionRate }}%</span>
+                    <div class="w-12 bg-gray-200 rounded-full h-2">
+                      <div class="bg-green-500 h-2 rounded-full" :style="`width: ${stats.orderCompletionRate}%`"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+              <div class="flex items-center space-x-3 mb-4">
+                <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                  <Icon name="heroicons:chart-bar-square" class="w-5 h-5 text-indigo-600" />
+                </div>
+                <h3 class="text-lg font-heading font-medium text-gray-900">Store Performance</h3>
+              </div>
+              <div class="space-y-4">
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <span class="text-sm font-medium text-gray-600">Views Today</span>
+                  <span class="text-lg font-semibold text-indigo-600">{{ stats.storeViewsToday }}</span>
+                </div>
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <span class="text-sm font-medium text-gray-600">Pending Orders</span>
+                  <div class="flex items-center space-x-2">
+                    <span class="text-lg font-semibold text-yellow-600">{{ stats.pendingOrders }}</span>
+                    <span v-if="stats.pendingOrders > 0" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                      Needs attention
+                    </span>
+                  </div>
+                </div>
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <span class="text-sm font-medium text-gray-600">Active Products</span>
+                  <span class="text-lg font-semibold text-gray-900">{{ stats.totalProducts }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+              <div class="flex items-center space-x-3 mb-4">
+                <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <Icon name="heroicons:arrow-trending-up" class="w-5 h-5 text-purple-600" />
+                </div>
+                <h3 class="text-lg font-heading font-medium text-gray-900">Growth Insights</h3>
+              </div>
+              <div class="space-y-4">
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <span class="text-sm font-medium text-gray-600">Total Customers</span>
+                  <span class="text-lg font-semibold text-purple-600">{{ stats.totalCustomers }}</span>
+                </div>
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <span class="text-sm font-medium text-gray-600">Conversion Rate</span>
+                  <div class="flex items-center space-x-2">
+                    <span class="text-lg font-semibold text-gray-900">
+                      {{ stats.storeViewsToday > 0 ? ((stats.totalOrders / stats.storeViewsToday * 100) || 0).toFixed(1) : 0 }}%
+                    </span>
+                    <div class="w-12 bg-gray-200 rounded-full h-2">
+                      <div class="bg-purple-500 h-2 rounded-full" 
+                           :style="`width: ${stats.storeViewsToday > 0 ? Math.min(((stats.totalOrders / stats.storeViewsToday * 100) || 0), 100) : 0}%`"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <span class="text-sm font-medium text-gray-600">Revenue per Customer</span>
+                  <span class="text-lg font-semibold text-green-600">
+                    ${{ stats.totalCustomers > 0 ? (parseFloat(stats.totalRevenue) / stats.totalCustomers).toFixed(2) : '0.00' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Quick Actions -->
           <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mt-8">
             <h2 class="text-xl font-heading font-medium text-gray-900 mb-6">Quick Actions</h2>
@@ -190,7 +294,11 @@ const stats = ref({
   totalOrders: 0,
   totalCustomers: 0,
   totalProducts: 0,
-  pendingOrders: 0
+  storeViewsToday: 0,
+  pendingOrders: 0,
+  monthlyRevenue: '0.00',
+  averageOrderValue: '0.00',
+  orderCompletionRate: 0
 })
 
 const recentOrders = ref([])

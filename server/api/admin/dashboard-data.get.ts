@@ -6,20 +6,30 @@ export default defineEventHandler(async (event) => {
   const { supabase } = await validateAdminAccess(event)
 
   try {
-    // Use the new business metrics calculator
+    // Create business metrics calculator
     const metricsCalculator = createBusinessMetricsCalculator(supabase)
-    const stats = await metricsCalculator.getDashboardStats()
+    
+    // Get dashboard data in parallel
+    const [stats, recentOrders, popularProducts] = await Promise.all([
+      metricsCalculator.getDashboardStats(),
+      metricsCalculator.getRecentOrders(5),
+      metricsCalculator.getPopularProducts(5)
+    ])
 
     return {
       success: true,
-      data: stats
+      data: {
+        stats,
+        recentOrders,
+        popularProducts
+      }
     }
 
   } catch (error: any) {
-    console.error('Error fetching admin stats:', error)
+    console.error('Error fetching dashboard data:', error)
     throw createError({
       statusCode: 500,
-      statusMessage: 'Failed to fetch admin statistics'
+      statusMessage: 'Failed to fetch dashboard data'
     })
   }
 })
