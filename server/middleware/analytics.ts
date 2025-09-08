@@ -1,4 +1,6 @@
-import { createAnalyticsTracker, extractRequestData, generateSessionId } from '../utils/analyticsTracker'
+import { serverSupabaseServiceRole } from '#supabase/server'
+import { generateSessionId } from '../utils/analyticsTracker'
+import type { Database } from '~/types/database'
 
 /**
  * Analytics middleware to track page views automatically
@@ -32,14 +34,8 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    // Get Supabase client for service role (bypass RLS)
-    const supabase = serverSupabaseServiceRole(event)
-    
-    // Create analytics tracker
-    const tracker = createAnalyticsTracker(supabase)
-    
-    // Extract request data
-    const requestData = extractRequestData(event.node.req)
+    // Get Supabase service role client to bypass RLS for analytics
+    const supabase = serverSupabaseServiceRole<Database>(event)
     
     // Get session ID from cookies or generate new one
     let sessionId = getCookie(event, 'analytics_session')
@@ -53,22 +49,30 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Get user ID if authenticated
-    const { data: { session } } = await supabase.auth.getSession()
-    const userId = session?.user?.id || undefined
+    // Get visitor ID (use session for visitor tracking)
+    const visitorId = sessionId
 
-    // Track the page view (async, don't wait for completion)
-    tracker.trackPageView({
-      path,
-      user_id: userId,
-      session_id: sessionId,
-      user_agent: requestData.user_agent,
-      referrer: requestData.referrer,
-      ip_address: requestData.ip_address
-    }).catch(error => {
-      // Log error but don't interrupt the request
+    // Extract request data
+    const userAgent = event.node.req.headers?.['user-agent'] || ''
+    const referrer = event.node.req.headers?.referer || event.node.req.headers?.referrer || ''
+
+    // Track the page view directly to analytics_events table
+    const { error } = await supabase
+      .from('analytics_events')
+      .insert({
+        event_type: 'page_view',
+        page_path: path,
+        page_title: path, // We'll extract real titles on the client side if needed
+        visitor_id: visitorId,
+        session_id: sessionId,
+        user_agent: userAgent,
+        referrer: referrer,
+        created_at: new Date().toISOString()
+      })
+
+    if (error) {
       console.error('Analytics tracking failed:', error)
-    })
+    }
 
   } catch (error) {
     // Log error but don't interrupt the request

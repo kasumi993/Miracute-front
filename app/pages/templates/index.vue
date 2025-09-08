@@ -340,15 +340,18 @@
 </template>
 
 <script setup>
-// SEO
-useSeoMeta({
-  title: 'Website Templates | Professional Designs | Miracute',
-  description: 'Browse our collection of beautiful, professional website templates. Perfect for businesses, weddings, portfolios, and more. Easy to customize, mobile-responsive.',
-  keywords: 'website templates, web design, business templates, wedding websites, portfolio templates, canva templates, professional design',
-  ogTitle: 'Website Templates | Professional Designs | Miracute',
-  ogDescription: 'Browse our collection of beautiful, professional website templates. Perfect for businesses, weddings, portfolios, and more.',
-  ogImage: '/images/og-templates.jpg'
-})
+// SEO optimization
+const { setTemplatesSEO } = useSEO()
+
+// Update SEO based on filters
+watch([searchQuery, () => filters.category, totalProducts], () => {
+  const category = categories.value.find(cat => cat.id === filters.category)
+  setTemplatesSEO({
+    category: category?.name,
+    search: searchQuery.value,
+    total: totalProducts.value
+  })
+}, { immediate: true })
 
 // Composables
 const { 

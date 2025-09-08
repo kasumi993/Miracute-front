@@ -21,12 +21,19 @@
 </template>
 
 <script setup>
-// SEO Meta Tags
+import { generateWebsiteStructuredData, generateOrganizationStructuredData } from '~/utils/seo'
+
+// SEO optimization
+const { setHomepageSEO } = useSEO()
+setHomepageSEO()
+
+// Add structured data for better SEO (using head meta)
 useHead({
-  title: 'Beautiful Website Templates | Miracute - Make Someone Smile Every Day',
-  meta: [
-    { name: 'description', content: 'Professional website templates for businesses, weddings, therapists, and creatives. Easy to customize, mobile-responsive designs. No coding required. Download instantly.' },
-    { name: 'keywords', content: 'website templates, canva website template, wedding website, business template, therapist website, portfolio template, professional design' }
+  script: [
+    {
+      type: 'application/ld+json',
+      innerHTML: () => JSON.stringify(generateWebsiteStructuredData())
+    }
   ]
 })
 

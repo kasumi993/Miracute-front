@@ -4,16 +4,18 @@ export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
     
-    // Validate required fields
-    if (!body.event) {
+    // Support both 'event' and 'event_type' for backwards compatibility
+    const eventName = body.event || body.event_type
+    
+    if (!eventName) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'Event name is required'
+        statusMessage: 'Event name is required (use "event" or "event_type" field)'
       })
     }
 
-    // Get Supabase client for service role (bypass RLS)
-    const supabase = serverSupabaseServiceRole(event)
+    // Get Supabase client
+    const supabase = serverSupabaseClient(event)
     
     // Create analytics tracker
     const tracker = createAnalyticsTracker(supabase)
@@ -36,19 +38,23 @@ export default defineEventHandler(async (event) => {
     const { error } = await supabase
       .from('analytics_events')
       .insert({
-        event_name: body.event,
-        properties: body.properties || {},
-        user_id: body.user_id || null,
+        event_type: eventName,
+        page_path: body.page_path || null,
+        page_title: body.page_title || null,
+        visitor_id: body.visitor_id || sessionId,
         session_id: sessionId,
+        user_agent: body.user_agent || null,
+        referrer: body.referrer || null,
+        product_id: body.product_id || null,
         created_at: body.timestamp || new Date().toISOString()
       })
 
     if (error) {
       // If table doesn't exist yet, log the event to console for development
       console.log('Analytics event (table not ready):', {
-        event: body.event,
-        properties: body.properties,
-        user_id: body.user_id,
+        event_type: eventName,
+        page_path: body.page_path,
+        visitor_id: body.visitor_id || sessionId,
         session_id: sessionId
       })
     }
