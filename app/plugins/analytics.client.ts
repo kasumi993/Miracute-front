@@ -1,17 +1,20 @@
 export default defineNuxtPlugin(() => {
-  const { setupRouteTracking, trackPageView } = useAnalytics()
-  
-  // Setup automatic route tracking
-  setupRouteTracking()
-  
+  const { trackPageView } = useAnalytics()
+  const router = useRouter()
+
   // Track initial page view
-  trackPageView()
-  
-  // Optional: Setup scroll depth and time tracking for key pages
-  const route = useRoute()
-  if (route.path.includes('/templates/') || route.path === '/templates') {
-    const { trackScrollDepth, trackTimeOnPage } = useAnalytics()
-    trackScrollDepth()
-    trackTimeOnPage()
+  if (process.client) {
+    nextTick(() => {
+      trackPageView()
+    })
   }
+
+  // Track page views on route changes
+  router.afterEach((to, from) => {
+    if (process.client && to.path !== from.path) {
+      nextTick(() => {
+        trackPageView()
+      })
+    }
+  })
 })
