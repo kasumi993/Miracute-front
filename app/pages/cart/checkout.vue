@@ -59,6 +59,8 @@ definePageMeta({
 
 // Composables
 const cartCounter = useCartCounter()
+const cartStore = useCartStore() // Add Pinia store
+const orderStore = useOrderStore() // Add order store
 const { getCheckoutPrefillData, updateProfileFromCheckout, hasCompleteProfile } = useUserProfile()
 const auth = useAuth()
 const toast = useToast()
@@ -273,29 +275,43 @@ const handleCompleteOrder = async () => {
   isProcessingOrder.value = true
 
   try {
-    // Prepare order data
-    const orderData = {
-      customer: customerData.value,
-      payment: paymentData.value,
-      items: cartCounter.cartItems.value,
-      total: cartCounter.cartTotal.value
-    }
+    // Create order using the order store
+    const order = await orderStore.createOrder(cartStore.items, {
+      email: customerData.value.email,
+      firstName: customerData.value.firstName,
+      lastName: customerData.value.lastName
+    })
 
-    console.log('Processing order:', orderData)
+    console.log('Created order:', order)
 
     // Simulate payment processing with proper validation
+    let paymentIntentId: string | undefined
     if (paymentData.value.method === 'card') {
       // Simulate Stripe card validation
       console.log('Validating card details...')
       await new Promise(resolve => setTimeout(resolve, 1500))
       
       // Simulate successful payment
-      console.log('Payment processed successfully')
+      paymentIntentId = `pi_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      console.log('Payment processed successfully with ID:', paymentIntentId)
     } else {
       // Other payment methods
       console.log(`Processing ${paymentData.value.method} payment...`)
       await new Promise(resolve => setTimeout(resolve, 1000))
+      paymentIntentId = `${paymentData.value.method}_${Date.now()}`
     }
+    
+    // Process the payment and save to database
+    const paymentResult = await orderStore.processPayment(order, {
+      paymentIntentId,
+      method: paymentData.value.method
+    })
+
+    if (!paymentResult.success) {
+      throw new Error(paymentResult.error || 'Payment processing failed')
+    }
+
+    console.log('Order saved to database successfully!')
     
     // Save user information to database if user is authenticated and opted in
     if (auth.isAuthenticated.value && customerData.value.saveInfo) {
@@ -312,10 +328,12 @@ const handleCompleteOrder = async () => {
       }
     }
     
-    // Clear cart and redirect to success page
+    // Clear cart and redirect to success page with order ID
     cartCounter.clearCart()
+    cartStore.clearCart() // Clear Pinia store too
+    
     console.log('Order completed successfully!')
-    await navigateTo('/order-success')
+    await navigateTo(`/order-success?order=${order.id}`)
     
   } catch (error) {
     console.error('Order processing error:', error)

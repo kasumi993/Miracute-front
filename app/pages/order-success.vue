@@ -267,7 +267,10 @@ const orderData = ref<Order | null>(null)
 
 // Get route params for order validation (optional)
 const route = useRoute()
-const orderId = route.query.order_id as string
+const orderId = route.query.order_id as string || route.query.order as string
+
+// Stores
+const orderStore = useOrderStore()
 
 // Auth check
 const user = useSupabaseUser()

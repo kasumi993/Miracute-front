@@ -1,5 +1,7 @@
+import { serverSupabaseServiceRole } from '#supabase/server'
+
 export default defineEventHandler(async (event) => {
-  const supabase = serverSupabaseClient(event)
+  const supabase = serverSupabaseServiceRole(event)
   const siteUrl = 'https://miracute.com'
 
   try {
@@ -25,6 +27,7 @@ export default defineEventHandler(async (event) => {
       { url: 'about', priority: '0.7', changefreq: 'monthly' },
       { url: 'contact', priority: '0.6', changefreq: 'monthly' },
       { url: 'help', priority: '0.6', changefreq: 'monthly' },
+      { url: 'licenses', priority: '0.6', changefreq: 'yearly' },
       { url: 'privacy', priority: '0.5', changefreq: 'yearly' },
       { url: 'terms', priority: '0.5', changefreq: 'yearly' },
       { url: 'refunds', priority: '0.5', changefreq: 'yearly' },
@@ -57,16 +60,13 @@ export default defineEventHandler(async (event) => {
 </urlset>`
 
     // Set XML content type
-    setHeader(event, 'content-type', 'application/xml')
-    setHeader(event, 'cache-control', 'public, max-age=3600') // Cache for 1 hour
+    event.node.res.setHeader('content-type', 'application/xml')
+    event.node.res.setHeader('cache-control', 'public, max-age=3600') // Cache for 1 hour
 
     return sitemap
 
   } catch (error) {
     console.error('Error generating sitemap:', error)
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Failed to generate sitemap'
-    })
+    throw new Error('Failed to generate sitemap')
   }
 })
