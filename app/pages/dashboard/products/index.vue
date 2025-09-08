@@ -5,16 +5,11 @@
   <!-- Admin Content -->
   <div v-else-if="hasAdminAccess">
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8 space-y-4 sm:space-y-0">
-      <div>
-        <h1 class="text-2xl sm:text-3xl font-heading font-medium text-gray-900">Products</h1>
-        <p class="text-gray-600 mt-2 text-sm sm:text-base">Manage your digital templates and downloads</p>
+    <div class="mb-4 sm:mb-6 lg:mb-8">
+      <div class="min-w-0">
+        <h1 class="text-xl sm:text-2xl lg:text-3xl font-heading font-medium text-gray-900">Products</h1>
+        <p class="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Manage your digital templates and downloads</p>
       </div>
-      
-      <NuxtLink to="/dashboard/products/create" class="btn-primary w-full sm:w-auto justify-center">
-        <Icon name="heroicons:plus" class="w-5 h-5 mr-2" />
-        <span class="sm:inline">Add Template</span>
-      </NuxtLink>
     </div>
 
     <!-- Search and Filters -->
@@ -41,8 +36,8 @@
       @clear-all="() => { clearFilters(); clearSearch(); }"
     />
 
-    <!-- Products Grid -->
-    <AdminProductGrid
+    <!-- Products View (Grid on desktop, List on mobile) -->
+    <AdminProductView
       v-else
       :products="products"
       :categories="categories"
@@ -74,6 +69,15 @@
       @cancel="cancelDelete"
       @close="cancelDelete"
     />
+
+    <!-- Floating Action Button -->
+    <NuxtLink 
+      to="/dashboard/products/create" 
+      class="fixed bottom-6 left-6 z-50 w-14 h-14 bg-brand-brown hover:bg-brand-brown/90 text-white rounded-full shadow-lg hover:shadow-xl flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95"
+      title="Add Template"
+    >
+      <Icon name="heroicons:plus" class="w-6 h-6" />
+    </NuxtLink>
   </div>
 </template>
 
@@ -93,8 +97,7 @@ useSeoMeta({
   robots: 'noindex, nofollow'
 })
 
-// Composables
-const supabase = useSupabaseClient()
+// Composables are imported via auto-imports
 
 // State
 const isLoading = ref(false)

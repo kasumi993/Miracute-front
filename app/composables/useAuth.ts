@@ -33,7 +33,7 @@ export const useAuth = () => {
     return user.value?.email?.charAt(0).toUpperCase() || 'U'
   })
 
-  // Fetch user profile data
+  // Fetch user profile data using API (service role)
   const fetchUserProfile = async () => {
     if (!user.value) {
       authUser.value = null
@@ -41,23 +41,16 @@ export const useAuth = () => {
     }
 
     try {
-      const { data, error: fetchError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', user.value.id)
-        .single()
+      // Always use API endpoint with service role for user profile operations
+      const response = await $fetch('/api/auth/user')
 
-      if (fetchError && fetchError.code !== 'PGRST116') {
-        throw fetchError
-      }
-
-      // If user doesn't exist in users table, create them
-      if (!data) {
-        await createUserProfile()
+      if (response.user) {
+        authUser.value = response.user
       } else {
-        authUser.value = data
+        // If user doesn't exist in users table, create them
+        await createUserProfile()
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error fetching user profile:', err)
       error.value = 'Failed to load user profile'
     }
@@ -99,8 +92,7 @@ export const useAuth = () => {
         if (response.user) {
           // User profile was created successfully
           authUser.value = response.user
-          // Fetch the profile to ensure we have the latest data
-          await fetchUserProfile()
+          console.log('User profile created and set:', response.user)
         } else {
           // User profile creation was skipped (likely due to unverified email)
           console.log('User profile creation skipped:', response.message)
@@ -183,7 +175,7 @@ export const useAuth = () => {
   }
 
 
-  // Update profile
+  // Update profile using API (service role)
   const updateProfile = async (updates: Partial<AuthUser>) => {
     if (!user.value) throw new Error('Not authenticated')
 
@@ -191,17 +183,17 @@ export const useAuth = () => {
     error.value = null
 
     try {
-      const { data, error: updateError } = await supabase
-        .from('users')
-        .update(updates)
-        .eq('id', user.value.id)
-        .select()
-        .single()
+      const response = await $fetch('/api/auth/user', {
+        method: 'PATCH',
+        body: updates
+      })
 
-      if (updateError) throw updateError
-
-      authUser.value = data
-      return data
+      if (response.user) {
+        authUser.value = response.user
+        return response.user
+      } else {
+        throw new Error('Failed to update profile')
+      }
     } catch (err: any) {
       error.value = err.message || 'Failed to update profile'
       throw err

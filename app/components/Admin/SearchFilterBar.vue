@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6">
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-4 sm:mb-6">
     <div class="space-y-4 lg:space-y-0 lg:flex lg:items-center lg:space-x-4">
       <!-- Search Bar -->
       <div class="flex-1">
@@ -9,7 +9,7 @@
             v-model="searchQuery"
             @input="onSearch"
             type="text"
-            class="form-input pl-10"
+            class="form-input pl-10 text-base leading-6 h-12 sm:h-10 sm:text-base"
             placeholder="Search templates..."
           />
           <button
@@ -23,7 +23,7 @@
       </div>
 
       <!-- Filters -->
-      <div class="flex flex-wrap gap-2 lg:gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-wrap gap-3">
         <!-- Category Filter -->
         <UISelect
           v-model="selectedCategory"
@@ -32,7 +32,7 @@
           :options="categoryOptions"
           option-value="id"
           option-label="name"
-          class="min-w-[140px]"
+          class="min-w-0 sm:min-w-[140px] h-12 sm:h-10"
         />
 
         <!-- Status Filter -->
@@ -41,7 +41,7 @@
           @update:model-value="onFilterChange"
           placeholder="All Status"
           :options="statusOptions"
-          class="min-w-[120px]"
+          class="min-w-0 sm:min-w-[120px] h-12 sm:h-10"
         />
 
         <!-- Template Type Filter -->
@@ -50,14 +50,14 @@
           @update:model-value="onFilterChange"
           placeholder="All Types"
           :options="templateTypeOptions"
-          class="min-w-[120px]"
+          class="min-w-0 sm:min-w-[120px] h-12 sm:h-10"
         />
 
         <!-- Clear Filters -->
         <button
           v-if="hasActiveFilters"
           @click="clearAllFilters"
-          class="btn-outline text-sm px-3 py-1.5"
+          class="btn-outline text-sm px-4 py-3 sm:px-3 sm:py-1.5 h-12 sm:h-auto"
         >
           Clear Filters
         </button>

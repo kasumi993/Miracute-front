@@ -33,9 +33,85 @@
           </NuxtLink>
         </div>
 
-        <!-- Categories Table -->
-        <div v-else class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
+        <!-- Categories Responsive View -->
+        <div v-else>
+          <!-- Mobile List View -->
+          <div class="lg:hidden space-y-3">
+            <div 
+              v-for="category in categories" 
+              :key="category.id" 
+              class="bg-white rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all duration-200 cursor-pointer"
+              @click="editCategory(category)"
+            >
+              <div class="p-4">
+                <div class="flex items-start justify-between mb-3">
+                  <div class="flex-1 min-w-0 pr-3">
+                    <h3 class="text-base font-medium text-gray-900 truncate">
+                      {{ category.name }}
+                    </h3>
+                    <p class="text-sm text-gray-500 mt-1">
+                      /{{ category.slug }}
+                    </p>
+                  </div>
+                  
+                  <span :class="[
+                    'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium flex-shrink-0',
+                    category.is_active 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-red-100 text-red-800'
+                  ]">
+                    {{ category.is_active ? 'Active' : 'Inactive' }}
+                  </span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 text-sm mb-3">
+                  <div>
+                    <span class="text-gray-500">Products:</span>
+                    <span class="ml-1 font-medium text-gray-900">{{ category.product_count || 0 }}</span>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-gray-500">Order:</span>
+                    <span class="ml-1 font-medium text-gray-900">{{ category.sort_order || 0 }}</span>
+                  </div>
+                </div>
+
+                <div v-if="category.description" class="mb-3">
+                  <p class="text-sm text-gray-600 line-clamp-2">{{ category.description }}</p>
+                </div>
+
+                <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+                  <span class="text-xs text-gray-500">
+                    {{ formatDate(category.created_at) }}
+                  </span>
+                  
+                  <div class="flex items-center space-x-2" @click.stop>
+                    <button
+                      @click="editCategory(category)"
+                      class="text-gray-400 hover:text-gray-600 p-1"
+                    >
+                      <Icon name="heroicons:pencil" class="w-4 h-4" />
+                    </button>
+                    <button
+                      @click="toggleCategoryStatus(category)"
+                      class="text-gray-400 hover:text-gray-600 p-1"
+                    >
+                      <Icon :name="category.is_active ? 'heroicons:eye-slash' : 'heroicons:eye'" class="w-4 h-4" />
+                    </button>
+                    <button
+                      @click="deleteCategory(category)"
+                      class="text-red-400 hover:text-red-600 p-1"
+                    >
+                      <Icon name="heroicons:trash" class="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Desktop Table View -->
+          <div class="hidden lg:block overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
               <tr>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -125,7 +201,8 @@
                 </td>
               </tr>
             </tbody>
-          </table>
+            </table>
+          </div>
         </div>
       </div>
   </div>
@@ -192,6 +269,10 @@ const toggleCategoryStatus = async (category) => {
   }
 }
 
+const editCategory = (category) => {
+  navigateTo(`/dashboard/categories/edit/${category.id}`)
+}
+
 const deleteCategory = async (category) => {
   if (!confirm(`Are you sure you want to delete "${category.name}"? This action cannot be undone.`)) {
     return
@@ -215,3 +296,12 @@ onMounted(() => {
   loadCategories()
 })
 </script>
+
+<style scoped>
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+</style>
