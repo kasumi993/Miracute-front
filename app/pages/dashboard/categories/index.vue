@@ -5,15 +5,11 @@
   <!-- Admin Content -->
   <div v-else-if="hasAdminAccess">
     <!-- Header -->
-    <div class="flex items-center justify-between mb-8">
+    <div class="mb-8">
       <div>
         <h1 class="text-3xl font-heading font-medium text-gray-900">Categories</h1>
         <p class="text-gray-600 mt-2">Organize your templates into categories</p>
       </div>
-      <NuxtLink to="/dashboard/categories/create" class="btn-primary">
-        <Icon name="heroicons:plus" class="w-5 h-5 mr-2" />
-        Add Category
-      </NuxtLink>
     </div>
 
       <!-- Categories List -->
@@ -205,6 +201,15 @@
           </div>
         </div>
       </div>
+
+    <!-- Floating Action Button -->
+    <NuxtLink 
+      to="/dashboard/categories/create" 
+      class="fixed bottom-6 left-6 z-50 w-14 h-14 bg-brand-brown hover:bg-brand-brown/90 text-white rounded-full shadow-lg hover:shadow-xl flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95"
+      title="Add Category"
+    >
+      <Icon name="heroicons:plus" class="w-6 h-6" />
+    </NuxtLink>
   </div>
 </template>
 
