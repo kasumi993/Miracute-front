@@ -10,16 +10,25 @@ module.exports = {
   ],
   theme: {
     extend: {
-      // Brand Colors - Original Project Palette
+      // Brand Colors - Complete Palette
       colors: {
+        // Original brand colors
         'brand': {
           'pink': '#d7c6c8',      // Dusty pink
           'sage': '#bbcfca',      // Sage green
           'cream': '#cdd3d7',     // Light blue-gray
           'warm': '#e9d1be',      // Warm beige
-          'brown': '#955a3f'     // Rich brown
+          'brown': '#955a3f'      // Rich brown
         },
-        // Neutral palette based on original colors
+        // Actual Miracute brand colors
+        'miracute': {
+          'blue': '#C6CED7',      // Soft Blue
+          'mauve': '#C5A5AC',     // Dusty Mauve
+          'peach': '#E9CBB5',     // Peach Nude
+          'sage': '#A7C2BD',      // Sage Green
+          'clay': '#8C4B32'       // Warm Clay
+        },
+        // Original neutral palette
         'neutral': {
           50: '#f8f9fa',
           100: '#e9d1be',      // warm beige
@@ -51,19 +60,29 @@ module.exports = {
         '4xl': '2rem',
         '5xl': '2.5rem'
       },
-      // Custom shadows
+      // Custom shadows with brand colors
       boxShadow: {
         'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
         'medium': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
         'large': '0 25px 50px -12px rgba(0, 0, 0, 0.15)',
-        'glow': '0 0 20px rgba(187, 207, 202, 0.3)',
-        'glow-pink': '0 0 20px rgba(215, 198, 200, 0.4)'
+        'glow': '0 0 20px rgba(167, 194, 189, 0.3)',
+        'glow-sage': '0 0 20px rgba(167, 194, 189, 0.4)',
+        'glow-mauve': '0 0 20px rgba(197, 165, 172, 0.4)',
+        'glow-clay': '0 0 20px rgba(140, 75, 50, 0.3)',
+        'glow-peach': '0 0 20px rgba(233, 203, 181, 0.4)'
       },
-      // Custom gradients with original colors
+      // Custom gradients with both original and Miracute colors
       backgroundImage: {
+        // Original gradients
         'brand-gradient': 'linear-gradient(135deg, #cdd3d7 0%, #e9d1be 100%)',
         'hero-gradient': 'linear-gradient(135deg, #f8f9fa 0%, #cdd3d7 50%, #d7c6c8 100%)',
-        'cta-gradient': 'linear-gradient(135deg, #1f2937 0%, #374151 100%)'
+        'cta-gradient': 'linear-gradient(135deg, #1f2937 0%, #374151 100%)',
+        // Miracute brand gradients
+        'miracute-gradient': 'linear-gradient(135deg, #C6CED7 0%, #E9CBB5 100%)',
+        'miracute-hero': 'linear-gradient(135deg, #f8f9fa 0%, #C6CED7 50%, #C5A5AC 100%)',
+        'miracute-cta': 'linear-gradient(135deg, #8C4B32 0%, #6B4423 100%)',
+        'miracute-sage': 'linear-gradient(135deg, #A7C2BD 0%, #C6CED7 100%)',
+        'miracute-warm': 'linear-gradient(135deg, #E9CBB5 0%, #C5A5AC 100%)'
       },
       // Custom animations
       animation: {

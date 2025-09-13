@@ -340,19 +340,6 @@
 </template>
 
 <script setup>
-// SEO optimization
-const { setTemplatesSEO } = useSEO()
-
-// Update SEO based on filters
-watch([searchQuery, () => filters.category, totalProducts], () => {
-  const category = categories.value.find(cat => cat.id === filters.category)
-  setTemplatesSEO({
-    category: category?.name,
-    search: searchQuery.value,
-    total: totalProducts.value
-  })
-}, { immediate: true })
-
 // Composables
 const { 
   products, 
@@ -509,6 +496,9 @@ const loadMore = async () => {
   }
 }
 
+// SEO optimization
+const { setTemplatesSEO } = useSEO()
+
 // Watchers
 watch(searchQuery, (newQuery) => {
   if (newQuery.length > 0) {
@@ -529,6 +519,16 @@ watch([() => filters.minPrice, () => filters.maxPrice], debounce(() => {
 watch(sortBy, () => {
   searchProducts()
 })
+
+// Update SEO based on filters
+watch([searchQuery, () => filters.category, totalProducts], () => {
+  const category = categories.value.find(cat => cat.id === filters.category)
+  setTemplatesSEO({
+    category: category?.name,
+    search: searchQuery.value,
+    total: totalProducts.value
+  })
+}, { immediate: true })
 
 // Computed
 const emptyTitle = computed(() => {

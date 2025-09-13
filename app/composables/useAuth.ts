@@ -107,7 +107,7 @@ export const useAuth = () => {
     }
   }
 
-  // Sign in with magic link
+  // Sign in with magic link (uses Zoho SMTP via Supabase)
   const signInWithMagicLink = async (email: string) => {
     isLoading.value = true
     error.value = null
@@ -120,7 +120,7 @@ export const useAuth = () => {
         }
       })
 
-      if (signInError) {throw signInError}
+      if (signInError) throw signInError
 
       return true
     } catch (err: any) {

@@ -223,11 +223,12 @@ const sendMagicLink = async () => {
     console.log('Base URL:', baseUrl)
     console.log('Sending magic link with redirect URL:', redirectUrl.toString())
 
+    // Use Supabase's built-in magic link with your Zoho SMTP configuration
     const { error } = await supabase.auth.signInWithOtp({
       email: email.value,
       options: {
         emailRedirectTo: redirectUrl.toString(),
-        shouldCreateUser: true, // Explicitly allow user creation
+        shouldCreateUser: true, // Allow user creation
         data: {
           timestamp: Date.now(),
           request_id: Math.random().toString(36).substring(2, 15)
