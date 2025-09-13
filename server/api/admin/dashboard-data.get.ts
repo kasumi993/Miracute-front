@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   try {
     // Create business metrics calculator
     const metricsCalculator = createBusinessMetricsCalculator(supabase)
-    
+
     // Get dashboard data in parallel
     const [stats, recentOrders, popularProducts] = await Promise.all([
       metricsCalculator.getDashboardStats(),

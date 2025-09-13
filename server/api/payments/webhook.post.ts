@@ -69,7 +69,7 @@ export default defineEventHandler(async (event) => {
 
   } catch (error: any) {
     console.error('Webhook error:', error)
-    
+
     if (error.statusCode) {
       throw error
     }
@@ -276,7 +276,7 @@ export default defineEventHandler(async (event) => {
         const item = items.find((i: any) => i.product_id === product.id)
         const quantity = item?.quantity || 1
         const unitPrice = parseFloat(product.price)
-        
+
         return {
           order_id: order.id,
           product_id: product.id,
@@ -325,7 +325,7 @@ export default defineEventHandler(async (event) => {
           // For now, we'll use the first download file
           // In production, you'd create signed URLs for secure downloads
           const downloadUrl = item.product.download_files[0]
-          
+
           updates.push({
             id: item.id,
             download_url: downloadUrl,
@@ -392,7 +392,7 @@ export default defineEventHandler(async (event) => {
       const config = useRuntimeConfig()
       const apiInstance = new brevo.TransactionalEmailsApi()
       apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, config.brevoApiKey)
-      
+
       const itemsHtml = order.order_items?.map((item: any) => `
         <tr>
           <td style="padding: 10px; border-bottom: 1px solid #eee;">
@@ -404,7 +404,7 @@ export default defineEventHandler(async (event) => {
           </td>
         </tr>
       `).join('') || ''
-      
+
       const htmlContent = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: linear-gradient(135deg, #8B4513, #A0522D); color: white; padding: 30px; text-align: center;">
@@ -433,16 +433,16 @@ export default defineEventHandler(async (event) => {
           </div>
         </div>
       `
-      
+
       const sendSmtpEmail = new brevo.SendSmtpEmail()
       sendSmtpEmail.to = [{ email: order.customer_email, name: order.customer_name || order.customer_email.split('@')[0] }]
       sendSmtpEmail.subject = `Your Miracute Templates are Ready! - Order ${order.id}`
       sendSmtpEmail.htmlContent = htmlContent
       sendSmtpEmail.sender = { email: 'hello@miracute.com', name: 'Miracute' }
-      
+
       await apiInstance.sendTransacEmail(sendSmtpEmail)
       return { success: true }
-      
+
     } catch (error: any) {
       console.error('Failed to send order confirmation email:', error)
       return { success: false, error: error.message }
@@ -454,7 +454,7 @@ export default defineEventHandler(async (event) => {
       const config = useRuntimeConfig()
       const apiInstance = new brevo.TransactionalEmailsApi()
       apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, config.brevoApiKey)
-      
+
       const itemsHtml = order.order_items?.map((item: any) => `
         <tr>
           <td style="padding: 10px; border-bottom: 1px solid #eee;">
@@ -466,7 +466,7 @@ export default defineEventHandler(async (event) => {
           </td>
         </tr>
       `).join('') || ''
-      
+
       const htmlContent = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: linear-gradient(135deg, #8B4513, #A0522D); color: white; padding: 30px; text-align: center;">
@@ -514,16 +514,16 @@ export default defineEventHandler(async (event) => {
           </div>
         </div>
       `
-      
+
       const sendSmtpEmail = new brevo.SendSmtpEmail()
       sendSmtpEmail.to = [{ email: 'hello@miracute.com', name: 'Miracute Admin' }]
       sendSmtpEmail.subject = `💰 New Order: $${parseFloat(order.total_amount).toFixed(2)} - ${order.id}`
       sendSmtpEmail.htmlContent = htmlContent
       sendSmtpEmail.sender = { email: 'orders@miracute.com', name: 'Miracute Orders' }
-      
+
       await apiInstance.sendTransacEmail(sendSmtpEmail)
       return { success: true }
-      
+
     } catch (error: any) {
       console.error('Failed to send admin order notification:', error)
       return { success: false, error: error.message }
@@ -536,14 +536,14 @@ export default defineEventHandler(async (event) => {
       const config = useRuntimeConfig()
       const apiInstance = new brevo.TransactionalEmailsApi()
       apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, config.brevoApiKey)
-      
+
       // Generate review token helper function
       const generateReviewToken = (orderId: string, productId: string): string => {
         const crypto = require('crypto')
         const data = `${orderId}-${productId}-${Date.now()}`
         return crypto.createHash('sha256').update(data).digest('hex').substring(0, 16)
       }
-      
+
       const itemsList = orderData.order_items
         ?.map((item: any) => `
           <div style="border: 1px solid #e5e5e5; border-radius: 8px; padding: 20px; margin-bottom: 16px; background: white;">
@@ -556,7 +556,7 @@ export default defineEventHandler(async (event) => {
             </div>
           </div>
         `).join('') || ''
-      
+
       const htmlContent = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: linear-gradient(135deg, #8B4513, #A0522D); color: white; padding: 30px; text-align: center;">
@@ -590,16 +590,16 @@ export default defineEventHandler(async (event) => {
           </div>
         </div>
       `
-      
+
       const sendSmtpEmail = new brevo.SendSmtpEmail()
       sendSmtpEmail.to = [{ email: orderData.customer_email, name: orderData.customer_name }]
       sendSmtpEmail.subject = '⭐ How was your Miracute experience? Quick review request'
       sendSmtpEmail.htmlContent = htmlContent
       sendSmtpEmail.sender = { email: 'hello@miracute.com', name: 'Miracute' }
-      
+
       await apiInstance.sendTransacEmail(sendSmtpEmail)
       return { success: true }
-      
+
     } catch (error: any) {
       console.error('Failed to send review request email:', error)
       return { success: false, error: error.message }

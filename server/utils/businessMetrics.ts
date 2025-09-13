@@ -5,27 +5,27 @@ export interface DashboardStats {
   totalRevenue: string
   monthlyRevenue: string
   averageOrderValue: string
-  
+
   // Order metrics
   totalOrders: number
   pendingOrders: number
   completedOrders: number
   orderCompletionRate: number
-  
+
   // Customer metrics
   totalCustomers: number
   newCustomersToday: number
   customerGrowthRate: number
-  
+
   // Product metrics
   totalProducts: number
   activeProducts: number
-  
+
   // Analytics metrics
   storeViewsToday: number
   uniqueVisitorsToday: number
   conversionRate: number
-  
+
   // Growth indicators
   revenueGrowth: number
   orderGrowth: number
@@ -95,40 +95,40 @@ export class BusinessMetricsCalculator {
       ])
 
       // Calculate derived metrics
-      const conversionRate = todayViewsData > 0 
-        ? (ordersData.totalOrders / todayViewsData * 100) 
+      const conversionRate = todayViewsData > 0
+        ? (ordersData.totalOrders / todayViewsData * 100)
         : 0
 
       return {
         // Revenue
         totalRevenue: revenueData.total.toFixed(2),
         monthlyRevenue: revenueData.monthly.toFixed(2),
-        averageOrderValue: ordersData.totalOrders > 0 
-          ? (revenueData.total / ordersData.totalOrders).toFixed(2) 
+        averageOrderValue: ordersData.totalOrders > 0
+          ? (revenueData.total / ordersData.totalOrders).toFixed(2)
           : '0.00',
-        
+
         // Orders
         totalOrders: ordersData.totalOrders,
         pendingOrders: ordersData.pendingOrders,
         completedOrders: ordersData.completedOrders,
-        orderCompletionRate: ordersData.totalOrders > 0 
+        orderCompletionRate: ordersData.totalOrders > 0
           ? Math.round((ordersData.completedOrders / ordersData.totalOrders) * 100)
           : 0,
-        
+
         // Customers
         totalCustomers: customersData.total,
         newCustomersToday: todayCustomersData,
         customerGrowthRate: 0, // TODO: Calculate based on previous period
-        
+
         // Products
         totalProducts: productsData.total,
         activeProducts: productsData.active,
-        
+
         // Analytics
         storeViewsToday: todayViewsData,
         uniqueVisitorsToday: 0, // TODO: Implement unique visitors tracking
         conversionRate: Number(conversionRate.toFixed(2)),
-        
+
         // Growth
         revenueGrowth: 0, // TODO: Calculate based on previous period
         orderGrowth: 0, // TODO: Calculate based on previous period
@@ -162,7 +162,7 @@ export class BusinessMetricsCalculator {
         .eq('is_active', true)
         .limit(limit)
 
-      if (error) throw error
+      if (error) {throw error}
 
       // Process the data to calculate metrics
       const productsWithMetrics = data?.map(product => ({
@@ -208,7 +208,7 @@ export class BusinessMetricsCalculator {
         .order('created_at', { ascending: false })
         .limit(limit)
 
-      if (error) throw error
+      if (error) {throw error}
 
       return data || []
     } catch (error) {
@@ -222,7 +222,7 @@ export class BusinessMetricsCalculator {
       .from('orders')
       .select('status')
 
-    if (error) throw error
+    if (error) {throw error}
 
     const totalOrders = data?.length || 0
     const pendingOrders = data?.filter(order => order.status === 'pending').length || 0
@@ -253,7 +253,7 @@ export class BusinessMetricsCalculator {
       .select('*', { count: 'exact', head: true })
       .eq('role', 'customer')
 
-    if (error) throw error
+    if (error) {throw error}
 
     return {
       total: count || 0
@@ -266,7 +266,7 @@ export class BusinessMetricsCalculator {
         .from('orders')
         .select('total_amount')
         .eq('payment_status', 'paid'),
-      
+
       this.supabase
         .from('orders')
         .select('total_amount')
@@ -274,10 +274,10 @@ export class BusinessMetricsCalculator {
         .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
     ])
 
-    const totalRevenue = totalResult.data?.reduce((sum, order) => 
+    const totalRevenue = totalResult.data?.reduce((sum, order) =>
       sum + parseFloat(order.total_amount || '0'), 0) || 0
-    
-    const monthlyRevenue = monthlyResult.data?.reduce((sum, order) => 
+
+    const monthlyRevenue = monthlyResult.data?.reduce((sum, order) =>
       sum + parseFloat(order.total_amount || '0'), 0) || 0
 
     return {
@@ -336,7 +336,7 @@ export class BusinessMetricsCalculator {
         .gte('created_at', today.toISOString())
         .lt('created_at', tomorrow.toISOString())
 
-      if (error) throw error
+      if (error) {throw error}
 
       return count || 0
     } catch (error) {

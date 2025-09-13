@@ -26,11 +26,11 @@ export default defineEventHandler(async (event) => {
 
   } catch (error: any) {
     console.error('Error fetching template types:', error)
-    
+
     if (error.statusCode) {
       throw error
     }
-    
+
     throw createError({
       statusCode: 500,
       statusMessage: 'Failed to fetch template types',

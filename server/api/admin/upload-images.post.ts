@@ -3,7 +3,7 @@ import type { Database } from '~/types/database'
 
 export default defineEventHandler(async (event) => {
   const formData = await readMultipartFormData(event)
-  
+
   if (!formData || formData.length === 0) {
     throw createError({
       statusCode: 400,
@@ -16,8 +16,8 @@ export default defineEventHandler(async (event) => {
 
   try {
     for (const file of formData) {
-      if (!file.filename || !file.data) continue
-      
+      if (!file.filename || !file.data) {continue}
+
       // Generate unique filename
       const timestamp = Date.now()
       const randomId = Math.random().toString(36).substr(2, 9)
@@ -54,11 +54,11 @@ export default defineEventHandler(async (event) => {
 
   } catch (error: any) {
     console.error('Error uploading images:', error)
-    
+
     if (error.statusCode) {
       throw error
     }
-    
+
     throw createError({
       statusCode: 500,
       statusMessage: 'Failed to upload images',

@@ -1,32 +1,31 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 import type { Database, ProductSearchFilters, SearchResponse, ProductWithCategory } from '~/types/database'
+import { handleSupabaseError } from '../../../server/utils/apiResponse'
 
 export default defineEventHandler(async (event): Promise<SearchResponse<ProductWithCategory>> => {
   const supabase = serverSupabaseServiceRole<Database>(event)
-  
-  // Parse query parameters
+
   const query = getQuery(event)
-  
+
   const page = parseInt(query.page as string) || 1
-  const limit = Math.min(parseInt(query.limit as string) || 12, 50) // Max 50 items per request
+  const limit = Math.min(parseInt(query.limit as string) || 12, 50)
   const offset = (page - 1) * limit
 
   const filters: ProductSearchFilters = {
     category: query.category as string,
     minPrice: query.minPrice ? parseFloat(query.minPrice as string) : undefined,
     maxPrice: query.maxPrice ? parseFloat(query.maxPrice as string) : undefined,
-    tags: query.tags ? (query.tags as string).split(',') : undefined,
+    tags: query.tags ? (query.tags as string).split(',').map(tag => tag.trim()) : undefined,
     search: query.search as string,
     difficulty: query.difficulty as string,
-    software: query.software ? (query.software as string).split(',') : undefined,
+    software: query.software ? (query.software as string).split(',').map(sw => sw.trim()) : undefined,
     featured: query.featured === 'true',
     sortBy: query.sortBy as any || 'newest'
   }
-  
+
   const excludeId = query.exclude as string
 
   try {
-    // Build the query
     let dbQuery = supabase
       .from('products')
       .select(`
@@ -35,7 +34,6 @@ export default defineEventHandler(async (event): Promise<SearchResponse<ProductW
       `, { count: 'exact' })
       .eq('is_active', true)
 
-    // Apply filters
     if (filters.category) {
       dbQuery = dbQuery.eq('category_id', filters.category)
     }
@@ -64,21 +62,15 @@ export default defineEventHandler(async (event): Promise<SearchResponse<ProductW
       dbQuery = dbQuery.overlaps('software_required', filters.software)
     }
 
-    // Exclude specific product (for related products)
     if (excludeId) {
       dbQuery = dbQuery.neq('id', excludeId)
     }
 
-    // Enhanced search functionality
     if (filters.search) {
       const searchTerm = filters.search.trim().toLowerCase()
-      console.log('API: Searching for:', searchTerm)
-      
-      // Use ilike for partial matches across multiple fields
       dbQuery = dbQuery.or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,short_description.ilike.%${searchTerm}%`)
     }
 
-    // Sorting
     switch (filters.sortBy) {
       case 'price_asc':
         dbQuery = dbQuery.order('price', { ascending: true })
@@ -93,7 +85,6 @@ export default defineEventHandler(async (event): Promise<SearchResponse<ProductW
         dbQuery = dbQuery.order('view_count', { ascending: false })
         break
       case 'rating':
-        // This would need a computed average rating field
         dbQuery = dbQuery.order('created_at', { ascending: false })
         break
       case 'newest':
@@ -102,17 +93,12 @@ export default defineEventHandler(async (event): Promise<SearchResponse<ProductW
         break
     }
 
-    // Apply pagination
     dbQuery = dbQuery.range(offset, offset + limit - 1)
 
     const { data, count, error } = await dbQuery
 
     if (error) {
-      throw createError({
-        statusCode: 500,
-        statusMessage: 'Failed to fetch products',
-        data: error
-      })
+      handleSupabaseError(error, 'Fetch products')
     }
 
     const total = count || 0
@@ -131,10 +117,9 @@ export default defineEventHandler(async (event): Promise<SearchResponse<ProductW
     }
 
   } catch (error: any) {
-    throw createError({
-      statusCode: error.statusCode || 500,
-      statusMessage: error.statusMessage || 'Internal server error',
-      data: error.data
-    })
+    if (error.statusCode) {
+      throw error
+    }
+    handleSupabaseError(error, 'Fetch products')
   }
 })

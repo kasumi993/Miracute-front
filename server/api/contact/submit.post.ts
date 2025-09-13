@@ -2,7 +2,7 @@ import * as brevo from '@getbrevo/brevo'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
-  
+
   // Validate required fields
   if (!body.name || !body.email || !body.message) {
     throw createError({
@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
       statusMessage: 'Name, email, and message are required'
     })
   }
-  
+
   // Validate email format
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!emailRegex.test(body.email)) {
@@ -19,26 +19,26 @@ export default defineEventHandler(async (event) => {
       statusMessage: 'Invalid email format'
     })
   }
-  
+
   try {
     // Send notification email to admin
     const adminNotification = await sendContactNotificationEmail(body)
-    
-    // Send confirmation email to customer  
+
+    // Send confirmation email to customer
     const customerConfirmation = await sendContactConfirmationEmail(body)
-    
+
     console.log('Contact form submission processed successfully')
-    
+
     return {
       success: true,
       message: 'Your message has been sent successfully! We\'ll get back to you soon.',
       adminEmailSent: adminNotification.success,
       confirmationEmailSent: customerConfirmation.success
     }
-    
+
   } catch (error: any) {
     console.error('Contact form submission error:', error)
-    
+
     throw createError({
       statusCode: 500,
       statusMessage: 'Failed to send your message. Please try again.',
@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
       const config = useRuntimeConfig()
       const apiInstance = new brevo.TransactionalEmailsApi()
       apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, config.brevoApiKey)
-      
+
       const htmlContent = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: linear-gradient(135deg, #8B4513, #A0522D); color: white; padding: 30px; text-align: center;">
@@ -88,16 +88,16 @@ export default defineEventHandler(async (event) => {
           </div>
         </div>
       `
-      
+
       const sendSmtpEmail = new brevo.SendSmtpEmail()
       sendSmtpEmail.to = [{ email: 'hello@miracute.com', name: 'Miracute Admin' }]
       sendSmtpEmail.subject = `💌 New Contact Form Submission from ${formData.name}`
       sendSmtpEmail.htmlContent = htmlContent
       sendSmtpEmail.sender = { email: formData.email, name: formData.name }
-      
+
       await apiInstance.sendTransacEmail(sendSmtpEmail)
       return { success: true }
-      
+
     } catch (error) {
       return { success: false, error: error.message }
     }
@@ -108,7 +108,7 @@ export default defineEventHandler(async (event) => {
       const config = useRuntimeConfig()
       const apiInstance = new brevo.TransactionalEmailsApi()
       apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, config.brevoApiKey)
-      
+
       const htmlContent = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: linear-gradient(135deg, #8B4513, #A0522D); color: white; padding: 30px; text-align: center;">
@@ -145,16 +145,16 @@ ${formData.subject ? `<strong>Subject:</strong> ${formData.subject}<br><br>` : '
           </div>
         </div>
       `
-      
+
       const sendSmtpEmail = new brevo.SendSmtpEmail()
       sendSmtpEmail.to = [{ email: formData.email, name: formData.name }]
       sendSmtpEmail.subject = 'Thank you for contacting Miracute!'
       sendSmtpEmail.htmlContent = htmlContent
       sendSmtpEmail.sender = { email: 'hello@miracute.com', name: 'Miracute' }
-      
+
       await apiInstance.sendTransacEmail(sendSmtpEmail)
       return { success: true }
-      
+
     } catch (error) {
       return { success: false, error: error.message }
     }

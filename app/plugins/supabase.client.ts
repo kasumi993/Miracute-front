@@ -1,7 +1,7 @@
 export default defineNuxtPlugin(() => {
   const supabase = useSupabaseClient()
   const user = useSupabaseUser()
-  
+
   // Initialize auth composable
   const auth = useAuth()
   auth.init()

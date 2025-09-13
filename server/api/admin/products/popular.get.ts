@@ -46,11 +46,11 @@ export default defineEventHandler(async (event) => {
       .order(orderColumn, { ascending })
       .limit(limit)
 
-    if (error) throw error
+    if (error) {throw error}
 
     // Get additional metrics for each product
     const productIds = (products || []).map(p => p.id)
-    
+
     if (productIds.length > 0) {
       // Get order count for each product (sales data)
       const { data: salesData } = await supabase

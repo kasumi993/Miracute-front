@@ -7,7 +7,7 @@ import type { H3Event } from 'h3'
  */
 export async function validateAdminAccess(event: H3Event) {
   const user = await serverSupabaseUser(event)
-  
+
   if (!user) {
     throw createError({
       statusCode: 401,
@@ -17,7 +17,7 @@ export async function validateAdminAccess(event: H3Event) {
 
   // Use service role to check admin status (bypass RLS)
   const supabase = await serverSupabaseServiceRole<Database>(event)
-  
+
   const { data: userData, error: userError } = await supabase
     .from('users')
     .select('role')

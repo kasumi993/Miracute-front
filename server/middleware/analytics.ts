@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
   try {
     // Get Supabase service role client to bypass RLS for analytics
     const supabase = serverSupabaseServiceRole<Database>(event)
-    
+
     // Get session ID from cookies or generate new one
     let sessionId = getCookie(event, 'analytics_session')
     if (!sessionId) {
@@ -66,7 +66,7 @@ export default defineEventHandler(async (event) => {
         visitor_id: visitorId,
         session_id: sessionId,
         user_agent: userAgent,
-        referrer: referrer,
+        referrer,
         created_at: new Date().toISOString()
       })
 

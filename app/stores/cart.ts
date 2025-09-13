@@ -27,18 +27,18 @@ export const useCartStore = defineStore('cart', {
   getters: {
     // Maintain compatibility with old useCartCounter
     cartCount: (state) => state.items.reduce((total, item) => total + item.quantity, 0),
-    
+
     cartItems: (state) => state.items,
-    
+
     cartTotal: (state) => state.items.reduce((total, item) => total + (item.price * item.quantity), 0),
-    
+
     totalPrice: (state) => state.items.reduce((total, item) => total + (item.price * item.quantity), 0),
-    
+
     totalOriginalPrice: (state) => state.items.reduce((total, item) => {
       const originalPrice = item.originalPrice || item.price
       return total + (originalPrice * item.quantity)
     }, 0),
-    
+
     totalSavings: (state) => {
       const originalTotal = state.items.reduce((total, item) => {
         const originalPrice = item.originalPrice || item.price
@@ -47,7 +47,7 @@ export const useCartStore = defineStore('cart', {
       const currentTotal = state.items.reduce((total, item) => total + (item.price * item.quantity), 0)
       return originalTotal - currentTotal
     },
-    
+
     isEmpty: (state) => state.items.length === 0
   },
 
@@ -55,7 +55,7 @@ export const useCartStore = defineStore('cart', {
     // Maintain compatibility with old useCartCounter methods
     addToCart(product: any) {
       const existingItem = this.items.find(item => item.id === product.id)
-      
+
       if (existingItem) {
         existingItem.quantity += 1
       } else {
@@ -72,7 +72,7 @@ export const useCartStore = defineStore('cart', {
           downloadUrl: product.downloadUrl
         })
       }
-      
+
       this.persistCart()
     },
 
@@ -139,7 +139,7 @@ export const useCartStore = defineStore('cart', {
         try {
           // Save to both new and old localStorage keys for compatibility
           localStorage.setItem('miracute-cart', JSON.stringify(this.items))
-          
+
           // Maintain compatibility with old format (simplified items for useCartCounter)
           const compatItems = this.items.map(item => ({
             id: item.id,

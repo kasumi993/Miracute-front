@@ -1,7 +1,8 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
-import type { Database, Category } from '~/types/database'
+import type { Database, Category, ApiResponse } from '~/types/database'
+import { createApiResponse, handleSupabaseError } from '../../../server/utils/apiResponse'
 
-export default defineEventHandler(async (event): Promise<Category[]> => {
+export default defineEventHandler(async (event): Promise<ApiResponse<Category[]>> => {
   const supabase = serverSupabaseServiceRole<Database>(event)
 
   try {
@@ -10,26 +11,18 @@ export default defineEventHandler(async (event): Promise<Category[]> => {
       .select('*')
       .eq('is_active', true)
       .order('sort_order', { ascending: true })
+      .order('name', { ascending: true })
 
     if (error) {
-      throw createError({
-        statusCode: 500,
-        statusMessage: 'Failed to fetch categories',
-        data: error
-      })
+      handleSupabaseError(error, 'Fetch categories')
     }
 
-    return data || []
+    return createApiResponse(data || [])
 
   } catch (error: any) {
     if (error.statusCode) {
       throw error
     }
-    
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Failed to fetch categories',
-      data: error
-    })
+    handleSupabaseError(error, 'Fetch categories')
   }
 })

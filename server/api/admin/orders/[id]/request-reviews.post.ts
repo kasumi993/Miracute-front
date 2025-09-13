@@ -5,14 +5,14 @@ import * as brevo from '@getbrevo/brevo'
 export default defineEventHandler(async (event) => {
   const { supabase } = await validateAdminAccess(event)
   const orderId = getRouterParam(event, 'id')
-  
+
   if (!orderId) {
     throw createError({
       statusCode: 400,
       statusMessage: 'Order ID is required'
     })
   }
-  
+
   try {
     // Fetch order with items for email
     const { data: order, error } = await supabase
@@ -30,7 +30,7 @@ export default defineEventHandler(async (event) => {
       `)
       .eq('id', orderId)
       .single()
-    
+
     if (error) {
       if (error.code === 'PGRST116') {
         throw createError({
@@ -38,14 +38,14 @@ export default defineEventHandler(async (event) => {
           statusMessage: 'Order not found'
         })
       }
-      
+
       throw createError({
         statusCode: 500,
         statusMessage: 'Failed to fetch order',
         data: error
       })
     }
-    
+
     // Check if order is completed and paid
     if (order.status !== 'completed' || order.payment_status !== 'paid') {
       throw createError({
@@ -53,22 +53,22 @@ export default defineEventHandler(async (event) => {
         statusMessage: 'Order must be completed and paid to request reviews'
       })
     }
-    
+
     // Send review request email
     await sendReviewRequestEmail(order)
-    
+
     return {
       success: true,
       message: 'Review request email sent successfully'
     }
-    
+
   } catch (error: any) {
     console.error('Error sending review request email:', error)
-    
+
     if (error.statusCode) {
       throw error
     }
-    
+
     throw createError({
       statusCode: 500,
       statusMessage: 'Failed to send review request email',
@@ -82,14 +82,14 @@ export default defineEventHandler(async (event) => {
       const config = useRuntimeConfig()
       const apiInstance = new brevo.TransactionalEmailsApi()
       apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, config.brevoApiKey)
-      
+
       // Generate review token helper function
       const generateReviewToken = (orderId: string, productId: string): string => {
         const crypto = require('crypto')
         const data = `${orderId}-${productId}-${Date.now()}`
         return crypto.createHash('sha256').update(data).digest('hex').substring(0, 16)
       }
-      
+
       const itemsList = orderData.order_items
         ?.map((item: any) => `
           <div style="border: 1px solid #e5e5e5; border-radius: 8px; padding: 20px; margin-bottom: 16px; background: white;">
@@ -102,7 +102,7 @@ export default defineEventHandler(async (event) => {
             </div>
           </div>
         `).join('') || ''
-      
+
       const htmlContent = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: linear-gradient(135deg, #8B4513, #A0522D); color: white; padding: 30px; text-align: center;">
@@ -136,16 +136,16 @@ export default defineEventHandler(async (event) => {
           </div>
         </div>
       `
-      
+
       const sendSmtpEmail = new brevo.SendSmtpEmail()
       sendSmtpEmail.to = [{ email: orderData.customer_email, name: orderData.customer_name }]
       sendSmtpEmail.subject = '⭐ How was your Miracute experience? Quick review request'
       sendSmtpEmail.htmlContent = htmlContent
       sendSmtpEmail.sender = { email: 'hello@miracute.com', name: 'Miracute' }
-      
+
       await apiInstance.sendTransacEmail(sendSmtpEmail)
       return { success: true }
-      
+
     } catch (error: any) {
       console.error('Failed to send review request email:', error)
       throw error

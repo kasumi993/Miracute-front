@@ -13,10 +13,10 @@ interface EmailOrderData extends Order {
 // Create email transporter
 function createTransporter() {
   const config = useRuntimeConfig()
-  
+
   // For development, you can use Gmail SMTP or other providers
   // In production, use a proper email service like SendGrid, Mailgun, etc.
-  return nodemailer.createTransporter({
+  return nodemailer.createTransport({
     host: config.smtpHost || 'smtp.gmail.com',
     port: parseInt(config.smtpPort || '587'),
     secure: false, // true for 465, false for other ports
@@ -32,12 +32,12 @@ export async function sendNewOrderNotification(orderData: EmailOrderData) {
   try {
     const transporter = createTransporter()
     const config = useRuntimeConfig()
-    
+
     // Format order items for email
     const itemsList = orderData.order_items
       .map(item => `• ${item.product.name} (${item.quantity}x) - $${parseFloat(item.unit_price).toFixed(2)}`)
       .join('\n')
-    
+
     const totalAmount = parseFloat(orderData.total_amount).toFixed(2)
     const orderDate = new Date(orderData.created_at).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -46,7 +46,7 @@ export async function sendNewOrderNotification(orderData: EmailOrderData) {
       hour: '2-digit',
       minute: '2-digit'
     })
-    
+
     // Email content
     const subject = `🎉 New Order #${orderData.order_number} - $${totalAmount}`
     const htmlContent = `
@@ -118,7 +118,7 @@ export async function sendNewOrderNotification(orderData: EmailOrderData) {
         </div>
       </div>
     `
-    
+
     // Plain text version
     const textContent = `
 New Order Received! 🎉
@@ -141,7 +141,7 @@ Total: $${totalAmount}
 
 View this order in your dashboard: ${config.public.siteUrl}/dashboard/orders/${orderData.id}
 `
-    
+
     // Send email
     const info = await transporter.sendMail({
       from: `"Miracute Orders" <${config.smtpUser}>`,
@@ -150,13 +150,13 @@ View this order in your dashboard: ${config.public.siteUrl}/dashboard/orders/${o
       text: textContent,
       html: htmlContent
     })
-    
+
     console.log('New order notification email sent:', info.messageId)
     return { success: true, messageId: info.messageId }
-    
+
   } catch (error) {
     console.error('Failed to send new order notification:', error)
-    return { success: false, error: error.message }
+    return { success: false, error: (error as Error).message }
   }
 }
 
@@ -165,12 +165,12 @@ export async function sendOrderConfirmation(orderData: EmailOrderData) {
   try {
     const transporter = createTransporter()
     const config = useRuntimeConfig()
-    
+
     // Format order items for email
     const itemsList = orderData.order_items
       .map(item => `• ${item.product.name} (${item.quantity}x) - $${parseFloat(item.unit_price).toFixed(2)}`)
       .join('\n')
-    
+
     const totalAmount = parseFloat(orderData.total_amount).toFixed(2)
     const orderDate = new Date(orderData.created_at).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -179,7 +179,7 @@ export async function sendOrderConfirmation(orderData: EmailOrderData) {
       hour: '2-digit',
       minute: '2-digit'
     })
-    
+
     // Email content
     const subject = `Order Confirmation #${orderData.order_number} - Thank you for your purchase!`
     const htmlContent = `
@@ -228,7 +228,7 @@ export async function sendOrderConfirmation(orderData: EmailOrderData) {
         </div>
       </div>
     `
-    
+
     // Send email
     const info = await transporter.sendMail({
       from: `"Miracute" <${config.smtpUser}>`,
@@ -236,12 +236,12 @@ export async function sendOrderConfirmation(orderData: EmailOrderData) {
       subject,
       html: htmlContent
     })
-    
+
     console.log('Order confirmation email sent:', info.messageId)
     return { success: true, messageId: info.messageId }
-    
+
   } catch (error) {
     console.error('Failed to send order confirmation:', error)
-    return { success: false, error: error.message }
+    return { success: false, error: (error as Error).message }
   }
 }

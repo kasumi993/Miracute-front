@@ -5,7 +5,7 @@ export default defineNuxtRouteMiddleware((to) => {
   if (!user.value) {
     // Store the intended destination
     const redirectTo = to.fullPath
-    
+
     // Redirect to login with return URL
     return navigateTo(`/auth/login?redirect=${encodeURIComponent(redirectTo)}`)
   }

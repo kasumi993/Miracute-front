@@ -1,15 +1,13 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
-import type { Database, ProductWithCategory } from '~/types/database'
+import type { Database, ProductWithCategory, ApiResponse } from '~/types/database'
+import { createApiResponse, createApiError, handleSupabaseError } from '../../../server/utils/apiResponse'
 
-export default defineEventHandler(async (event): Promise<{ data: ProductWithCategory | null }> => {
+export default defineEventHandler(async (event): Promise<ApiResponse<ProductWithCategory | null>> => {
   const supabase = serverSupabaseServiceRole<Database>(event)
   const slug = getRouterParam(event, 'id')
 
   if (!slug) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Product slug is required'
-    })
+    createApiError('Product slug is required', 400)
   }
 
   try {
@@ -25,25 +23,20 @@ export default defineEventHandler(async (event): Promise<{ data: ProductWithCate
 
     if (error) {
       if (error.code === 'PGRST116') {
-        // Product not found
-        return { data: null }
+        return createApiResponse(null)
       }
-      throw error
+      handleSupabaseError(error, 'Fetch product')
     }
 
-    // TODO: Implement view count increment later
+    // Increment view count asynchronously without waiting
+    supabase.rpc('increment_view_count', { product_id: data?.id }).then().catch(console.warn)
 
-    return { data: data as ProductWithCategory }
+    return createApiResponse(data as ProductWithCategory)
 
   } catch (error: any) {
     if (error.statusCode) {
       throw error
     }
-    
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Failed to fetch product',
-      data: error
-    })
+    handleSupabaseError(error, 'Fetch product')
   }
 })

@@ -41,7 +41,7 @@ export default defineEventHandler(async (event) => {
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1)
 
-    if (error) throw error
+    if (error) {throw error}
 
     // Filter and transform the data
     const transformedDownloads = (downloads || []).map(download => ({
@@ -56,7 +56,7 @@ export default defineEventHandler(async (event) => {
       product: download.product,
       order: download.order,
       // Check if download is still valid
-      is_expired: download.download_expires_at ? 
+      is_expired: download.download_expires_at ?
         new Date(download.download_expires_at) < new Date() : false,
       is_download_limit_reached: (download.download_count || 0) >= (download.max_downloads || 5)
     }))

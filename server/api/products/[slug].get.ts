@@ -3,7 +3,7 @@ import type { Database } from '~/types/database'
 
 export default defineEventHandler(async (event) => {
   const slug = getRouterParam(event, 'slug')
-  
+
   if (!slug) {
     throw createError({
       statusCode: 400,
@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
 
   try {
     const supabase = await serverSupabaseServiceRole<Database>(event)
-    
+
     const { data: product, error } = await supabase
       .from('products')
       .select(`
@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
           statusMessage: 'Product not found'
         })
       }
-      
+
       console.error('Product fetch error:', error)
       throw createError({
         statusCode: 500,
@@ -50,7 +50,7 @@ export default defineEventHandler(async (event) => {
 
   } catch (error: any) {
     console.error('Product API error:', error)
-    
+
     if (error.statusCode) {
       throw error
     }

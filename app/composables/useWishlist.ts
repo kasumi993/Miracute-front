@@ -13,7 +13,7 @@ export const useWishlist = () => {
       }
     }
   }
-  
+
   // Computed wishlist count
   const wishlistCount = computed(() => globalWishlistItems.value.length)
 
@@ -21,7 +21,7 @@ export const useWishlist = () => {
   const addToWishlist = (product) => {
     // Check if product already exists in wishlist
     const existingIndex = globalWishlistItems.value.findIndex(item => item.id === product.id)
-    
+
     if (existingIndex === -1) {
       // Add new product to wishlist
       globalWishlistItems.value.push({
@@ -33,15 +33,15 @@ export const useWishlist = () => {
         category: product.category?.name || null,
         dateAdded: new Date().toISOString()
       })
-      
+
       // Save to localStorage
       if (process.client) {
         localStorage.setItem('miracute-wishlist-items', JSON.stringify(globalWishlistItems.value))
       }
-      
+
       return true // Successfully added
     }
-    
+
     return false // Already exists
   }
 
@@ -49,15 +49,15 @@ export const useWishlist = () => {
     const index = globalWishlistItems.value.findIndex(item => item.id === productId)
     if (index !== -1) {
       globalWishlistItems.value.splice(index, 1)
-      
+
       // Save to localStorage
       if (process.client) {
         localStorage.setItem('miracute-wishlist-items', JSON.stringify(globalWishlistItems.value))
       }
-      
+
       return true // Successfully removed
     }
-    
+
     return false // Not found
   }
 
@@ -71,7 +71,7 @@ export const useWishlist = () => {
 
   const clearWishlist = () => {
     globalWishlistItems.value = []
-    
+
     // Clear from localStorage
     if (process.client) {
       localStorage.setItem('miracute-wishlist-items', '[]')
@@ -91,7 +91,7 @@ export const useWishlist = () => {
     // State
     wishlistCount: readonly(wishlistCount),
     wishlistItems: readonly(globalWishlistItems),
-    
+
     // Methods
     addToWishlist,
     removeFromWishlist,

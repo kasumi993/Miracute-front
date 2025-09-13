@@ -38,17 +38,17 @@ export const useSEO = () => {
 
     // Construct full title
     const fullTitle = title.includes('Miracute') ? title : `${title} | Miracute`
-    
+
     // Construct canonical URL
     const canonicalUrl = canonical || `${siteUrl}${route.path}`
-    
+
     // Construct image URL
     const imageUrl = image?.startsWith('http') ? image : `${siteUrl}${image || '/images/og-default.jpg'}`
 
     // Build robots directive
     let robots = 'index,follow'
-    if (noindex) robots = robots.replace('index', 'noindex')
-    if (nofollow) robots = robots.replace('follow', 'nofollow')
+    if (noindex) {robots = robots.replace('index', 'noindex')}
+    if (nofollow) {robots = robots.replace('follow', 'nofollow')}
 
     useSeoMeta({
       // Basic meta tags
@@ -56,10 +56,10 @@ export const useSEO = () => {
       description,
       keywords,
       robots,
-      
+
       // Canonical
       canonical: canonicalUrl,
-      
+
       // Open Graph
       ogType: type,
       ogTitle: fullTitle,
@@ -68,7 +68,7 @@ export const useSEO = () => {
       ogImageAlt: title,
       ogUrl: canonicalUrl,
       ogSiteName: 'Miracute - Professional Website Templates',
-      
+
       // Twitter Card
       twitterCard: 'summary_large_image',
       twitterTitle: fullTitle,
@@ -76,20 +76,20 @@ export const useSEO = () => {
       twitterImage: imageUrl,
       twitterSite: '@miracute_templates',
       twitterCreator: '@miracute_templates',
-      
+
       // Article meta (for blog posts)
       ...(articleAuthor && { articleAuthor }),
       ...(articleSection && { articleSection }),
       ...(publishedTime && { articlePublishedTime: publishedTime }),
       ...(modifiedTime && { articleModifiedTime: modifiedTime }),
-      
+
       // Additional SEO
       'theme-color': '#8B7355', // Brand sage color
       'msapplication-TileColor': '#8B7355',
       'application-name': 'Miracute',
       'apple-mobile-web-app-title': 'Miracute',
       'apple-mobile-web-app-capable': 'yes',
-      'apple-mobile-web-app-status-bar-style': 'default',
+      'apple-mobile-web-app-status-bar-style': 'default'
     })
 
     // Set HTML lang attribute
@@ -110,9 +110,9 @@ export const useSEO = () => {
 
     const categoryName = category?.name || 'Template'
     const title = product.seo_title || `${product.name} - ${categoryName} Template`
-    const description = product.seo_description || 
+    const description = product.seo_description ||
       `Download ${product.name}, a professional ${categoryName.toLowerCase()} template. ${product.short_description || ''} Starting at ${formattedPrice}.`
-    
+
     const keywords = [
       ...(product.meta_keywords || []),
       product.name.toLowerCase(),
@@ -129,16 +129,16 @@ export const useSEO = () => {
       keywords,
       image: product.preview_images?.[0] || '/images/og-template.jpg',
       type: 'product',
-      canonical: `/templates/${product.slug}`,
+      canonical: `/templates/${product.slug}`
     })
   }
 
   // Category SEO
   const setCategorySEO = (category: Category, productsCount?: number) => {
     const title = category.seo_title || `${category.name} Templates - Professional Designs`
-    const description = category.seo_description || 
+    const description = category.seo_description ||
       `Browse our collection of ${category.name.toLowerCase()} templates. ${category.description || ''} ${productsCount ? `${productsCount} professional designs available.` : ''}`
-    
+
     const keywords = [
       `${category.name.toLowerCase()} templates`,
       'website templates',
@@ -154,7 +154,7 @@ export const useSEO = () => {
       description,
       keywords,
       image: category.image_url || '/images/og-category.jpg',
-      canonical: `/categories/${category.slug}`,
+      canonical: `/categories/${category.slug}`
     })
   }
 
@@ -196,7 +196,7 @@ export const useSEO = () => {
       description: 'Download beautiful, professional website templates for businesses, weddings, portfolios & more. Easy to customize Canva templates. Mobile-responsive designs. Instant download.',
       keywords: 'website templates, canva templates, business templates, wedding websites, portfolio templates, professional design, digital templates, template marketplace',
       image: '/images/og-homepage.jpg',
-      canonical: '/',
+      canonical: '/'
     })
   }
 
@@ -204,12 +204,12 @@ export const useSEO = () => {
   const setTemplatesSEO = (filters?: { category?: string, search?: string, total?: number }) => {
     let title = 'Professional Website Templates'
     let description = 'Browse our complete collection of professional website templates. Perfect for businesses, weddings, portfolios, and creative projects.'
-    
+
     if (filters?.category) {
       title = `${filters.category} Templates`
       description = `Professional ${filters.category.toLowerCase()} templates for your business.`
     }
-    
+
     if (filters?.search) {
       title = `${filters.search} Templates - Search Results`
       description = `Search results for "${filters.search}". Find the perfect template for your project.`

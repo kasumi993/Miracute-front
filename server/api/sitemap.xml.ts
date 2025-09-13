@@ -30,7 +30,7 @@ export default defineEventHandler(async (event) => {
       { url: 'licenses', priority: '0.6', changefreq: 'yearly' },
       { url: 'privacy', priority: '0.5', changefreq: 'yearly' },
       { url: 'terms', priority: '0.5', changefreq: 'yearly' },
-      { url: 'refunds', priority: '0.5', changefreq: 'yearly' },
+      { url: 'refunds', priority: '0.5', changefreq: 'yearly' }
     ]
 
     // Build sitemap XML

@@ -20,15 +20,15 @@ export default defineEventHandler(async (event) => {
 
   try {
     const body = await readBody(event)
-    const { 
-      items, 
-      customer_info, 
-      billing_address, 
-      create_account = false, 
+    const {
+      items,
+      customer_info,
+      billing_address,
+      create_account = false,
       email_updates = false,
       user_id = null,
-      success_url, 
-      cancel_url 
+      success_url,
+      cancel_url
     } = body
 
     if (!items || !Array.isArray(items) || items.length === 0) {
@@ -112,7 +112,7 @@ export default defineEventHandler(async (event) => {
 
         if (authData?.user && !authError) {
           newlyCreatedUserId = authData.user.id
-          
+
           // Create user profile
           await supabase
             .from('users')
@@ -185,7 +185,7 @@ export default defineEventHandler(async (event) => {
         billing_address: JSON.stringify(billing_address)
       },
       // Enable customer creation for guest users
-      customer_creation: stripeCustomerId ? undefined : 'always',
+      customer_creation: stripeCustomerId ? undefined : 'always'
       // Collect shipping address if needed for tax calculation
       // shipping_address_collection: {
       //   allowed_countries: ['US', 'CA']
@@ -234,7 +234,7 @@ export default defineEventHandler(async (event) => {
         const item = items.find(i => i.product_id === product.id)
         const quantity = item?.quantity || 1
         const unitPrice = parseFloat(product.price)
-        
+
         return {
           order_id: order.id,
           product_id: product.id,

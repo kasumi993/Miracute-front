@@ -26,12 +26,12 @@ export const usePayments = () => {
 
   // Initialize Stripe
   const initializeStripe = async () => {
-    if (process.server) return
+    if (process.server) {return}
 
     try {
       const { loadStripe } = await import('@stripe/stripe-js')
       stripe.value = await loadStripe(config.public.stripePublishableKey)
-      
+
       if (!stripe.value) {
         throw new Error('Failed to initialize Stripe')
       }
@@ -90,7 +90,7 @@ export const usePayments = () => {
       })
 
       cardElement.value.mount(container)
-      
+
       // Listen for changes
       cardElement.value.on('change', (event) => {
         if (event.error) {
@@ -209,10 +209,10 @@ export const usePayments = () => {
     try {
       // Create checkout session
       const session = await createCheckoutSession(cartItems, customerEmail)
-      
+
       // Redirect to Stripe Checkout
       await redirectToCheckout(session.id)
-      
+
     } catch (err) {
       console.error('Checkout failed:', err)
       throw err
@@ -234,7 +234,7 @@ export const usePayments = () => {
   const formatCurrency = (amount: number, currency: string = 'USD') => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: currency.toUpperCase(),
+      currency: currency.toUpperCase()
     }).format(amount / 100) // Stripe amounts are in cents
   }
 

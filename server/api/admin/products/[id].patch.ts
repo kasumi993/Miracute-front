@@ -3,7 +3,7 @@ import type { Database } from '~/types/database'
 
 export default defineEventHandler(async (event) => {
   const productId = getRouterParam(event, 'id')
-  
+
   if (!productId) {
     throw createError({
       statusCode: 400,
@@ -39,11 +39,11 @@ export default defineEventHandler(async (event) => {
 
   } catch (error: any) {
     console.error('Error updating product:', error)
-    
+
     if (error.statusCode) {
       throw error
     }
-    
+
     throw createError({
       statusCode: 500,
       statusMessage: 'Failed to update product',

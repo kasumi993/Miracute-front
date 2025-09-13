@@ -20,7 +20,7 @@ export const useCountries = () => {
     try {
       // Using REST Countries API for country data
       const response = await $fetch<any[]>('https://restcountries.com/v3.1/all?fields=name,cca2,flag')
-      
+
       const countries: Country[] = response
         .map(country => ({
           name: country.name.common,
@@ -34,7 +34,7 @@ export const useCountries = () => {
     } catch (err) {
       console.error('Failed to fetch countries:', err)
       error.value = 'Failed to load countries'
-      
+
       // Fallback to common countries if API fails
       const fallbackCountries: Country[] = [
         { name: 'United States', code: 'US' },
@@ -48,7 +48,7 @@ export const useCountries = () => {
         { name: 'Norway', code: 'NO' },
         { name: 'Denmark', code: 'DK' }
       ].sort((a, b) => a.name.localeCompare(b.name))
-      
+
       countriesCache.value = fallbackCountries
       return fallbackCountries
     } finally {

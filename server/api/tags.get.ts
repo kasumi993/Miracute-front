@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
     const supabase = await serverSupabaseServiceRole<Database>(event)
     const query = getQuery(event)
     const search = query.search as string || ''
-    
+
     // Get all unique tags from products
     const { data: products, error } = await supabase
       .from('products')
@@ -36,9 +36,9 @@ export default defineEventHandler(async (event) => {
 
     // Convert to array and filter by search term if provided
     let tagsArray = Array.from(allTags)
-    
+
     if (search) {
-      tagsArray = tagsArray.filter(tag => 
+      tagsArray = tagsArray.filter(tag =>
         tag.toLowerCase().includes(search.toLowerCase())
       )
     }
@@ -54,7 +54,7 @@ export default defineEventHandler(async (event) => {
 
   } catch (error: any) {
     console.error('Tags API error:', error)
-    
+
     if (error.statusCode) {
       throw error
     }

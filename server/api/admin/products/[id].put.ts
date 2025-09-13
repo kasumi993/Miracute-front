@@ -4,7 +4,7 @@ import type { Database } from '~/types/database'
 export default defineEventHandler(async (event) => {
   const { supabase } = await validateAdminAccess(event)
   const productId = getRouterParam(event, 'id')
-  
+
   if (!productId) {
     throw createError({
       statusCode: 400,
@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
 
   // Get the request body
   const body = await readBody(event)
-  
+
   if (!body) {
     throw createError({
       statusCode: 400,
@@ -24,8 +24,8 @@ export default defineEventHandler(async (event) => {
 
   try {
     // Create a copy of body to potentially modify
-    let updateData = { ...body }
-    
+    const updateData = { ...body }
+
     // Try to update with template_type first
     let { data, error } = await supabase
       .from('products')
@@ -37,14 +37,14 @@ export default defineEventHandler(async (event) => {
     // If error is about missing template_type column, try without it
     if (error && error.message && error.message.includes('template_type')) {
       const { template_type, ...updateDataWithoutTemplateType } = updateData
-      
+
       const result = await supabase
         .from('products')
         .update(updateDataWithoutTemplateType)
         .eq('id', productId)
         .select()
         .single()
-        
+
       data = result.data
       error = result.error
     }
@@ -65,16 +65,16 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: true,
-      data: data
+      data
     }
 
   } catch (error: any) {
     console.error('Error updating product:', error)
-    
+
     if (error.statusCode) {
       throw error
     }
-    
+
     throw createError({
       statusCode: 500,
       statusMessage: 'Failed to update product',

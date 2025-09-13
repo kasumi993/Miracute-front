@@ -166,7 +166,7 @@ export class AnalyticsTracker {
       const totalViews = viewsResult.count || 0
       const totalOrders = ordersResult.count || 0
 
-      if (totalViews === 0) return 0
+      if (totalViews === 0) {return 0}
       return (totalOrders / totalViews) * 100
     } catch (error) {
       console.error('Failed to calculate conversion rate:', error)
@@ -261,9 +261,9 @@ export function extractRequestData(request: any) {
   return {
     user_agent: request.headers?.['user-agent'] || '',
     referrer: request.headers?.referer || request.headers?.referrer || '',
-    ip_address: request.headers?.['x-forwarded-for']?.split(',')[0] || 
-                request.headers?.['x-real-ip'] || 
-                request.connection?.remoteAddress || 
+    ip_address: request.headers?.['x-forwarded-for']?.split(',')[0] ||
+                request.headers?.['x-real-ip'] ||
+                request.connection?.remoteAddress ||
                 request.socket?.remoteAddress || ''
   }
 }

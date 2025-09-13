@@ -3,7 +3,7 @@ import type { Database } from '~/types/database'
 
 export default defineEventHandler(async (event) => {
   const { supabase } = await validateAdminAccess(event)
-  
+
   // Parse query to see if we should clear existing data
   const query = getQuery(event)
   const clearExisting = query.clear === 'true'
@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
       .from('products')
       .delete()
       .neq('id', '00000000-0000-0000-0000-000000000000') // Delete all
-    
+
     if (deleteError) {
       console.log('Warning: Could not clear existing products:', deleteError)
     }
@@ -41,7 +41,7 @@ export default defineEventHandler(async (event) => {
 
   // Generate more products for pagination testing
   const templateNames = [
-    'Modern Business Card Collection', 'Instagram Story Templates Pack', 'Wedding Invitation Suite', 
+    'Modern Business Card Collection', 'Instagram Story Templates Pack', 'Wedding Invitation Suite',
     'Professional Resume Template', 'Social Media Quote Templates', 'Minimalist Logo Design Kit',
     'E-commerce Banner Bundle', 'Newsletter Email Templates', 'Real Estate Flyer Pack',
     'Food Menu Design Templates', 'Fitness Poster Collection', 'Travel Brochure Templates',
@@ -85,7 +85,7 @@ export default defineEventHandler(async (event) => {
     const isFeatured = Math.random() > 0.7 // 30% featured
     const templateType = templateTypes[Math.floor(Math.random() * templateTypes.length)]
     const difficulty = difficulties[Math.floor(Math.random() * difficulties.length)]
-    
+
     return {
       name,
       slug: name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''),
@@ -157,7 +157,7 @@ export default defineEventHandler(async (event) => {
       is_featured: true,
       is_active: true,
       view_count: 189,
-      download_count: 31,
+      download_count: 31
     },
     {
       name: 'Calming Therapist Website Template',
@@ -179,7 +179,7 @@ export default defineEventHandler(async (event) => {
       is_featured: false,
       is_active: true,
       view_count: 156,
-      download_count: 18,
+      download_count: 18
     },
     {
       name: 'Creative Portfolio Showcase',
@@ -201,7 +201,7 @@ export default defineEventHandler(async (event) => {
       is_featured: true,
       is_active: true,
       view_count: 298,
-      download_count: 45,
+      download_count: 45
     },
     {
       name: 'Social Media Post Bundle',
@@ -223,7 +223,7 @@ export default defineEventHandler(async (event) => {
       is_featured: false,
       is_active: true,
       view_count: 412,
-      download_count: 67,
+      download_count: 67
     },
     {
       name: 'Minimalist Wedding Website',
@@ -245,7 +245,7 @@ export default defineEventHandler(async (event) => {
       is_featured: true,
       is_active: true,
       view_count: 324,
-      download_count: 29,
+      download_count: 29
     }
   ]
 
@@ -274,11 +274,11 @@ export default defineEventHandler(async (event) => {
 
   } catch (error: any) {
     console.error('Error creating sample products:', error)
-    
+
     if (error.statusCode) {
       throw error
     }
-    
+
     throw createError({
       statusCode: 500,
       statusMessage: 'Failed to create sample products',

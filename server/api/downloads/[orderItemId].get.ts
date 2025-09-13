@@ -1,7 +1,7 @@
 export default defineEventHandler(async (event) => {
   const orderItemId = getRouterParam(event, 'orderItemId')
   const user = await requireUserSession(event)
-  
+
   if (!orderItemId) {
     throw createError({
       statusCode: 400,
@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
 
   try {
     const supabase = await serverSupabaseServiceRole(event)
-    
+
     // Verify the user owns this order item and it's paid
     const { data: orderItem, error } = await supabase
       .from('order_items')
@@ -62,7 +62,7 @@ export default defineEventHandler(async (event) => {
         expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
       }
     }
-    
+
   } catch (error) {
     console.error('Download error:', error)
     throw createError({

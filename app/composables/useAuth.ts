@@ -14,7 +14,7 @@ interface AuthUser {
 export const useAuth = () => {
   const supabase = useSupabaseClient()
   const user = useSupabaseUser()
-  
+
   // Reactive state
   const authUser = ref<AuthUser | null>(null)
   const isLoading = ref(false)
@@ -58,23 +58,23 @@ export const useAuth = () => {
 
   // Create user profile in database using server-side API
   const createUserProfile = async () => {
-    if (!user.value) return
+    if (!user.value) {return}
 
     try {
       console.log('Creating user profile for:', user.value.id, user.value.email)
-      
+
       // Extract name from metadata - could be full_name or separate first/last names
       const metaData = user.value.user_metadata || {}
       let firstName = metaData.first_name || null
       let lastName = metaData.last_name || null
-      
+
       // If we only have full_name, try to split it
       if (!firstName && !lastName && metaData.full_name) {
         const nameParts = metaData.full_name.split(' ')
         firstName = nameParts[0] || null
         lastName = nameParts.slice(1).join(' ') || null
       }
-      
+
       const response = await $fetch('/api/auth/create-user-profile', {
         method: 'POST',
         body: {
@@ -85,9 +85,9 @@ export const useAuth = () => {
           avatar_url: metaData.avatar_url || null
         }
       })
-      
+
       console.log('User profile creation response:', response)
-      
+
       if (response.success) {
         if (response.user) {
           // User profile was created successfully
@@ -99,7 +99,7 @@ export const useAuth = () => {
           authUser.value = null
         }
       }
-      
+
     } catch (err) {
       console.error('Error creating user profile:', err)
       error.value = 'Failed to create user profile'
@@ -120,7 +120,7 @@ export const useAuth = () => {
         }
       })
 
-      if (signInError) throw signInError
+      if (signInError) {throw signInError}
 
       return true
     } catch (err: any) {
@@ -144,7 +144,7 @@ export const useAuth = () => {
         }
       })
 
-      if (signInError) throw signInError
+      if (signInError) {throw signInError}
 
       return true
     } catch (err: any) {
@@ -162,8 +162,8 @@ export const useAuth = () => {
 
     try {
       const { error: signOutError } = await supabase.auth.signOut()
-      if (signOutError) throw signOutError
-      
+      if (signOutError) {throw signOutError}
+
       authUser.value = null
       await navigateTo('/auth/login')
     } catch (err: any) {
@@ -177,7 +177,7 @@ export const useAuth = () => {
 
   // Update profile using API (service role)
   const updateProfile = async (updates: Partial<AuthUser>) => {
-    if (!user.value) throw new Error('Not authenticated')
+    if (!user.value) {throw new Error('Not authenticated')}
 
     isLoading.value = true
     error.value = null
@@ -223,7 +223,7 @@ export const useAuth = () => {
   const init = async () => {
     // Wait for Supabase to initialize
     await nextTick()
-    
+
     if (user.value) {
       await fetchUserProfile()
     }
@@ -231,7 +231,7 @@ export const useAuth = () => {
     // Listen for auth changes
     supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event, session?.user?.id)
-      
+
       if (event === 'SIGNED_IN' && session?.user) {
         try {
           await fetchUserProfile()

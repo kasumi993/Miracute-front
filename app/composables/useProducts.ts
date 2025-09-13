@@ -1,4 +1,4 @@
-import type { Database } from '~/types/database'
+import type { Database, ApiResponse } from '~/types/database'
 
 type Product = Database['public']['Tables']['products']['Row']
 type Category = Database['public']['Tables']['categories']['Row']
@@ -38,13 +38,14 @@ export const useProducts = () => {
   // Fetch all categories
   const fetchCategories = async () => {
     try {
-      const response = await $fetch('/api/categories')
+      const response = await $fetch<ApiResponse<Category[]>>('/api/categories')
       const data = response.data || []
-      
+
       categories.value = data
       return data
     } catch (err) {
       console.error('Error fetching categories:', err)
+      error.value = 'Failed to fetch categories'
       throw err
     }
   }
@@ -65,15 +66,15 @@ export const useProducts = () => {
         limit: PRODUCTS_PER_PAGE
       }
 
-      if (filters.category) queryParams.category = filters.category
-      if (filters.minPrice) queryParams.minPrice = filters.minPrice
-      if (filters.maxPrice) queryParams.maxPrice = filters.maxPrice
-      if (filters.featured) queryParams.featured = 'true'
-      if (filters.difficulty) queryParams.difficulty = filters.difficulty
-      if (filters.search) queryParams.search = filters.search
-      if (filters.tags?.length) queryParams.tags = filters.tags.join(',')
-      if (filters.software?.length) queryParams.software = filters.software.join(',')
-      if ((filters as any).sortBy) queryParams.sortBy = (filters as any).sortBy
+      if (filters.category) {queryParams.category = filters.category}
+      if (filters.minPrice) {queryParams.minPrice = filters.minPrice}
+      if (filters.maxPrice) {queryParams.maxPrice = filters.maxPrice}
+      if (filters.featured) {queryParams.featured = 'true'}
+      if (filters.difficulty) {queryParams.difficulty = filters.difficulty}
+      if (filters.search) {queryParams.search = filters.search}
+      if (filters.tags?.length) {queryParams.tags = filters.tags.join(',')}
+      if (filters.software?.length) {queryParams.software = filters.software.join(',')}
+      if ((filters as any).sortBy) {queryParams.sortBy = (filters as any).sortBy}
 
       const response = await $fetch('/api/products', { query: queryParams })
 
@@ -110,8 +111,8 @@ export const useProducts = () => {
     error.value = null
 
     try {
-      const response = await $fetch(`/api/products/${slug}`)
-      return response.data
+      const response = await $fetch<ApiResponse<Product>>(`/api/products/${slug}`)
+      return response.data || null
     } catch (err: any) {
       if (err.statusCode === 404) {
         return null
@@ -159,7 +160,7 @@ export const useProducts = () => {
         .limit(limit)
         .order('created_at', { ascending: false })
 
-      if (fetchError) throw fetchError
+      if (fetchError) {throw fetchError}
 
       return data || []
     } catch (err) {
@@ -206,7 +207,7 @@ export const useProducts = () => {
 
   // Load more products (for infinite scroll)
   const loadMore = async (filters: ProductFilters = {}) => {
-    if (!hasMore.value || isLoading.value) return
+    if (!hasMore.value || isLoading.value) {return}
 
     await fetchProducts(filters, currentPage.value + 1, true)
   }
@@ -220,7 +221,7 @@ export const useProducts = () => {
       price,
       comparePrice,
       hasDiscount: comparePrice && comparePrice > price,
-      discountPercentage: comparePrice && comparePrice > price 
+      discountPercentage: comparePrice && comparePrice > price
         ? Math.round(((comparePrice - price) / comparePrice) * 100)
         : 0,
       formattedPrice: `$${price.toFixed(2)}`,

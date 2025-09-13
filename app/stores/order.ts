@@ -38,12 +38,12 @@ export const useOrderStore = defineStore('order', {
 
   getters: {
     completedOrders: (state) => state.orders.filter(order => order.status === 'completed'),
-    
-    getOrderById: (state) => (orderId: string) => 
+
+    getOrderById: (state) => (orderId: string) =>
       state.orders.find(order => order.id === orderId),
-      
+
     getCurrentOrderDownloads: (state) => {
-      if (!state.currentOrder) return []
+      if (!state.currentOrder) {return []}
       return state.currentOrder.items.filter(item => item.downloadUrl)
     }
   },
@@ -83,28 +83,28 @@ export const useOrderStore = defineStore('order', {
 
     async processPayment(order: Order, paymentData: any = {}) {
       this.isProcessingPayment = true
-      
+
       try {
         // Here you would integrate with Stripe
         // For now, simulate payment processing
         await new Promise(resolve => setTimeout(resolve, 2000))
-        
+
         // Update order with payment info
         order.paymentIntentId = paymentData.paymentIntentId || `pi_${Date.now()}`
         order.status = 'completed'
         order.updatedAt = new Date()
-        
+
         // Save order to database
         await this.saveOrderToDatabase(order)
-        
+
         // Add to local orders
         this.orders.push(order)
-        
+
         return { success: true, order }
       } catch (error) {
         order.status = 'failed'
         order.updatedAt = new Date()
-        
+
         return { success: false, error: error.message }
       } finally {
         this.isProcessingPayment = false
@@ -113,7 +113,7 @@ export const useOrderStore = defineStore('order', {
 
     async saveOrderToDatabase(order: Order) {
       const supabase = useSupabaseClient()
-      
+
       try {
         // Save main order
         const { data: orderData, error: orderError } = await supabase
@@ -132,7 +132,7 @@ export const useOrderStore = defineStore('order', {
           .select()
           .single()
 
-        if (orderError) throw orderError
+        if (orderError) {throw orderError}
 
         // Save order items
         const orderItems = order.items.map(item => ({
@@ -149,7 +149,7 @@ export const useOrderStore = defineStore('order', {
           .from('order_items')
           .insert(orderItems)
 
-        if (itemsError) throw itemsError
+        if (itemsError) {throw itemsError}
 
         return orderData
       } catch (error) {
@@ -160,7 +160,7 @@ export const useOrderStore = defineStore('order', {
 
     async loadUserOrders(userEmail: string) {
       const supabase = useSupabaseClient()
-      
+
       try {
         const { data: orders, error } = await supabase
           .from('orders')
@@ -179,7 +179,7 @@ export const useOrderStore = defineStore('order', {
           .eq('status', 'completed')
           .order('created_at', { ascending: false })
 
-        if (error) throw error
+        if (error) {throw error}
 
         this.orders = orders.map(order => ({
           id: order.id,

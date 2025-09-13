@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
   try {
     const config = useRuntimeConfig()
     const { supabase } = await validateAdminAccess(event)
-    
+
     // Get the most recent paid order for testing
     const { data: orders, error } = await supabase
       .from('orders')
@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
       .eq('payment_status', 'paid')
       .order('created_at', { ascending: false })
       .limit(1)
-    
+
     if (error || !orders?.length) {
       return {
         success: false,
@@ -30,10 +30,10 @@ export default defineEventHandler(async (event) => {
         hasOrders: false
       }
     }
-    
+
     const testOrder = orders[0]
     console.log('Testing with order:', testOrder.id)
-    
+
     // Test both customer and admin emails
     const results = {
       customerEmail: null as any,
@@ -44,7 +44,7 @@ export default defineEventHandler(async (event) => {
         items: testOrder.order_items?.length || 0
       }
     }
-    
+
     try {
       // Test customer confirmation email
       results.customerEmail = await sendTestOrderConfirmation(testOrder)
@@ -52,21 +52,21 @@ export default defineEventHandler(async (event) => {
     } catch (error: any) {
       results.customerEmail = { success: false, error: error.message }
     }
-    
+
     try {
-      // Test admin notification email  
+      // Test admin notification email
       results.adminEmail = await sendTestAdminNotification(testOrder)
       console.log('Admin email result:', results.adminEmail)
     } catch (error: any) {
       results.adminEmail = { success: false, error: error.message }
     }
-    
+
     return {
       success: true,
       results,
       timestamp: new Date().toISOString()
     }
-    
+
   } catch (error: any) {
     console.error('Purchase email test failed:', error)
     return {
@@ -83,7 +83,7 @@ async function sendTestOrderConfirmation(order: any) {
   const brevo = await import('@getbrevo/brevo')
   const apiInstance = new brevo.TransactionalEmailsApi()
   apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, config.brevoApiKey)
-  
+
   const itemsHtml = order.order_items?.map((item: any) => `
     <tr>
       <td style="padding: 10px; border-bottom: 1px solid #eee;">
@@ -95,7 +95,7 @@ async function sendTestOrderConfirmation(order: any) {
       </td>
     </tr>
   `).join('') || ''
-  
+
   const htmlContent = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <div style="background: linear-gradient(135deg, #8B4513, #A0522D); color: white; padding: 30px; text-align: center;">
@@ -125,13 +125,13 @@ async function sendTestOrderConfirmation(order: any) {
       </div>
     </div>
   `
-  
+
   const sendSmtpEmail = new brevo.SendSmtpEmail()
   sendSmtpEmail.to = [{ email: 'hello@miracute.com', name: 'Test Customer' }]
   sendSmtpEmail.subject = `[TEST] Order Confirmation - ${order.id}`
   sendSmtpEmail.htmlContent = htmlContent
   sendSmtpEmail.sender = { email: 'hello@miracute.com', name: 'Miracute' }
-  
+
   const result = await apiInstance.sendTransacEmail(sendSmtpEmail)
   return { success: true, messageId: result.body.messageId }
 }
@@ -141,7 +141,7 @@ async function sendTestAdminNotification(order: any) {
   const brevo = await import('@getbrevo/brevo')
   const apiInstance = new brevo.TransactionalEmailsApi()
   apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, config.brevoApiKey)
-  
+
   const itemsHtml = order.order_items?.map((item: any) => `
     <tr>
       <td style="padding: 10px; border-bottom: 1px solid #eee;">
@@ -153,7 +153,7 @@ async function sendTestAdminNotification(order: any) {
       </td>
     </tr>
   `).join('') || ''
-  
+
   const htmlContent = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <div style="background: linear-gradient(135deg, #8B4513, #A0522D); color: white; padding: 30px; text-align: center;">
@@ -197,13 +197,13 @@ async function sendTestAdminNotification(order: any) {
       </div>
     </div>
   `
-  
+
   const sendSmtpEmail = new brevo.SendSmtpEmail()
   sendSmtpEmail.to = [{ email: 'hello@miracute.com', name: 'Miracute Admin' }]
   sendSmtpEmail.subject = `[TEST] 💰 New Order: $${parseFloat(order.total_amount).toFixed(2)} - ${order.id}`
   sendSmtpEmail.htmlContent = htmlContent
   sendSmtpEmail.sender = { email: 'orders@miracute.com', name: 'Miracute Orders' }
-  
+
   const result = await apiInstance.sendTransacEmail(sendSmtpEmail)
   return { success: true, messageId: result.body.messageId }
 }

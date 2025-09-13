@@ -36,11 +36,11 @@ export default defineEventHandler(async (event) => {
 
   } catch (error: any) {
     console.error('Error updating category:', error)
-    
+
     if (error.statusCode) {
       throw error
     }
-    
+
     throw createError({
       statusCode: 500,
       statusMessage: 'Failed to update category',

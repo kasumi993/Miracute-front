@@ -4,6 +4,6 @@ export default defineNuxtRouteMiddleware(() => {
   if (import.meta.server) {
     return
   }
-  
+
   // Let the page component handle the admin verification with loading state
 })

@@ -65,11 +65,11 @@ export default defineEventHandler(async (event) => {
 
   } catch (error: any) {
     console.error('Error creating sample categories:', error)
-    
+
     if (error.statusCode) {
       throw error
     }
-    
+
     throw createError({
       statusCode: 500,
       statusMessage: 'Failed to create sample categories',

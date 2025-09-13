@@ -3,7 +3,7 @@ import type { Database } from '~/types/database'
 
 export default defineEventHandler(async (event) => {
   const { supabase } = await validateAdminAccess(event)
-  
+
   try {
     // Get all files from Product-images bucket
     const { data: files, error: listError } = await supabase.storage
@@ -62,21 +62,21 @@ export default defineEventHandler(async (event) => {
     const allStorageUrls: string[] = []
 
     files.forEach(file => {
-      if (!file.name || !file.created_at) return
-      
+      if (!file.name || !file.created_at) {return}
+
       // Get the public URL for this file
       const { data: { publicUrl } } = supabase.storage
         .from('Product-images')
         .getPublicUrl(file.name)
-      
+
       allStorageUrls.push(publicUrl)
-      
+
       console.log(`File: ${file.name}`)
       console.log(`  Public URL: ${publicUrl}`)
       console.log(`  Is used: ${usedImageUrls.has(publicUrl)}`)
-      
+
       if (!usedImageUrls.has(publicUrl)) {
-        console.log(`  -> MARKED FOR DELETION`)
+        console.log('  -> MARKED FOR DELETION')
         orphanedFiles.push(file.name)
       }
     })
@@ -114,11 +114,11 @@ export default defineEventHandler(async (event) => {
 
   } catch (error: any) {
     console.error('Error during image cleanup:', error)
-    
+
     if (error.statusCode) {
       throw error
     }
-    
+
     throw createError({
       statusCode: 500,
       statusMessage: 'Image cleanup failed',

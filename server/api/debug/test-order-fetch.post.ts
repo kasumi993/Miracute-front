@@ -67,7 +67,7 @@ export default defineEventHandler(async (event) => {
     try {
       const query = order_id ? { order_id } : {}
       console.log('Testing with query:', query)
-      
+
       let queryBuilder = supabase
         .from('orders')
         .select(`

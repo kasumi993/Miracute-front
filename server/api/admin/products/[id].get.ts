@@ -46,7 +46,7 @@ export default defineEventHandler(async (event) => {
         name
       )
     `
-    
+
     // Try to fetch with template_type first
     let { data, error } = await supabase
       .from('products')
@@ -61,10 +61,10 @@ export default defineEventHandler(async (event) => {
         .select(baseColumns)
         .eq('id', productId)
         .single()
-        
+
       data = result.data
       error = result.error
-      
+
       if (data && !error) {
         data.template_type = 'canva'
       }
@@ -86,16 +86,16 @@ export default defineEventHandler(async (event) => {
 
     return {
       success: true,
-      data: data
+      data
     }
 
   } catch (error: any) {
     console.error('Error fetching product:', error)
-    
+
     if (error.statusCode) {
       throw error
     }
-    
+
     throw createError({
       statusCode: 500,
       statusMessage: 'Failed to fetch product',

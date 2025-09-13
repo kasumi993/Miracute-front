@@ -2,14 +2,14 @@ import * as brevo from '@getbrevo/brevo'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
-  
+
   if (!body.email) {
     throw createError({
       statusCode: 400,
       statusMessage: 'Email is required'
     })
   }
-  
+
   // Validate email format
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!emailRegex.test(body.email)) {
@@ -18,22 +18,22 @@ export default defineEventHandler(async (event) => {
       statusMessage: 'Invalid email format'
     })
   }
-  
+
   try {
     // Extract name from email or use provided name
     const firstName = body.firstName || body.name || body.email.split('@')[0]
     const lastName = body.lastName
-    
+
     // Add to Brevo newsletter list
     const brevoResult = await addToBrevoNewsletter(body.email, firstName, lastName, body.source || 'website')
-    
+
     if (!brevoResult.success) {
       // If it's not a "contact already exists" error, throw it
       if (!brevoResult.message?.includes('already exist')) {
         throw new Error(brevoResult.error)
       }
     }
-    
+
     // Send welcome email if this is a new subscription
     if (brevoResult.success && brevoResult.contactId) {
       try {
@@ -43,18 +43,18 @@ export default defineEventHandler(async (event) => {
         // Don't fail the subscription if welcome email fails
       }
     }
-    
+
     return {
       success: true,
-      message: brevoResult.message?.includes('already exist') 
-        ? 'You are already subscribed to our newsletter!' 
+      message: brevoResult.message?.includes('already exist')
+        ? 'You are already subscribed to our newsletter!'
         : 'Successfully subscribed to newsletter!',
       isNewSubscription: !brevoResult.message?.includes('already exist')
     }
-    
+
   } catch (error: any) {
     console.error('Newsletter subscription error:', error)
-    
+
     throw createError({
       statusCode: 500,
       statusMessage: 'Failed to subscribe to newsletter',
@@ -68,10 +68,10 @@ export default defineEventHandler(async (event) => {
       const config = useRuntimeConfig()
       const apiInstance = new brevo.ContactsApi()
       apiInstance.setApiKey(brevo.ContactsApiApiKeys.apiKey, config.brevoApiKey)
-      
+
       const createContact = new brevo.CreateContact()
       createContact.email = email
-      
+
       if (firstName || lastName) {
         createContact.attributes = {
           FIRSTNAME: firstName || '',
@@ -80,14 +80,14 @@ export default defineEventHandler(async (event) => {
           SUBSCRIPTION_DATE: new Date().toISOString()
         }
       }
-      
+
       if (config.brevoListId) {
         createContact.listIds = [parseInt(config.brevoListId)]
       }
-      
+
       const result = await apiInstance.createContact(createContact)
       return { success: true, contactId: result.body.id }
-      
+
     } catch (error: any) {
       if (error.status === 400 && error.message?.includes('Contact already exist')) {
         return { success: true, contactId: null, message: 'Contact already exists' }
@@ -100,7 +100,7 @@ export default defineEventHandler(async (event) => {
     const config = useRuntimeConfig()
     const apiInstance = new brevo.TransactionalEmailsApi()
     apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, config.brevoApiKey)
-    
+
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: linear-gradient(135deg, #8B4513, #A0522D); color: white; padding: 30px; text-align: center;">
@@ -135,13 +135,13 @@ export default defineEventHandler(async (event) => {
         </div>
       </div>
     `
-    
+
     const sendSmtpEmail = new brevo.SendSmtpEmail()
     sendSmtpEmail.to = [{ email, name: firstName }]
     sendSmtpEmail.subject = 'Welcome to Miracute! ✨'
     sendSmtpEmail.htmlContent = htmlContent
     sendSmtpEmail.sender = { email: 'hello@miracute.com', name: 'Miracute' }
-    
+
     await apiInstance.sendTransacEmail(sendSmtpEmail)
   }
 })

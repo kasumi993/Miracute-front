@@ -4,10 +4,10 @@ import * as brevo from '@getbrevo/brevo'
 function createBrevoClient() {
   const config = useRuntimeConfig()
   const apiInstance = new brevo.TransactionalEmailsApi()
-  
+
   // Configure API key authorization
   apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, config.brevoApiKey)
-  
+
   return apiInstance
 }
 
@@ -15,10 +15,10 @@ function createBrevoClient() {
 function createBrevoContactsClient() {
   const config = useRuntimeConfig()
   const apiInstance = new brevo.ContactsApi()
-  
+
   // Configure API key authorization
   apiInstance.setApiKey(brevo.ContactsApiApiKeys.apiKey, config.brevoApiKey)
-  
+
   return apiInstance
 }
 
@@ -35,7 +35,7 @@ export async function sendBrevoEmail(emailData: {
   try {
     const apiInstance = createBrevoClient()
     const config = useRuntimeConfig()
-    
+
     const sendSmtpEmail = new brevo.SendSmtpEmail()
     sendSmtpEmail.to = emailData.to
     sendSmtpEmail.subject = emailData.subject
@@ -45,17 +45,17 @@ export async function sendBrevoEmail(emailData: {
       email: config.smtpUser || 'hello@miracute.com',
       name: 'Miracute'
     }
-    
+
     if (emailData.templateId) {
       sendSmtpEmail.templateId = emailData.templateId
       sendSmtpEmail.params = emailData.params
     }
-    
+
     const result = await apiInstance.sendTransacEmail(sendSmtpEmail)
-    
+
     console.log('Email sent via Brevo:', result.body)
     return { success: true, messageId: result.body.messageId }
-    
+
   } catch (error: any) {
     console.error('Failed to send email via Brevo:', error)
     return { success: false, error: error.message }
@@ -72,10 +72,10 @@ export async function addToBrevoNewsletter(contactData: {
   try {
     const apiInstance = createBrevoContactsClient()
     const config = useRuntimeConfig()
-    
+
     const createContact = new brevo.CreateContact()
     createContact.email = contactData.email
-    
+
     if (contactData.firstName || contactData.lastName) {
       createContact.attributes = {
         FIRSTNAME: contactData.firstName || '',
@@ -83,24 +83,24 @@ export async function addToBrevoNewsletter(contactData: {
         ...contactData.attributes
       }
     }
-    
+
     // Add to newsletter list if list ID is configured
     if (config.brevoListId) {
       createContact.listIds = [parseInt(config.brevoListId)]
     }
-    
+
     const result = await apiInstance.createContact(createContact)
-    
+
     console.log('Contact added to Brevo:', result.body)
     return { success: true, contactId: result.body.id }
-    
+
   } catch (error: any) {
     // Handle case where contact already exists
     if (error.status === 400 && error.message?.includes('Contact already exist')) {
       console.log('Contact already exists in Brevo')
       return { success: true, contactId: null, message: 'Contact already exists' }
     }
-    
+
     console.error('Failed to add contact to Brevo:', error)
     return { success: false, error: error.message }
   }
@@ -111,7 +111,7 @@ export async function sendBrevoOrderConfirmation(orderData: any) {
   const itemsList = orderData.order_items
     .map((item: any) => `• ${item.product.name} (${item.quantity}x) - $${parseFloat(item.unit_price).toFixed(2)}`)
     .join('\n')
-  
+
   const totalAmount = parseFloat(orderData.total_amount).toFixed(2)
   const orderDate = new Date(orderData.created_at).toLocaleDateString('en-US', {
     year: 'numeric',
@@ -120,9 +120,9 @@ export async function sendBrevoOrderConfirmation(orderData: any) {
     hour: '2-digit',
     minute: '2-digit'
   })
-  
+
   const config = useRuntimeConfig()
-  
+
   const htmlContent = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <div style="background: linear-gradient(135deg, #8B4513, #A0522D); color: white; padding: 30px; text-align: center;">
@@ -169,7 +169,7 @@ export async function sendBrevoOrderConfirmation(orderData: any) {
       </div>
     </div>
   `
-  
+
   return await sendBrevoEmail({
     to: [{ email: orderData.customer_email, name: orderData.customer_name }],
     subject: `Order Confirmation #${orderData.order_number} - Thank you for your purchase!`,
@@ -183,7 +183,7 @@ export async function sendBrevoAdminOrderNotification(orderData: any) {
   const itemsList = orderData.order_items
     .map((item: any) => `• ${item.product.name} (${item.quantity}x) - $${parseFloat(item.unit_price).toFixed(2)}`)
     .join('\n')
-  
+
   const totalAmount = parseFloat(orderData.total_amount).toFixed(2)
   const orderDate = new Date(orderData.created_at).toLocaleDateString('en-US', {
     year: 'numeric',
@@ -192,9 +192,9 @@ export async function sendBrevoAdminOrderNotification(orderData: any) {
     hour: '2-digit',
     minute: '2-digit'
   })
-  
+
   const config = useRuntimeConfig()
-  
+
   const htmlContent = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <div style="background: linear-gradient(135deg, #8B4513, #A0522D); color: white; padding: 30px; text-align: center;">
@@ -239,7 +239,7 @@ export async function sendBrevoAdminOrderNotification(orderData: any) {
       </div>
     </div>
   `
-  
+
   return await sendBrevoEmail({
     to: [{ email: 'hello@miracute.com', name: 'Miracute Admin' }],
     subject: `🎉 New Order #${orderData.order_number} - $${totalAmount}`,
@@ -251,7 +251,7 @@ export async function sendBrevoAdminOrderNotification(orderData: any) {
 // Send review request email after purchase
 export async function sendBrevoReviewRequestEmail(orderData: any) {
   const config = useRuntimeConfig()
-  
+
   const itemsList = orderData.order_items
     .map((item: any) => `
       <div style="border: 1px solid #e5e5e5; border-radius: 8px; padding: 20px; margin-bottom: 16px; background: white;">
@@ -264,7 +264,7 @@ export async function sendBrevoReviewRequestEmail(orderData: any) {
         </div>
       </div>
     `).join('')
-  
+
   const htmlContent = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <div style="background: linear-gradient(135deg, #8B4513, #A0522D); color: white; padding: 30px; text-align: center;">
@@ -298,7 +298,7 @@ export async function sendBrevoReviewRequestEmail(orderData: any) {
       </div>
     </div>
   `
-  
+
   return await sendBrevoEmail({
     to: [{ email: orderData.customer_email, name: orderData.customer_name }],
     subject: '⭐ How was your Miracute experience? Quick review request',
@@ -322,7 +322,7 @@ export async function sendBrevoWelcomeEmail(contactData: {
   firstName?: string
 }) {
   const config = useRuntimeConfig()
-  
+
   const htmlContent = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <div style="background: linear-gradient(135deg, #8B4513, #A0522D); color: white; padding: 30px; text-align: center;">
@@ -358,7 +358,7 @@ export async function sendBrevoWelcomeEmail(contactData: {
       </div>
     </div>
   `
-  
+
   return await sendBrevoEmail({
     to: [{ email: contactData.email, name: contactData.firstName }],
     subject: 'Welcome to Miracute! ✨',

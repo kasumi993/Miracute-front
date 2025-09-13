@@ -3,10 +3,10 @@ import { createAnalyticsTracker } from '../../utils/analyticsTracker'
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
-    
+
     // Support both 'event' and 'event_type' for backwards compatibility
     const eventName = body.event || body.event_type
-    
+
     if (!eventName) {
       throw createError({
         statusCode: 400,
@@ -16,10 +16,10 @@ export default defineEventHandler(async (event) => {
 
     // Get Supabase client
     const supabase = serverSupabaseClient(event)
-    
+
     // Create analytics tracker
     const tracker = createAnalyticsTracker(supabase)
-    
+
     // Get session ID from cookies or generate new one
     let sessionId = getCookie(event, 'analytics_session')
     if (!sessionId) {
@@ -66,7 +66,7 @@ export default defineEventHandler(async (event) => {
 
   } catch (error: any) {
     console.error('Analytics tracking error:', error)
-    
+
     // Don't throw errors for analytics - just log them
     return {
       success: false,

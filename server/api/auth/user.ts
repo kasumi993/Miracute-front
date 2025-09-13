@@ -1,82 +1,65 @@
 import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
-import type { Database } from '~/app/types/database'
+import type { Database, User, ApiResponse } from '~/types/database'
+import { createApiResponse, createApiError, handleSupabaseError } from '../../utils/apiResponse'
+import { userProfileSchema, validateFormData } from '~/utils/validation'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (event): Promise<ApiResponse<User | null>> => {
   try {
-    // Get the authenticated user
     const user = await serverSupabaseUser(event)
-    
+
     if (!user) {
-      throw createError({
-        statusCode: 401,
-        statusMessage: 'Not authenticated'
-      })
+      createApiError('Authentication required', 401)
     }
 
-    // Use service role client to bypass RLS
-    const supabaseServiceRole = serverSupabaseServiceRole<Database>(event)
+    const supabase = serverSupabaseServiceRole<Database>(event)
     const method = getMethod(event)
 
     if (method === 'GET') {
-      // Fetch user profile using service role (bypasses RLS)
-      const { data: userProfile, error } = await supabaseServiceRole
+      const { data, error } = await supabase
         .from('users')
         .select('*')
-        .eq('id', user.id)
+        .eq('id', user!.id)
         .single()
-      
+
       if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching user profile:', error)
-        throw createError({
-          statusCode: 500,
-          statusMessage: 'Failed to fetch user profile'
-        })
+        handleSupabaseError(error, 'Fetch user profile')
       }
 
-      return {
-        user: userProfile || null
-      }
+      return createApiResponse(data || null)
     }
 
     if (method === 'PATCH') {
-      // Update user profile using service role
       const body = await readBody(event)
-      
-      const { data: updatedUser, error } = await supabaseServiceRole
+
+      // Validate input data
+      const validation = validateFormData(userProfileSchema, body)
+      if (!validation.success) {
+        createApiError('Invalid input data', 400)
+      }
+
+      const { data, error } = await supabase
         .from('users')
-        .update(body)
-        .eq('id', user.id)
+        .update({
+          ...validation.data,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user!.id)
         .select()
         .single()
-      
+
       if (error) {
-        console.error('Error updating user profile:', error)
-        throw createError({
-          statusCode: 500,
-          statusMessage: 'Failed to update user profile'
-        })
+        handleSupabaseError(error, 'Update user profile')
       }
 
-      return {
-        user: updatedUser
-      }
+      return createApiResponse(data as User)
     }
 
-    throw createError({
-      statusCode: 405,
-      statusMessage: 'Method not allowed'
-    })
-    
+    createApiError('Method not allowed', 405)
+
   } catch (error: any) {
-    console.error('Error in user API:', error)
-    
     if (error.statusCode) {
       throw error
     }
-    
-    throw createError({
-      statusCode: 500,
-      statusMessage: error.message || 'Internal server error'
-    })
+    handleSupabaseError(error, 'User API operation')
   }
 })

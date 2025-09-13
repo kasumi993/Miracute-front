@@ -4,7 +4,7 @@ export const useAnalytics = () => {
     if (process.client) {
       let visitorId = localStorage.getItem('visitor_id')
       if (!visitorId) {
-        visitorId = 'visitor_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
+        visitorId = `visitor_${  Date.now()  }_${  Math.random().toString(36).substr(2, 9)}`
         localStorage.setItem('visitor_id', visitorId)
       }
       return visitorId
@@ -17,7 +17,7 @@ export const useAnalytics = () => {
     if (process.client) {
       let sessionId = sessionStorage.getItem('session_id')
       if (!sessionId) {
-        sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
+        sessionId = `session_${  Date.now()  }_${  Math.random().toString(36).substr(2, 9)}`
         sessionStorage.setItem('session_id', sessionId)
       }
       return sessionId
@@ -27,7 +27,7 @@ export const useAnalytics = () => {
 
   // Track page view
   const trackPageView = async (path?: string, title?: string) => {
-    if (!process.client) return
+    if (!process.client) {return}
 
     const route = useRoute()
     const pagePath = path || route.fullPath
@@ -53,7 +53,7 @@ export const useAnalytics = () => {
 
   // Track add to cart
   const trackAddToCart = async (productId: number | string) => {
-    if (!process.client) return
+    if (!process.client) {return}
 
     try {
       await $fetch('/api/analytics/track', {
@@ -76,7 +76,7 @@ export const useAnalytics = () => {
 
   // Track product view
   const trackProductView = async (productId: number | string, productTitle?: string) => {
-    if (!process.client) return
+    if (!process.client) {return}
 
     try {
       await $fetch('/api/analytics/track', {
@@ -99,7 +99,7 @@ export const useAnalytics = () => {
 
   // Track custom event
   const trackEvent = async (eventType: string, data?: any) => {
-    if (!process.client) return
+    if (!process.client) {return}
 
     try {
       await $fetch('/api/analytics/track', {

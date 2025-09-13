@@ -4,7 +4,7 @@ import type { Database } from '~/types/database'
 
 export default defineEventHandler(async (event) => {
   const sessionId = getRouterParam(event, 'sessionId')
-  
+
   if (!sessionId) {
     throw createError({
       statusCode: 400,

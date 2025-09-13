@@ -9,7 +9,7 @@ export const useReviews = () => {
       throw error
     }
   }
-  
+
   // Submit a new review
   const submitReview = async (reviewData: {
     product_id: string
@@ -29,7 +29,7 @@ export const useReviews = () => {
       throw error
     }
   }
-  
+
   // Admin functions
   const getAdminReviews = async (params: {
     page?: number
@@ -40,13 +40,13 @@ export const useReviews = () => {
   } = {}) => {
     try {
       const queryParams = new URLSearchParams()
-      
-      if (params.page) queryParams.append('page', params.page.toString())
-      if (params.limit) queryParams.append('limit', params.limit.toString())
-      if (params.status) queryParams.append('status', params.status)
-      if (params.product_id) queryParams.append('product_id', params.product_id)
-      if (params.rating) queryParams.append('rating', params.rating.toString())
-      
+
+      if (params.page) {queryParams.append('page', params.page.toString())}
+      if (params.limit) {queryParams.append('limit', params.limit.toString())}
+      if (params.status) {queryParams.append('status', params.status)}
+      if (params.product_id) {queryParams.append('product_id', params.product_id)}
+      if (params.rating) {queryParams.append('rating', params.rating.toString())}
+
       const response = await $fetch(`/api/admin/reviews?${queryParams.toString()}`)
       return response
     } catch (error) {
@@ -54,7 +54,7 @@ export const useReviews = () => {
       throw error
     }
   }
-  
+
   // Update review (admin)
   const updateReview = async (reviewId: string, updates: {
     is_approved?: boolean
@@ -73,7 +73,7 @@ export const useReviews = () => {
       throw error
     }
   }
-  
+
   // Delete review (admin)
   const deleteReview = async (reviewId: string) => {
     try {
@@ -86,7 +86,7 @@ export const useReviews = () => {
       throw error
     }
   }
-  
+
   // Create review (admin)
   const createReview = async (reviewData: {
     product_id: string
@@ -109,35 +109,35 @@ export const useReviews = () => {
       throw error
     }
   }
-  
+
   // Approve review (admin)
   const approveReview = async (reviewId: string) => {
     return updateReview(reviewId, { is_approved: true })
   }
-  
+
   // Reject review (admin)
   const rejectReview = async (reviewId: string) => {
     return updateReview(reviewId, { is_approved: false })
   }
-  
+
   // Helper function to format rating display
   const formatRating = (rating: number) => {
     const labels = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent']
     return labels[rating] || 'Unknown'
   }
-  
+
   // Helper function to get rating color
   const getRatingColor = (rating: number) => {
-    if (rating >= 4) return 'text-green-600'
-    if (rating >= 3) return 'text-yellow-600'
+    if (rating >= 4) {return 'text-green-600'}
+    if (rating >= 3) {return 'text-yellow-600'}
     return 'text-red-600'
   }
-  
+
   return {
     // Public functions
     getProductReviews,
     submitReview,
-    
+
     // Admin functions
     getAdminReviews,
     updateReview,
@@ -145,7 +145,7 @@ export const useReviews = () => {
     createReview,
     approveReview,
     rejectReview,
-    
+
     // Helper functions
     formatRating,
     getRatingColor

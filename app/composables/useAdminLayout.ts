@@ -23,7 +23,7 @@ export const useAdminLayout = () => {
   const updateBreakpoint = () => {
     if (typeof window !== 'undefined') {
       isMobile.value = window.innerWidth < 1024 // lg breakpoint
-      
+
       // Auto-close sidebar on desktop
       if (!isMobile.value && isSidebarOpen.value) {
         closeSidebar()
@@ -35,43 +35,43 @@ export const useAdminLayout = () => {
   const generateBreadcrumbs = (routePath: string) => {
     const segments = routePath.split('/').filter(Boolean)
     const crumbs = []
-    
+
     // Skip 'dashboard' as it's the root
     for (let i = 1; i < segments.length; i++) {
       const segment = segments[i]
-      const path = '/' + segments.slice(0, i + 1).join('/')
-      
+      const path = `/${  segments.slice(0, i + 1).join('/')}`
+
       // Create breadcrumb with proper formatting
       const label = segment
         .replace(/-/g, ' ')
         .replace(/\b\w/g, l => l.toUpperCase())
-      
+
       crumbs.push({
         label,
         to: i < segments.length - 1 ? path : undefined // Last item shouldn't be a link
       })
     }
-    
+
     return crumbs
   }
 
   // Initialize responsive behavior
   onMounted(() => {
     updateBreakpoint()
-    
+
     const handleResize = () => {
       updateBreakpoint()
     }
-    
+
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isSidebarOpen.value) {
         closeSidebar()
       }
     }
-    
+
     window.addEventListener('resize', handleResize)
     document.addEventListener('keydown', handleEscape)
-    
+
     onUnmounted(() => {
       window.removeEventListener('resize', handleResize)
       document.removeEventListener('keydown', handleEscape)
@@ -90,7 +90,7 @@ export const useAdminLayout = () => {
     // State
     isSidebarOpen: readonly(isSidebarOpen),
     isMobile: readonly(isMobile),
-    
+
     // Methods
     toggleSidebar,
     closeSidebar,

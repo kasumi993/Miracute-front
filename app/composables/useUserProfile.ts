@@ -27,11 +27,11 @@ export const useUserProfile = () => {
         .select()
         .single()
 
-      if (error) throw error
+      if (error) {throw error}
 
       // Refresh the auth user profile
       await fetchUserProfile()
-      
+
       return data
     } catch (error) {
       console.error('Error updating user profile from checkout:', error)
@@ -43,7 +43,7 @@ export const useUserProfile = () => {
   const getCheckoutPrefillData = () => {
     // Always prioritize the user's email from auth profile or Supabase user
     const email = authUser.value?.email || user.value?.email || ''
-    
+
     if (!authUser.value) {
       return {
         firstName: '',
@@ -56,7 +56,7 @@ export const useUserProfile = () => {
     return {
       firstName: authUser.value.first_name || '',
       lastName: authUser.value.last_name || '',
-      email: email, // Use the fallback email logic here too
+      email, // Use the fallback email logic here too
       country: authUser.value.country || ''
     }
   }

@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
     const forwarded = getHeader(event, 'x-forwarded-for')
     const realIp = getHeader(event, 'x-real-ip')
     const clientIP = forwarded?.split(',')[0] || realIp || getClientIP(event) || ''
-    
+
     // For development/localhost, return a default country
     if (!clientIP || clientIP === '127.0.0.1' || clientIP === '::1' || clientIP.startsWith('192.168.') || clientIP.startsWith('10.')) {
       return {
@@ -66,7 +66,7 @@ export default defineEventHandler(async (event) => {
 
   } catch (error: any) {
     console.error('Geolocation error:', error)
-    
+
     return {
       success: false,
       country: 'US', // Default fallback

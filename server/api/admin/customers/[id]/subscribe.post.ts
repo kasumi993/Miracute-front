@@ -5,14 +5,14 @@ import * as brevo from '@getbrevo/brevo'
 export default defineEventHandler(async (event) => {
   const { supabase } = await validateAdminAccess(event)
   const customerId = getRouterParam(event, 'id')
-  
+
   if (!customerId) {
     throw createError({
       statusCode: 400,
       statusMessage: 'Customer ID is required'
     })
   }
-  
+
   try {
     // Get customer details
     const { data: customer, error: customerError } = await supabase
@@ -20,24 +20,24 @@ export default defineEventHandler(async (event) => {
       .select('email, full_name')
       .eq('id', customerId)
       .single()
-    
+
     if (customerError || !customer) {
       throw createError({
         statusCode: 404,
         statusMessage: 'Customer not found'
       })
     }
-    
+
     // Add customer to Brevo newsletter list
     const firstName = customer.full_name ? customer.full_name.split(' ')[0] : customer.email.split('@')[0]
     const lastName = customer.full_name ? customer.full_name.split(' ').slice(1).join(' ') : undefined
-    
+
     const brevoResult = await addToNewsletterList(customer.email, firstName, lastName)
-    
+
     if (!brevoResult.success && !brevoResult.message?.includes('already exist')) {
       throw new Error(brevoResult.error || 'Failed to add customer to newsletter')
     }
-    
+
     // Send welcome email if this is a new subscription
     if (brevoResult.success && brevoResult.contactId) {
       try {
@@ -47,24 +47,24 @@ export default defineEventHandler(async (event) => {
         // Don't fail the subscription if welcome email fails
       }
     }
-    
+
     console.log(`Customer ${customer.email} subscribed to newsletter via admin panel`)
-    
+
     return {
       success: true,
-      message: brevoResult.message?.includes('already exist') 
-        ? 'Customer was already subscribed to newsletter' 
+      message: brevoResult.message?.includes('already exist')
+        ? 'Customer was already subscribed to newsletter'
         : 'Customer subscribed to newsletter successfully',
       isNewSubscription: !brevoResult.message?.includes('already exist')
     }
-    
+
   } catch (error: any) {
     console.error('Error subscribing customer to newsletter:', error)
-    
+
     if (error.statusCode) {
       throw error
     }
-    
+
     throw createError({
       statusCode: 500,
       statusMessage: 'Failed to subscribe customer to newsletter',
@@ -78,10 +78,10 @@ export default defineEventHandler(async (event) => {
       const config = useRuntimeConfig()
       const apiInstance = new brevo.ContactsApi()
       apiInstance.setApiKey(brevo.ContactsApiApiKeys.apiKey, config.brevoApiKey)
-      
+
       const createContact = new brevo.CreateContact()
       createContact.email = email
-      
+
       if (firstName || lastName) {
         createContact.attributes = {
           FIRSTNAME: firstName || '',
@@ -90,14 +90,14 @@ export default defineEventHandler(async (event) => {
           SUBSCRIPTION_DATE: new Date().toISOString()
         }
       }
-      
+
       if (config.brevoListId) {
         createContact.listIds = [parseInt(config.brevoListId)]
       }
-      
+
       const result = await apiInstance.createContact(createContact)
       return { success: true, contactId: result.body.id }
-      
+
     } catch (error: any) {
       if (error.status === 400 && error.message?.includes('Contact already exist')) {
         return { success: true, contactId: null, message: 'Contact already exists' }
@@ -110,7 +110,7 @@ export default defineEventHandler(async (event) => {
     const config = useRuntimeConfig()
     const apiInstance = new brevo.TransactionalEmailsApi()
     apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, config.brevoApiKey)
-    
+
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: linear-gradient(135deg, #8B4513, #A0522D); color: white; padding: 30px; text-align: center;">
@@ -145,13 +145,13 @@ export default defineEventHandler(async (event) => {
         </div>
       </div>
     `
-    
+
     const sendSmtpEmail = new brevo.SendSmtpEmail()
     sendSmtpEmail.to = [{ email, name: firstName }]
     sendSmtpEmail.subject = 'Welcome to Miracute! ✨'
     sendSmtpEmail.htmlContent = htmlContent
     sendSmtpEmail.sender = { email: 'hello@miracute.com', name: 'Miracute' }
-    
+
     await apiInstance.sendTransacEmail(sendSmtpEmail)
   }
 })

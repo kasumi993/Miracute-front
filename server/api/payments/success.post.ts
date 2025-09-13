@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
     const session = await stripe.checkout.sessions.retrieve(session_id, {
       expand: ['payment_intent', 'line_items']
     })
-    
+
     console.log('Retrieved Stripe session:', {
       id: session.id,
       payment_status: session.payment_status,
@@ -55,7 +55,7 @@ export default defineEventHandler(async (event) => {
       status: paymentIntent.status,
       amount: paymentIntent.amount
     })
-    
+
     if (session.payment_status !== 'paid' || paymentIntent.status !== 'succeeded') {
       console.log('Payment not completed:', {
         session_payment_status: session.payment_status,
@@ -73,7 +73,7 @@ export default defineEventHandler(async (event) => {
 
     // Find the order by payment intent ID
     console.log('Looking for existing order with payment_intent_id:', paymentIntent.id)
-    
+
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .select(`
@@ -93,15 +93,15 @@ export default defineEventHandler(async (event) => {
       .eq('stripe_payment_intent_id', paymentIntent.id)
       .single()
 
-    console.log('Order query result:', { 
-      found: !!order, 
+    console.log('Order query result:', {
+      found: !!order,
       error: orderError?.message,
-      orderId: order?.id 
+      orderId: order?.id
     })
 
     if (orderError || !order) {
       console.log('Order not found by payment_intent_id, looking for pending order from session...')
-      
+
       // Try to find pending order created during checkout
       const { data: pendingOrders, error: pendingError } = await supabase
         .from('orders')
@@ -124,17 +124,17 @@ export default defineEventHandler(async (event) => {
         .eq('customer_email', session.customer_email || session.metadata?.customer_email)
         .order('created_at', { ascending: false })
         .limit(1)
-      
+
       console.log('Pending order search result:', {
         found: !!pendingOrders?.length,
         error: pendingError?.message,
         orderId: pendingOrders?.[0]?.id
       })
-      
+
       if (pendingOrders && pendingOrders.length > 0) {
         const pendingOrder = pendingOrders[0]
         console.log('Found pending order, updating with payment_intent_id:', pendingOrder.id)
-        
+
         // Update the pending order with payment intent ID and mark as paid
         const { data: updatedOrder, error: updateError } = await supabase
           .from('orders')
@@ -160,7 +160,7 @@ export default defineEventHandler(async (event) => {
             )
           `)
           .single()
-        
+
         if (updateError) {
           console.error('Failed to update pending order:', updateError)
           throw createError({
@@ -168,16 +168,16 @@ export default defineEventHandler(async (event) => {
             statusMessage: 'Failed to update order'
           })
         }
-        
+
         console.log('Successfully updated pending order to completed')
         await processSuccessfulOrder(updatedOrder, supabase)
         return { success: true, order_id: updatedOrder.id, updated: true }
       }
-      
+
       // If no pending order found, create from session as fallback
       console.log('No pending order found, creating from session...')
       const newOrder = await createOrderFromSession(session, supabase)
-      
+
       if (newOrder) {
         console.log('Successfully created new order:', newOrder.id)
         await processSuccessfulOrder(newOrder, supabase)
@@ -203,7 +203,7 @@ export default defineEventHandler(async (event) => {
 
   } catch (error: any) {
     console.error('Payment success processing error:', error)
-    
+
     if (error.statusCode) {
       throw error
     }
@@ -258,10 +258,10 @@ async function createOrderFromSession(session: Stripe.Checkout.Session, supabase
     console.log('=== CREATING ORDER FROM SESSION ===')
     const metadata = session.metadata || {}
     console.log('Session metadata:', metadata)
-    
+
     const items = JSON.parse(metadata.items || '[]')
     console.log('Parsed items:', items)
-    
+
     const paymentIntent = session.payment_intent as Stripe.PaymentIntent
 
     if (!items.length) {
@@ -272,12 +272,12 @@ async function createOrderFromSession(session: Stripe.Checkout.Session, supabase
     // Fetch products
     const productIds = items.map((item: any) => item.product_id)
     console.log('Looking for products with IDs:', productIds)
-    
+
     const { data: products, error: productsError } = await supabase
       .from('products')
       .select('*')
       .in('id', productIds)
-      
+
     console.log('Products query result:', {
       found: products?.length || 0,
       error: productsError?.message,
@@ -309,9 +309,9 @@ async function createOrderFromSession(session: Stripe.Checkout.Session, supabase
       payment_method: 'card',
       order_number: generateOrderNumber()
     }
-    
+
     console.log('Creating order with data:', orderData)
-    
+
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .insert(orderData)
@@ -334,7 +334,7 @@ async function createOrderFromSession(session: Stripe.Checkout.Session, supabase
       const item = items.find((i: any) => i.product_id === product.id)
       const quantity = item?.quantity || 1
       const unitPrice = parseFloat(product.price)
-      
+
       return {
         order_id: order.id,
         product_id: product.id,
@@ -399,7 +399,7 @@ async function generateDownloadLinks(orderId: string, supabase: any) {
     for (const item of orderItems) {
       if (item.product?.download_files?.length) {
         const downloadUrl = item.product.download_files[0]
-        
+
         await supabase
           .from('order_items')
           .update({
@@ -452,7 +452,7 @@ async function sendOrderConfirmation(order: any) {
     const config = useRuntimeConfig()
     const apiInstance = new brevo.TransactionalEmailsApi()
     apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, config.brevoApiKey)
-    
+
     const itemsHtml = order.order_items?.map((item: any) => `
       <tr>
         <td style="padding: 10px; border-bottom: 1px solid #eee;">
@@ -464,7 +464,7 @@ async function sendOrderConfirmation(order: any) {
         </td>
       </tr>
     `).join('') || ''
-    
+
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: linear-gradient(135deg, #8B4513, #A0522D); color: white; padding: 30px; text-align: center;">
@@ -501,16 +501,16 @@ async function sendOrderConfirmation(order: any) {
         </div>
       </div>
     `
-    
+
     const sendSmtpEmail = new brevo.SendSmtpEmail()
     sendSmtpEmail.to = [{ email: order.customer_email, name: order.customer_name || order.customer_email.split('@')[0] }]
     sendSmtpEmail.subject = `Your Miracute Templates are Ready! - Order ${order.order_number || order.id}`
     sendSmtpEmail.htmlContent = htmlContent
     sendSmtpEmail.sender = { email: 'hello@miracute.com', name: 'Miracute' }
-    
+
     await apiInstance.sendTransacEmail(sendSmtpEmail)
     return { success: true }
-    
+
   } catch (error: any) {
     console.error('Failed to send order confirmation email:', error)
     return { success: false, error: error.message }
@@ -522,7 +522,7 @@ async function sendAdminOrderNotification(order: any) {
     const config = useRuntimeConfig()
     const apiInstance = new brevo.TransactionalEmailsApi()
     apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, config.brevoApiKey)
-    
+
     const itemsHtml = order.order_items?.map((item: any) => `
       <tr>
         <td style="padding: 10px; border-bottom: 1px solid #eee;">
@@ -534,7 +534,7 @@ async function sendAdminOrderNotification(order: any) {
         </td>
       </tr>
     `).join('') || ''
-    
+
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: linear-gradient(135deg, #8B4513, #A0522D); color: white; padding: 30px; text-align: center;">
@@ -578,16 +578,16 @@ async function sendAdminOrderNotification(order: any) {
         </div>
       </div>
     `
-    
+
     const sendSmtpEmail = new brevo.SendSmtpEmail()
     sendSmtpEmail.to = [{ email: 'hello@miracute.com', name: 'Miracute Admin' }]
     sendSmtpEmail.subject = `💰 New Order: $${parseFloat(order.total_amount).toFixed(2)} - ${order.order_number || order.id}`
     sendSmtpEmail.htmlContent = htmlContent
     sendSmtpEmail.sender = { email: 'orders@miracute.com', name: 'Miracute Orders' }
-    
+
     await apiInstance.sendTransacEmail(sendSmtpEmail)
     return { success: true }
-    
+
   } catch (error: any) {
     console.error('Failed to send admin order notification:', error)
     return { success: false, error: error.message }

@@ -1,4 +1,6 @@
 import type { Product, Category } from '~/types/database'
+import { truncateText } from './format'
+import { generateSlug } from './validation'
 
 // SEO constants
 export const SEO_CONFIG = {
@@ -18,7 +20,7 @@ export const SEO_CONFIG = {
 export function generateProductStructuredData(product: Product, category?: Category | null) {
   const price = parseFloat(product.price)
   const comparePrice = product.compare_at_price ? parseFloat(product.compare_at_price) : undefined
-  
+
   return {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -167,18 +169,6 @@ export function generateFAQStructuredData(faqs: { question: string; answer: stri
   }
 }
 
-// Utility functions
-export function truncateText(text: string, maxLength: number): string {
-  if (text.length <= maxLength) return text
-  return text.substring(0, maxLength - 3) + '...'
-}
-
-export function generateSlug(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
-}
 
 export function generateTitle(title: string, includeBase = true): string {
   const truncated = truncateText(title, SEO_CONFIG.maxTitleLength - (includeBase ? 12 : 0)) // Account for " | Miracute"

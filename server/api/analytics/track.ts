@@ -8,11 +8,11 @@ export default defineEventHandler(async (event) => {
 
   try {
     const body = await readBody(event)
-    const { 
-      event_type, 
-      page_path, 
-      page_title, 
-      visitor_id, 
+    const {
+      event_type,
+      page_path,
+      page_title,
+      visitor_id,
       session_id,
       user_agent,
       referrer,
@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const supabase = serverSupabaseClient(event)
-    
+
     // Insert analytics event into database
     const { error } = await supabase
       .from('analytics_events')
@@ -54,7 +54,7 @@ export default defineEventHandler(async (event) => {
 
   } catch (error) {
     console.error('Analytics tracking error:', error)
-    
+
     return {
       success: false,
       error: error.message

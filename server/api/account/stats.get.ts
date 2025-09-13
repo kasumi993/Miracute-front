@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
       .select('id, total_amount, status')
       .eq('user_id', user.id)
 
-    if (orderError) throw orderError
+    if (orderError) {throw orderError}
 
     // Calculate statistics
     const totalOrders = orderStats?.length || 0
@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
     const { data: downloadStats, error: downloadError } = await supabase
       .from('order_items')
       .select('download_count')
-      .in('order_id', 
+      .in('order_id',
         orderStats?.map(o => o.id) || []
       )
 
