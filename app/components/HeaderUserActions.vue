@@ -35,10 +35,10 @@
       <Icon name="heroicons:shopping-bag" class="w-6 h-6" />
       <!-- Cart Badge -->
       <span 
-        v-if="cartCounter.cartCount.value > 0" 
+        v-if="cartStore.cartCount.value > 0" 
         class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium min-w-[20px]"
       >
-        {{ cartCounter.cartCount.value }}
+        {{ cartStore.cartCount.value }}
       </span>
     </button>
 
@@ -120,7 +120,7 @@
 <script setup>
 // Composables
 const user = useSupabaseUser()
-const cartCounter = useCartCounter()
+const cartStore = useCartStore()
 const wishlist = useWishlist()
 const route = useRoute()
 

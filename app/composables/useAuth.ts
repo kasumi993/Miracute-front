@@ -120,7 +120,7 @@ export const useAuth = () => {
         }
       })
 
-      if (signInError) throw signInError
+      if (signInError) {throw signInError}
 
       return true
     } catch (err: any) {

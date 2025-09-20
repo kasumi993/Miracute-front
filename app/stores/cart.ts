@@ -25,20 +25,14 @@ export const useCartStore = defineStore('cart', {
   }),
 
   getters: {
-    // Maintain compatibility with old useCartCounter
     cartCount: (state) => state.items.reduce((total, item) => total + item.quantity, 0),
-
     cartItems: (state) => state.items,
-
     cartTotal: (state) => state.items.reduce((total, item) => total + (item.price * item.quantity), 0),
-
     totalPrice: (state) => state.items.reduce((total, item) => total + (item.price * item.quantity), 0),
-
     totalOriginalPrice: (state) => state.items.reduce((total, item) => {
       const originalPrice = item.originalPrice || item.price
       return total + (originalPrice * item.quantity)
     }, 0),
-
     totalSavings: (state) => {
       const originalTotal = state.items.reduce((total, item) => {
         const originalPrice = item.originalPrice || item.price
@@ -47,12 +41,10 @@ export const useCartStore = defineStore('cart', {
       const currentTotal = state.items.reduce((total, item) => total + (item.price * item.quantity), 0)
       return originalTotal - currentTotal
     },
-
     isEmpty: (state) => state.items.length === 0
   },
 
   actions: {
-    // Maintain compatibility with old useCartCounter methods
     addToCart(product: any) {
       const existingItem = this.items.find(item => item.id === product.id)
 
@@ -76,20 +68,12 @@ export const useCartStore = defineStore('cart', {
       this.persistCart()
     },
 
-    addItem(product: Omit<CartItem, 'quantity' | 'addedAt'>) {
-      return this.addToCart(product)
-    },
-
     removeFromCart(productId: string) {
       const index = this.items.findIndex(item => item.id === productId)
       if (index > -1) {
         this.items.splice(index, 1)
         this.persistCart()
       }
-    },
-
-    removeItem(productId: string) {
-      return this.removeFromCart(productId)
     },
 
     updateQuantity(productId: string, quantity: number) {

@@ -118,7 +118,7 @@ interface Props {
 const props = defineProps<Props>()
 
 // Composables
-const cartCounter = useCartCounter()
+const cartStore = useCartStore()
 const wishlist = useWishlist()
 const toast = useToast()
 
@@ -138,7 +138,7 @@ const discountPercentage = computed(() => {
 })
 
 const isProductInCart = computed(() => {
-  return cartCounter.isInCart(props.product.id)
+  return cartStore.isInCart(props.product.id)
 })
 
 // Wishlist state
@@ -146,7 +146,7 @@ const isInWishlist = computed(() => wishlist.isInWishlist(props.product.id))
 
 // Cart methods
 const quickAddToCart = () => {
-  cartCounter.addToCart(props.product)
+  cartStore.addToCart(props.product)
 }
 
 const toggleWishlist = () => {

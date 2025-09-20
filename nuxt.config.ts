@@ -4,12 +4,29 @@ export default defineNuxtConfig({
   pages: true,
   css: ['~/assets/css/main.css'],
 
+  // Performance optimizations
+  experimental: {
+    payloadExtraction: false,
+    viewTransition: true
+  },
+
   // Reduce file watchers to prevent EMFILE errors
   vite: {
     server: {
       watch: {
         usePolling: false,
         ignored: ['**/node_modules/**', '**/dist/**', '**/.git/**', '**/.nuxt/**', '**/.output/**', '**/.vercel/**']
+      }
+    },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'vendor-ui': ['@headlessui/vue', '@heroicons/vue'],
+            'vendor-editor': ['@tiptap/vue-3', '@tiptap/starter-kit'],
+            'vendor-payment': ['@stripe/stripe-js', 'stripe']
+          }
+        }
       }
     }
   },
@@ -35,6 +52,32 @@ export default defineNuxtConfig({
   image: {
     quality: 85,
     format: ['webp', 'avif', 'png', 'jpg'],
+    presets: {
+      avatar: {
+        modifiers: {
+          format: 'webp',
+          width: 64,
+          height: 64,
+          quality: 90
+        }
+      },
+      thumbnail: {
+        modifiers: {
+          format: 'webp',
+          width: 300,
+          height: 200,
+          quality: 85
+        }
+      },
+      hero: {
+        modifiers: {
+          format: 'webp',
+          width: 1200,
+          height: 600,
+          quality: 80
+        }
+      }
+    },
     screens: {
       xs: 320,
       sm: 640,
@@ -121,6 +164,27 @@ export default defineNuxtConfig({
   },
 
   nitro: {
-    preset: 'vercel'
+    preset: 'vercel',
+    compressPublicAssets: true,
+    minify: true
+  },
+
+  // Security headers
+  routeRules: {
+    '/admin/**': {
+      headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' },
+      prerender: false
+    },
+    '/api/**': {
+      headers: { 'Cache-Control': 'no-cache' },
+      cors: true
+    },
+    '/**': {
+      headers: {
+        'X-Frame-Options': 'DENY',
+        'X-Content-Type-Options': 'nosniff',
+        'Referrer-Policy': 'strict-origin-when-cross-origin'
+      }
+    }
   }
 })
