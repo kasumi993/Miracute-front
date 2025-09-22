@@ -47,8 +47,10 @@ useSeoMeta({
   robots: 'noindex, nofollow'
 })
 
+// Store
+const analyticsStore = useAnalyticsStore()
+
 // State
-const isLoading = ref(false)
 const selectedPeriod = ref('today')
 const showCalendar = ref(false)
 const customDateRange = ref({
@@ -56,16 +58,10 @@ const customDateRange = ref({
   to: ''
 })
 
-const analytics = ref({
-  visitors: 0,
-  visitorsChange: 0,
-  pageViews: 0,
-  pageViewsChange: 0,
-  productViews: 0,
-  addToCarts: 0
-})
-
-const topPages = ref([])
+// Store getters
+const isLoading = computed(() => analyticsStore.loading.analytics)
+const analytics = computed(() => analyticsStore.currentAnalytics)
+const topPages = computed(() => analyticsStore.topPages)
 
 // Time periods for filtering
 const timePeriods = [
@@ -77,41 +73,21 @@ const timePeriods = [
 
 // Methods
 const loadAnalytics = async () => {
-  isLoading.value = true
-  
   try {
-    const params = new URLSearchParams()
+    const filters = {
+      period: selectedPeriod.value
+    }
+
     if (showCalendar.value && customDateRange.value.from && customDateRange.value.to) {
-      params.append('from', customDateRange.value.from)
-      params.append('to', customDateRange.value.to)
-    } else {
-      params.append('period', selectedPeriod.value)
+      filters.from = customDateRange.value.from
+      filters.to = customDateRange.value.to
+      delete filters.period
     }
-    
-    const response = await $fetch(`/api/admin/analytics?${params.toString()}`)
-    
-    if (response.success) {
-      analytics.value = response.data
-      topPages.value = response.data.topPages
-    } else {
-      throw new Error(response.error || 'Failed to load analytics data')
-    }
+
+    await analyticsStore.fetchAnalytics(filters)
   } catch (error) {
     console.error('Error loading analytics:', error)
     useToast().error('Failed to load analytics data')
-    
-    // Set default values on error
-    analytics.value = {
-      visitors: 0,
-      visitorsChange: 0,
-      pageViews: 0,
-      pageViewsChange: 0,
-      productViews: 0,
-      addToCarts: 0
-    }
-    topPages.value = []
-  } finally {
-    isLoading.value = false
   }
 }
 

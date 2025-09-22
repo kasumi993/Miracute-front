@@ -1,24 +1,21 @@
-export default defineNuxtPlugin(() => {
-  const supabase = useSupabaseClient()
+export default defineNuxtPlugin(async () => {
   const user = useSupabaseUser()
 
-  // Initialize auth composable
-  const auth = useAuth()
-  auth.init()
+  // Import user store
+  const { useUserStore } = await import('~/stores/auth/user')
+  const userStore = useUserStore()
 
-  supabase.auth.onAuthStateChange((event) => {
-    if (event === 'SIGNED_IN') {
-      // User signed in
-    } else if (event === 'SIGNED_OUT') {
-      // User signed out
-    } else if (event === 'TOKEN_REFRESHED') {
-      // Token refreshed
-    }
-  })
-
+  // Initialize user store when client-side
   if (import.meta.client) {
-    if (user.value && !user.value.user_metadata?.full_name) {
-      // Could show a prompt to complete profile
-    }
+    await userStore.initialize()
+
+    // Watch for user changes and update store
+    watch(user, (newUser) => {
+      if (newUser) {
+        userStore.fetchProfile()
+      } else {
+        userStore.reset()
+      }
+    }, { immediate: false })
   }
 })

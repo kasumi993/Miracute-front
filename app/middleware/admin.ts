@@ -1,9 +1,25 @@
-export default defineNuxtRouteMiddleware(() => {
-  // Simple middleware that just ensures we're on client side
-  // The actual admin check is handled by page components with proper loading states
-  if (import.meta.server) {
-    return
+export default defineNuxtRouteMiddleware(async (to) => {
+  const user = useSupabaseUser()
+  const userStore = useUserStore()
+
+  // If no user, redirect to login
+  if (!user.value) {
+    return navigateTo(`/auth/login?redirect=${encodeURIComponent(to.fullPath)}`)
   }
 
-  // Let the page component handle the admin verification with loading state
+  // Initialize user store if not already done
+  if (!userStore.isInitialized) {
+    await userStore.initialize()
+  }
+
+  // Check if user has admin role
+  if (!userStore.isAdmin) {
+    console.log('Admin middleware: Access denied for user:', user.value.email)
+    throw createError({
+      statusCode: 403,
+      statusMessage: 'Access denied. Admin privileges required.'
+    })
+  }
+
+  console.log('Admin middleware: Access granted for admin user:', user.value.email)
 })

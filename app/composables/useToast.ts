@@ -12,10 +12,15 @@ interface Toast {
   closable: boolean
 }
 
-const toasts = ref<Toast[]>([])
-
 export const useToast = () => {
+  // Use useState for SSR compatibility - ensures toasts are always empty on server
+  const toasts = useState<Toast[]>('toasts', () => [])
   const show = (message: string, type: Toast['type'], options: ToastOptions = {}) => {
+    // Only show toasts on client side to avoid hydration mismatches
+    if (process.server) {
+      return ''
+    }
+
     const toast: Toast = {
       id: Math.random().toString(36).substr(2, 9),
       message,

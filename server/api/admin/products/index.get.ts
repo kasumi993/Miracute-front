@@ -70,8 +70,10 @@ export default defineEventHandler(async (event): Promise<ApiResponse<SearchRespo
     const { data, error, count } = await queryBuilder
 
     if (error) {
+      console.error('Supabase products query error:', error)
       handleSupabaseError(error, 'Fetch admin products')
     }
+
 
     const total = count || 0
     const totalPages = Math.ceil(total / limit)

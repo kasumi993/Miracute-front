@@ -488,7 +488,7 @@ async function sendOrderConfirmation(order: any) {
           </div>
 
           <div style="text-align: center; margin-top: 30px;">
-            <a href="${config.public.siteUrl}/order-success" 
+            <a href="${config.public.siteUrl}/checkout/success?order_id=${order.id}"
                style="background: #8B4513; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
               Download Your Templates
             </a>

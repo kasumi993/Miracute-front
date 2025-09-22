@@ -95,6 +95,8 @@
 </template>
 
 <script setup lang="ts">
+import { useCartStore } from '~/stores/product/cart'
+
 interface Product {
   id: string
   name: string

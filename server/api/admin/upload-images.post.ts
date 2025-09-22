@@ -1,5 +1,5 @@
 import { validateAdminAccess } from '../../utils/adminAuth'
-import type { Database } from '~/types/database'
+import { createFileManager, FileConfigs } from '../../utils/fileManager'
 
 export default defineEventHandler(async (event) => {
   const formData = await readMultipartFormData(event)
@@ -12,44 +12,26 @@ export default defineEventHandler(async (event) => {
   }
 
   const { supabase } = await validateAdminAccess(event)
-  const uploadedUrls: string[] = []
+  const fileManager = createFileManager(supabase)
+  const uploadResults: Array<{ url: string; path: string; size: number }> = []
 
   try {
     for (const file of formData) {
-      if (!file.filename || !file.data) {continue}
+      if (!file.filename || !file.data) continue
 
-      // Generate unique filename
-      const timestamp = Date.now()
-      const randomId = Math.random().toString(36).substr(2, 9)
-      const fileExtension = file.filename.split('.').pop()
-      const fileName = `product-image-${timestamp}-${randomId}.${fileExtension}`
-
-      // Upload to Supabase Storage
-      const { data, error } = await supabase.storage
-        .from('Product-images')
-        .upload(fileName, file.data, {
-          contentType: file.type,
-          cacheControl: '3600',
-          upsert: false
-        })
-
-      if (error) {
-        console.error('Storage upload error:', error)
-        throw error
-      }
-
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('Product-images')
-        .getPublicUrl(fileName)
-
-      uploadedUrls.push(publicUrl)
+      // Upload using the file manager with validation
+      const result = await fileManager.uploadFile(file, FileConfigs.PRODUCT_IMAGES)
+      uploadResults.push(result)
     }
 
     return {
       success: true,
-      urls: uploadedUrls,
-      message: `${uploadedUrls.length} image(s) uploaded successfully`
+      data: {
+        uploads: uploadResults,
+        urls: uploadResults.map(r => r.url), // For backward compatibility
+        totalSize: uploadResults.reduce((sum, r) => sum + r.size, 0)
+      },
+      message: `${uploadResults.length} image(s) uploaded successfully`
     }
 
   } catch (error: any) {
@@ -61,8 +43,7 @@ export default defineEventHandler(async (event) => {
 
     throw createError({
       statusCode: 500,
-      statusMessage: 'Failed to upload images',
-      data: error
+      statusMessage: error.message || 'Failed to upload images'
     })
   }
 })

@@ -214,6 +214,8 @@
 </template>
 
 <script setup>
+import { AdminService } from '~/services'
+
 // Admin Guard
 const { isCheckingAccess, hasAdminAccess } = useAdminGuard()
 
@@ -229,8 +231,6 @@ useSeoMeta({
   robots: 'noindex, nofollow'
 })
 
-const supabase = useSupabaseClient()
-
 // State
 const isLoading = ref(false)
 const categories = ref([])
@@ -240,7 +240,7 @@ const loadCategories = async () => {
   isLoading.value = true
   
   try {
-    const response = await $fetch('/api/admin/categories')
+    const response = await AdminService.getCategories()
     categories.value = response.data || []
   } catch (error) {
     console.error('Error loading categories:', error)
@@ -261,10 +261,7 @@ const formatDate = (date) => {
 
 const toggleCategoryStatus = async (category) => {
   try {
-    const response = await $fetch(`/api/admin/categories/${category.id}`, {
-      method: 'PUT',
-      body: { is_active: !category.is_active }
-    })
+    const response = await AdminService.updateCategory(category.id, { is_active: !category.is_active })
     
     category.is_active = !category.is_active
     useToast().success(`Category ${category.is_active ? 'activated' : 'deactivated'}`)
@@ -284,9 +281,7 @@ const deleteCategory = async (category) => {
   }
   
   try {
-    await $fetch(`/api/admin/categories/${category.id}`, {
-      method: 'DELETE'
-    })
+    await AdminService.deleteCategory(category.id)
     
     useToast().success('Category deleted successfully')
     await loadCategories()

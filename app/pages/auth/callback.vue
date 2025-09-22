@@ -209,7 +209,8 @@ const performRedirect = () => {
   isSuccess.value = true
   
   const { getRedirectUrl } = useAuthRedirect()
-  const redirectTo = getRedirectUrl('/account')
+  // Check if user came from admin dashboard, redirect appropriately
+  const redirectTo = getRedirectUrl().includes('/dashboard') ? getRedirectUrl() : '/account'
   
   // Small delay to show success state, then redirect
   setTimeout(() => {

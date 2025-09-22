@@ -54,6 +54,8 @@
 </template>
 
 <script setup lang="ts">
+import { ContactService } from '~/services'
+
 interface Props {
   source?: string
   showTitle?: boolean
@@ -81,12 +83,9 @@ const subscribe = async () => {
   showError.value = false
   
   try {
-    const response = await $fetch('/api/newsletter/subscribe', {
-      method: 'POST',
-      body: {
-        email: email.value.trim(),
-        source: props.source
-      }
+    const response = await ContactService.subscribeNewsletter({
+      email: email.value.trim(),
+      source: props.source
     })
     
     if (response.success) {

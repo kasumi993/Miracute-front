@@ -33,12 +33,11 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // For client-side events, we'll store them in a separate events table
-    // This is different from page_views which are tracked server-side
-    const { error } = await supabase
-      .from('analytics_events')
-      .insert({
+    // Track event in analytics_events table
+    try {
+      const analyticsData = {
         event_type: eventName,
+        url: body.url || body.page_path || null,
         page_path: body.page_path || null,
         page_title: body.page_title || null,
         visitor_id: body.visitor_id || sessionId,
@@ -47,15 +46,53 @@ export default defineEventHandler(async (event) => {
         referrer: body.referrer || null,
         product_id: body.product_id || null,
         created_at: body.timestamp || new Date().toISOString()
-      })
+      }
 
-    if (error) {
-      // If table doesn't exist yet, log the event to console for development
-      console.log('Analytics event (table not ready):', {
+      const { error } = await supabase
+        .from('analytics_events')
+        .insert(analyticsData)
+
+      if (error) {
+        console.error('Analytics tracking error:', error)
+
+        // If it's a column not found error, try with minimal data
+        if (error.message?.includes('column') || error.code === 'PGRST204') {
+          console.log('Retrying with minimal tracking data...')
+
+          // Retry with just essential fields
+          const { error: retryError } = await supabase
+            .from('analytics_events')
+            .insert({
+              event_type: eventName,
+              created_at: new Date().toISOString()
+            })
+
+          if (retryError) {
+            console.error('Retry tracking failed:', retryError)
+            // Log to console for development
+            console.log('Analytics event (schema issue):', {
+              event_type: eventName,
+              page_path: body.page_path,
+              visitor_id: body.visitor_id || sessionId
+            })
+          }
+        } else {
+          // Log to console for development
+          console.log('Analytics event (other error):', {
+            event_type: eventName,
+            page_path: body.page_path,
+            visitor_id: body.visitor_id || sessionId,
+            error: error.message
+          })
+        }
+      }
+    } catch (trackingError) {
+      console.error('Analytics tracking exception:', trackingError)
+      // Log to console for development
+      console.log('Analytics event (exception):', {
         event_type: eventName,
         page_path: body.page_path,
-        visitor_id: body.visitor_id || sessionId,
-        session_id: sessionId
+        visitor_id: body.visitor_id || sessionId
       })
     }
 

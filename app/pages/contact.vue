@@ -222,6 +222,8 @@
 </template>
 
 <script setup>
+import { ContactService } from '~/services'
+
 // SEO
 useSeoMeta({
   title: 'Contact the Designer | Miracute - Personal Template Support',
@@ -337,16 +339,13 @@ const submitForm = async () => {
 
   try {
     // Send form data to API
-    const response = await $fetch('/api/contact/submit', {
-      method: 'POST',
-      body: {
-        name: form.name,
-        email: form.email,
-        subject: form.subject,
-        message: form.message,
-        phone: form.orderNumber, // Using orderNumber field as additional info
-        source: 'contact_form'
-      }
+    const response = await ContactService.submitContactForm({
+      name: form.name,
+      email: form.email,
+      subject: form.subject,
+      message: form.message,
+      phone: form.orderNumber, // Using orderNumber field as additional info
+      source: 'contact_form'
     })
 
     if (response.success) {

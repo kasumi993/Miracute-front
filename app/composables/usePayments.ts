@@ -1,4 +1,5 @@
 import type { Stripe, StripeElements, StripeCardElement } from '@stripe/stripe-js'
+import { PaymentService } from '~/services'
 
 interface CheckoutSession {
   id: string
@@ -110,14 +111,11 @@ export const usePayments = () => {
     error.value = null
 
     try {
-      const { data } = await $fetch<{ data: CheckoutSession }>('/api/payments/create-checkout-session', {
-        method: 'POST',
-        body: {
-          items,
-          customer_email: customerEmail,
-          success_url: `${window.location.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-          cancel_url: `${window.location.origin}/cart`
-        }
+      const { data } = await PaymentService.createCheckoutSession({
+        items,
+        customer_email: customerEmail,
+        success_url: `${window.location.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${window.location.origin}/cart`
       })
 
       return data
@@ -135,12 +133,9 @@ export const usePayments = () => {
     error.value = null
 
     try {
-      const { data } = await $fetch<{ data: PaymentIntent }>('/api/payments/create-intent', {
-        method: 'POST',
-        body: {
-          amount,
-          currency
-        }
+      const { data } = await PaymentService.createPaymentIntent({
+        amount,
+        currency
       })
 
       return data
@@ -222,7 +217,7 @@ export const usePayments = () => {
   // Retrieve checkout session
   const retrieveCheckoutSession = async (sessionId: string) => {
     try {
-      const { data } = await $fetch(`/api/payments/checkout-session/${sessionId}`)
+      const { data } = await PaymentService.getCheckoutSession(sessionId)
       return data
     } catch (err: any) {
       error.value = err.message || 'Failed to retrieve checkout session'

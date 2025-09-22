@@ -2,16 +2,25 @@
   <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
     <h2 class="text-xl font-semibold text-gray-900 mb-6">Digital Download File *</h2>
     
-    <div class="border-2 border-dashed border-blue-300 rounded-lg p-8 text-center bg-blue-50">
-      <Icon name="heroicons:document-arrow-down" class="w-12 h-12 text-blue-400 mx-auto mb-4" />
-      <h3 class="text-lg font-medium text-gray-900 mb-2">Upload Template Access PDF</h3>
+    <div
+      @drop="handleDrop"
+      @dragover.prevent
+      @dragenter.prevent
+      :class="[
+        'border-2 border-dashed rounded-lg p-8 text-center transition-colors',
+        isDragging ? 'border-blue-500 bg-blue-50' : 'border-blue-300 bg-blue-50'
+      ]"
+    >
+      <Icon name="heroicons:cloud-arrow-up" class="w-12 h-12 text-blue-400 mx-auto mb-4" />
+      <h3 class="text-lg font-medium text-gray-900 mb-2">Upload Digital Product Files</h3>
       <p class="text-gray-600 mb-4">
-        Upload the PDF file that buyers will download. This should contain the template link and access instructions.
+        Upload the files that buyers will download. Supports ZIP, PDF, PSD, AI, FIG, Sketch files.
       </p>
       <input
         type="file"
-        accept=".pdf"
+        accept=".zip,.pdf,.psd,.ai,.fig,.sketch"
         @change="handleFileUpload"
+        multiple
         class="hidden"
         ref="fileInput"
       />
@@ -21,14 +30,14 @@
         :disabled="isUploading"
         class="btn-primary"
       >
-        <span v-if="!isUploading">Choose PDF File</span>
+        <span v-if="!isUploading">Choose Files</span>
         <span v-else class="flex items-center">
           <Icon name="heroicons:arrow-path" class="w-4 h-4 mr-2 animate-spin" />
           Uploading...
         </span>
       </button>
       <p class="text-sm text-gray-500 mt-2">
-        PDF files only, maximum 10MB
+        Multiple files supported, maximum 100MB per file
       </p>
     </div>
 

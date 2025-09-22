@@ -1,56 +1,87 @@
+// Unified admin access guard composable
 export const useAdminGuard = () => {
+  const auth = useAuth()
   const isCheckingAccess = ref(true)
   const hasAdminAccess = ref(false)
+  const adminError = ref<string | null>(null)
 
+  // Check admin access on initialization
   const checkAdminAccess = async () => {
-    console.log('Admin guard: Checking access...')
-
-    const supabase = useSupabaseClient()
+    isCheckingAccess.value = true
+    adminError.value = null
 
     try {
-      const { data: { session } } = await supabase.auth.getSession()
-      console.log('Admin guard - Session found:', !!session)
+      // Ensure auth is initialized
+      await auth.initialize()
 
-      if (!session || !session.user) {
-        console.log('Admin guard: No session, redirecting to home...')
-        if (process.client) {
-          window.location.replace('/')
+      // Check if user is authenticated
+      if (!auth.isAuthenticated.value) {
+        adminError.value = 'Authentication required'
+        if (import.meta.client) {
+          const currentPath = useRoute().fullPath
+          window.location.replace(`/auth/login?redirect=${encodeURIComponent(currentPath)}`)
         }
-        return
+        return false
       }
 
-      const userRole = session.user.app_metadata?.role
-      console.log('Admin guard - User role:', userRole)
+      // Check admin status via API for server consistency
+      try {
+        const { AdminService } = await import('~/services')
+        const response = await AdminService.checkAccess()
 
-      if (userRole !== 'admin') {
-        console.log('Admin guard: Not admin, redirecting to home...')
-        if (process.client) {
-          window.location.replace('/')
+        if (!response.isAdmin) {
+          adminError.value = 'Admin access required'
+          if (import.meta.client) {
+            window.location.replace('/?error=admin-required')
+          }
+          return false
         }
-        return
+      } catch (apiError: unknown) {
+        console.error('Admin access API check failed:', apiError)
+        adminError.value = 'Access verification failed'
+        if (import.meta.client) {
+          window.location.replace('/auth/login?error=auth-error')
+        }
+        return false
       }
 
-      console.log('Admin guard: Admin access granted')
       hasAdminAccess.value = true
+      return true
+    } catch (error: unknown) {
+      console.error('Admin access check failed:', error)
+      adminError.value = (error as Error).message || 'Access check failed'
+      hasAdminAccess.value = false
 
-    } catch (error) {
-      console.error('Admin guard access error:', error)
-      if (process.client) {
+      if (import.meta.client) {
         window.location.replace('/')
       }
+      return false
     } finally {
       isCheckingAccess.value = false
     }
   }
 
-  // Auto-check on creation
-  onMounted(async () => {
-    await checkAdminAccess()
+  // Require admin access (for use in pages)
+  const requireAdminAccess = async () => {
+    const hasAccess = await checkAdminAccess()
+    if (!hasAccess) {
+      throw createError({
+        statusCode: 403,
+        statusMessage: adminError.value || 'Admin access required'
+      })
+    }
+  }
+
+  // Initialize check
+  onMounted(() => {
+    checkAdminAccess()
   })
 
   return {
     isCheckingAccess: readonly(isCheckingAccess),
     hasAdminAccess: readonly(hasAdminAccess),
-    checkAdminAccess
+    adminError: readonly(adminError),
+    checkAdminAccess,
+    requireAdminAccess
   }
 }

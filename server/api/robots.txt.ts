@@ -24,7 +24,7 @@ Disallow: /.nuxt
 # Disallow checkout and cart pages (private)
 Disallow: /cart
 Disallow: /checkout
-Disallow: /order-success
+Disallow: /checkout/success
 
 # Allow specific file types
 Allow: *.css

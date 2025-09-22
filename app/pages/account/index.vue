@@ -173,14 +173,16 @@
                 </div>
 
                 <div class="flex-shrink-0">
-                  <a v-if="download.download_url" 
-                     :href="download.download_url"
-                     target="_blank"
-                     class="btn-primary text-sm px-4 py-2">
-                    <Icon name="heroicons:arrow-down-tray" class="w-4 h-4 mr-1" />
-                    Download
-                  </a>
-                  <span v-else class="text-sm text-gray-500">Expired</span>
+                  <button
+                    v-if="download.download_count < download.max_downloads"
+                    @click="initiateDownload(download.id)"
+                    :disabled="downloadingItems.includes(download.id)"
+                    class="btn-primary text-sm px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <Icon v-if="downloadingItems.includes(download.id)" name="heroicons:arrow-path" class="w-4 h-4 mr-1 animate-spin" />
+                    <Icon v-else name="heroicons:arrow-down-tray" class="w-4 h-4 mr-1" />
+                    {{ downloadingItems.includes(download.id) ? 'Preparing...' : 'Download' }}
+                  </button>
+                  <span v-else class="text-sm text-gray-500">Limit Reached</span>
                 </div>
               </div>
             </div>
@@ -208,6 +210,9 @@ useSeoMeta({
 const user = useSupabaseUser()
 const auth = useAuth() // Keep for backwards compatibility with signOut method
 
+// Services
+import { AccountService } from '~/services'
+
 // State
 const stats = ref({
   totalDownloads: 0,
@@ -218,15 +223,16 @@ const stats = ref({
 const recentOrders = ref([])
 const recentDownloads = ref([])
 const isLoading = ref(true)
+const downloadingItems = ref([])
 
 // Methods
 const loadAccountData = async () => {
   try {
     // Load account statistics and recent data
     const [statsData, ordersData, downloadsData] = await Promise.all([
-      $fetch('/api/account/stats'),
-      $fetch('/api/account/orders?limit=5'),
-      $fetch('/api/account/downloads?limit=5')
+      AccountService.getAccountStats(),
+      AccountService.getUserOrders(1, 5),
+      AccountService.getUserDownloads(1, 5)
     ])
 
     stats.value = statsData.data || stats.value
@@ -276,9 +282,48 @@ const getUserInitials = () => {
     return user.value?.email?.charAt(0).toUpperCase() || 'U'
   }
   const names = user.value.user_metadata.full_name.split(' ')
-  return names.length > 1 
+  return names.length > 1
     ? `${names[0].charAt(0)}${names[1].charAt(0)}`.toUpperCase()
     : names[0].charAt(0).toUpperCase()
+}
+
+const initiateDownload = async (orderItemId) => {
+  if (downloadingItems.value.includes(orderItemId)) return
+
+  try {
+    downloadingItems.value.push(orderItemId)
+
+    // Get secure download URL from API
+    const response = await $fetch(`/api/downloads/${orderItemId}`)
+
+    if (response.success && response.data.downloadUrl) {
+      // Create a temporary link and trigger download
+      const link = document.createElement('a')
+      link.href = response.data.downloadUrl
+      link.download = response.data.fileName || 'download.zip'
+      link.target = '_blank'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+
+      // Show success message
+      useToast().success('Download started successfully!')
+
+      // Refresh the downloads list to update counts
+      await loadAccountData()
+    } else {
+      throw new Error(response.error || 'Failed to generate download link')
+    }
+  } catch (error) {
+    console.error('Download error:', error)
+    useToast().error(error.message || 'Failed to download file')
+  } finally {
+    // Remove from downloading list
+    const index = downloadingItems.value.indexOf(orderItemId)
+    if (index > -1) {
+      downloadingItems.value.splice(index, 1)
+    }
+  }
 }
 
 // Initialize

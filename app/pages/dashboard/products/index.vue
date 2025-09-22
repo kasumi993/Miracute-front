@@ -82,6 +82,9 @@
 </template>
 
 <script setup lang="ts">
+// Import services
+import { AdminService } from '~/services'
+
 // Admin Guard
 const { isCheckingAccess, hasAdminAccess } = useAdminGuard()
 
@@ -149,29 +152,37 @@ const loadProducts = async (reset = true) => {
   } else {
     isLoadingMore.value = true
   }
-  
+
   try {
-    const params = new URLSearchParams()
-    if (searchQuery.value) params.append('search', searchQuery.value)
-    if (selectedCategory.value) params.append('category', selectedCategory.value)
-    if (selectedStatus.value) params.append('status', selectedStatus.value)
-    if (selectedTemplateType.value) params.append('template_type', selectedTemplateType.value)
-    params.append('page', pagination.value.page.toString())
-    params.append('limit', pagination.value.limit.toString())
-    
-    const response = await $fetch(`/api/admin/products?${params.toString()}`)
-    
-    if (reset) {
-      products.value = response.data || []
-    } else {
-      products.value.push(...(response.data || []))
+    const filters = {
+      search: searchQuery.value || undefined,
+      category: selectedCategory.value || undefined,
+      status: selectedStatus.value || undefined,
+      template_type: selectedTemplateType.value || undefined
     }
-    
-    pagination.value = response.pagination || pagination.value
-    
-  } catch (error) {
+
+    const paginationParams = {
+      page: pagination.value.page,
+      limit: pagination.value.limit
+    }
+
+    const response = await AdminService.getProducts(filters, paginationParams)
+
+    if (response.success && response.data) {
+      if (reset) {
+        products.value = response.data.data || []
+      } else {
+        products.value.push(...(response.data.data || []))
+      }
+
+      pagination.value = response.data.pagination || pagination.value
+    } else {
+      throw new Error(response.error || 'Failed to load products')
+    }
+
+  } catch (error: any) {
     console.error('Error loading products:', error)
-    useToast().error('Failed to load products')
+    useToast().error(error.message || 'Failed to load products')
   } finally {
     isLoading.value = false
     isLoadingMore.value = false
@@ -187,8 +198,10 @@ const loadMoreProducts = async () => {
 
 const loadCategories = async () => {
   try {
-    const response = await $fetch('/api/admin/categories')
-    categories.value = response.data.filter(cat => cat.is_active) || []
+    const response = await AdminService.getCategories()
+    if (response.success && response.data) {
+      categories.value = response.data.filter(cat => cat.is_active) || []
+    }
   } catch (error) {
     console.error('Error loading categories:', error)
   }
@@ -196,8 +209,10 @@ const loadCategories = async () => {
 
 const loadTemplateTypes = async () => {
   try {
-    const response = await $fetch('/api/admin/template-types')
-    templateTypes.value = response.data || []
+    const response = await AdminService.getTemplateTypes()
+    if (response.success && response.data) {
+      templateTypes.value = response.data || []
+    }
   } catch (error) {
     console.error('Error loading template types:', error)
   }
@@ -206,17 +221,18 @@ const loadTemplateTypes = async () => {
 const toggleProductStatus = async (product: any) => {
   try {
     const newStatus = !product.is_active
-    
-    const response = await $fetch(`/api/admin/products/${product.id}`, {
-      method: 'PATCH',
-      body: { is_active: newStatus }
-    })
-    
-    product.is_active = newStatus
-    useToast().success(`Product ${product.is_active ? 'activated' : 'deactivated'}`)
+
+    const response = await AdminService.updateProductStatus(product.id, newStatus)
+
+    if (response.success) {
+      product.is_active = newStatus
+      useToast().success(`Product ${product.is_active ? 'activated' : 'deactivated'}`)
+    } else {
+      throw new Error(response.error || 'Failed to update product status')
+    }
   } catch (error: any) {
     console.error('Error updating product status:', error)
-    useToast().error(error.data?.message || 'Failed to update product status')
+    useToast().error(error.message || 'Failed to update product status')
   }
 }
 
@@ -227,20 +243,22 @@ const deleteProduct = (product: any) => {
 
 const confirmDelete = async () => {
   if (!productToDelete.value) return
-  
+
   isDeleting.value = true
-  
+
   try {
-    await $fetch(`/api/admin/products/${productToDelete.value.id}`, {
-      method: 'DELETE'
-    })
-    
-    useToast().success('Product deleted successfully')
-    await loadProducts()
-    cancelDelete()
+    const response = await AdminService.deleteProduct(productToDelete.value.id)
+
+    if (response.success) {
+      useToast().success('Product deleted successfully')
+      await loadProducts()
+      cancelDelete()
+    } else {
+      throw new Error(response.error || 'Failed to delete product')
+    }
   } catch (error: any) {
     console.error('Error deleting product:', error)
-    useToast().error(error.data?.message || 'Failed to delete product')
+    useToast().error(error.message || 'Failed to delete product')
   } finally {
     isDeleting.value = false
   }
@@ -258,14 +276,17 @@ const editProduct = (product: any) => {
 
 const createSampleProducts = async () => {
   try {
-    const response = await $fetch('/api/admin/products/sample', {
-      method: 'POST'
-    })
-    useToast().success('Sample products created successfully!')
-    await loadProducts()
-  } catch (error) {
+    const response = await AdminService.createSampleProducts()
+
+    if (response.success) {
+      useToast().success('Sample products created successfully!')
+      await loadProducts()
+    } else {
+      throw new Error(response.error || 'Failed to create sample products')
+    }
+  } catch (error: any) {
     console.error('Error creating sample products:', error)
-    useToast().error('Failed to create sample products')
+    useToast().error(error.message || 'Failed to create sample products')
   }
 }
 

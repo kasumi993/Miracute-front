@@ -52,6 +52,8 @@ import PaymentMethod from '~/components/Checkout/PaymentMethod.vue'
 import OrderSummary from '~/components/Checkout/OrderSummary.vue'
 import type { CustomerForm } from '~/components/Checkout/CustomerInformation.vue'
 import type { PaymentData } from '~/components/Checkout/PaymentMethod.vue'
+import { AccountService } from '~/services'
+import { useCartStore } from '~/stores/product/cart'
 
 definePageMeta({
   layout: 'default'
@@ -100,7 +102,7 @@ const prefillCustomerData = async () => {
   // Always detect country from IP, even for unauthenticated users
   let detectedCountry = ''
   try {
-    const countryResponse = await $fetch('/api/geolocation/country')
+    const countryResponse = await AccountService.getLocationData()
     if (countryResponse.success && countryResponse.country) {
       detectedCountry = countryResponse.country
       console.log('Detected country from IP:', detectedCountry)
@@ -333,7 +335,7 @@ const handleCompleteOrder = async () => {
     cartStore.clearCart() // Clear Pinia store too
     
     console.log('Order completed successfully!')
-    await navigateTo(`/order-success?order=${order.id}`)
+    await navigateTo(`/checkout/success?order_id=${order.id}`)
     
   } catch (error) {
     console.error('Order processing error:', error)

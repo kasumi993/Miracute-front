@@ -1,3 +1,5 @@
+import { AnalyticsService } from '~/services'
+
 export const useAnalytics = () => {
   // Generate or get visitor ID from localStorage
   const getVisitorId = () => {
@@ -34,17 +36,14 @@ export const useAnalytics = () => {
     const pageTitle = title || document.title
 
     try {
-      await $fetch('/api/analytics/track', {
-        method: 'POST',
-        body: {
-          event_type: 'page_view',
-          page_path: pagePath,
-          page_title: pageTitle,
-          visitor_id: getVisitorId(),
-          session_id: getSessionId(),
-          user_agent: navigator.userAgent,
-          referrer: document.referrer
-        }
+      await AnalyticsService.trackPageView({
+        event_type: 'page_view',
+        page_path: pagePath,
+        page_title: pageTitle,
+        visitor_id: getVisitorId(),
+        session_id: getSessionId(),
+        user_agent: navigator.userAgent,
+        referrer: document.referrer
       })
     } catch (error) {
       console.error('Failed to track page view:', error)
@@ -56,18 +55,15 @@ export const useAnalytics = () => {
     if (!process.client) {return}
 
     try {
-      await $fetch('/api/analytics/track', {
-        method: 'POST',
-        body: {
-          event_type: 'add_to_cart',
-          page_path: useRoute().fullPath,
-          page_title: document.title,
-          visitor_id: getVisitorId(),
-          session_id: getSessionId(),
-          user_agent: navigator.userAgent,
-          referrer: document.referrer,
-          product_id: productId
-        }
+      await AnalyticsService.trackEvent({
+        event_type: 'add_to_cart',
+        page_path: useRoute().fullPath,
+        page_title: document.title,
+        visitor_id: getVisitorId(),
+        session_id: getSessionId(),
+        user_agent: navigator.userAgent,
+        referrer: document.referrer,
+        product_id: productId
       })
     } catch (error) {
       console.error('Failed to track add to cart:', error)
@@ -79,18 +75,15 @@ export const useAnalytics = () => {
     if (!process.client) {return}
 
     try {
-      await $fetch('/api/analytics/track', {
-        method: 'POST',
-        body: {
-          event_type: 'product_view',
-          page_path: useRoute().fullPath,
-          page_title: productTitle || document.title,
-          visitor_id: getVisitorId(),
-          session_id: getSessionId(),
-          user_agent: navigator.userAgent,
-          referrer: document.referrer,
-          product_id: productId
-        }
+      await AnalyticsService.trackEvent({
+        event_type: 'product_view',
+        page_path: useRoute().fullPath,
+        page_title: productTitle || document.title,
+        visitor_id: getVisitorId(),
+        session_id: getSessionId(),
+        user_agent: navigator.userAgent,
+        referrer: document.referrer,
+        product_id: productId
       })
     } catch (error) {
       console.error('Failed to track product view:', error)
@@ -102,18 +95,15 @@ export const useAnalytics = () => {
     if (!process.client) {return}
 
     try {
-      await $fetch('/api/analytics/track', {
-        method: 'POST',
-        body: {
-          event_type: eventType,
-          page_path: useRoute().fullPath,
-          page_title: document.title,
-          visitor_id: getVisitorId(),
-          session_id: getSessionId(),
-          user_agent: navigator.userAgent,
-          referrer: document.referrer,
-          ...data
-        }
+      await AnalyticsService.trackEvent({
+        event_type: eventType,
+        page_path: useRoute().fullPath,
+        page_title: document.title,
+        visitor_id: getVisitorId(),
+        session_id: getSessionId(),
+        user_agent: navigator.userAgent,
+        referrer: document.referrer,
+        ...data
       })
     } catch (error) {
       console.error('Failed to track event:', error)

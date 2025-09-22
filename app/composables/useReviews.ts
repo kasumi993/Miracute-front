@@ -1,8 +1,10 @@
+import { ReviewService, AdminService } from '~/services'
+
 export const useReviews = () => {
   // Get reviews for a product
   const getProductReviews = async (productId: string) => {
     try {
-      const response = await $fetch(`/api/reviews/${productId}`)
+      const response = await ReviewService.getProductReviews(productId)
       return response
     } catch (error) {
       console.error('Error fetching reviews:', error)
@@ -19,10 +21,7 @@ export const useReviews = () => {
     comment?: string
   }) => {
     try {
-      const response = await $fetch('/api/reviews/submit', {
-        method: 'POST',
-        body: reviewData
-      })
+      const response = await ReviewService.submitReview(reviewData)
       return response
     } catch (error) {
       console.error('Error submitting review:', error)
@@ -39,15 +38,7 @@ export const useReviews = () => {
     rating?: number
   } = {}) => {
     try {
-      const queryParams = new URLSearchParams()
-
-      if (params.page) {queryParams.append('page', params.page.toString())}
-      if (params.limit) {queryParams.append('limit', params.limit.toString())}
-      if (params.status) {queryParams.append('status', params.status)}
-      if (params.product_id) {queryParams.append('product_id', params.product_id)}
-      if (params.rating) {queryParams.append('rating', params.rating.toString())}
-
-      const response = await $fetch(`/api/admin/reviews?${queryParams.toString()}`)
+      const response = await ReviewService.getReviewsForModeration(params.page, params.limit, params.status)
       return response
     } catch (error) {
       console.error('Error fetching admin reviews:', error)
@@ -63,10 +54,7 @@ export const useReviews = () => {
     rating?: number
   }) => {
     try {
-      const response = await $fetch(`/api/admin/reviews/${reviewId}`, {
-        method: 'PATCH',
-        body: updates
-      })
+      const response = await ReviewService.updateReview(reviewId, updates)
       return response
     } catch (error) {
       console.error('Error updating review:', error)
@@ -77,9 +65,7 @@ export const useReviews = () => {
   // Delete review (admin)
   const deleteReview = async (reviewId: string) => {
     try {
-      const response = await $fetch(`/api/admin/reviews/${reviewId}`, {
-        method: 'DELETE'
-      })
+      const response = await ReviewService.deleteReview(reviewId)
       return response
     } catch (error) {
       console.error('Error deleting review:', error)
@@ -99,10 +85,7 @@ export const useReviews = () => {
     force_override?: boolean
   }) => {
     try {
-      const response = await $fetch('/api/admin/reviews/create', {
-        method: 'POST',
-        body: reviewData
-      })
+      const response = await ReviewService.submitReview(reviewData)
       return response
     } catch (error) {
       console.error('Error creating review:', error)

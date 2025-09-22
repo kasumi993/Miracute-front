@@ -275,6 +275,10 @@
 </template>
 
 <script setup>
+// Imports
+import { useAdminDashboardStore } from '~/stores/admin/dashboard'
+import { useUserStore } from '~/stores/auth/user'
+
 // Middleware
 definePageMeta({
   middleware: 'admin',
@@ -288,55 +292,29 @@ useSeoMeta({
   robots: 'noindex, nofollow'
 })
 
-// State
-const stats = ref({
-  totalRevenue: '0.00',
-  totalOrders: 0,
-  totalCustomers: 0,
-  totalProducts: 0,
-  storeViewsToday: 0,
-  pendingOrders: 0,
-  monthlyRevenue: '0.00',
-  averageOrderValue: '0.00',
-  orderCompletionRate: 0
-})
+// Stores
+const adminDashboardStore = useAdminDashboardStore()
+const userStore = useUserStore()
 
-const recentOrders = ref([])
-const popularProducts = ref([])
-const isLoading = ref(true)
-const isCheckingAccess = ref(true)
-const hasAdminAccess = ref(false)
+// Computed from stores
+const stats = computed(() => adminDashboardStore.stats)
+const recentOrders = computed(() => adminDashboardStore.recentOrders)
+const popularProducts = computed(() => adminDashboardStore.popularProducts)
+const isLoading = computed(() => adminDashboardStore.loading.dashboard)
+const isCheckingAccess = computed(() => !userStore.isInitialized)
+const hasAdminAccess = computed(() => userStore.isAdmin)
 
 // Methods
 const loadDashboardData = async () => {
   try {
     console.log('Starting to load dashboard data...')
-    
-    // Load dashboard statistics and recent data with proper authentication
-    const [statsData, ordersData, productsData] = await Promise.all([
-      $fetch('/api/admin/stats', {
-        credentials: 'include'
-      }),
-      $fetch('/api/admin/orders?limit=5', {
-        credentials: 'include'
-      }),
-      $fetch('/api/admin/products/popular?limit=5', {
-        credentials: 'include'
-      })
-    ])
 
-    console.log('Data loaded:', { statsData, ordersData, productsData })
-
-    stats.value = statsData.data || stats.value
-    recentOrders.value = ordersData.data || []
-    popularProducts.value = productsData.data || []
+    // Load dashboard data through store
+    await adminDashboardStore.fetchDashboardData()
 
   } catch (error) {
     console.error('Failed to load dashboard data:', error)
-    console.error('Error details:', error)
     useToast().error(`Failed to load dashboard: ${error.statusMessage || error.message}`)
-  } finally {
-    isLoading.value = false
   }
 }
 
@@ -364,46 +342,37 @@ const getStatusColor = (status) => {
 // Initialize and check access immediately
 onMounted(async () => {
   console.log('Dashboard mounted, checking access...')
-  
-  const supabase = useSupabaseClient()
-  const router = useRouter()
-  
+
   try {
-    const { data: { session } } = await supabase.auth.getSession()
-    console.log('Dashboard - Session found:', !!session)
-    
-    if (!session || !session.user) {
-      console.log('Dashboard: No session, redirecting to home...')
-      // Use window.location for cleaner redirect that handles layout properly
+    // Initialize user store if not already initialized
+    if (!userStore.isInitialized) {
+      await userStore.initialize()
+    }
+
+    // Check admin access through store
+    if (!userStore.isAuthenticated) {
+      console.log('Dashboard: Not authenticated, redirecting to home...')
       if (process.client) {
         window.location.replace('/')
       }
       return
     }
-    
-    const userRole = session.user.app_metadata?.role
-    console.log('Dashboard - User role:', userRole)
-    
-    if (userRole !== 'admin') {
+
+    if (!userStore.isAdmin) {
       console.log('Dashboard: Not admin, redirecting to home...')
-      // Use window.location for cleaner redirect that handles layout properly
       if (process.client) {
         window.location.replace('/')
       }
       return
     }
-    
+
     console.log('Dashboard: Admin access granted, loading data...')
-    // Set access to true and stop checking
-    hasAdminAccess.value = true
-    isCheckingAccess.value = false
-    
+
     // Load dashboard data
     await loadDashboardData()
-    
+
   } catch (error) {
     console.error('Dashboard access error:', error)
-    // Use window.location for cleaner redirect that handles layout properly
     if (process.client) {
       window.location.replace('/')
     }

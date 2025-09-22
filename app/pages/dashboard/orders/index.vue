@@ -233,6 +233,7 @@
 <script setup lang="ts">
 import type { Order } from '~/types/database'
 import { useDebounceFn } from '@vueuse/core'
+import { AdminService } from '~/services'
 
 // Admin Guard
 const { isCheckingAccess, hasAdminAccess } = useAdminGuard()
@@ -286,7 +287,14 @@ const fetchOrders = async () => {
       ...(filters.value.dateFrom && { date_from: filters.value.dateFrom })
     })
     
-    const response = await $fetch(`/api/admin/orders?${query}`)
+    const response = await AdminService.getOrders({
+      page: pagination.value.page,
+      limit: pagination.value.limit,
+      ...(filters.value.search && { search: filters.value.search }),
+      ...(filters.value.status && { status: filters.value.status }),
+      ...(filters.value.paymentStatus && { payment_status: filters.value.paymentStatus }),
+      ...(filters.value.dateFrom && { date_from: filters.value.dateFrom })
+    })
     
     orders.value = response.data
     pagination.value = response.pagination
@@ -304,10 +312,7 @@ const updateOrderStatus = async (orderId: string, status: string) => {
   if (!status || !orderId) return
   
   try {
-    await $fetch(`/api/admin/orders/${orderId}`, {
-      method: 'PATCH',
-      body: { status }
-    })
+    await AdminService.updateOrder(orderId, { status })
     
     // Update local state
     const order = orders.value.find(o => o.id === orderId)

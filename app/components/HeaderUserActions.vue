@@ -19,26 +19,26 @@
     </NuxtLink>
 
     <!-- Wishlist -->
-    <button @click="wishlist.goToWishlist()" class="relative p-2 text-gray-700 hover:text-gray-900 transition-colors">
+    <button @click="wishlist?.goToWishlist?.()" class="relative p-2 text-gray-700 hover:text-gray-900 transition-colors">
       <Icon name="heroicons:heart" class="w-6 h-6" />
       <!-- Wishlist Badge -->
-      <span 
-        v-if="wishlist.wishlistCount.value > 0" 
+      <span
+        v-if="wishlist?.wishlistCount > 0"
         class="absolute -top-1 -right-1 bg-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium min-w-[20px]"
       >
-        {{ wishlist.wishlistCount.value }}
+        {{ wishlist?.wishlistCount || 0 }}
       </span>
     </button>
 
     <!-- Cart -->
-    <button @click="cartCounter.goToCart()" class="relative p-2 text-gray-700 hover:text-gray-900 transition-colors">
+    <button @click="cartCounter?.goToCart?.()" class="relative p-2 text-gray-700 hover:text-gray-900 transition-colors">
       <Icon name="heroicons:shopping-bag" class="w-6 h-6" />
       <!-- Cart Badge -->
-      <span 
-        v-if="cartStore.cartCount.value > 0" 
+      <span
+        v-if="cartCounter?.cartCount > 0"
         class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium min-w-[20px]"
       >
-        {{ cartStore.cartCount.value }}
+        {{ cartCounter?.cartCount || 0 }}
       </span>
     </button>
 
@@ -118,11 +118,12 @@
 </template>
 
 <script setup>
-// Composables
-const user = useSupabaseUser()
-const cartStore = useCartStore()
+// Composables - use unified auth pattern
+const auth = useAuth()
+const cartCounter = useCartCounter()
 const wishlist = useWishlist()
 const route = useRoute()
+const toast = useToast()
 
 // Emits
 defineEmits(['toggleMobileSearch', 'toggleMobileMenu'])
@@ -130,20 +131,13 @@ defineEmits(['toggleMobileSearch', 'toggleMobileMenu'])
 // State
 const isUserMenuOpen = ref(false)
 
-// Computed
-const isAuthenticated = computed(() => !!user.value)
-const userEmail = computed(() => user.value?.email || '')
-const userInitials = computed(() => {
-  if (!user.value?.user_metadata?.full_name) {
-    return user.value?.email?.charAt(0).toUpperCase() || 'U'
-  }
-  const names = user.value.user_metadata.full_name.split(' ')
-  return names.length > 1 
-    ? `${names[0].charAt(0)}${names[1].charAt(0)}`.toUpperCase()
-    : names[0].charAt(0).toUpperCase()
-})
+// Computed - use auth store values
+const isAuthenticated = auth.isAuthenticated
+const userEmail = computed(() => auth.authUser.value?.email || '')
+const userInitials = auth.userInitials
+const displayName = auth.displayName
 const accountType = computed(() => {
-  const provider = user.value?.app_metadata?.provider
+  const provider = auth.authUser.value?.app_metadata?.provider
   return provider === 'google' ? 'Google Account' : 'Magic Link Account'
 })
 
@@ -159,14 +153,16 @@ const getLoginUrl = () => {
 
 const handleSignOut = async () => {
   isUserMenuOpen.value = false
-  const supabase = useSupabaseClient()
   try {
-    await supabase.auth.signOut()
-    useToast().success('Signed out successfully')
-    await navigateTo('/')
+    const result = await auth.signOut()
+    if (result.success) {
+      toast.success('Signed out successfully')
+    } else {
+      toast.error('Failed to sign out')
+    }
   } catch (error) {
     console.error('Sign out error:', error)
-    useToast().error('Failed to sign out')
+    toast.error('Failed to sign out')
   }
 }
 

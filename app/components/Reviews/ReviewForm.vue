@@ -102,6 +102,8 @@
 </template>
 
 <script setup lang="ts">
+import { ReviewService } from '~/services'
+
 interface Props {
   productId: string
   userId?: string
@@ -207,10 +209,7 @@ const submitReview = async () => {
     }
     console.log('ReviewForm: Request body =', requestBody)
     
-    const response = await $fetch('/api/reviews/submit', {
-      method: 'POST',
-      body: requestBody
-    })
+    const response = await ReviewService.submitReview(requestBody)
     
     console.log('ReviewForm: Response =', response)
     

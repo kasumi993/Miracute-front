@@ -56,7 +56,7 @@
                 :product="product"
                 variant="overlay"
                 @edit="(product) => $emit('edit', product)"
-                @toggle-status="(product) => $emit('toggleStatus', product)"
+                @toggle-status="(product) => $emit('toggle-status', product)"
                 @delete="(product) => $emit('delete', product)"
               />
             </div>
@@ -121,7 +121,7 @@ interface Props {
 
 interface Emits {
   (e: 'edit', product: any): void
-  (e: 'toggleStatus', product: any): void
+  (e: 'toggle-status', product: any): void
   (e: 'delete', product: any): void
 }
 

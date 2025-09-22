@@ -124,13 +124,15 @@
 </template>
 
 <script setup>
+import { ProductService } from '~/services'
+
 const featuredProducts = ref([])
 const isLoading = ref(true)
 
 // Load featured products from API
 const loadFeaturedProducts = async () => {
   try {
-    const response = await $fetch('/api/products?featured=true&limit=6')
+    const response = await ProductService.getFeaturedProducts(6)
     featuredProducts.value = response.data || []
   } catch (error) {
     console.error('Error loading featured products:', error)

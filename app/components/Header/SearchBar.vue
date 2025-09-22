@@ -93,10 +93,17 @@ const handleInput = () => {
 
 const fetchSuggestions = async () => {
   try {
-    const { data } = await $fetch('/api/tags', {
-      query: { search: searchQuery.value }
+    const { ProductService } = await import('~/services')
+    const response = await ProductService.getProducts({
+      search: searchQuery.value,
+      limit: 5
     })
-    suggestions.value = data || []
+
+    if (response.success && response.data?.data) {
+      suggestions.value = response.data.data.map(product => product.name)
+    } else {
+      suggestions.value = []
+    }
   } catch (error) {
     console.error('Failed to fetch suggestions:', error)
     suggestions.value = []

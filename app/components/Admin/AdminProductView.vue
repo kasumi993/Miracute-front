@@ -84,11 +84,11 @@
                     
                     <!-- Actions -->
                     <div @click.stop>
-                      <AdminProductActions 
+                      <AdminProductActions
                         :product="product"
                         variant="compact"
                         @edit="(product) => $emit('edit', product)"
-                        @toggle-status="(product) => $emit('toggleStatus', product)"
+                        @toggle-status="(product) => $emit('toggle-status', product)"
                         @delete="(product) => $emit('delete', product)"
                       />
                     </div>
@@ -103,12 +103,12 @@
 
     <!-- Desktop Grid View -->
     <div class="hidden lg:block">
-      <AdminProductGrid
+      <ProductGrid
         :products="products"
         :categories="categories"
         :is-loading="isLoading"
         @edit="$emit('edit', $event)"
-        @toggle-status="$emit('toggleStatus', $event)"
+        @toggle-status="$emit('toggle-status', $event)"
         @delete="$emit('delete', $event)"
       />
     </div>
@@ -124,7 +124,7 @@ interface Props {
 
 interface Emits {
   (e: 'edit', product: any): void
-  (e: 'toggleStatus', product: any): void
+  (e: 'toggle-status', product: any): void
   (e: 'delete', product: any): void
 }
 
