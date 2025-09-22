@@ -111,12 +111,25 @@ export const useUserStore = defineStore('user', {
 
         if (response.success && response.data?.user) {
           this.setProfile(response.data.user)
+        } else if (response.error?.includes('not found') || response.error?.includes('PGRST116')) {
+          // User profile doesn't exist, create one
+          console.log('User profile not found, creating new profile...')
+          await this.createProfile({
+            user_id: this.user.id,
+            email: this.user.email!,
+            first_name: this.user.user_metadata?.first_name,
+            last_name: this.user.user_metadata?.last_name,
+            avatar_url: this.user.user_metadata?.avatar_url
+          })
         } else {
           throw new Error(response.error || 'Failed to fetch user profile')
         }
       } catch (error: any) {
         console.error('Error fetching user profile:', error)
-        this.setError('Failed to fetch user profile')
+        // Don't set error for profile creation issues, just log them
+        if (!error.message?.includes('create')) {
+          this.setError('Failed to fetch user profile')
+        }
       } finally {
         this.setLoading(false)
       }

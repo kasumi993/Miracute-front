@@ -229,19 +229,36 @@ const downloadingItems = ref([])
 const loadAccountData = async () => {
   try {
     // Load account statistics and recent data
-    const [statsData, ordersData, downloadsData] = await Promise.all([
+    const [statsResult, ordersResult, downloadsResult] = await Promise.allSettled([
       AccountService.getAccountStats(),
       AccountService.getUserOrders(1, 5),
       AccountService.getUserDownloads(1, 5)
     ])
 
-    stats.value = statsData.data || stats.value
-    recentOrders.value = ordersData.data || []
-    recentDownloads.value = downloadsData.data || []
+    // Handle stats
+    if (statsResult.status === 'fulfilled' && statsResult.value?.success) {
+      stats.value = statsResult.value.data || stats.value
+    } else {
+      console.warn('Failed to load stats:', statsResult.status === 'rejected' ? statsResult.reason : statsResult.value?.error)
+    }
+
+    // Handle orders
+    if (ordersResult.status === 'fulfilled' && ordersResult.value?.success) {
+      recentOrders.value = ordersResult.value.data || []
+    } else {
+      console.warn('Failed to load orders:', ordersResult.status === 'rejected' ? ordersResult.reason : ordersResult.value?.error)
+    }
+
+    // Handle downloads
+    if (downloadsResult.status === 'fulfilled' && downloadsResult.value?.success) {
+      recentDownloads.value = downloadsResult.value.data || []
+    } else {
+      console.warn('Failed to load downloads:', downloadsResult.status === 'rejected' ? downloadsResult.reason : downloadsResult.value?.error)
+    }
 
   } catch (error) {
     console.error('Failed to load account data:', error)
-    useToast().error('Failed to load account information')
+    // Don't show error toast, just log it since we're handling individual failures above
   } finally {
     isLoading.value = false
   }

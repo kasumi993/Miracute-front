@@ -25,7 +25,7 @@ export default defineEventHandler(async (event): Promise<ApiResponse<User | null
         handleSupabaseError(error, 'Fetch user profile')
       }
 
-      return createApiResponse(data || null)
+      return createApiResponse({ user: data || null })
     }
 
     if (method === 'PATCH') {
@@ -51,7 +51,7 @@ export default defineEventHandler(async (event): Promise<ApiResponse<User | null
         handleSupabaseError(error, 'Update user profile')
       }
 
-      return createApiResponse(data as User)
+      return createApiResponse({ user: data as User })
     }
 
     createApiError('Method not allowed', 405)

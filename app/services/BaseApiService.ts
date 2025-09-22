@@ -62,7 +62,7 @@ export class BaseApiService {
   /**
    * GET request helper
    */
-  protected async get<T = any>(
+  async get<T = any>(
     endpoint: string,
     query?: Record<string, any>
   ): Promise<ApiResponse<T>> {
@@ -72,7 +72,7 @@ export class BaseApiService {
   /**
    * POST request helper
    */
-  protected async post<T = any>(
+  async post<T = any>(
     endpoint: string,
     body?: any
   ): Promise<ApiResponse<T>> {
@@ -82,7 +82,7 @@ export class BaseApiService {
   /**
    * PUT request helper
    */
-  protected async put<T = any>(
+  async put<T = any>(
     endpoint: string,
     body?: any
   ): Promise<ApiResponse<T>> {
@@ -92,7 +92,7 @@ export class BaseApiService {
   /**
    * PATCH request helper
    */
-  protected async patch<T = any>(
+  async patch<T = any>(
     endpoint: string,
     body?: any
   ): Promise<ApiResponse<T>> {
@@ -102,7 +102,7 @@ export class BaseApiService {
   /**
    * DELETE request helper
    */
-  protected async delete<T = any>(
+  async delete<T = any>(
     endpoint: string
   ): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, { method: 'DELETE' })

@@ -10,7 +10,7 @@
   </ClientOnly>
 </template>
 
-<script setup>
+<script setup lang="ts">
 interface Props {
   showFallback?: boolean
   fallbackText?: string

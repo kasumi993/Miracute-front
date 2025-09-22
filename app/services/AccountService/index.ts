@@ -12,6 +12,7 @@ export const AccountService = {
   getUserDownloads: (page?: number, limit?: number) => import('./get').then(m => m.getUserDownloads(page, limit)),
   getUserSettings: () => import('./get').then(m => m.getUserSettings()),
   getUserStats: () => import('./get').then(m => m.getUserStats()),
+  getAccountStats: () => import('./get').then(m => m.getUserStats()), // Alias for compatibility
   getUserWishlist: (page?: number, limit?: number) => import('./get').then(m => m.getUserWishlist(page, limit)),
   getUserAddresses: () => import('./get').then(m => m.getUserAddresses()),
   getOrderDetails: (orderId: string) => import('./get').then(m => m.getOrderDetails(orderId)),

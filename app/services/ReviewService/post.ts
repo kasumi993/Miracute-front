@@ -40,28 +40,9 @@ export interface ReviewUpdateData {
 /**
  * Submit a new product review
  */
-export const submitReview = async (data: ReviewData): Promise<ApiResponse<{ success: boolean; reviewId: string; message: string }>> => {
-  const formData = new FormData()
-
-  // Add text fields
-  Object.entries(data).forEach(([key, value]) => {
-    if (key !== 'photos' && value !== undefined) {
-      if (Array.isArray(value)) {
-        formData.append(key, JSON.stringify(value))
-      } else {
-        formData.append(key, value.toString())
-      }
-    }
-  })
-
-  // Add photos
-  if (data.photos) {
-    data.photos.forEach((file, index) => {
-      formData.append(`photo_${index}`, file)
-    })
-  }
-
-  return baseService.post<{ success: boolean; reviewId: string; message: string }>('/reviews', formData)
+export const submitReview = async (data: any): Promise<ApiResponse<any>> => {
+  // Direct pass-through to match the existing API format
+  return baseService.post<any>('/reviews/submit', data)
 }
 
 /**

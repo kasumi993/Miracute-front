@@ -154,7 +154,7 @@
             </div>
           </div>
 
-          <!-- Account Actions -->
+          <!-- Account Actions
           <div class="bg-white rounded-2xl shadow-sm border border-red-100 border-2 p-8">
             <h2 class="text-xl font-heading font-medium text-red-900 mb-6">Account Actions</h2>
             
@@ -173,7 +173,7 @@
                 </button>
               </div>
             </div>
-          </div>
+          </div> -->
         </div>
       </div>
     </div>
@@ -239,23 +239,23 @@ const savePreferences = async () => {
   }
 }
 
-const confirmDeleteAccount = () => {
-  if (confirm('Are you sure you want to delete your account? This action cannot be undone and you will lose access to all your purchased templates.')) {
-    deleteAccount()
-  }
-}
+// const confirmDeleteAccount = () => {
+//   if (confirm('Are you sure you want to delete your account? This action cannot be undone and you will lose access to all your purchased templates.')) {
+//     deleteAccount()
+//   }
+// }
 
-const deleteAccount = async () => {
-  try {
-    // Here you would call your API to delete the account
-    // await $fetch('/api/account/delete', { method: 'DELETE' })
+// const deleteAccount = async () => {
+//   try {
+//     // Here you would call your API to delete the account
+//     // await $fetch('/api/account/delete', { method: 'DELETE' })
     
-    useToast().error('Account deletion is not yet implemented. Please contact support.')
-  } catch (error) {
-    console.error('Delete account error:', error)
-    useToast().error('Failed to delete account. Please contact support.')
-  }
-}
+//     useToast().error('Account deletion is not yet implemented. Please contact support.')
+//   } catch (error) {
+//     console.error('Delete account error:', error)
+//     useToast().error('Failed to delete account. Please contact support.')
+//   }
+// }
 
 // Load user preferences on mount
 onMounted(async () => {
