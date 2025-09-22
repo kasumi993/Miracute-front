@@ -77,6 +77,10 @@ export const useCartStore = defineStore('cart', {
         item.selectedVariant === variant
       ),
 
+    // Check if product is in cart
+    isInCart: (state) => (productId: string) =>
+      state.items.some(item => item.product.id === productId),
+
     // Loading states
     isLoading: (state) => Object.values(state.loading).some(loading => loading),
 

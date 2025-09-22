@@ -143,8 +143,8 @@ export const useProductsStore = defineStore('products', {
             limit: paginationData?.limit || 12,
             total: paginationData?.total || 0,
             totalPages: paginationData?.totalPages || 0,
-            hasNextPage: paginationData?.hasNextPage || false,
-            hasPreviousPage: paginationData?.hasPreviousPage || false
+            hasNextPage: paginationData?.hasNext || false,
+            hasPreviousPage: paginationData?.hasPrev || false
           }
 
           this.currentFilters = filters

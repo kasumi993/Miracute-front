@@ -10,10 +10,12 @@ export * from './put'
 // Export all DELETE methods
 export * from './delete'
 
+import { getProducts as _getProducts } from './get'
+
 // Create a unified ProductService object for easier usage
 export const ProductService = {
   // GET methods
-  getProducts: (filters?: any, pagination?: any) => import('./get').then(m => m.getProducts(filters, pagination)),
+  getProducts: _getProducts,
   getProduct: (id: string) => import('./get').then(m => m.getProduct(id)),
   getProductBySlug: (slug: string) => import('./get').then(m => m.getProductBySlug(slug)),
   searchProducts: (query: string, filters?: any, pagination?: any) => import('./get').then(m => m.searchProducts(query, filters, pagination)),

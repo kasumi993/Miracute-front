@@ -1,8 +1,8 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
-import type { Database, ProductSearchFilters, SearchResponse, ProductWithCategory } from '~/types/database'
-import { handleSupabaseError } from '../../../server/utils/apiResponse'
+import type { Database, ProductSearchFilters, SearchResponse, ProductWithCategory, ApiResponse } from '~/types/database'
+import { createApiResponse, handleSupabaseError } from '../../../server/utils/apiResponse'
 
-export default defineEventHandler(async (event): Promise<SearchResponse<ProductWithCategory>> => {
+export default defineEventHandler(async (event): Promise<ApiResponse<SearchResponse<ProductWithCategory>>> => {
   const supabase = serverSupabaseServiceRole<Database>(event)
 
   const query = getQuery(event)
@@ -104,7 +104,7 @@ export default defineEventHandler(async (event): Promise<SearchResponse<ProductW
     const total = count || 0
     const totalPages = Math.ceil(total / limit)
 
-    return {
+    const searchResponse: SearchResponse<ProductWithCategory> = {
       data: (data as ProductWithCategory[]) || [],
       pagination: {
         page,
@@ -115,6 +115,8 @@ export default defineEventHandler(async (event): Promise<SearchResponse<ProductW
         hasPrev: page > 1
       }
     }
+
+    return createApiResponse(searchResponse)
 
   } catch (error: any) {
     if (error.statusCode) {
