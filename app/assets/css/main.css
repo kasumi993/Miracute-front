@@ -9,7 +9,9 @@
 :root {
   /* Original Project Colors */
   --color-primary-pink: #d7c6c8;     /* Dusty pink */
-  --color-primary-sage: #bbcfca;     /* Sage green */
+  --color-primary-sage: #bbcfca;     /* Sage Color */
+  --color-primary-purple: #6B46C1;   /* Elegant purple for buttons */
+  --color-primary-purple-dark: #553C9A; /* Darker purple for hover */
   --color-neutral-cream: #cdd3d7;    /* Light blue-gray */
   --color-neutral-warm: #e9d1be;     /* Warm beige */
   --color-accent-brown: #955a3f;     /* Rich brown */
@@ -135,6 +137,18 @@
   
   .bg-brand-sage {
     background-color: var(--color-primary-sage);
+  }
+
+  .bg-brand-purple {
+    background-color: var(--color-primary-purple);
+  }
+
+  .hover\\:bg-brand-purple-dark:hover {
+    background-color: var(--color-primary-purple-dark);
+  }
+
+  .hover\\:bg-brand-sage-dark:hover {
+    background-color: var(--color-primary-sage-dark);
   }
   
   .text-brand-brown {

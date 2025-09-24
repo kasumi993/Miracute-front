@@ -1,4 +1,4 @@
-import { validateAdminAccess } from '../../utils/adminAuth'
+import { requireAdminAuthentication } from "../../utils/auth"
 import { createFileManager, FileConfigs } from '../../utils/fileManager'
 
 export default defineEventHandler(async (event) => {
@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const { supabase } = await validateAdminAccess(event)
+  const { supabase } = await requireAdminAuthentication(event)
   const fileManager = createFileManager(supabase)
   const uploadResults: Array<{ url: string; path: string; size: number }> = []
 

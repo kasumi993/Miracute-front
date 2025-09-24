@@ -1,9 +1,9 @@
-import { validateAdminAccess } from '../../../utils/adminAuth'
+import { requireAdminAuthentication } from "../../../utils/auth"
 import type { Database } from '~/types/database'
 
 export default defineEventHandler(async (event) => {
   // Use service role to bypass RLS
-  const { supabase } = await validateAdminAccess(event)
+  const { supabase } = await requireAdminAuthentication(event)
 
   const sampleCategories = [
     {

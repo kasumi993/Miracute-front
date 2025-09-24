@@ -3,9 +3,26 @@ import type { Database } from '~/app/types/database'
 
 export default defineEventHandler(async (event) => {
   const supabase = serverSupabaseServiceRole<Database>(event)
-  const productId = getRouterParam(event, 'productId')
+
+  // Try multiple ways to get the productId
+  let productId = getRouterParam(event, 'id')
+
+  // If that doesn't work, try extracting from URL path
+  if (!productId) {
+    const url = event.node.req.url
+    console.log('Trying to extract productId from URL:', url)
+    const matches = url?.match(/\/api\/reviews\/product-([^/?]+)/)
+    if (matches) {
+      productId = matches[1]
+      console.log('Extracted productId from URL:', productId)
+    }
+  }
+
+  console.log('Reviews API called with productId:', productId)
+  console.log('Event URL:', event.node.req.url)
 
   if (!productId) {
+    console.error('No productId found in route params or URL')
     throw createError({
       statusCode: 400,
       statusMessage: 'Product ID is required'
@@ -16,22 +33,8 @@ export default defineEventHandler(async (event) => {
     // Get reviews for the product with user information
     const { data: reviews, error } = await supabase
       .from('product_reviews')
-      .select(`
-        id,
-        rating,
-        title,
-        comment,
-        is_verified_purchase,
-        is_approved,
-        created_at,
-        user:users (
-          first_name,
-          last_name,
-          email
-        )
-      `)
+      .select('*')
       .eq('product_id', productId)
-      .eq('is_approved', true)
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -66,23 +69,8 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Format reviews for display (hide email, show initials only)
-    const formattedReviews = reviews?.map(review => ({
-      id: review.id,
-      rating: review.rating,
-      title: review.title,
-      comment: review.comment,
-      is_verified_purchase: review.is_verified_purchase,
-      created_at: review.created_at,
-      user: {
-        name: review.user?.first_name && review.user?.last_name
-          ? `${review.user.first_name} ${review.user.last_name}`
-          : review.user?.first_name || 'Anonymous',
-        initials: review.user?.first_name && review.user?.last_name
-          ? `${review.user.first_name.charAt(0)}${review.user.last_name.charAt(0)}`.toUpperCase()
-          : review.user?.first_name?.charAt(0).toUpperCase() || 'A'
-      }
-    })) || []
+    // Format reviews for display - keeping all data as fetched
+    const formattedReviews = reviews || []
 
     return {
       success: true,

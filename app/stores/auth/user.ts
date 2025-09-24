@@ -1,247 +1,542 @@
+/**
+ * Professional User Store - Refactored
+ * Replaces scattered auth logic with clean service integration
+ */
+
 import { defineStore } from 'pinia'
-import type { User } from '@supabase/supabase-js'
-import type { Database } from '~/types/database'
-import { AuthService } from '~/services'
-
-type UserProfile = Database['public']['Tables']['users']['Row']
-
-interface AuthState {
-  user: User | null
-  profile: UserProfile | null
-  loading: boolean
-  error: string | null
-  isInitialized: boolean
-}
+import type { AuthUser, UserProfile, UserRole, AuthState } from '~/types/api'
+import { authService } from '~/services/core/AuthenticationService'
+import {
+  AuthenticationError,
+  AuthorizationError,
+  ErrorLogger
+} from '~/utils/errors'
 
 export const useUserStore = defineStore('user', {
-  state: (): AuthState => ({
+  state: (): AuthState & { isInitialized: boolean } => ({
     user: null,
     profile: null,
-    loading: false,
+    isAuthenticated: false,
+    isLoading: false,
     error: null,
     isInitialized: false
   }),
 
   getters: {
-    isAuthenticated: (state) => !!state.user,
-    isAdmin: (state) => state.profile?.role === 'admin',
-    isCustomer: (state) => state.profile?.role === 'customer',
+    // Authentication status
+    isAuthenticated: (state): boolean => state.isAuthenticated && !!state.user,
+    isLoading: (state): boolean => state.isLoading,
+    hasError: (state): boolean => !!state.error,
 
-    fullName: (state) => {
-      if (!state.profile) return null
-      const { first_name, last_name } = state.profile
-      if (first_name && last_name) return `${first_name} ${last_name}`
-      return first_name || last_name || state.user?.email || 'User'
+    // User information
+    currentUser: (state): AuthUser | null => state.user,
+    currentProfile: (state): UserProfile | null => state.profile,
+    userEmail: (state): string | null => state.user?.email || state.profile?.email || null,
+
+    // User display information
+    fullName: (state): string => {
+      if (!state.profile) return state.user?.email || 'User'
+
+      const { firstName, lastName, fullName } = state.profile
+      if (fullName) return fullName
+      if (firstName && lastName) return `${firstName} ${lastName}`
+      return firstName || lastName || state.user?.email || 'User'
     },
 
-    initials: (state) => {
-      if (!state.profile) return 'U'
-      const { first_name, last_name } = state.profile
-      if (first_name && last_name) {
-        return `${first_name.charAt(0)}${last_name.charAt(0)}`.toUpperCase()
+    displayName: (state): string => {
+      if (!state.profile) return state.user?.email?.split('@')[0] || 'User'
+      return state.profile.firstName || state.user?.email?.split('@')[0] || 'User'
+    },
+
+    initials: (state): string => {
+      if (!state.profile) return state.user?.email?.charAt(0).toUpperCase() || 'U'
+
+      const { firstName, lastName } = state.profile
+      if (firstName && lastName) {
+        return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase()
       }
-      if (first_name) return first_name.charAt(0).toUpperCase()
+      if (firstName) return firstName.charAt(0).toUpperCase()
       return state.user?.email?.charAt(0).toUpperCase() || 'U'
     },
 
-    userEmail: (state) => state.user?.email || state.profile?.email,
-
-    hasProfile: (state) => !!state.profile,
-
-    userCountry: (state) => state.profile?.country,
-
-    createdAt: (state) => state.profile?.created_at
-  },
-
-  actions: {
-    // Set user data
-    setUser(user: User | null) {
-      this.user = user
-      if (!user) {
-        this.profile = null
-      }
+    avatarUrl: (state): string | null => {
+      return state.profile?.avatarUrl || state.user?.userMetadata.avatar_url || null
     },
 
-    setProfile(profile: UserProfile | null) {
-      this.profile = profile
+    // Role-based access
+    userRole: (state): UserRole => state.profile?.role || 'customer',
+    isAdmin: (state): boolean => state.profile?.role === 'admin',
+    isCustomer: (state): boolean => state.profile?.role === 'customer',
+    isModerator: (state): boolean => state.profile?.role === 'moderator',
+
+    // Profile information
+    hasCompleteProfile: (state): boolean => {
+      if (!state.profile) return false
+      return !!(state.profile.firstName && state.profile.lastName)
     },
 
-    setLoading(loading: boolean) {
-      this.loading = loading
+    isEmailVerified: (state): boolean => {
+      return state.user?.emailConfirmed || false
     },
 
-    setError(error: string | null) {
-      this.error = error
+    // Location and preferences
+    userCountry: (state): string | null => state.profile?.country || null,
+    marketingOptIn: (state): boolean => state.profile?.marketingOptIn || false,
+
+    // Account timestamps
+    accountCreatedAt: (state): string | null => {
+      return state.profile?.createdAt || state.user?.createdAt || null
     },
 
-    setInitialized(initialized: boolean) {
-      this.isInitialized = initialized
-    },
-
-    // Initialize auth state
-    async initialize() {
-      if (this.isInitialized) return
-
-      this.setLoading(true)
-      try {
-        const supabase = useSupabaseClient()
-        const { data: { session } } = await supabase.auth.getSession()
-
-        if (session?.user) {
-          this.setUser(session.user)
-          await this.fetchProfile()
-        }
-      } catch (error) {
-        console.error('Auth initialization error:', error)
-      } finally {
-        this.setLoading(false)
-        this.setInitialized(true)
-      }
-    },
-
-    // Fetch user profile using AuthService
-    async fetchProfile() {
-      if (!this.user) return
-
-      this.setLoading(true)
-      this.setError(null)
-
-      try {
-        const response = await AuthService.getUser()
-
-        if (response.success && response.data?.user) {
-          this.setProfile(response.data.user)
-        } else if (response.error?.includes('not found') || response.error?.includes('PGRST116')) {
-          // User profile doesn't exist, create one
-          console.log('User profile not found, creating new profile...')
-          await this.createProfile({
-            user_id: this.user.id,
-            email: this.user.email!,
-            first_name: this.user.user_metadata?.first_name,
-            last_name: this.user.user_metadata?.last_name,
-            avatar_url: this.user.user_metadata?.avatar_url
-          })
-        } else {
-          throw new Error(response.error || 'Failed to fetch user profile')
-        }
-      } catch (error: any) {
-        console.error('Error fetching user profile:', error)
-        // Don't set error for profile creation issues, just log them
-        if (!error.message?.includes('create')) {
-          this.setError('Failed to fetch user profile')
-        }
-      } finally {
-        this.setLoading(false)
-      }
-    },
-
-    // Update user profile using AuthService
-    async updateProfile(updates: Partial<UserProfile>) {
-      if (!this.user || !this.profile) return
-
-      this.setLoading(true)
-      this.setError(null)
-
-      try {
-        const response = await AuthService.updateUser(updates)
-
-        if (response.success && response.data?.user) {
-          this.setProfile(response.data.user)
-          return response.data.user
-        } else {
-          throw new Error(response.error || 'Failed to update profile')
-        }
-      } catch (error: any) {
-        console.error('Error updating profile:', error)
-        this.setError('Failed to update profile')
-        throw error
-      } finally {
-        this.setLoading(false)
-      }
-    },
-
-    // Create user profile
-    async createProfile(userData: {
-      user_id: string
-      email: string
-      first_name?: string
-      last_name?: string
-      avatar_url?: string
-    }) {
-      this.setLoading(true)
-      this.setError(null)
-
-      try {
-        const response = await AuthService.createUserProfile(userData)
-
-        if (response.success && response.data?.user) {
-          this.setProfile(response.data.user)
-          return response.data.user
-        } else {
-          throw new Error(response.error || 'Failed to create profile')
-        }
-      } catch (error: any) {
-        console.error('Error creating profile:', error)
-        this.setError('Failed to create profile')
-        throw error
-      } finally {
-        this.setLoading(false)
-      }
-    },
-
-    // Sign out
-    async signOut() {
-      try {
-        const supabase = useSupabaseClient()
-        await supabase.auth.signOut()
-        this.reset()
-        await navigateTo('/auth/login')
-      } catch (error: any) {
-        console.error('Error signing out:', error)
-        this.setError('Failed to sign out')
-      }
-    },
-
-    // Utility methods
-    clearError() {
-      this.setError(null)
-    },
-
-    reset() {
-      this.user = null
-      this.profile = null
-      this.loading = false
-      this.error = null
-      this.isInitialized = false
-    },
-
-    // Check if user has permission
-    hasPermission(permission: string): boolean {
-      if (!this.profile) return false
-      if (this.isAdmin) return true
-
-      // Add permission checking logic here
-      return false
-    },
-
-    // Check if user can access admin features
-    requireAdmin(): boolean {
-      if (!this.isAuthenticated) {
-        throw createError({
-          statusCode: 401,
-          statusMessage: 'Authentication required'
-        })
-      }
-
-      if (!this.isAdmin) {
-        throw createError({
-          statusCode: 403,
-          statusMessage: 'Admin access required'
-        })
-      }
-
-      return true
+    lastUpdatedAt: (state): string | null => {
+      return state.profile?.updatedAt || state.user?.updatedAt || null
     }
   },
 
+  actions: {
+    // ==========================================
+    // Initialization
+    // ==========================================
+
+    /**
+     * Initialize the auth state - called on app startup
+     */
+    async initialize(): Promise<void> {
+      if (this.isInitialized) return
+
+      this.setLoading(true)
+
+      try {
+        // Initialize the auth service
+        await authService.initialize()
+
+        // Sync state from auth service
+        this.syncFromAuthService()
+
+        this.isInitialized = true
+
+      } catch (error) {
+        this.handleError(error, 'Failed to initialize authentication')
+      } finally {
+        this.setLoading(false)
+      }
+    },
+
+    /**
+     * Sync store state from auth service
+     */
+    syncFromAuthService(): void {
+      const authState = authService.getAuthState()
+
+      this.user = authState.user
+      this.profile = authState.profile
+      this.isAuthenticated = authState.isAuthenticated
+      this.isLoading = authState.isLoading
+      this.error = authState.error
+    },
+
+    // ==========================================
+    // Authentication Actions
+    // ==========================================
+
+    /**
+     * Sign up new user
+     */
+    async signUp(credentials: {
+      email: string
+      password: string
+      firstName?: string
+      lastName?: string
+      marketingOptIn?: boolean
+    }): Promise<void> {
+      this.setLoading(true)
+      this.clearError()
+
+      try {
+        const response = await authService.signUp(credentials)
+
+        if (response.success) {
+          this.syncFromAuthService()
+          await navigateTo('/auth/verify-email')
+        } else {
+          throw new Error(response.error || 'Sign up failed')
+        }
+
+      } catch (error) {
+        this.handleError(error, 'Sign up failed')
+        throw error
+      } finally {
+        this.setLoading(false)
+      }
+    },
+
+    /**
+     * Sign in existing user
+     */
+    async signIn(credentials: {
+      email: string
+      password: string
+      rememberMe?: boolean
+    }): Promise<void> {
+      this.setLoading(true)
+      this.clearError()
+
+      try {
+        const response = await authService.signIn(credentials)
+
+        if (response.success) {
+          this.syncFromAuthService()
+
+          // Redirect based on user role
+          if (this.isAdmin) {
+            await navigateTo('/dashboard')
+          } else {
+            await navigateTo('/')
+          }
+        } else {
+          throw new Error(response.error || 'Sign in failed')
+        }
+
+      } catch (error) {
+        this.handleError(error, 'Sign in failed')
+        throw error
+      } finally {
+        this.setLoading(false)
+      }
+    },
+
+    /**
+     * Sign out current user
+     */
+    async signOut(): Promise<void> {
+      this.setLoading(true)
+
+      try {
+        await authService.signOut()
+        this.clearAuthState()
+
+      } catch (error) {
+        this.handleError(error, 'Sign out failed')
+        throw error
+      } finally {
+        this.setLoading(false)
+      }
+    },
+
+    /**
+     * Request password reset
+     */
+    async requestPasswordReset(email: string, redirectUrl?: string): Promise<void> {
+      this.setLoading(true)
+      this.clearError()
+
+      try {
+        const response = await authService.requestPasswordReset({ email, redirectUrl })
+
+        if (!response.success) {
+          throw new Error(response.error || 'Password reset request failed')
+        }
+
+      } catch (error) {
+        this.handleError(error, 'Password reset request failed')
+        throw error
+      } finally {
+        this.setLoading(false)
+      }
+    },
+
+    /**
+     * Update password
+     */
+    async updatePassword(newPassword: string, confirmPassword: string): Promise<void> {
+      this.setLoading(true)
+      this.clearError()
+
+      try {
+        const response = await authService.updatePassword({ newPassword, confirmPassword })
+
+        if (!response.success) {
+          throw new Error(response.error || 'Password update failed')
+        }
+
+      } catch (error) {
+        this.handleError(error, 'Password update failed')
+        throw error
+      } finally {
+        this.setLoading(false)
+      }
+    },
+
+    // ==========================================
+    // Profile Management
+    // ==========================================
+
+    /**
+     * Fetch current user profile
+     */
+    async fetchProfile(): Promise<void> {
+      if (!this.isAuthenticated) {
+        throw new AuthenticationError('Must be authenticated to fetch profile')
+      }
+
+      this.setLoading(true)
+
+      try {
+        const response = await authService.getCurrentProfile()
+
+        if (response.success && response.data) {
+          this.profile = response.data
+        } else {
+          throw new Error(response.error || 'Failed to fetch profile')
+        }
+
+      } catch (error) {
+        this.handleError(error, 'Failed to fetch profile')
+        throw error
+      } finally {
+        this.setLoading(false)
+      }
+    },
+
+    /**
+     * Update user profile
+     */
+    async updateProfile(updates: {
+      firstName?: string
+      lastName?: string
+      avatarUrl?: string
+      country?: string
+      phoneNumber?: string
+      dateOfBirth?: string
+      marketingOptIn?: boolean
+    }): Promise<void> {
+      if (!this.isAuthenticated) {
+        throw new AuthenticationError('Must be authenticated to update profile')
+      }
+
+      this.setLoading(true)
+      this.clearError()
+
+      try {
+        const response = await authService.updateProfile(updates)
+
+        if (response.success && response.data) {
+          this.profile = response.data
+        } else {
+          throw new Error(response.error || 'Profile update failed')
+        }
+
+      } catch (error) {
+        this.handleError(error, 'Profile update failed')
+        throw error
+      } finally {
+        this.setLoading(false)
+      }
+    },
+
+    // ==========================================
+    // Authorization Helpers
+    // ==========================================
+
+    /**
+     * Require authentication (throws if not authenticated)
+     */
+    requireAuth(): void {
+      if (!this.isAuthenticated) {
+        throw new AuthenticationError('Authentication required')
+      }
+    },
+
+    /**
+     * Require admin role (throws if not admin)
+     */
+    requireAdmin(): void {
+      this.requireAuth()
+
+      if (!this.isAdmin) {
+        throw new AuthorizationError('Admin access required')
+      }
+    },
+
+    /**
+     * Check if user has specific role
+     */
+    hasRole(role: UserRole): boolean {
+      return this.userRole === role
+    },
+
+    /**
+     * Check if user has any of the specified roles
+     */
+    hasAnyRole(roles: UserRole[]): boolean {
+      return roles.includes(this.userRole)
+    },
+
+    /**
+     * Check permission (extensible for future role-based permissions)
+     */
+    hasPermission(permission: string): boolean {
+      // Admin has all permissions
+      if (this.isAdmin) return true
+
+      // TODO: Implement granular permission system
+      switch (permission) {
+        case 'view_orders':
+          return this.isAuthenticated
+        case 'manage_products':
+          return this.isAdmin
+        case 'moderate_reviews':
+          return this.isAdmin || this.isModerator
+        default:
+          return false
+      }
+    },
+
+    // ==========================================
+    // State Management
+    // ==========================================
+
+    setLoading(loading: boolean): void {
+      this.isLoading = loading
+    },
+
+    clearError(): void {
+      this.error = null
+    },
+
+    setError(error: string): void {
+      this.error = error
+    },
+
+    clearAuthState(): void {
+      this.user = null
+      this.profile = null
+      this.isAuthenticated = false
+      this.isLoading = false
+      this.error = null
+    },
+
+    /**
+     * Handle errors with consistent logging and user feedback
+     */
+    handleError(error: unknown, context: string): void {
+      const errorMessage = error instanceof Error ? error.message : String(error)
+
+      this.setError(errorMessage)
+
+      ErrorLogger.log(
+        error instanceof Error ? error : new Error(errorMessage),
+        {
+          userId: this.user?.id,
+          context,
+          timestamp: new Date().toISOString()
+        }
+      )
+
+      // Show user-friendly toast notification
+      const { $toast } = useNuxtApp()
+      if ($toast) {
+        $toast.error(errorMessage)
+      }
+    },
+
+    // ==========================================
+    // Utility Methods
+    // ==========================================
+
+    /**
+     * Get user's preferred display name for UI
+     */
+    getDisplayName(): string {
+      return this.displayName
+    },
+
+    /**
+     * Get user's initials for avatar fallback
+     */
+    getInitials(): string {
+      return this.initials
+    },
+
+    /**
+     * Check if profile needs completion
+     */
+    needsProfileCompletion(): boolean {
+      return !this.hasCompleteProfile && this.isAuthenticated
+    },
+
+    /**
+     * Get user's timezone (future enhancement)
+     */
+    getTimezone(): string {
+      // TODO: Implement timezone detection/storage
+      return Intl.DateTimeFormat().resolvedOptions().timeZone
+    },
+
+    /**
+     * Get user's locale preference (future enhancement)
+     */
+    getLocale(): string {
+      // TODO: Implement locale preference storage
+      return 'en-US'
+    },
+
+    /**
+     * Export user data (GDPR compliance)
+     */
+    async exportUserData(): Promise<void> {
+      this.requireAuth()
+
+      try {
+        // TODO: Implement user data export
+        const userData = {
+          user: this.user,
+          profile: this.profile,
+          exportedAt: new Date().toISOString()
+        }
+
+        // Trigger download
+        const blob = new Blob([JSON.stringify(userData, null, 2)], {
+          type: 'application/json'
+        })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `user-data-${this.user?.id}.json`
+        a.click()
+        URL.revokeObjectURL(url)
+
+      } catch (error) {
+        this.handleError(error, 'Failed to export user data')
+        throw error
+      }
+    },
+
+    /**
+     * Delete user account (GDPR compliance)
+     */
+    async deleteAccount(confirmation: string): Promise<void> {
+      this.requireAuth()
+
+      if (confirmation !== 'DELETE') {
+        throw new ValidationError('Invalid confirmation', 'confirmation')
+      }
+
+      this.setLoading(true)
+
+      try {
+        // TODO: Implement account deletion
+        // await authService.deleteAccount()
+
+        this.clearAuthState()
+        await navigateTo('/')
+
+      } catch (error) {
+        this.handleError(error, 'Account deletion failed')
+        throw error
+      } finally {
+        this.setLoading(false)
+      }
+    }
+  }
 })

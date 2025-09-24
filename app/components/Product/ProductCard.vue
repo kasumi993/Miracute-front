@@ -58,15 +58,30 @@
         </div>
         
         <!-- Rating - Compact on mobile -->
-        <div class="flex items-center space-x-1 sm:space-x-2">
+        <div v-if="product.review_count && product.review_count > 0" class="flex items-center space-x-1 sm:space-x-2">
           <div class="flex items-center">
-            <Icon name="heroicons:star-20-solid" class="w-2.5 h-2.5 sm:w-4 sm:h-4 text-yellow-400" />
-            <Icon name="heroicons:star-20-solid" class="w-2.5 h-2.5 sm:w-4 sm:h-4 text-yellow-400" />
-            <Icon name="heroicons:star-20-solid" class="w-2.5 h-2.5 sm:w-4 sm:h-4 text-yellow-400" />
-            <Icon name="heroicons:star-20-solid" class="w-2.5 h-2.5 sm:w-4 sm:h-4 text-yellow-400" />
-            <Icon name="heroicons:star-20-solid" class="w-2.5 h-2.5 sm:w-4 sm:h-4 text-yellow-400" />
+            <Icon
+              v-for="star in 5"
+              :key="star"
+              name="heroicons:star-20-solid"
+              :class="star <= Math.round(product.average_rating || 0) ? 'text-yellow-400' : 'text-gray-300'"
+              class="w-2.5 h-2.5 sm:w-4 sm:h-4"
+            />
           </div>
-          <span class="text-[10px] sm:text-xs text-gray-600">({{ getReviewCount(product) }})</span>
+          <span class="text-[10px] sm:text-xs text-gray-600">
+            {{ product.average_rating?.toFixed(1) }} ({{ product.review_count }})
+          </span>
+        </div>
+        <div v-else class="flex items-center space-x-1 sm:space-x-2">
+          <div class="flex items-center">
+            <Icon
+              v-for="star in 5"
+              :key="star"
+              name="heroicons:star-20-solid"
+              class="w-2.5 h-2.5 sm:w-4 sm:h-4 text-gray-300"
+            />
+          </div>
+          <span class="text-[10px] sm:text-xs text-gray-600">No reviews yet</span>
         </div>
 
         <!-- Price -->
@@ -111,6 +126,8 @@ interface Product {
   }
   software_required?: string[]
   is_featured?: boolean
+  review_count?: number
+  average_rating?: number
 }
 
 interface Props {
@@ -172,13 +189,6 @@ const formatViews = (views: number) => {
   return views.toString()
 }
 
-const getReviewCount = (product: any) => {
-  // Mock review count based on product ID for consistent display
-  const hash = product.id.split('').reduce((a: number, b: string) => {
-    a = ((a << 5) - a) + b.charCodeAt(0)
-    return a & a
-  }, 0)
-  return Math.abs(hash % 500) + 50 // Between 50-549 reviews
-}
+// No longer needed - using real review data from API
 
 </script>

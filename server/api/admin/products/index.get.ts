@@ -1,4 +1,4 @@
-import { validateAdminAccess } from '../../../utils/adminAuth'
+import { requireAdminAuthentication } from "../../../utils/auth"
 import type { Database, ProductWithCategory, ApiResponse, SearchResponse } from '~/types/database'
 import { createApiResponse, handleSupabaseError } from '../../../utils/apiResponse'
 
@@ -10,7 +10,7 @@ interface AdminProductFilters {
 }
 
 export default defineEventHandler(async (event): Promise<ApiResponse<SearchResponse<ProductWithCategory>>> => {
-  const { supabase } = await validateAdminAccess(event)
+  const { supabase } = await requireAdminAuthentication(event)
 
   const query = getQuery(event)
   const page = Math.max(1, parseInt(query.page as string) || 1)

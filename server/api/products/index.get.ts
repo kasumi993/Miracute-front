@@ -26,6 +26,9 @@ export default defineEventHandler(async (event): Promise<ApiResponse<SearchRespo
   const excludeId = query.exclude as string
 
   try {
+    console.log('Products API: Received query parameters:', query)
+    console.log('Products API: Parsed filters:', filters)
+
     let dbQuery = supabase
       .from('products')
       .select(`
@@ -96,6 +99,12 @@ export default defineEventHandler(async (event): Promise<ApiResponse<SearchRespo
     dbQuery = dbQuery.range(offset, offset + limit - 1)
 
     const { data, count, error } = await dbQuery
+
+    console.log('Products API: Database query result:', {
+      dataLength: data?.length,
+      count,
+      error: error?.message
+    })
 
     if (error) {
       handleSupabaseError(error, 'Fetch products')

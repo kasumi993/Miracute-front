@@ -15,7 +15,11 @@ module.exports = {
         // Original brand colors
         'brand': {
           'pink': '#d7c6c8',      // Dusty pink
-          'sage': '#bbcfca',      // Sage green
+          'sage': '#bbcfca',      // Original sage green for wellness/therapy
+          'purple': {
+            DEFAULT: '#6B46C1',   // Elegant purple for buttons
+            'dark': '#553C9A'     // Darker purple for hover
+          },
           'cream': '#cdd3d7',     // Light blue-gray
           'warm': '#e9d1be',      // Warm beige
           'brown': '#955a3f'      // Rich brown
@@ -25,7 +29,11 @@ module.exports = {
           'blue': '#C6CED7',      // Soft Blue
           'mauve': '#C5A5AC',     // Dusty Mauve
           'peach': '#E9CBB5',     // Peach Nude
-          'sage': '#A7C2BD',      // Sage Green
+          'sage': '#A7C2BD',      // Original sage for wellness/therapy
+          'purple': {
+            DEFAULT: '#6B46C1',   // Elegant purple for buttons
+            'dark': '#553C9A'     // Darker purple for hover
+          },
           'clay': '#8C4B32'       // Warm Clay
         },
         // Original neutral palette

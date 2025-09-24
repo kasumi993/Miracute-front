@@ -161,13 +161,15 @@ export const useProductsStore = defineStore('products', {
     },
 
     // Load more products (pagination)
-    async loadMoreProducts() {
+    async loadMoreProducts(filters?: ProductFilters) {
       if (!this.pagination.hasNextPage || this.loading.products) return
 
       const nextPage = this.pagination.page + 1
+      const filtersToUse = filters || this.currentFilters
+
       await this.fetchProducts(
-        this.currentFilters,
-        { ...this.currentFilters, page: nextPage },
+        filtersToUse,
+        { page: nextPage },
         false
       )
     },

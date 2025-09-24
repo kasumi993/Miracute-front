@@ -1,5 +1,6 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 import type { Database } from '~/app/types/database'
+import { sendBrevoNewReviewNotification } from '~/server/services/email/reviewService'
 
 export default defineEventHandler(async (event) => {
   console.log('Review submit API called')
@@ -167,7 +168,10 @@ export default defineEventHandler(async (event) => {
       isVerifiedPurchase = true // Admin reviews are always considered verified
     }
 
-    // Create the review
+    // Create the review with 6-hour edit window
+    const now = new Date()
+    const editDeadline = new Date(now.getTime() + (6 * 60 * 60 * 1000)) // 6 hours from now
+
     console.log('Review API: Creating review with data:', {
       product_id: body.product_id,
       user_id: body.user_id,
@@ -175,7 +179,10 @@ export default defineEventHandler(async (event) => {
       title: body.title?.trim() || null,
       comment: body.comment?.trim() || null,
       is_verified_purchase: isVerifiedPurchase,
-      is_approved: true
+      is_approved: true,
+      is_anonymous: false,
+      is_editable: true,
+      edit_deadline: editDeadline.toISOString()
     })
 
     const { data: review, error } = await supabase
@@ -187,7 +194,10 @@ export default defineEventHandler(async (event) => {
         title: body.title?.trim() || null,
         comment: body.comment?.trim() || null,
         is_verified_purchase: isVerifiedPurchase,
-        is_approved: true // Auto-approve reviews (can be changed to false for moderation)
+        is_approved: true, // Auto-approve reviews (can be changed to false for moderation)
+        is_anonymous: false,
+        is_editable: true,
+        edit_deadline: editDeadline.toISOString()
       })
       .select()
       .single()
@@ -201,6 +211,40 @@ export default defineEventHandler(async (event) => {
         statusMessage: 'Failed to submit review',
         data: error
       })
+    }
+
+    // Send admin notification email about new review
+    try {
+      console.log('Review API: Sending admin notification email...')
+
+      // Get product name and user info for the email
+      const { data: productData } = await supabase
+        .from('products')
+        .select('name')
+        .eq('id', body.product_id)
+        .single()
+
+      const { data: userData } = await supabase
+        .from('users')
+        .select('first_name, last_name, email')
+        .eq('id', body.user_id)
+        .single()
+
+      await sendBrevoNewReviewNotification({
+        productId: body.product_id,
+        productName: productData?.name,
+        rating: review.rating,
+        title: review.title,
+        comment: review.comment,
+        userName: userData ? `${userData.first_name || ''} ${userData.last_name || ''}`.trim() : undefined,
+        userEmail: userData?.email,
+        isVerifiedPurchase: review.is_verified_purchase
+      })
+
+      console.log('Review API: Admin notification email sent successfully')
+    } catch (emailError) {
+      console.error('Review API: Failed to send admin notification email:', emailError)
+      // Don't fail the entire request if email fails
     }
 
     return {

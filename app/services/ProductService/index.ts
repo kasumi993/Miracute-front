@@ -16,6 +16,7 @@ import { getProducts as _getProducts } from './get'
 export const ProductService = {
   // GET methods
   getProducts: _getProducts,
+  getProductsWithReviews: (filters?: any, pagination?: any) => import('./get').then(m => m.getProductsWithReviews(filters, pagination)),
   getProduct: (id: string) => import('./get').then(m => m.getProduct(id)),
   getProductBySlug: (slug: string) => import('./get').then(m => m.getProductBySlug(slug)),
   searchProducts: (query: string, filters?: any, pagination?: any) => import('./get').then(m => m.searchProducts(query, filters, pagination)),

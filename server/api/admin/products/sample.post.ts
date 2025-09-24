@@ -1,8 +1,8 @@
-import { validateAdminAccess } from '../../../utils/adminAuth'
+import { requireAdminAuthentication } from "../../../utils/auth"
 import type { Database } from '~/types/database'
 
 export default defineEventHandler(async (event) => {
-  const { supabase } = await validateAdminAccess(event)
+  const { supabase } = await requireAdminAuthentication(event)
 
   // Parse query to see if we should clear existing data
   const query = getQuery(event)

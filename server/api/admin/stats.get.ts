@@ -1,14 +1,23 @@
-import { validateAdminAccess } from '../../utils/adminAuth'
-import { createBusinessMetricsCalculator } from '../../utils/businessMetrics'
+import { requireAdminAuthentication } from '../../utils/auth'
 
 export default defineEventHandler(async (event) => {
   // Validate admin access and get authenticated supabase client
-  const { supabase } = await validateAdminAccess(event)
+  const { supabase } = await requireAdminAuthentication(event)
 
   try {
-    // Use the new business metrics calculator
-    const metricsCalculator = createBusinessMetricsCalculator(supabase)
-    const stats = await metricsCalculator.getDashboardStats()
+    // Basic admin dashboard stats
+    const [ordersResult, productsResult, reviewsResult] = await Promise.all([
+      supabase.from('orders').select('*', { count: 'exact' }),
+      supabase.from('products').select('*', { count: 'exact' }),
+      supabase.from('reviews').select('*', { count: 'exact' })
+    ])
+
+    const stats = {
+      orders: ordersResult.count || 0,
+      products: productsResult.count || 0,
+      reviews: reviewsResult.count || 0,
+      revenue: 0 // Placeholder for revenue calculation
+    }
 
     return {
       success: true,

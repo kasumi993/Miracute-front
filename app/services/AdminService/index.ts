@@ -27,6 +27,9 @@ export const AdminService = {
   getCustomerStats: () => import('./get').then(m => m.getCustomerStats()),
   getReviews: (filters?: any, pagination?: any) => import('./get').then(m => m.getReviews(filters, pagination)),
   getPopularProducts: () => import('./get').then(m => m.getPopularProducts()),
+  getDashboardStats: (params?: any) => import('./get').then(m => m.getDashboardStats(params)),
+  getAdminAlerts: () => import('./get').then(m => m.getAdminAlerts()),
+  getSystemHealth: () => import('./get').then(m => m.getSystemHealth()),
 
   // POST methods
   createSampleProducts: () => import('./post').then(m => m.createSampleProducts()),
@@ -43,6 +46,10 @@ export const AdminService = {
   createReview: (reviewData: any) => import('./post').then(m => m.createReview(reviewData)),
   createProduct: (productData: any) => import('./post').then(m => m.createProduct(productData)),
   createCategory: (categoryData: any) => import('./post').then(m => m.createCategory(categoryData)),
+  dismissAlert: (alertId: string) => import('./post').then(m => m.dismissAlert(alertId)),
+  markAllAlertsRead: () => import('./post').then(m => m.markAllAlertsRead()),
+  executeQuickAction: (actionData: any) => import('./post').then(m => m.executeQuickAction(actionData)),
+  exportData: (exportConfig: any) => import('./post').then(m => m.exportData(exportConfig)),
 
   // PATCH methods
   updateProductStatus: (id: string, isActive: boolean) => import('./patch').then(m => m.updateProductStatus(id, isActive)),

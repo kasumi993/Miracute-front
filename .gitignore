@@ -129,3 +129,6 @@ pnpm-lock.yaml
 *.ntvs*
 *.njsproj
 *.sln
+
+# Claude context file
+claude.md

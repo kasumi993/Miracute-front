@@ -1,9 +1,9 @@
-import { validateAdminAccess } from '../../utils/adminAuth'
+import { requireAdminAuthentication } from "../../utils/auth"
 import type { Database } from '~/types/database'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const { supabase } = await validateAdminAccess(event)
+  const { supabase } = await requireAdminAuthentication(event)
 
   const diagnostics = {
     timestamp: new Date().toISOString(),

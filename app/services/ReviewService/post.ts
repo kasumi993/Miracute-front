@@ -161,3 +161,30 @@ export const generateReviewInsights = async (data: {
 }): Promise<ApiResponse<{ reportId: string; downloadUrl: string; expiresAt: string }>> => {
   return baseService.post<{ reportId: string; downloadUrl: string; expiresAt: string }>('/admin/reviews/insights', data)
 }
+
+/**
+ * Add edit note to a review
+ */
+export const addReviewEditNote = async (reviewId: string, data: {
+  note: string
+  note_type: 'edit' | 'clarification' | 'update'
+}): Promise<ApiResponse<{ success: boolean; message: string; editNote: any }>> => {
+  return baseService.post<{ success: boolean; message: string; editNote: any }>(`/reviews/${reviewId}/notes`, data)
+}
+
+/**
+ * Toggle review anonymity
+ */
+export const toggleReviewAnonymity = async (reviewId: string, isAnonymous: boolean): Promise<ApiResponse<{ success: boolean; message: string }>> => {
+  return baseService.patch<{ success: boolean; message: string }>(`/reviews/${reviewId}/anonymity`, { is_anonymous: isAnonymous })
+}
+
+/**
+ * Import reviews via CSV (Admin only)
+ */
+export const importReviewsCSV = async (data: {
+  csvData: string
+  productId: string
+}): Promise<ApiResponse<{ success: boolean; message: string; results: any }>> => {
+  return baseService.post<{ success: boolean; message: string; results: any }>('/admin/reviews/import-csv', data)
+}

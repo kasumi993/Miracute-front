@@ -178,3 +178,28 @@ export const sendNotification = async (notificationData: {
 }): Promise<ApiResponse<any>> => {
   return baseService.post<any>('/admin/notifications/send', notificationData)
 }
+
+/**
+ * Dismiss admin alert
+ */
+export const dismissAlert = async (alertId: string): Promise<ApiResponse<any>> => {
+  return baseService.post<any>(`/admin/alerts/${alertId}/dismiss`)
+}
+
+/**
+ * Mark all alerts as read
+ */
+export const markAllAlertsRead = async (): Promise<ApiResponse<any>> => {
+  return baseService.post<any>('/admin/alerts/mark-all-read')
+}
+
+/**
+ * Execute quick admin action
+ */
+export const executeQuickAction = async (actionData: {
+  action: string
+  params?: any
+}): Promise<ApiResponse<any>> => {
+  return baseService.post<any>('/admin/actions/execute', actionData)
+}
+

@@ -12,6 +12,7 @@ export const createUserProfile = async (userData: {
   first_name?: string
   last_name?: string
   avatar_url?: string
+  role?: 'customer' | 'admin'
 }): Promise<ApiResponse<any>> => {
   return baseService.post<any>('/auth/create-user-profile', userData)
 }

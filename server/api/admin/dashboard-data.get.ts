@@ -1,9 +1,8 @@
-import { validateAdminAccess } from '../../utils/adminAuth'
-import { createBusinessMetricsCalculator } from '../../utils/businessMetrics'
+import { requireAdminAuthentication } from "../../utils/auth"
 
 export default defineEventHandler(async (event) => {
   // Validate admin access and get authenticated supabase client
-  const { supabase } = await validateAdminAccess(event)
+  const { supabase } = await requireAdminAuthentication(event)
 
   try {
     // Create business metrics calculator

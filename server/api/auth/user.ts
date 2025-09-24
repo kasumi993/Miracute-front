@@ -8,7 +8,10 @@ export default defineEventHandler(async (event): Promise<ApiResponse<User | null
     const user = await serverSupabaseUser(event)
 
     if (!user) {
-      createApiError('Authentication required', 401)
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'Authentication required'
+      })
     }
 
     const supabase = serverSupabaseServiceRole<Database>(event)

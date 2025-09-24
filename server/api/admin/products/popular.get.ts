@@ -1,8 +1,8 @@
-import { validateAdminAccess } from '../../../utils/adminAuth'
+import { requireAdminAuthentication } from "../../../utils/auth"
 
 export default defineEventHandler(async (event) => {
   // Validate admin access and get authenticated supabase client
-  const { supabase } = await validateAdminAccess(event)
+  const { supabase } = await requireAdminAuthentication(event)
 
   const query = getQuery(event)
   const limit = parseInt(query.limit as string) || 10

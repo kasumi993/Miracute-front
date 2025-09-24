@@ -82,7 +82,7 @@
                   class="appearance-none bg-white border border-gray-300 rounded-lg px-3 py-2.5 pr-8 text-sm focus:ring-2 focus:ring-brand-sage focus:border-transparent min-w-[120px]"
                 >
                   <option value="">All Categories</option>
-                  <option v-for="category in categories" :key="category.id" :value="category.id">
+                  <option v-for="category in categories || []" :key="category.id" :value="category.id">
                     {{ category.name }}
                   </option>
                 </select>
@@ -108,8 +108,8 @@
 
               <!-- Sort Dropdown -->
               <div class="relative flex-shrink-0">
-                <select 
-                  v-model="sortBy" 
+                <select
+                  v-model="sortBy"
                   class="appearance-none bg-white border border-gray-300 rounded-lg px-3 py-2.5 pr-8 text-sm focus:ring-2 focus:ring-brand-sage focus:border-transparent min-w-[100px]"
                 >
                   <option value="newest">Recent</option>
@@ -216,7 +216,7 @@
                     class="appearance-none bg-white border border-gray-300 rounded-lg px-3 py-2 pr-8 text-sm focus:ring-2 focus:ring-brand-sage focus:border-transparent w-full"
                   >
                     <option value="">All Categories</option>
-                    <option v-for="category in categories" :key="category.id" :value="category.id">
+                    <option v-for="category in categories || []" :key="category.id" :value="category.id">
                       {{ category.name }}
                     </option>
                   </select>
@@ -225,8 +225,8 @@
 
                 <!-- Sort Dropdown -->
                 <div class="relative flex-1 min-w-[100px] max-w-[140px]">
-                  <select 
-                    v-model="sortBy" 
+                  <select
+                    v-model="sortBy"
                     class="appearance-none bg-white border border-gray-300 rounded-lg px-3 py-2 pr-8 text-sm focus:ring-2 focus:ring-brand-sage focus:border-transparent w-full"
                   >
                     <option value="newest">Recent</option>
@@ -310,7 +310,7 @@
       </div>
 
       <!-- Products Grid -->
-      <ProductGrid 
+      <ProductGrid
         :products="products"
         :is-loading="isLoading || isInitialLoad"
         :columns="{ sm: 2, md: 4, lg: 4, xl: 4, '2xl': 5 }"
@@ -340,22 +340,30 @@
 </template>
 
 <script setup>
-// Composables
-const { 
-  products, 
-  categories, 
-  isLoading, 
-  totalProducts, 
-  hasMore, 
-  fetchProducts, 
-  fetchCategories,
-  loadMore: loadMoreProducts,
-  resetPagination 
-} = useProducts()
+// Direct imports for API calls
+import { ProductService } from '~/services'
+import { useCategoriesStore } from '~/stores/data/categories'
+
+// Categories store for categories data
+const categoriesStore = useCategoriesStore()
+const categories = computed(() => categoriesStore.categories)
+const fetchCategories = categoriesStore.fetchCategories
 
 const route = useRoute()
 
-// State
+// Local state for products
+const products = ref([])
+const isLoading = ref(false)
+const pagination = reactive({
+  page: 1,
+  limit: 12,
+  total: 0,
+  totalPages: 0,
+  hasNext: false,
+  hasPrev: false
+})
+
+// UI state
 const searchQuery = ref('')
 const sortBy = ref('newest')
 const isLoadingMore = ref(false)
@@ -386,8 +394,11 @@ const searchSuggestions = ref([
 ])
 
 // Computed
+const totalProducts = computed(() => pagination.total)
+const hasMore = computed(() => pagination.hasNext)
+
 const activeCategory = computed(() => {
-  if (!filters.category) return null
+  if (!filters.category || !categories.value) return null
   return categories.value.find(cat => cat.id === filters.category)
 })
 
@@ -395,19 +406,15 @@ const filteredSuggestions = computed(() => {
   if (!searchQuery.value) {
     return searchSuggestions.value.slice(0, 8)
   }
-  
+
   return searchSuggestions.value
-    .filter(suggestion => 
+    .filter(suggestion =>
       suggestion.toLowerCase().includes(searchQuery.value.toLowerCase())
     )
     .slice(0, 6)
 })
 
 // Helper methods for product data
-const getReviewCount = (product) => {
-  // Use actual review count if available, otherwise generate consistent fake data
-  return product.review_count || Math.floor(Math.random() * 100) + 15
-}
 
 const getDownloadCount = (product) => {
   // Use actual download count if available, otherwise generate consistent fake data
@@ -443,23 +450,82 @@ const debouncedSearch = debounce(() => {
   searchProducts()
 }, 300)
 
+// Reset pagination
+const resetPagination = () => {
+  pagination.page = 1
+  pagination.total = 0
+  pagination.totalPages = 0
+  pagination.hasNext = false
+  pagination.hasPrev = false
+  products.value = []
+}
+
+// Fetch products from API
+const fetchProducts = async (searchFilters = {}, reset = true) => {
+  try {
+    if (reset) {
+      isLoading.value = true
+      products.value = []
+    }
+
+    const paginationParams = {
+      page: reset ? 1 : pagination.page + 1,
+      limit: pagination.limit
+    }
+
+    console.log('Fetching products with filters:', searchFilters, 'pagination:', paginationParams)
+
+    const response = await ProductService.getProductsWithReviews(searchFilters, paginationParams)
+
+    if (response.success && response.data) {
+      const { data: productsData, pagination: paginationData } = response.data
+
+      if (reset) {
+        products.value = productsData || []
+        pagination.page = paginationData?.page || 1
+      } else {
+        products.value.push(...(productsData || []))
+        pagination.page = paginationData?.page || pagination.page + 1
+      }
+
+      pagination.limit = paginationData?.limit || 12
+      pagination.total = paginationData?.total || 0
+      pagination.totalPages = paginationData?.totalPages || 0
+      pagination.hasNext = paginationData?.hasNext || false
+      pagination.hasPrev = paginationData?.hasPrev || false
+
+      console.log('Products fetched successfully:', products.value.length, 'total:', pagination.total)
+    } else {
+      throw new Error(response.error || 'Failed to fetch products')
+    }
+
+  } catch (error) {
+    console.error('Error fetching products:', error)
+  } finally {
+    if (reset) {
+      isLoading.value = false
+    }
+  }
+}
+
 // Search method
 const searchProducts = async () => {
   try {
     isSearching.value = true
     resetPagination()
-    
+
     const searchFilters = {
       search: searchQuery.value?.trim() || undefined,
       category: filters.category || undefined,
       minPrice: filters.minPrice ? parseFloat(filters.minPrice) : undefined,
       maxPrice: filters.maxPrice ? parseFloat(filters.maxPrice) : undefined,
-      featured: filters.featured || undefined,
+      featured: filters.featured ? true : undefined,
       sortBy: sortBy.value
     }
 
-    await fetchProducts(searchFilters)
-    
+    console.log('Searching with filters:', searchFilters)
+    await fetchProducts(searchFilters, true)
+
   } catch (error) {
     console.error('Search error:', error)
   } finally {
@@ -478,19 +544,21 @@ const clearFilters = () => {
 }
 
 const loadMore = async () => {
+  if (!pagination.hasNext || isLoadingMore.value) return
+
   isLoadingMore.value = true
-  
+
   try {
     const searchFilters = {
       search: searchQuery.value || undefined,
       category: filters.category || undefined,
       minPrice: filters.minPrice ? parseFloat(filters.minPrice) : undefined,
       maxPrice: filters.maxPrice ? parseFloat(filters.maxPrice) : undefined,
-      featured: filters.featured || undefined,
+      featured: filters.featured ? true : undefined,
       sortBy: sortBy.value
     }
 
-    await loadMoreProducts(searchFilters)
+    await fetchProducts(searchFilters, false)
   } finally {
     isLoadingMore.value = false
   }
@@ -522,7 +590,7 @@ watch(sortBy, () => {
 
 // Update SEO based on filters
 watch([searchQuery, () => filters.category, totalProducts], () => {
-  const category = categories.value.find(cat => cat.id === filters.category)
+  const category = categories.value?.find(cat => cat.id === filters.category)
   setTemplatesSEO({
     category: category?.name,
     search: searchQuery.value,
@@ -550,30 +618,38 @@ const handleClickOutside = (event) => {
 
 // Initialize
 onMounted(async () => {
-  // Load categories
-  await fetchCategories()
-  
-  // Handle URL search params
-  const urlSearch = route.query.search || route.query.q
-  if (urlSearch) {
-    searchQuery.value = urlSearch
-  }
-  
-  // Handle URL category filter
-  const urlCategory = route.query.category
-  if (urlCategory) {
-    // Find the category by slug and set the filter
-    const category = categories.value.find(cat => cat.slug === urlCategory)
-    if (category) {
-      filters.category = category.id
+  try {
+    // Load categories
+    console.log('Loading categories...')
+    await fetchCategories()
+    console.log('Categories loaded:', categories.value)
+
+    // Handle URL search params
+    const urlSearch = route.query.search || route.query.q
+    if (urlSearch) {
+      searchQuery.value = urlSearch
     }
+
+    // Handle URL category filter
+    const urlCategory = route.query.category
+    if (urlCategory && categories.value) {
+      // Find the category by slug and set the filter
+      const category = categories.value.find(cat => cat.slug === urlCategory)
+      if (category) {
+        filters.category = category.id
+      }
+    }
+
+    // Initial load
+    console.log('Starting initial product load...')
+    await searchProducts()
+    console.log('Initial products loaded:', products.value.length)
+
+    // Add click outside listener
+    document.addEventListener('click', handleClickOutside)
+  } catch (error) {
+    console.error('Error during initialization:', error)
   }
-  
-  // Initial load
-  await searchProducts()
-  
-  // Add click outside listener
-  document.addEventListener('click', handleClickOutside)
 })
 
 onUnmounted(() => {

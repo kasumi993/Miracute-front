@@ -1,10 +1,10 @@
-import { validateAdminAccess } from '../../utils/adminAuth'
+import { requireAdminAuthentication } from "../../utils/auth"
 import type { Database } from '~/types/database'
 
 export default defineEventHandler(async (event) => {
   try {
     const config = useRuntimeConfig()
-    const { supabase } = await validateAdminAccess(event)
+    const { supabase } = await requireAdminAuthentication(event)
 
     // Get the most recent paid order for testing
     const { data: orders, error } = await supabase

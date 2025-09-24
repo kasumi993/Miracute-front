@@ -1,9 +1,9 @@
-import { validateAdminAccess } from '../../../../utils/adminAuth'
+import { requireAdminAuthentication } from "../../../../utils/auth"
 import type { Database } from '~/types/database'
 import * as brevo from '@getbrevo/brevo'
 
 export default defineEventHandler(async (event) => {
-  const { supabase } = await validateAdminAccess(event)
+  const { supabase } = await requireAdminAuthentication(event)
   const orderId = getRouterParam(event, 'id')
 
   if (!orderId) {

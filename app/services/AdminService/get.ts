@@ -145,3 +145,24 @@ export const getReviews = async (filters?: Record<string, any>, pagination?: Pag
 export const getPopularProducts = async (): Promise<ApiResponse<any>> => {
   return baseService.get<any>('/admin/products/popular')
 }
+
+/**
+ * Get dashboard statistics with filters
+ */
+export const getDashboardStats = async (params?: Record<string, any>): Promise<ApiResponse<any>> => {
+  return baseService.get<any>('/admin/dashboard/stats', params)
+}
+
+/**
+ * Get admin alerts
+ */
+export const getAdminAlerts = async (): Promise<ApiResponse<any[]>> => {
+  return baseService.get<any[]>('/admin/alerts')
+}
+
+/**
+ * Get system health status
+ */
+export const getSystemHealth = async (): Promise<ApiResponse<any>> => {
+  return baseService.get<any>('/admin/system/health')
+}

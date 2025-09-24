@@ -1,8 +1,8 @@
 import Stripe from 'stripe'
 import { serverSupabaseServiceRole } from '#supabase/server'
 import type { Database } from '~/types/database'
-import * as brevo from '@getbrevo/brevo'
-// import { sendBrevoReviewRequestEmail } from '~/server/utils/brevoService'
+import { sendBrevoOrderConfirmation, sendBrevoAdminOrderNotification } from '~/server/services/email/orderService'
+import { sendBrevoReviewRequestEmail } from '~/server/services/email/reviewService'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
@@ -131,7 +131,7 @@ export default defineEventHandler(async (event) => {
       if (finalOrder) {
         // Send notification email to admin
         try {
-          await sendAdminOrderNotification(finalOrder)
+          await sendBrevoAdminOrderNotification(finalOrder)
         } catch (emailError) {
           console.error('Failed to send admin notification email:', emailError)
           // Don't throw error - order processing should continue even if email fails
@@ -139,7 +139,7 @@ export default defineEventHandler(async (event) => {
 
         // Send confirmation email to customer
         try {
-          await sendOrderConfirmation(finalOrder)
+          await sendBrevoOrderConfirmation(finalOrder)
         } catch (emailError) {
           console.error('Failed to send customer confirmation email:', emailError)
           // Don't throw error - order processing should continue even if email fails
@@ -149,7 +149,7 @@ export default defineEventHandler(async (event) => {
         try {
           setTimeout(async () => {
             try {
-              await sendReviewRequestEmail(finalOrder)
+              await sendBrevoReviewRequestEmail(finalOrder)
             } catch (reviewEmailError) {
               console.error('Failed to send review request email:', reviewEmailError)
             }
@@ -386,224 +386,5 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  // Inline email functions
-  async function sendOrderConfirmation(order: any) {
-    try {
-      const config = useRuntimeConfig()
-      const apiInstance = new brevo.TransactionalEmailsApi()
-      apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, config.brevoApiKey)
-
-      const itemsHtml = order.order_items?.map((item: any) => `
-        <tr>
-          <td style="padding: 10px; border-bottom: 1px solid #eee;">
-            <strong>${item.product?.name || item.product_name || 'Product'}</strong><br>
-            <small style="color: #666;">Quantity: ${item.quantity}</small>
-          </td>
-          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">
-            $${parseFloat(item.unit_price).toFixed(2)}
-          </td>
-        </tr>
-      `).join('') || ''
-
-      const htmlContent = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <div style="background: linear-gradient(135deg, #8B4513, #A0522D); color: white; padding: 30px; text-align: center;">
-            <h1 style="margin: 0; font-size: 28px;">Order Confirmation ✨</h1>
-            <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Thank you for your purchase!</p>
-          </div>
-          
-          <div style="padding: 30px; background: #f9f9f9;">
-            <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-              <h2 style="color: #8B4513; margin-top: 0;">Order Details</h2>
-              <p><strong>Order ID:</strong> ${order.id}</p>
-              <p><strong>Total:</strong> $${parseFloat(order.total_amount).toFixed(2)}</p>
-            </div>
-            
-            <div style="background: white; padding: 20px; border-radius: 8px;">
-              <h2 style="color: #8B4513; margin-top: 0;">Your Templates</h2>
-              <table style="width: 100%; border-collapse: collapse;">
-                ${itemsHtml}
-              </table>
-            </div>
-          </div>
-          
-          <div style="text-align: center; padding: 20px; color: #666; font-size: 14px;">
-            <p>Download your templates from your account dashboard</p>
-            <p>Thank you for choosing Miracute! ✨</p>
-          </div>
-        </div>
-      `
-
-      const sendSmtpEmail = new brevo.SendSmtpEmail()
-      sendSmtpEmail.to = [{ email: order.customer_email, name: order.customer_name || order.customer_email.split('@')[0] }]
-      sendSmtpEmail.subject = `Your Miracute Templates are Ready! - Order ${order.id}`
-      sendSmtpEmail.htmlContent = htmlContent
-      sendSmtpEmail.sender = { email: 'hello@miracute.com', name: 'Miracute' }
-
-      await apiInstance.sendTransacEmail(sendSmtpEmail)
-      return { success: true }
-
-    } catch (error: any) {
-      console.error('Failed to send order confirmation email:', error)
-      return { success: false, error: error.message }
-    }
-  }
-
-  async function sendAdminOrderNotification(order: any) {
-    try {
-      const config = useRuntimeConfig()
-      const apiInstance = new brevo.TransactionalEmailsApi()
-      apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, config.brevoApiKey)
-
-      const itemsHtml = order.order_items?.map((item: any) => `
-        <tr>
-          <td style="padding: 10px; border-bottom: 1px solid #eee;">
-            <strong>${item.product?.name || item.product_name || 'Product'}</strong><br>
-            <small style="color: #666;">Qty: ${item.quantity} × $${parseFloat(item.unit_price).toFixed(2)}</small>
-          </td>
-          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">
-            $${parseFloat(item.total_price || item.unit_price).toFixed(2)}
-          </td>
-        </tr>
-      `).join('') || ''
-
-      const htmlContent = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <div style="background: linear-gradient(135deg, #8B4513, #A0522D); color: white; padding: 30px; text-align: center;">
-            <h1 style="margin: 0; font-size: 28px;">🎉 New Order!</h1>
-            <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Someone just purchased your templates</p>
-          </div>
-          
-          <div style="padding: 30px; background: #f9f9f9;">
-            <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-              <h2 style="color: #8B4513; margin-top: 0;">Order Information</h2>
-              <table style="width: 100%; border-collapse: collapse;">
-                <tr>
-                  <td style="padding: 8px 0; font-weight: bold;">Order ID:</td>
-                  <td style="padding: 8px 0;">${order.id}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 8px 0; font-weight: bold;">Customer:</td>
-                  <td style="padding: 8px 0;">${order.customer_email}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 8px 0; font-weight: bold;">Total:</td>
-                  <td style="padding: 8px 0; color: #28a745; font-weight: bold;">$${parseFloat(order.total_amount).toFixed(2)}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 8px 0; font-weight: bold;">Status:</td>
-                  <td style="padding: 8px 0;">
-                    <span style="background: #28a745; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px;">
-                      ${order.status?.toUpperCase() || 'COMPLETED'}
-                    </span>
-                  </td>
-                </tr>
-              </table>
-            </div>
-            
-            <div style="background: white; padding: 20px; border-radius: 8px;">
-              <h2 style="color: #8B4513; margin-top: 0;">Items Purchased</h2>
-              <table style="width: 100%; border-collapse: collapse;">
-                ${itemsHtml}
-              </table>
-            </div>
-          </div>
-          
-          <div style="text-align: center; padding: 20px; color: #666; font-size: 14px;">
-            <p>🎨 Another happy customer with your amazing templates!</p>
-          </div>
-        </div>
-      `
-
-      const sendSmtpEmail = new brevo.SendSmtpEmail()
-      sendSmtpEmail.to = [{ email: 'hello@miracute.com', name: 'Miracute Admin' }]
-      sendSmtpEmail.subject = `💰 New Order: $${parseFloat(order.total_amount).toFixed(2)} - ${order.id}`
-      sendSmtpEmail.htmlContent = htmlContent
-      sendSmtpEmail.sender = { email: 'orders@miracute.com', name: 'Miracute Orders' }
-
-      await apiInstance.sendTransacEmail(sendSmtpEmail)
-      return { success: true }
-
-    } catch (error: any) {
-      console.error('Failed to send admin order notification:', error)
-      return { success: false, error: error.message }
-    }
-  }
-
-  // Inline review request email function
-  async function sendReviewRequestEmail(orderData: any) {
-    try {
-      const config = useRuntimeConfig()
-      const apiInstance = new brevo.TransactionalEmailsApi()
-      apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, config.brevoApiKey)
-
-      // Generate review token helper function
-      const generateReviewToken = (orderId: string, productId: string): string => {
-        const crypto = require('crypto')
-        const data = `${orderId}-${productId}-${Date.now()}`
-        return crypto.createHash('sha256').update(data).digest('hex').substring(0, 16)
-      }
-
-      const itemsList = orderData.order_items
-        ?.map((item: any) => `
-          <div style="border: 1px solid #e5e5e5; border-radius: 8px; padding: 20px; margin-bottom: 16px; background: white;">
-            <h3 style="margin: 0 0 10px 0; color: #8B4513; font-size: 16px;">${item.product?.name || item.product_name}</h3>
-            <div style="text-align: center; margin: 20px 0;">
-              <a href="${config.public.siteUrl}/reviews/submit?product=${item.product_id}&order=${orderData.id}&token=${generateReviewToken(orderData.id, item.product_id)}"
-                 style="background: #8B4513; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
-                ⭐ Write a Review
-              </a>
-            </div>
-          </div>
-        `).join('') || ''
-
-      const htmlContent = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <div style="background: linear-gradient(135deg, #8B4513, #A0522D); color: white; padding: 30px; text-align: center;">
-            <h1 style="margin: 0; font-size: 28px;">How was your experience? ⭐</h1>
-            <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">We'd love to hear your thoughts!</p>
-          </div>
-          
-          <div style="padding: 30px; background: #f9f9f9;">
-            <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-              <h2 style="color: #8B4513; margin-top: 0;">Hi ${orderData.customer_name?.split(' ')[0] || 'there'}! 👋</h2>
-              <p style="margin-bottom: 20px;">Thank you for your recent purchase from Miracute! I hope you're loving your new templates.</p>
-              <p style="margin-bottom: 20px;">As a small business, your feedback means the world to me. Would you take a moment to share your experience with others?</p>
-              <p style="margin-bottom: 20px;"><strong>Your honest review helps other customers find the perfect templates and helps me improve my designs.</strong></p>
-            </div>
-            
-            <div style="margin-bottom: 20px;">
-              <h3 style="color: #8B4513; margin-bottom: 16px;">Please review your templates:</h3>
-              ${itemsList}
-            </div>
-            
-            <div style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #8B4513;">
-              <p style="margin: 0; font-style: italic; color: #666;">
-                "Every review, whether it's 5 stars or suggestions for improvement, helps me create better templates for amazing customers like you!" - The Designer
-              </p>
-            </div>
-          </div>
-          
-          <div style="text-align: center; padding: 20px; color: #666; font-size: 14px;">
-            <p>Thank you for choosing Miracute! ✨</p>
-            <p style="margin-top: 10px;">Questions? Reply to this email - I read every message personally!</p>
-          </div>
-        </div>
-      `
-
-      const sendSmtpEmail = new brevo.SendSmtpEmail()
-      sendSmtpEmail.to = [{ email: orderData.customer_email, name: orderData.customer_name }]
-      sendSmtpEmail.subject = '⭐ How was your Miracute experience? Quick review request'
-      sendSmtpEmail.htmlContent = htmlContent
-      sendSmtpEmail.sender = { email: 'hello@miracute.com', name: 'Miracute' }
-
-      await apiInstance.sendTransacEmail(sendSmtpEmail)
-      return { success: true }
-
-    } catch (error: any) {
-      console.error('Failed to send review request email:', error)
-      return { success: false, error: error.message }
-    }
-  }
 
 })

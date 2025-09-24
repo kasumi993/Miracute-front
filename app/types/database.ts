@@ -225,6 +225,9 @@ export interface Database {
           comment: string | null
           is_verified_purchase: boolean
           is_approved: boolean
+          is_anonymous: boolean
+          is_editable: boolean
+          edit_deadline: string | null
           created_at: string
           updated_at: string
         }
@@ -237,6 +240,9 @@ export interface Database {
           comment?: string | null
           is_verified_purchase?: boolean
           is_approved?: boolean
+          is_anonymous?: boolean
+          is_editable?: boolean
+          edit_deadline?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -249,8 +255,37 @@ export interface Database {
           comment?: string | null
           is_verified_purchase?: boolean
           is_approved?: boolean
+          is_anonymous?: boolean
+          is_editable?: boolean
+          edit_deadline?: string | null
           created_at?: string
           updated_at?: string
+        }
+      }
+      review_edit_notes: {
+        Row: {
+          id: string
+          review_id: string
+          user_id: string
+          note: string
+          note_type: 'edit' | 'clarification' | 'update'
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          review_id: string
+          user_id: string
+          note: string
+          note_type: 'edit' | 'clarification' | 'update'
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          review_id?: string
+          user_id?: string
+          note?: string
+          note_type?: 'edit' | 'clarification' | 'update'
+          created_at?: string
         }
       }
       orders: {
@@ -460,6 +495,7 @@ export type User = Tables<'users'>
 export type Category = Tables<'categories'>
 export type Product = Tables<'products'>
 export type ProductReview = Tables<'product_reviews'>
+export type ReviewEditNote = Tables<'review_edit_notes'>
 export type Order = Tables<'orders'>
 export type OrderItem = Tables<'order_items'>
 export type CartItem = Tables<'cart_items'>
@@ -469,6 +505,12 @@ export type DownloadLog = Tables<'download_logs'>
 // Extended types with relations
 export type ProductWithCategory = Product & {
   category: Category | null
+}
+
+export type ProductWithReviewStats = Product & {
+  category: Category | null
+  review_count: number
+  average_rating: number
 }
 
 export type OrderWithItems = Order & {

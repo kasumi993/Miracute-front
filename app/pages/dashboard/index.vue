@@ -297,12 +297,22 @@ const adminDashboardStore = useAdminDashboardStore()
 const userStore = useUserStore()
 
 // Computed from stores
-const stats = computed(() => adminDashboardStore.stats)
-const recentOrders = computed(() => adminDashboardStore.recentOrders)
-const popularProducts = computed(() => adminDashboardStore.popularProducts)
-const isLoading = computed(() => adminDashboardStore.loading.dashboard)
 const isCheckingAccess = computed(() => !userStore.isInitialized)
 const hasAdminAccess = computed(() => userStore.isAdmin)
+const stats = computed(() => ({
+  totalRevenue: adminDashboardStore.totalRevenue || 0,
+  totalOrders: adminDashboardStore.totalOrders || 0,
+  totalCustomers: adminDashboardStore.totalCustomers || 0,
+  totalProducts: adminDashboardStore.totalProducts || 0,
+  monthlyRevenue: adminDashboardStore.totalRevenue || 0,
+  averageOrderValue: adminDashboardStore.averageOrderValue || 0,
+  orderCompletionRate: adminDashboardStore.conversionRate || 0,
+  storeViewsToday: 0,
+  pendingOrders: adminDashboardStore.pendingOrdersCount || 0
+}))
+const recentOrders = computed(() => adminDashboardStore.stats?.recentOrders || [])
+const popularProducts = computed(() => adminDashboardStore.stats?.topProducts || [])
+
 
 // Methods
 const loadDashboardData = async () => {
@@ -310,7 +320,7 @@ const loadDashboardData = async () => {
     console.log('Starting to load dashboard data...')
 
     // Load dashboard data through store
-    await adminDashboardStore.fetchDashboardData()
+    await adminDashboardStore.initialize()
 
   } catch (error) {
     console.error('Failed to load dashboard data:', error)

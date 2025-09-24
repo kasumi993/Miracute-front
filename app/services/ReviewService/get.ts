@@ -11,10 +11,10 @@ export const getProductReviews = async (
   page = 1,
   limit = 20,
   sortBy?: 'newest' | 'oldest' | 'rating_high' | 'rating_low' | 'helpful'
-): Promise<ApiResponse<{ reviews: any[]; pagination: any; summary: any }>> => {
+): Promise<ApiResponse<{ reviews: any[]; stats: any }>> => {
   const query: any = { page, limit }
   if (sortBy) query.sortBy = sortBy
-  return baseService.get<{ reviews: any[]; pagination: any; summary: any }>(`/products/${productId}/reviews`, query)
+  return baseService.get<{ reviews: any[]; stats: any }>(`/reviews/product-${productId}`, query)
 }
 
 /**
@@ -146,4 +146,11 @@ export const getReviewSentiment = async (reviewId: string): Promise<ApiResponse<
     keywords: string[]
     emotions: { [emotion: string]: number }
   }>(`/reviews/${reviewId}/sentiment`)
+}
+
+/**
+ * Get edit notes for a review
+ */
+export const getReviewEditNotes = async (reviewId: string): Promise<ApiResponse<any[]>> => {
+  return baseService.get<any[]>(`/reviews/${reviewId}/notes`)
 }

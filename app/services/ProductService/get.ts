@@ -1,4 +1,4 @@
-import type { ProductWithCategory, ApiResponse, SearchResponse } from '~/types/database'
+import type { ProductWithCategory, ProductWithReviewStats, ApiResponse, SearchResponse } from '~/types/database'
 import { BaseApiService } from '../BaseApiService'
 
 export interface ProductFilters {
@@ -25,13 +25,100 @@ export const getProducts = async (
   filters: ProductFilters = {},
   pagination: ProductPaginationParams = {}
 ): Promise<ApiResponse<SearchResponse<ProductWithCategory>>> => {
+  console.log('ProductService.getProducts called with:', { filters, pagination })
+
+  // Check if we're running on the client side
+  if (process.server) {
+    console.log('ProductService.getProducts: Running on server side, using $fetch directly')
+
+    const query = new URLSearchParams()
+    Object.entries({
+      ...filters,
+      page: (pagination.page || 1).toString(),
+      limit: (pagination.limit || 12).toString()
+    }).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        query.append(key, String(value))
+      }
+    })
+
+    const url = `/api/products?${query.toString()}`
+    console.log('ProductService.getProducts: Making server-side request to:', url)
+
+    try {
+      const response = await $fetch<ApiResponse<SearchResponse<ProductWithCategory>>>(url)
+      console.log('ProductService.getProducts: Server-side response:', response)
+      return response
+    } catch (error) {
+      console.error('ProductService.getProducts: Server-side error:', error)
+      return {
+        success: false,
+        error: 'Failed to fetch products on server',
+        data: null as any
+      }
+    }
+  }
+
+  const query = {
+    ...filters,
+    page: pagination.page || 1,
+    limit: pagination.limit || 12
+  }
+  console.log('ProductService.getProducts: About to call baseService.get with query:', query)
+
+  const result = await baseService.get<SearchResponse<ProductWithCategory>>('/products', query)
+  console.log('ProductService.getProducts: Received result from baseService:', result)
+  return result
+}
+
+/**
+ * Get paginated list of products with review statistics
+ */
+export const getProductsWithReviews = async (
+  filters: ProductFilters = {},
+  pagination: ProductPaginationParams = {}
+): Promise<ApiResponse<SearchResponse<ProductWithReviewStats>>> => {
+  console.log('ProductService.getProductsWithReviews called with:', { filters, pagination })
+
+  // Check if we're running on the client side
+  if (process.server) {
+    console.log('ProductService.getProductsWithReviews: Running on server side, using $fetch directly')
+
+    const query = new URLSearchParams()
+    Object.entries({
+      ...filters,
+      page: (pagination.page || 1).toString(),
+      limit: (pagination.limit || 12).toString()
+    }).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        query.append(key, String(value))
+      }
+    })
+
+    const url = `/api/products/with-reviews?${query.toString()}`
+    console.log('ProductService.getProductsWithReviews: Making server-side request to:', url)
+
+    try {
+      const response = await $fetch<ApiResponse<SearchResponse<ProductWithReviewStats>>>(url)
+      console.log('ProductService.getProductsWithReviews: Server-side response:', response)
+      return response
+    } catch (error) {
+      console.error('ProductService.getProductsWithReviews: Server-side error:', error)
+      return {
+        success: false,
+        error: 'Failed to fetch products with reviews on server',
+        data: null as any
+      }
+    }
+  }
+
   const query = {
     ...filters,
     page: pagination.page || 1,
     limit: pagination.limit || 12
   }
 
-  return baseService.get<SearchResponse<ProductWithCategory>>('/products', query)
+  return baseService.get<SearchResponse<ProductWithReviewStats>>('/products/with-reviews', query)
 }
 
 /**
