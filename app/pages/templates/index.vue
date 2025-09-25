@@ -341,7 +341,7 @@
 
 <script setup>
 // Direct imports for API calls
-import { ProductService } from '~/services'
+import { ProductService } from '@/services'
 import { useCategoriesStore } from '~/stores/data/categories'
 
 // Categories store for categories data

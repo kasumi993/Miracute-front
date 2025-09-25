@@ -1,6 +1,6 @@
-import type { Product, Category } from '~/types/database'
+import type { Product, Category } from '@/types/database'
 import { truncateText } from './format'
-import { generateSlug } from './validation'
+// generateSlug is unused here; remove to satisfy lint
 
 // SEO constants
 export const SEO_CONFIG = {

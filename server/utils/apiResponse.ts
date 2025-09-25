@@ -1,4 +1,4 @@
-import type { ApiResponse } from '~/types/database'
+import type { ApiResponse } from '@/types/database'
 
 export function createApiResponse<T>(data: T, success: boolean = true): ApiResponse<T> {
   return {

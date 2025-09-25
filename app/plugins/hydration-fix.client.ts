@@ -3,7 +3,7 @@ export default defineNuxtPlugin({
   name: 'hydration-fix',
   setup() {
     // Only run on client side
-    if (process.server) return
+    if (process.server) {return}
 
     // Handle any potential hydration mismatches during app initialization
     const nuxtApp = useNuxtApp()

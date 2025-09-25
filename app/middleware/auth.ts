@@ -4,7 +4,7 @@
  */
 
 import type { RouteLocationNormalized } from 'vue-router'
-import { authService } from '~/services/core/AuthenticationService'
+import { authService } from '@/services'
 
 /**
  * Require user to be authenticated
@@ -13,21 +13,14 @@ import { authService } from '~/services/core/AuthenticationService'
 export default defineNuxtRouteMiddleware(
   async (to: RouteLocationNormalized) => {
     // Skip on server-side during SSR
-    if (process.server) return
+    if (process.server) {return}
 
     try {
-      // Get current auth state
+      // Initialize auth service once
+      await authService.initialize()
+
+      // Get current auth state after initialization
       const authState = authService.getAuthState()
-
-      // If not initialized, initialize auth service
-      if (!authState.user && !authState.isLoading) {
-        await authService.initialize()
-        const updatedState = authService.getAuthState()
-
-        if (!updatedState.isAuthenticated) {
-          return navigateTo(`/auth/login?redirect=${encodeURIComponent(to.fullPath)}`)
-        }
-      }
 
       // If not authenticated, redirect to login
       if (!authState.isAuthenticated) {

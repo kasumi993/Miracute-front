@@ -163,8 +163,8 @@ export const useUIStore = defineStore('ui', {
     },
 
     shouldUseDarkMode: (state) => {
-      if (state.theme === 'dark') return true
-      if (state.theme === 'light') return false
+      if (state.theme === 'dark') {return true}
+      if (state.theme === 'light') {return false}
       return state.isDarkMode
     },
 
@@ -517,6 +517,6 @@ export const useUIStore = defineStore('ui', {
         }
       }
     }
-  },
+  }
 
 })

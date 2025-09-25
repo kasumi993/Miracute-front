@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import type { ProductWithCategory, SearchResponse } from '~/types/database'
-import { ProductService, CategoryService, type ProductFilters, type ProductPaginationParams } from '~/services'
+import type { ProductWithCategory, SearchResponse } from '@/types/database'
+import { ProductService, CategoryService, type ProductFilters, type ProductPaginationParams } from '@/services'
 
 interface ProductsState {
   products: ProductWithCategory[]
@@ -96,7 +96,7 @@ export const useProductsStore = defineStore('products', {
     activeProducts: (state) => state.products.filter(product => product.is_active),
 
     isDataStale: (state) => {
-      if (!state.lastFetch) return true
+      if (!state.lastFetch) {return true}
       return Date.now() - state.lastFetch > state.cacheTimeout
     },
 
@@ -162,7 +162,7 @@ export const useProductsStore = defineStore('products', {
 
     // Load more products (pagination)
     async loadMoreProducts(filters?: ProductFilters) {
-      if (!this.pagination.hasNextPage || this.loading.products) return
+      if (!this.pagination.hasNextPage || this.loading.products) {return}
 
       const nextPage = this.pagination.page + 1
       const filtersToUse = filters || this.currentFilters
@@ -176,7 +176,7 @@ export const useProductsStore = defineStore('products', {
 
     // Fetch featured products
     async fetchFeaturedProducts(limit = 6) {
-      if (this.featuredProducts.length > 0 && !this.isDataStale) return
+      if (this.featuredProducts.length > 0 && !this.isDataStale) {return}
 
       this.setLoading('featured', true)
       this.setError(null)
@@ -199,7 +199,7 @@ export const useProductsStore = defineStore('products', {
 
     // Fetch popular products
     async fetchPopularProducts(limit = 8) {
-      if (this.popularProducts.length > 0 && !this.isDataStale) return
+      if (this.popularProducts.length > 0 && !this.isDataStale) {return}
 
       this.setLoading('popular', true)
       this.setError(null)
@@ -222,7 +222,7 @@ export const useProductsStore = defineStore('products', {
 
     // Fetch recent products
     async fetchRecentProducts(limit = 8) {
-      if (this.recentProducts.length > 0 && !this.isDataStale) return
+      if (this.recentProducts.length > 0 && !this.isDataStale) {return}
 
       this.setLoading('recent', true)
       this.setError(null)
@@ -403,6 +403,6 @@ export const useProductsStore = defineStore('products', {
         this.currentProduct = null
       }
     }
-  },
+  }
 
 })

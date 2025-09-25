@@ -548,25 +548,12 @@ export interface PaginationOptions {
   limit: number
 }
 
-export interface SearchResponse<T> {
-  data: T[]
-  pagination: {
-    page: number
-    limit: number
-    total: number
-    totalPages: number
-    hasNext: boolean
-    hasPrev: boolean
-  }
-}
+// Unified via base/api
+export type { SearchResponse } from './base/api'
 
 // API Response types
-export interface ApiResponse<T = any> {
-  success: boolean
-  data?: T
-  error?: string
-  message?: string
-}
+// Unified via base/api
+export type { ApiResponse } from './base/api'
 
 export interface CheckoutSession {
   id: string

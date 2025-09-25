@@ -70,16 +70,10 @@
 </template>
 
 <script setup lang="ts">
-interface Product {
-  difficulty_level?: string
-  template_type?: string
-  file_size?: string
-  dimensions?: string
-  software_required?: string[]
-}
+import type { ProductWithCategory } from '@/types/database'
 
 interface Props {
-  product: Product
+  product: ProductWithCategory
   isOpen: boolean
 }
 

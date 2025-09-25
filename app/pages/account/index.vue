@@ -211,7 +211,7 @@ const user = useSupabaseUser()
 const auth = useAuth() // Keep for backwards compatibility with signOut method
 
 // Services
-import { AccountService } from '~/services'
+import { AccountService } from '@/services'
 
 // State
 const stats = ref({

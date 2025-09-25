@@ -1,6 +1,6 @@
 // AI-Powered Recommendation Engine for Revenue Optimization
 import { BaseApiService } from '../BaseApiService'
-import type { ApiResponse, ProductWithCategory } from '~/types/database'
+import type { ApiResponse, ProductWithCategory } from '@/types/database'
 
 export interface RecommendationContext {
   user_id?: string

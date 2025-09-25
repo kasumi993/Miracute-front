@@ -1,6 +1,6 @@
 import Stripe from 'stripe'
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
-import type { Database } from '~/types/database'
+import type { Database } from '@/types/database'
 
 export default defineEventHandler(async (event) => {
   if (event.node.req.method !== 'POST') {

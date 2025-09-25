@@ -1,4 +1,4 @@
-import { requireAdminAuthentication } from "../../utils/auth"
+import { requireAdminAuthentication } from '../../utils/auth'
 
 export default defineEventHandler(async (event) => {
   // Validate admin access and get authenticated supabase client

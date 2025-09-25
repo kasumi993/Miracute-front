@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { AnalyticsService } from '~/services'
+import { AnalyticsService } from '@/services'
 
 export interface PageView {
   id: string
@@ -190,7 +190,7 @@ export const useAnalyticsStore = defineStore('analytics', {
     hasActiveSession: (state) => !!state.currentSession && !!state.sessionId,
 
     sessionDuration: (state) => {
-      if (!state.currentSession) return 0
+      if (!state.currentSession) {return 0}
       const endTime = state.currentSession.endTime || Date.now()
       return endTime - state.currentSession.startTime
     },
@@ -201,7 +201,7 @@ export const useAnalyticsStore = defineStore('analytics', {
     queueSize: (state) => state.eventQueue.length + state.pageViewQueue.length,
 
     shouldFlushQueue: (state) => {
-      if (!state.hasQueuedEvents) return false
+      if (!state.hasQueuedEvents) {return false}
 
       const sizeLimitReached = state.queueSize >= state.config.batchSize
       const timeoutReached = state.lastFlush &&
@@ -217,13 +217,13 @@ export const useAnalyticsStore = defineStore('analytics', {
     hasPerformanceData: (state) => !!state.performanceMetrics,
 
     isPageLoadFast: (state) => {
-      if (!state.performanceMetrics) return null
+      if (!state.performanceMetrics) {return null}
       return state.performanceMetrics.pageLoadTime < 2000 // Under 2 seconds
     },
 
     // Behavior metrics
     currentPageTimeSpent: (state) => {
-      if (!state.pageStartTime) return 0
+      if (!state.pageStartTime) {return 0}
       return Date.now() - state.pageStartTime
     },
 
@@ -274,7 +274,7 @@ export const useAnalyticsStore = defineStore('analytics', {
 
     // Session management
     startSession() {
-      if (!this.canTrack) return
+      if (!this.canTrack) {return}
 
       const sessionId = this.generateSessionId()
       this.sessionId = sessionId
@@ -311,7 +311,7 @@ export const useAnalyticsStore = defineStore('analytics', {
 
     // Page tracking
     trackPageView(url?: string, title?: string, referrer?: string) {
-      if (!this.canTrack || !this.sessionId) return
+      if (!this.canTrack || !this.sessionId) {return}
 
       const pageView: PageView = {
         id: this.generateEventId(),
@@ -343,7 +343,7 @@ export const useAnalyticsStore = defineStore('analytics', {
       value?: string | number,
       metadata?: Record<string, any>
     ) {
-      if (!this.canTrack || !this.sessionId) return
+      if (!this.canTrack || !this.sessionId) {return}
 
       const event: UserEvent = {
         id: this.generateEventId(),
@@ -435,7 +435,7 @@ export const useAnalyticsStore = defineStore('analytics', {
 
     // Performance tracking
     startPerformanceTracking() {
-      if (!process.client || !this.canTrack) return
+      if (!process.client || !this.canTrack) {return}
 
       // Track page load performance
       window.addEventListener('load', () => {
@@ -449,7 +449,7 @@ export const useAnalyticsStore = defineStore('analytics', {
     },
 
     trackPerformanceMetrics() {
-      if (!process.client) return
+      if (!process.client) {return}
 
       try {
         const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming
@@ -473,7 +473,7 @@ export const useAnalyticsStore = defineStore('analytics', {
 
     // Auto tracking setup
     setupAutoTracking() {
-      if (!process.client || !this.config.enableAutoTracking) return
+      if (!process.client || !this.config.enableAutoTracking) {return}
 
       // Track initial page view
       this.trackPageView()
@@ -497,12 +497,12 @@ export const useAnalyticsStore = defineStore('analytics', {
         const originalPushState = window.history.pushState
         const originalReplaceState = window.history.replaceState
 
-        window.history.pushState = function(...args) {
+        window.history.pushState = function (...args) {
           originalPushState.apply(window.history, args)
           setTimeout(() => useAnalyticsStore().trackPageView(), 100)
         }
 
-        window.history.replaceState = function(...args) {
+        window.history.replaceState = function (...args) {
           originalReplaceState.apply(window.history, args)
           setTimeout(() => useAnalyticsStore().trackPageView(), 100)
         }
@@ -514,7 +514,7 @@ export const useAnalyticsStore = defineStore('analytics', {
     },
 
     setupInteractionTracking() {
-      if (!process.client) return
+      if (!process.client) {return}
 
       // Track scroll depth
       let ticking = false
@@ -567,7 +567,7 @@ export const useAnalyticsStore = defineStore('analytics', {
     },
 
     async flushQueue() {
-      if (!this.canTrack || this.loading.sending || !this.hasQueuedEvents) return
+      if (!this.canTrack || this.loading.sending || !this.hasQueuedEvents) {return}
 
       this.setLoading('sending', true)
 
@@ -685,19 +685,19 @@ export const useAnalyticsStore = defineStore('analytics', {
     },
 
     getBrowserName(userAgent: string): string {
-      if (userAgent.includes('Firefox')) return 'Firefox'
-      if (userAgent.includes('Chrome')) return 'Chrome'
-      if (userAgent.includes('Safari')) return 'Safari'
-      if (userAgent.includes('Edge')) return 'Edge'
+      if (userAgent.includes('Firefox')) {return 'Firefox'}
+      if (userAgent.includes('Chrome')) {return 'Chrome'}
+      if (userAgent.includes('Safari')) {return 'Safari'}
+      if (userAgent.includes('Edge')) {return 'Edge'}
       return 'Unknown'
     },
 
     getOSName(userAgent: string): string {
-      if (userAgent.includes('Windows')) return 'Windows'
-      if (userAgent.includes('Mac')) return 'macOS'
-      if (userAgent.includes('Linux')) return 'Linux'
-      if (userAgent.includes('Android')) return 'Android'
-      if (userAgent.includes('iOS')) return 'iOS'
+      if (userAgent.includes('Windows')) {return 'Windows'}
+      if (userAgent.includes('Mac')) {return 'macOS'}
+      if (userAgent.includes('Linux')) {return 'Linux'}
+      if (userAgent.includes('Android')) {return 'Android'}
+      if (userAgent.includes('iOS')) {return 'iOS'}
       return 'Unknown'
     },
 
@@ -707,7 +707,7 @@ export const useAnalyticsStore = defineStore('analytics', {
     },
 
     getUtmParams() {
-      if (!process.client) return undefined
+      if (!process.client) {return undefined}
 
       const urlParams = new URLSearchParams(window.location.search)
       const utmParams = {
@@ -721,6 +721,6 @@ export const useAnalyticsStore = defineStore('analytics', {
       // Only return if at least one UTM parameter exists
       return Object.values(utmParams).some(value => value !== null) ? utmParams : undefined
     }
-  },
+  }
 
 })

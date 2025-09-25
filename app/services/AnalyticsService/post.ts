@@ -1,4 +1,4 @@
-import type { ApiResponse } from '~/types/database'
+import type { ApiResponse } from '@/types/database'
 import { BaseApiService } from '../BaseApiService'
 
 const baseService = new BaseApiService()
@@ -226,7 +226,7 @@ export const importAnalyticsData = async (data: {
   formData.append('source', data.source)
   formData.append('format', data.format)
   formData.append('mapping', JSON.stringify(data.mapping))
-  if (data.validateOnly) formData.append('validateOnly', 'true')
+  if (data.validateOnly) {formData.append('validateOnly', 'true')}
 
   return baseService.post<{ success: boolean; imported: number; errors: string[] }>('/analytics/import', formData)
 }

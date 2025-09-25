@@ -440,10 +440,38 @@
 
 <script setup lang="ts">
 // Import the ReviewForm component explicitly
-import ReviewForm from '~/components/Reviews/ReviewForm.vue'
-import Modal from '~/components/UI/Modal.vue'
-import * as ReviewService from '~/services/ReviewService/get'
-import { updateReview, deleteReview as deleteReviewService, addReviewEditNote, toggleReviewAnonymity } from '~/services/ReviewService/post'
+import ReviewForm from '@/components/Reviews/ReviewForm.vue'
+import Modal from '@/components/UI/Modal.vue'
+import * as ReviewService from '@/services/ReviewsService/get'
+import { updateReview, deleteReview as deleteReviewService, addReviewEditNote, toggleReviewAnonymity } from '@/services/ReviewsService/post'
+
+// Types matching the UI expectations (snake_case as returned by API/UI usage)
+interface ReviewUser {
+  id: string
+  name: string
+  initials: string
+}
+
+interface ReviewListItem {
+  id: string
+  user_id?: string
+  user: ReviewUser
+  rating: number
+  title?: string
+  comment?: string
+  is_verified_purchase?: boolean
+  is_editable?: boolean
+  is_anonymous?: boolean
+  helpful_count?: number
+  edit_deadline?: string
+  created_at: string
+}
+
+interface ReviewStatsUI {
+  average_rating: number
+  total_reviews: number
+  rating_breakdown: Record<number, number>
+}
 
 interface Props {
   productId: string
@@ -456,8 +484,8 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 // State
-const reviews = ref([])
-const stats = ref(null)
+const reviews = ref<ReviewListItem[]>([])
+const stats = ref<ReviewStatsUI | null>(null)
 const isLoading = ref(true)
 const showReviewForm = ref(false)
 const showRatingBreakdown = ref(false)
@@ -480,9 +508,12 @@ const fetchReviews = async () => {
     isLoading.value = true
     const response = await ReviewService.getProductReviews(props.productId)
 
-    if (response.success) {
-      reviews.value = response.data.reviews
-      stats.value = response.data.stats
+    if (response.success && response.data) {
+      reviews.value = (response.data as any).reviews as ReviewListItem[]
+      stats.value = (response.data as any).stats as ReviewStatsUI
+    } else {
+      reviews.value = []
+      stats.value = null
     }
   } catch (error) {
     console.error('Error fetching reviews:', error)

@@ -1,6 +1,6 @@
 // Coupon Service - Revenue optimization through strategic discounting
 import { BaseApiService } from '../BaseApiService'
-import type { ApiResponse } from '~/types/database'
+import type { ApiResponse } from '@/types/database'
 
 export interface Coupon {
   id: string
@@ -122,10 +122,10 @@ export class CouponService {
     }
   }>> {
     const query = new URLSearchParams()
-    if (params?.page) query.set('page', params.page.toString())
-    if (params?.limit) query.set('limit', params.limit.toString())
-    if (params?.search) query.set('search', params.search)
-    if (params?.status) query.set('status', params.status)
+    if (params?.page) {query.set('page', params.page.toString())}
+    if (params?.limit) {query.set('limit', params.limit.toString())}
+    if (params?.search) {query.set('search', params.search)}
+    if (params?.status) {query.set('status', params.status)}
 
     return baseService.get(`/admin/coupons?${query.toString()}`)
   }

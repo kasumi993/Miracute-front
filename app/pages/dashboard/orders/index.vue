@@ -231,9 +231,9 @@
 </template>
 
 <script setup lang="ts">
-import type { Order } from '~/types/database'
+import type { Order } from '@/types/database'
 import { useDebounceFn } from '@vueuse/core'
-import { AdminService } from '~/services'
+import { AdminService } from '@/services'
 
 // Admin Guard
 const { isCheckingAccess, hasAdminAccess } = useAdminGuard()

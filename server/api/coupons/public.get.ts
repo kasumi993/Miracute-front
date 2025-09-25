@@ -58,10 +58,10 @@ export default defineEventHandler(async (event) => {
       discount_display: coupon.discount_type === 'percentage'
         ? `${coupon.discount_value}% OFF`
         : coupon.discount_type === 'fixed_amount'
-        ? `$${coupon.discount_value} OFF`
-        : coupon.discount_type === 'free_shipping'
-        ? 'FREE SHIPPING'
-        : 'SPECIAL OFFER',
+          ? `$${coupon.discount_value} OFF`
+          : coupon.discount_type === 'free_shipping'
+            ? 'FREE SHIPPING'
+            : 'SPECIAL OFFER',
       expires_soon: coupon.valid_until &&
         new Date(coupon.valid_until).getTime() - now.getTime() < 7 * 24 * 60 * 60 * 1000, // 7 days
       usage_percentage: coupon.usage_limit

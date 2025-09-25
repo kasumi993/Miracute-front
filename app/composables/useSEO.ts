@@ -1,4 +1,4 @@
-import type { Product, Category } from '~/types/database'
+import type { Product, Category } from '@/types/database'
 
 interface SEOData {
   title: string

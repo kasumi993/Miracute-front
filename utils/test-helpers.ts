@@ -1,14 +1,14 @@
 // Testing utilities for consistent test data and mocks
-import type { ProductWithCategory, Coupon, Order, CartItem } from '~/types/api'
+import type { ProductWithCategory, Coupon, Order, CartItem } from '~/types'
 
 export const createMockProduct = (overrides: Partial<ProductWithCategory> = {}): ProductWithCategory => ({
-  id: 'prod-' + Math.random().toString(36).substr(2, 9),
+  id: `prod-${  Math.random().toString(36).substr(2, 9)}`,
   name: 'Test Product',
   description: 'A test product description',
   price: 29.99,
   featured_image_url: 'https://example.com/image.jpg',
   categories: {
-    id: 'cat-' + Math.random().toString(36).substr(2, 9),
+    id: `cat-${  Math.random().toString(36).substr(2, 9)}`,
     name: 'Test Category'
   },
   is_active: true,
@@ -18,7 +18,7 @@ export const createMockProduct = (overrides: Partial<ProductWithCategory> = {}):
 })
 
 export const createMockCoupon = (overrides: Partial<Coupon> = {}): Coupon => ({
-  id: 'coupon-' + Math.random().toString(36).substr(2, 9),
+  id: `coupon-${  Math.random().toString(36).substr(2, 9)}`,
   code: 'TEST10',
   name: 'Test Coupon',
   description: 'Test coupon description',
@@ -36,15 +36,15 @@ export const createMockCoupon = (overrides: Partial<Coupon> = {}): Coupon => ({
 })
 
 export const createMockCartItem = (overrides: Partial<CartItem> = {}): CartItem => ({
-  product_id: 'prod-' + Math.random().toString(36).substr(2, 9),
+  product_id: `prod-${  Math.random().toString(36).substr(2, 9)}`,
   quantity: 1,
   price: 29.99,
-  category_id: 'cat-' + Math.random().toString(36).substr(2, 9),
+  category_id: `cat-${  Math.random().toString(36).substr(2, 9)}`,
   ...overrides
 })
 
 export const createMockOrder = (overrides: Partial<Order> = {}): Order => ({
-  id: 'order-' + Math.random().toString(36).substr(2, 9),
+  id: `order-${  Math.random().toString(36).substr(2, 9)}`,
   customer_email: 'test@example.com',
   total_amount: 29.99,
   payment_status: 'paid',

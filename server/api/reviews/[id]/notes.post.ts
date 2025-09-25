@@ -1,5 +1,5 @@
 import { serverSupabaseUser, serverSupabaseServiceRole } from '#supabase/server'
-import type { Database } from '~/app/types/database'
+import type { Database } from '@/types/database'
 
 export default defineEventHandler(async (event) => {
   console.log('Review edit note API called')
@@ -99,7 +99,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: 'Edit note added successfully',
-      editNote: editNote
+      editNote
     }
 
   } catch (error: any) {

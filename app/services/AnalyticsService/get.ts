@@ -1,4 +1,4 @@
-import type { ApiResponse } from '~/types/database'
+import type { ApiResponse } from '@/types/database'
 import { BaseApiService } from '../BaseApiService'
 
 const baseService = new BaseApiService()
@@ -21,8 +21,8 @@ export const getTrafficAnalytics = async (
   devices: Array<{ type: string; count: number; percentage: number }>
 }>> => {
   const query: any = { period }
-  if (startDate) query.startDate = startDate
-  if (endDate) query.endDate = endDate
+  if (startDate) {query.startDate = startDate}
+  if (endDate) {query.endDate = endDate}
   return baseService.get('/analytics/traffic', query)
 }
 
@@ -143,7 +143,7 @@ export const getProductAnalytics = async (
   reviews: number
 }>> => {
   const query: any = { period }
-  if (productId) query.productId = productId
+  if (productId) {query.productId = productId}
   return baseService.get('/analytics/products', query)
 }
 
@@ -166,7 +166,7 @@ export const getCampaignAnalytics = async (
   campaigns: Array<{ id: string; name: string; clicks: number; conversions: number; cost: number; roi: number }>
 }>> => {
   const query: any = { period }
-  if (campaignId) query.campaignId = campaignId
+  if (campaignId) {query.campaignId = campaignId}
   return baseService.get('/analytics/campaigns', query)
 }
 

@@ -51,6 +51,30 @@ export const useAuth = () => {
     updateProfile: (data: Record<string, unknown>) => userStore.updateProfile(data),
 
     // Auth actions
+    // Magic link sign-in only (no password login)
+    async signInWithMagicLink(email: string) {
+      try {
+        const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: `${window.location.origin}/auth/callback` } })
+        if (error) { throw error }
+        return { success: true }
+      } catch (error: unknown) {
+        console.error('Magic link error:', error)
+        return { success: false, error: (error as Error).message }
+      }
+    },
+
+    // Google OAuth sign-in
+    async signInWithGoogle() {
+      try {
+        const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: `${window.location.origin}/auth/callback` } })
+        if (error) { throw error }
+        return { success: true }
+      } catch (error: unknown) {
+        console.error('Google auth error:', error)
+        return { success: false, error: (error as Error).message }
+      }
+    },
+
     signOut: async () => {
       try {
         await supabase.auth.signOut()

@@ -214,7 +214,7 @@
 </template>
 
 <script setup>
-import { AdminService } from '~/services'
+import { AdminService } from '@/services'
 
 // Admin Guard
 const { isCheckingAccess, hasAdminAccess } = useAdminGuard()

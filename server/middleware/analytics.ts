@@ -1,6 +1,6 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 import { generateSessionId } from '../utils/analyticsTracker'
-import type { Database } from '~/types/database'
+import type { Database } from '@/types/database'
 
 /**
  * Analytics middleware to track page views automatically

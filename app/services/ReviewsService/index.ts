@@ -11,17 +11,15 @@ import type {
   ApiResponse,
   PaginationParams,
   PaginatedResponse
-} from '~/types/api'
+} from '@/types'
 import {
   validateRequired,
   validatePositiveNumber,
   validateStringLength,
-  NotFoundError,
   ValidationError,
-  BusinessLogicError,
-  ERROR_CODES
+  BusinessLogicError
 } from '~/utils/errors'
-import { BaseApiService } from './BaseApiService'
+import { BaseApiService } from '../BaseApiService'
 
 export interface ReviewFilters {
   rating?: number
@@ -46,8 +44,8 @@ export interface ReviewSubmissionData {
   title?: string
   comment: string
   images?: File[]
-  customerEmail: string
-  customerName: string
+  customerEmail?: string
+  customerName?: string
 }
 
 export interface ReviewModerationAction {
@@ -143,15 +141,26 @@ export class ReviewsService extends BaseApiService {
   /**
    * Submit a new review with comprehensive validation
    */
-  async submitReview(reviewData: ReviewSubmissionData): Promise<ApiResponse<Review>> {
+  async submitReview(
+  reviewData: ReviewSubmissionData | { product_id: string; user_id: string; rating: number; title?: string | null; comment?: string | null }
+): Promise<ApiResponse<Review>> {
     try {
+      const normalized: ReviewSubmissionData = 'product_id' in reviewData
+        ? {
+            productId: reviewData.product_id,
+            rating: reviewData.rating,
+            title: reviewData.title ?? undefined,
+            comment: (reviewData.comment ?? '').toString()
+          }
+        : reviewData
+
       // Comprehensive validation
-      this.validateReviewSubmission(reviewData)
+      this.validateReviewSubmission(normalized)
 
       // Check if user has already reviewed this product
       const existingReview = await this.checkExistingReview(
-        reviewData.productId,
-        reviewData.customerEmail
+        normalized.productId,
+        normalized.customerEmail ?? ''
       )
 
       if (existingReview.data) {
@@ -163,21 +172,21 @@ export class ReviewsService extends BaseApiService {
 
       // Verify purchase if required
       const purchaseVerified = await this.verifyPurchase(
-        reviewData.productId,
-        reviewData.customerEmail
+        normalized.productId,
+        normalized.customerEmail ?? ''
       )
 
       // Prepare review data
       const reviewPayload: ReviewCreateInput = {
-        productId: reviewData.productId,
-        rating: reviewData.rating,
-        title: reviewData.title?.trim(),
-        comment: reviewData.comment.trim()
+        productId: normalized.productId,
+        rating: normalized.rating,
+        title: normalized.title?.trim(),
+        comment: normalized.comment.trim()
       }
 
       // Handle image uploads if any
-      if (reviewData.images && reviewData.images.length > 0) {
-        const imageUploadResponse = await this.uploadReviewImages(reviewData.images)
+      if (normalized.images && normalized.images.length > 0) {
+        const imageUploadResponse = await this.uploadReviewImages(normalized.images)
         if (imageUploadResponse.success && imageUploadResponse.data) {
           reviewPayload.images = imageUploadResponse.data.urls
         }
@@ -186,17 +195,17 @@ export class ReviewsService extends BaseApiService {
       // Submit review
       const response = await this.post<Review>('/reviews/submit', {
         ...reviewPayload,
-        customerEmail: reviewData.customerEmail,
-        customerName: reviewData.customerName,
+        customerEmail: normalized.customerEmail ?? 'anonymous@local',
+        customerName: normalized.customerName ?? 'Anonymous',
         isVerifiedPurchase: purchaseVerified.data?.verified || false
       })
 
       if (response.success) {
         // Clear cached stats for this product
-        this.clearCache(reviewData.productId)
+        this.clearCache(normalized.productId)
 
         // Send notification to admins about new review
-        await this.notifyNewReview(reviewData.productId, response.data!)
+        await this.notifyNewReview(normalized.productId, response.data!)
       }
 
       return response
@@ -384,8 +393,7 @@ export class ReviewsService extends BaseApiService {
     validateRequired(data.productId, 'Product ID')
     validateRequired(data.rating, 'Rating')
     validateRequired(data.comment, 'Comment')
-    validateRequired(data.customerEmail, 'Customer email')
-    validateRequired(data.customerName, 'Customer name')
+    // customerEmail and customerName optional for legacy flows
 
     // Rating validation
     validatePositiveNumber(data.rating, 'Rating')
@@ -403,12 +411,14 @@ export class ReviewsService extends BaseApiService {
 
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(data.customerEmail)) {
+    if (data.customerEmail && !emailRegex.test(data.customerEmail)) {
       throw new ValidationError('Invalid email format', 'customerEmail', data.customerEmail)
     }
 
     // Name validation
-    validateStringLength(data.customerName, 'Customer name', 2, 50)
+    if (data.customerName) {
+      validateStringLength(data.customerName, 'Customer name', 2, 50)
+    }
 
     // Images validation
     if (data.images) {
@@ -433,7 +443,7 @@ export class ReviewsService extends BaseApiService {
     customerEmail: string
   ): Promise<ApiResponse<Review | null>> {
     try {
-      return await this.get<Review | null>(`/reviews/check-existing`, {
+      return await this.get<Review | null>('/reviews/check-existing', {
         productId,
         customerEmail
       })
@@ -447,7 +457,7 @@ export class ReviewsService extends BaseApiService {
     customerEmail: string
   ): Promise<ApiResponse<{ verified: boolean }>> {
     try {
-      return await this.get<{ verified: boolean }>(`/reviews/verify-purchase`, {
+      return await this.get<{ verified: boolean }>('/reviews/verify-purchase', {
         productId,
         customerEmail
       })
@@ -512,7 +522,7 @@ export class ReviewsService extends BaseApiService {
   // Cache Management
   private getFromCache(productId: string): ReviewStats | null {
     const cached = this.reviewStatsCache.get(productId)
-    if (!cached) return null
+    if (!cached) {return null}
 
     const isExpired = Date.now() - cached.timestamp > this.CACHE_TTL
     if (isExpired) {

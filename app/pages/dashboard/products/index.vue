@@ -83,7 +83,7 @@
 
 <script setup lang="ts">
 // Import services
-import { AdminService } from '~/services'
+import { AdminService } from '@/services'
 
 // Admin Guard
 const { isCheckingAccess, hasAdminAccess } = useAdminGuard()

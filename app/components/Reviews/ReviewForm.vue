@@ -102,7 +102,7 @@
 </template>
 
 <script setup lang="ts">
-import { ReviewService } from '~/services'
+import { reviewsService } from '@/services'
 
 interface Props {
   productId: string
@@ -209,13 +209,13 @@ const submitReview = async () => {
     }
     console.log('ReviewForm: Request body =', requestBody)
     
-    const response = await ReviewService.submitReview(requestBody)
+    const response = await reviewsService.submitReview(requestBody)
     
     console.log('ReviewForm: Response =', response)
     
-    if (response.success) {
+    if (response.success && response.data) {
       toast.success('Review submitted successfully!')
-      emit('success', response.review)
+      emit('success', response.data)
       
       // Reset form
       form.rating = 0

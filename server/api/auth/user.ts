@@ -1,5 +1,5 @@
 import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
-import type { Database, User, ApiResponse } from '~/types/database'
+import type { Database, User, ApiResponse } from '@/types/database'
 import { createApiResponse, createApiError, handleSupabaseError } from '../../utils/apiResponse'
 import { userProfileSchema, validateFormData } from '~/utils/validation'
 

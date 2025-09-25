@@ -1,5 +1,5 @@
-import { requireAdminAuthentication } from "../../../utils/auth"
-import type { Database, ProductWithCategory, ApiResponse, SearchResponse } from '~/types/database'
+import { requireAdminAuthentication } from '../../../utils/auth'
+import type { Database, ProductWithCategory, ApiResponse, SearchResponse } from '@/types/database'
 import { createApiResponse, handleSupabaseError } from '../../../utils/apiResponse'
 
 interface AdminProductFilters {

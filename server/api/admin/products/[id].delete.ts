@@ -1,5 +1,5 @@
-import { requireAdminAuthentication } from "../../../utils/auth"
-import type { Database } from '~/types/database'
+import { requireAdminAuthentication } from '../../../utils/auth'
+import type { Database } from '@/types/database'
 
 export default defineEventHandler(async (event) => {
   const productId = getRouterParam(event, 'id')

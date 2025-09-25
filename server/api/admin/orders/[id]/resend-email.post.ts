@@ -1,5 +1,5 @@
-import { requireAdminAuthentication } from "../../../../utils/auth"
-import type { Database } from '~/types/database'
+import { requireAdminAuthentication } from '../../../../utils/auth'
+import type { Database } from '@/types/database'
 import * as brevo from '@getbrevo/brevo'
 
 export default defineEventHandler(async (event) => {

@@ -257,7 +257,7 @@
 </template>
 
 <script setup lang="ts">
-import type { OrderWithItems } from '~/types/database'
+import type { OrderWithItems } from '@/types/database'
 
 // Middleware and SEO
 definePageMeta({

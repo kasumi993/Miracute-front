@@ -110,21 +110,14 @@
 </template>
 
 <script setup lang="ts">
-import { useCartStore } from '~/stores/product/cart'
+import { useCartStore } from '@/stores/product/cart'
+import type { ProductWithCategory } from '@/types/database'
 
-interface Product {
-  id: string
-  name: string
-  slug: string
+type Product = ProductWithCategory & {
   price: string
-  compare_at_price?: string
-  preview_images?: string[]
-  category?: {
-    id: string
-    name: string
-    slug: string
-  }
-  software_required?: string[]
+  compare_at_price?: string | null
+  preview_images?: string[] | null
+  software_required?: string[] | null
   is_featured?: boolean
   review_count?: number
   average_rating?: number
@@ -156,27 +149,22 @@ const discountPercentage = computed(() => {
   return Math.round(((comparePrice.value! - price.value) / comparePrice.value!) * 100)
 })
 
-const isProductInCart = computed(() => {
-  return cartStore.isInCart(props.product.id)
-})
+const isProductInCart = computed(() => cartStore.isInCart(props.product.id))
 
 // Wishlist state
 const isInWishlist = computed(() => wishlist.isInWishlist(props.product.id))
 
 // Cart methods
 const quickAddToCart = () => {
-  cartStore.addToCart(props.product)
+  cartStore.addItem(props.product)
 }
 
 const toggleWishlist = () => {
   const success = wishlist.toggleWishlist(props.product)
   
   if (success) {
-    if (wishlist.isInWishlist(props.product.id)) {
-      toast.show('Added to wishlist', 'success')
-    } else {
-      toast.show('Removed from wishlist', 'success')
-    }
+    const method = wishlist.isInWishlist(props.product.id) ? 'success' : 'success'
+    toast[method]((wishlist.isInWishlist(props.product.id) ? 'Added to' : 'Removed from') + ' wishlist')
   }
 }
 

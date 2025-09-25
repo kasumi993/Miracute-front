@@ -1,4 +1,4 @@
-import type { ApiResponse } from '~/types/database'
+import type { ApiResponse } from '@/types/database'
 import { BaseApiService } from '../BaseApiService'
 
 const baseService = new BaseApiService()
@@ -8,7 +8,7 @@ const baseService = new BaseApiService()
  */
 export const getContactSubmissions = async (page = 1, limit = 20, status?: string): Promise<ApiResponse<{ submissions: any[]; pagination: any }>> => {
   const query: any = { page, limit }
-  if (status) query.status = status
+  if (status) {query.status = status}
   return baseService.get<{ submissions: any[]; pagination: any }>('/contact/submissions', query)
 }
 
@@ -24,7 +24,7 @@ export const getContactSubmission = async (submissionId: string): Promise<ApiRes
  */
 export const getSupportTickets = async (page = 1, limit = 20, status?: string): Promise<ApiResponse<{ tickets: any[]; pagination: any }>> => {
   const query: any = { page, limit }
-  if (status) query.status = status
+  if (status) {query.status = status}
   return baseService.get<{ tickets: any[]; pagination: any }>('/support/tickets', query)
 }
 
@@ -47,7 +47,7 @@ export const getTicketMessages = async (ticketId: string, page = 1, limit = 20):
  */
 export const getNewsletterSubscriptions = async (page = 1, limit = 20, status?: string): Promise<ApiResponse<{ subscriptions: any[]; pagination: any }>> => {
   const query: any = { page, limit }
-  if (status) query.status = status
+  if (status) {query.status = status}
   return baseService.get<{ subscriptions: any[]; pagination: any }>('/newsletter/subscriptions', query)
 }
 

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import { ReviewService } from '~/services'
-import type { Database } from '~/types/database'
+import { reviewsService } from '@/services'
+import type { Database } from '@/types/database'
 
 type Review = Database['public']['Tables']['reviews']['Row']
 type User = Database['public']['Tables']['users']['Row']
@@ -189,10 +189,10 @@ export const useReviewsStore = defineStore('reviews', {
 
     // Review statistics
     ratingDistributionPercentages: (state) => {
-      if (!state.currentStats) return { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+      if (!state.currentStats) {return { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }}
 
       const total = state.currentStats.totalReviews
-      if (total === 0) return { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+      if (total === 0) {return { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }}
 
       return {
         1: (state.currentStats.ratingDistribution[1] / total) * 100,
@@ -217,13 +217,13 @@ export const useReviewsStore = defineStore('reviews', {
     // Cache validation
     isProductDataStale: (state) => (productId: string) => {
       const lastFetch = state.lastFetch[productId]
-      if (!lastFetch) return true
+      if (!lastFetch) {return true}
       return Date.now() - lastFetch > state.cacheTimeout
     },
 
     // Review form validation
     isReviewFormValid: (state) => {
-      if (!state.reviewForm) return false
+      if (!state.reviewForm) {return false}
       return !!(
         state.reviewForm.productId &&
         state.reviewForm.rating > 0 &&
@@ -272,7 +272,7 @@ export const useReviewsStore = defineStore('reviews', {
       this.currentProductId = productId
 
       try {
-        const response = await ReviewService.getProductReviews(productId, {
+        const response = await reviewsService.getProductReviews(productId, {
           page: this.pagination.page,
           limit: this.pagination.limit,
           sortBy: this.filters.sortBy
@@ -307,14 +307,14 @@ export const useReviewsStore = defineStore('reviews', {
 
     // Load more reviews (pagination)
     async loadMoreReviews() {
-      if (!this.currentProductId || !this.pagination.hasMore || this.loading.reviews) return
+      if (!this.currentProductId || !this.pagination.hasMore || this.loading.reviews) {return}
 
       const nextPage = this.pagination.page + 1
 
       this.setLoading('reviews', true)
 
       try {
-        const response = await ReviewService.getProductReviews(this.currentProductId, {
+        const response = await reviewsService.getProductReviews(this.currentProductId, {
           page: nextPage,
           limit: this.pagination.limit,
           sortBy: this.filters.sortBy
@@ -350,7 +350,7 @@ export const useReviewsStore = defineStore('reviews', {
       this.setError(null)
 
       try {
-        const response = await ReviewService.getUserReviews(userId)
+        const response = await reviewsService.getUserReviews(userId)
 
         if (response.success && response.data) {
           this.userReviews = response.data
@@ -371,7 +371,7 @@ export const useReviewsStore = defineStore('reviews', {
       this.setError(null)
 
       try {
-        const response = await ReviewService.createReview(reviewData)
+        const response = await reviewsService.createReview(reviewData)
 
         if (response.success && response.data) {
           // Add new review to current product reviews
@@ -414,7 +414,7 @@ export const useReviewsStore = defineStore('reviews', {
       this.setError(null)
 
       try {
-        const response = await ReviewService.updateReview(reviewId, updates)
+        const response = await reviewsService.updateReview(reviewId, updates)
 
         if (response.success && response.data) {
           // Update review in current reviews
@@ -452,7 +452,7 @@ export const useReviewsStore = defineStore('reviews', {
       this.setError(null)
 
       try {
-        const response = await ReviewService.deleteReview(reviewId)
+        const response = await reviewsService.deleteReview(reviewId)
 
         if (response.success) {
           // Remove from current reviews
@@ -487,7 +487,7 @@ export const useReviewsStore = defineStore('reviews', {
       this.setLoading('helpful', true)
 
       try {
-        const response = await ReviewService.markReviewHelpful(reviewId, helpful)
+        const response = await reviewsService.markReviewHelpful(reviewId, helpful)
 
         if (response.success) {
           // Update review in current reviews
@@ -578,7 +578,7 @@ export const useReviewsStore = defineStore('reviews', {
     // Calculate review summary for a product
     getProductReviewSummary(productId: string) {
       const stats = this.productReviewStats[productId]
-      if (!stats) return null
+      if (!stats) {return null}
 
       return {
         averageRating: stats.averageRating,
@@ -591,7 +591,7 @@ export const useReviewsStore = defineStore('reviews', {
           : 0
       }
     }
-  },
+  }
 
   // Persist filters and pagination preferences
 })

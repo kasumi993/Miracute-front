@@ -1,4 +1,4 @@
-import type { ApiResponse } from '~/types/database'
+import type { ApiResponse } from '@/types/database'
 import { BaseApiService } from '../BaseApiService'
 
 const baseService = new BaseApiService()
@@ -13,7 +13,7 @@ export const getProductReviews = async (
   sortBy?: 'newest' | 'oldest' | 'rating_high' | 'rating_low' | 'helpful'
 ): Promise<ApiResponse<{ reviews: any[]; stats: any }>> => {
   const query: any = { page, limit }
-  if (sortBy) query.sortBy = sortBy
+  if (sortBy) {query.sortBy = sortBy}
   return baseService.get<{ reviews: any[]; stats: any }>(`/reviews/product-${productId}`, query)
 }
 
@@ -48,7 +48,7 @@ export const getReview = async (reviewId: string): Promise<ApiResponse<any>> => 
  */
 export const getUserReviews = async (page = 1, limit = 20, status?: string): Promise<ApiResponse<{ reviews: any[]; pagination: any }>> => {
   const query: any = { page, limit }
-  if (status) query.status = status
+  if (status) {query.status = status}
   return baseService.get<{ reviews: any[]; pagination: any }>('/users/reviews', query)
 }
 
@@ -57,7 +57,7 @@ export const getUserReviews = async (page = 1, limit = 20, status?: string): Pro
  */
 export const getReviewsForModeration = async (page = 1, limit = 20, status?: string): Promise<ApiResponse<{ reviews: any[]; pagination: any }>> => {
   const query: any = { page, limit }
-  if (status) query.status = status
+  if (status) {query.status = status}
   return baseService.get<{ reviews: any[]; pagination: any }>('/admin/reviews/moderation', query)
 }
 
@@ -97,7 +97,7 @@ export const canUserReviewProduct = async (productId: string): Promise<ApiRespon
  */
 export const getTrendingReviews = async (page = 1, limit = 20, period?: 'week' | 'month' | 'year'): Promise<ApiResponse<{ reviews: any[]; pagination: any }>> => {
   const query: any = { page, limit }
-  if (period) query.period = period
+  if (period) {query.period = period}
   return baseService.get<{ reviews: any[]; pagination: any }>('/reviews/trending', query)
 }
 

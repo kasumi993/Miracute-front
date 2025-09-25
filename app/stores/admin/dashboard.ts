@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import { AdminService } from '~/services'
-import type { Database } from '~/types/database'
+import { AdminService } from '@/services'
+import type { Database } from '@/types/database'
 
 type Order = Database['public']['Tables']['orders']['Row']
 type Product = Database['public']['Tables']['products']['Row']
@@ -207,12 +207,12 @@ export const useAdminDashboardStore = defineStore('adminDashboard', {
 
     // Cache validation
     isStatsStale: (state) => {
-      if (!state.lastFetch.stats) return true
+      if (!state.lastFetch.stats) {return true}
       return Date.now() - state.lastFetch.stats > state.cacheTimeout
     },
 
     isAlertsStale: (state) => {
-      if (!state.lastFetch.alerts) return true
+      if (!state.lastFetch.alerts) {return true}
       return Date.now() - state.lastFetch.alerts > state.cacheTimeout
     },
 
@@ -225,7 +225,7 @@ export const useAdminDashboardStore = defineStore('adminDashboard', {
 
     conversionRate: (state) => {
       const stats = state.stats
-      if (!stats?.overview.totalCustomers || !stats?.overview.totalOrders) return 0
+      if (!stats?.overview.totalCustomers || !stats?.overview.totalOrders) {return 0}
       return (stats.overview.totalOrders / stats.overview.totalCustomers) * 100
     }
   },
@@ -242,7 +242,7 @@ export const useAdminDashboardStore = defineStore('adminDashboard', {
 
     // Dashboard stats
     async fetchDashboardStats(force = false) {
-      if (!force && this.hasStats && !this.isStatsStale) return
+      if (!force && this.hasStats && !this.isStatsStale) {return}
 
       this.setLoading('stats', true)
       this.setError(null)
@@ -279,7 +279,7 @@ export const useAdminDashboardStore = defineStore('adminDashboard', {
     setDateRangePreset(preset: AdminDashboardState['selectedDateRange']['preset']) {
       const now = new Date()
       let start: Date
-      let end = new Date()
+      const end = new Date()
 
       switch (preset) {
         case 'today':
@@ -325,7 +325,7 @@ export const useAdminDashboardStore = defineStore('adminDashboard', {
 
     // Alerts management
     async fetchAlerts(force = false) {
-      if (!force && this.alerts.length > 0 && !this.isAlertsStale) return
+      if (!force && this.alerts.length > 0 && !this.isAlertsStale) {return}
 
       this.setLoading('alerts', true)
       this.setError(null)
@@ -511,6 +511,5 @@ export const useAdminDashboardStore = defineStore('adminDashboard', {
         this.setError(error.message || 'Failed to execute action')
       }
     }
-  },
-
+  }
 })

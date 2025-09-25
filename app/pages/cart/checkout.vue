@@ -52,7 +52,7 @@ import PaymentMethod from '~/components/Checkout/PaymentMethod.vue'
 import OrderSummary from '~/components/Checkout/OrderSummary.vue'
 import type { CustomerForm } from '~/components/Checkout/CustomerInformation.vue'
 import type { PaymentData } from '~/components/Checkout/PaymentMethod.vue'
-import { AccountService } from '~/services'
+import { AccountService } from '@/services'
 import { useCartStore } from '~/stores/product/cart'
 
 definePageMeta({

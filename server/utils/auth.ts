@@ -4,9 +4,9 @@
  */
 
 import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
-import type { Database } from '~/types/database'
+import type { Database } from '@/types/database'
 import type { H3Event } from 'h3'
-import type { UserRole } from '~/types/api'
+import type { UserRole } from '@/types'
 import {
   AppError,
   AuthenticationError,

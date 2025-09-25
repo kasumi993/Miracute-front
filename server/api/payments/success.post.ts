@@ -1,6 +1,6 @@
 import Stripe from 'stripe'
 import { serverSupabaseServiceRole } from '#supabase/server'
-import type { Database } from '~/types/database'
+import type { Database } from '@/types/database'
 import { sendBrevoOrderConfirmation, sendBrevoAdminOrderNotification } from '~/server/services/email/orderService'
 
 export default defineEventHandler(async (event) => {

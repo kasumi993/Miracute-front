@@ -4,16 +4,12 @@
  */
 
 import type {
-  ApiResponse,
-  ApiError,
-  PaginationParams,
-  ErrorContext
-} from '~/types/api'
+  ApiResponse
+} from '@/types'
 import {
   AppError,
   ErrorLogger,
   createErrorResponse,
-  createSuccessResponse,
   ERROR_CODES
 } from '~/utils/errors'
 
@@ -254,9 +250,8 @@ export class BaseApiService {
     // Add authentication header if not skipped and on client-side
     if (!skipAuth && process.client) {
       try {
-        // Use dynamic import to avoid composable context issues
-        const supabase = useSupabaseClient()
-        const { data: { session } } = await supabase.auth.getSession()
+        const { $supabase } = useNuxtApp()
+        const { data: { session } } = await $supabase.auth.getSession()
 
         if (session?.access_token) {
           headers['Authorization'] = `Bearer ${session.access_token}`
@@ -384,7 +379,7 @@ export class BaseApiService {
       typeof response === 'object' &&
       response !== null &&
       'success' in response &&
-      typeof (response as any).success === 'boolean'
+      typeof (response as Record<string, unknown>).success === 'boolean'
     )
   }
 

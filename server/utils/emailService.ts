@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer'
-import type { Order, OrderItem } from '~/types/database'
+import type { Order, OrderItem } from '@/types/database'
 
 interface EmailOrderData extends Order {
   order_items: (OrderItem & {

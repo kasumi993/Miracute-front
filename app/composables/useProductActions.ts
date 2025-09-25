@@ -1,4 +1,4 @@
-import type { ProductWithCategory } from '~/types/database'
+import type { ProductWithCategory } from '@/types/database'
 
 export const useProductActions = (product: Ref<ProductWithCategory | null>) => {
   // Composables
@@ -17,12 +17,12 @@ export const useProductActions = (product: Ref<ProductWithCategory | null>) => {
 
   // Methods
   const addToCart = () => {
-    if (!product.value) return
+    if (!product.value) {return}
     cartCounter.addToCart(product.value)
   }
 
   const buyNow = () => {
-    if (!product.value) return
+    if (!product.value) {return}
     // Add to cart first
     cartCounter.addToCart(product.value)
     // Navigate directly to checkout
@@ -30,7 +30,7 @@ export const useProductActions = (product: Ref<ProductWithCategory | null>) => {
   }
 
   const toggleFavorite = () => {
-    if (!product.value) return
+    if (!product.value) {return}
 
     const success = wishlist.toggleWishlist(product.value)
 

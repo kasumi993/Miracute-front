@@ -15,18 +15,18 @@ import type {
   ApiResponse,
   PaginationParams,
   PaginatedResponse
-} from '~/types/api'
+} from '@/types'
 import {
   validateRequired,
   validatePositiveNumber,
-  validateEmail,
   BusinessLogicError,
   PaymentError,
   ValidationError,
   NotFoundError,
   ERROR_CODES
 } from '~/utils/errors'
-import { BaseApiService } from './BaseApiService'
+import { validateEmail } from '~/utils/validation'
+import { BaseApiService } from '../BaseApiService'
 
 export interface CheckoutData {
   items: CartItem[]
@@ -446,8 +446,8 @@ export class OrderService extends BaseApiService {
     try {
       const query: Record<string, string> = {}
 
-      if (dateFrom) query.dateFrom = dateFrom
-      if (dateTo) query.dateTo = dateTo
+      if (dateFrom) {query.dateFrom = dateFrom}
+      if (dateTo) {query.dateTo = dateTo}
 
       return await this.get<OrderAnalytics>('/admin/orders/analytics', query)
 

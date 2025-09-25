@@ -4,7 +4,7 @@
  */
 
 import type { RouteLocationNormalized } from 'vue-router'
-import { authService } from '~/services/core/AuthenticationService'
+import { authService } from '@/services'
 
 /**
  * Require user to have admin role
@@ -13,45 +13,34 @@ import { authService } from '~/services/core/AuthenticationService'
 export default defineNuxtRouteMiddleware(
   async (to: RouteLocationNormalized) => {
     // Skip on server-side during SSR
-    if (process.server) return
+    if (process.server) {return}
 
     try {
-      // Get current auth state
+      // Initialize auth service once
+      await authService.initialize()
+
+      // Get current auth state after initialization
       const authState = authService.getAuthState()
 
-      // If not initialized, initialize auth service
-      if (!authState.user && !authState.isLoading) {
-        await authService.initialize()
-      }
-
-      const updatedState = authService.getAuthState()
-
       // Check authentication first
-      if (!updatedState.isAuthenticated || !updatedState.user) {
-        console.warn('Admin middleware: User not authenticated')
+      if (!authState.isAuthenticated || !authState.user) {
         return navigateTo(`/auth/login?redirect=${encodeURIComponent(to.fullPath)}`)
       }
 
       // Check email verification
-      if (!updatedState.user.emailConfirmed) {
-        console.warn('Admin middleware: Email not verified')
+      if (!authState.user.emailConfirmed) {
         return navigateTo('/auth/verify-email')
       }
 
-      // Check admin status from database (most reliable)
-      if (!authService.isAdmin()) {
-        console.error('Admin middleware: Access denied - insufficient permissions')
+      // Check admin status - if profile isn't loaded or user isn't admin, deny access
+      if (!authState.profile || authState.profile.role !== 'admin') {
         throw createError({
           statusCode: 403,
           statusMessage: 'Admin access required'
         })
       }
 
-      console.log('Admin middleware: Access granted for:', updatedState.user.email)
-
     } catch (error: any) {
-      console.error('Admin middleware error:', error)
-
       // If it's already a create error (403), let it through
       if (error.statusCode === 403) {
         throw error

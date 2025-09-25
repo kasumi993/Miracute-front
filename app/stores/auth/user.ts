@@ -4,8 +4,8 @@
  */
 
 import { defineStore } from 'pinia'
-import type { AuthUser, UserProfile, UserRole, AuthState } from '~/types/api'
-import { authService } from '~/services/core/AuthenticationService'
+import type { AuthUser, UserProfile, UserRole, AuthState } from '@/types'
+import { authService } from '@/services'
 import {
   AuthenticationError,
   AuthorizationError,
@@ -24,8 +24,8 @@ export const useUserStore = defineStore('user', {
 
   getters: {
     // Authentication status
-    isAuthenticated: (state): boolean => state.isAuthenticated && !!state.user,
-    isLoading: (state): boolean => state.isLoading,
+    isAuthenticatedAndValid: (state): boolean => state.isAuthenticated && !!state.user,
+    isCurrentlyLoading: (state): boolean => state.isLoading,
     hasError: (state): boolean => !!state.error,
 
     // User information
@@ -35,27 +35,27 @@ export const useUserStore = defineStore('user', {
 
     // User display information
     fullName: (state): string => {
-      if (!state.profile) return state.user?.email || 'User'
+      if (!state.profile) {return state.user?.email || 'User'}
 
       const { firstName, lastName, fullName } = state.profile
-      if (fullName) return fullName
-      if (firstName && lastName) return `${firstName} ${lastName}`
+      if (fullName) {return fullName}
+      if (firstName && lastName) {return `${firstName} ${lastName}`}
       return firstName || lastName || state.user?.email || 'User'
     },
 
     displayName: (state): string => {
-      if (!state.profile) return state.user?.email?.split('@')[0] || 'User'
+      if (!state.profile) {return state.user?.email?.split('@')[0] || 'User'}
       return state.profile.firstName || state.user?.email?.split('@')[0] || 'User'
     },
 
     initials: (state): string => {
-      if (!state.profile) return state.user?.email?.charAt(0).toUpperCase() || 'U'
+      if (!state.profile) {return state.user?.email?.charAt(0).toUpperCase() || 'U'}
 
       const { firstName, lastName } = state.profile
       if (firstName && lastName) {
         return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase()
       }
-      if (firstName) return firstName.charAt(0).toUpperCase()
+      if (firstName) {return firstName.charAt(0).toUpperCase()}
       return state.user?.email?.charAt(0).toUpperCase() || 'U'
     },
 
@@ -71,7 +71,7 @@ export const useUserStore = defineStore('user', {
 
     // Profile information
     hasCompleteProfile: (state): boolean => {
-      if (!state.profile) return false
+      if (!state.profile) {return false}
       return !!(state.profile.firstName && state.profile.lastName)
     },
 
@@ -102,7 +102,7 @@ export const useUserStore = defineStore('user', {
      * Initialize the auth state - called on app startup
      */
     async initialize(): Promise<void> {
-      if (this.isInitialized) return
+      if (this.isInitialized) {return}
 
       this.setLoading(true)
 
@@ -377,7 +377,7 @@ export const useUserStore = defineStore('user', {
      */
     hasPermission(permission: string): boolean {
       // Admin has all permissions
-      if (this.isAdmin) return true
+      if (this.isAdmin) {return true}
 
       // TODO: Implement granular permission system
       switch (permission) {

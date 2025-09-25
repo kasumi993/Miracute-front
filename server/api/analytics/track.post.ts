@@ -1,4 +1,4 @@
-import { createAnalyticsTracker } from '../../utils/analyticsTracker'
+import { serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -15,16 +15,12 @@ export default defineEventHandler(async (event) => {
     }
 
     // Get Supabase client
-    const supabase = serverSupabaseClient(event)
-
-    // Create analytics tracker
-    const tracker = createAnalyticsTracker(supabase)
+    const supabase = await serverSupabaseServiceRole(event)
 
     // Get session ID from cookies or generate new one
     let sessionId = getCookie(event, 'analytics_session')
     if (!sessionId) {
-      const { generateSessionId } = await import('../../utils/analyticsTracker')
-      sessionId = generateSessionId()
+      sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
       setCookie(event, 'analytics_session', sessionId, {
         maxAge: 60 * 60 * 24 * 30, // 30 days
         httpOnly: true,

@@ -1,4 +1,4 @@
-import { requireAdminAuthentication } from "../../utils/auth"
+import { requireAdminAuthentication } from '../../utils/auth'
 import { createFileManager, FileConfigs } from '../../utils/fileManager'
 
 export default defineEventHandler(async (event) => {
@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
 
   try {
     for (const file of formData) {
-      if (!file.filename || !file.data) continue
+      if (!file.filename || !file.data) {continue}
 
       // Upload using the file manager with validation for product files
       const result = await fileManager.uploadFile(file, FileConfigs.PRODUCT_FILES)

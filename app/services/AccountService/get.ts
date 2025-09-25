@@ -1,4 +1,4 @@
-import type { ApiResponse } from '~/types/database'
+import type { ApiResponse } from '@/types/database'
 import { BaseApiService } from '../BaseApiService'
 
 const baseService = new BaseApiService()
@@ -16,7 +16,7 @@ export const getUserProfile = async (userId?: string): Promise<ApiResponse<any>>
  */
 export const getUserOrders = async (page = 1, limit = 20, status?: string): Promise<ApiResponse<{ orders: any[]; pagination: any }>> => {
   const query: any = { page, limit }
-  if (status) query.status = status
+  if (status) {query.status = status}
   return baseService.get<{ orders: any[]; pagination: any }>('/users/orders', query)
 }
 

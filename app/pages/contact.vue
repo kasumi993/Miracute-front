@@ -222,7 +222,7 @@
 </template>
 
 <script setup>
-import { ContactService } from '~/services'
+import { ContactService } from '@/services'
 
 // SEO
 useSeoMeta({

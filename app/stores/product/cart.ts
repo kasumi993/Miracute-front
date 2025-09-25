@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import type { ProductWithCategory } from '~/types/database'
-import { ProductService } from '~/services'
+import type { ProductWithCategory } from '@/types/database'
+import { ProductService } from '@/services'
 
 export interface CartItem {
   id: string
@@ -235,7 +235,7 @@ export const useCartStore = defineStore('cart', {
 
     // Sync cart with latest product data
     async syncCartItems() {
-      if (this.items.length === 0) return
+      if (this.items.length === 0) {return}
 
       this.setLoading('update', true)
       this.setError(null)
@@ -321,7 +321,7 @@ export const useCartStore = defineStore('cart', {
     // Move to wishlist (if wishlist store exists)
     async moveToWishlist(itemId: string) {
       const item = this.items.find(item => item.id === itemId)
-      if (!item) return false
+      if (!item) {return false}
 
       try {
         // Remove from cart
@@ -346,13 +346,13 @@ export const useCartStore = defineStore('cart', {
 
     // Get suggested products based on cart contents
     async getSuggestedProducts() {
-      if (this.items.length === 0) return []
+      if (this.items.length === 0) {return []}
 
       try {
         const categoryIds = [...new Set(this.items.map(item => item.product.category_id).filter(Boolean))]
         const excludeIds = this.items.map(item => item.product.id)
 
-        if (categoryIds.length === 0) return []
+        if (categoryIds.length === 0) {return []}
 
         // Get related products from same categories
         const suggestions: ProductWithCategory[] = []
@@ -377,6 +377,6 @@ export const useCartStore = defineStore('cart', {
         return []
       }
     }
-  },
+  }
 
 })

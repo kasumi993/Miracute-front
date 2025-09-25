@@ -94,7 +94,7 @@ export default defineEventHandler(async (event) => {
     // Content-Based Filtering: Similar categories and features
     let categoryBasedProducts: string[] = []
     if (category_interests.length > 0 || current_product_id) {
-      let categories = [...category_interests]
+      const categories = [...category_interests]
 
       // Get current product's category if available
       if (current_product_id) {
@@ -201,7 +201,7 @@ export default defineEventHandler(async (event) => {
     const results = recommendedProducts?.map(product => ({
       products: [product],
       algorithm: similarUserProducts.has(product.id) ? 'collaborative_filtering' :
-                categoryBasedProducts.includes(product.id) ? 'content_based' : 'trending',
+        categoryBasedProducts.includes(product.id) ? 'content_based' : 'trending',
       confidence_score: Math.min(100, (productScores.get(product.id) || 1) * 25),
       reason: reasons.get(product.id) || 'Recommended for you'
     })) || []

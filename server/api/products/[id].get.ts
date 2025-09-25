@@ -1,5 +1,5 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
-import type { Database, ProductWithCategory, ApiResponse } from '~/types/database'
+import type { Database, ProductWithCategory, ApiResponse } from '@/types/database'
 import { createApiResponse, createApiError, handleSupabaseError } from '../../../server/utils/apiResponse'
 
 export default defineEventHandler(async (event): Promise<ApiResponse<ProductWithCategory | null>> => {

@@ -80,7 +80,7 @@
 </template>
 
 <script setup>
-import { ProductService } from '~/services'
+import { ProductService } from '@/services'
 
 const products = ref([])
 const isLoading = ref(true)

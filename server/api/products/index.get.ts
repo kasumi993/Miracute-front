@@ -1,5 +1,5 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
-import type { Database, ProductSearchFilters, SearchResponse, ProductWithCategory, ApiResponse } from '~/types/database'
+import type { Database, ProductSearchFilters, SearchResponse, ProductWithCategory, ApiResponse } from '@/types/database'
 import { createApiResponse, handleSupabaseError } from '../../../server/utils/apiResponse'
 
 export default defineEventHandler(async (event): Promise<ApiResponse<SearchResponse<ProductWithCategory>>> => {

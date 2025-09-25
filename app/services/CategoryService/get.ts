@@ -1,4 +1,4 @@
-import type { ApiResponse } from '~/types/database'
+import type { ApiResponse } from '@/types/database'
 import { BaseApiService } from '../BaseApiService'
 
 const baseService = new BaseApiService()
@@ -44,8 +44,8 @@ export const getCategoryProducts = async (
   filters?: Record<string, any>
 ): Promise<ApiResponse<{ products: any[]; pagination: any; filters: any }>> => {
   const query: any = { page, limit }
-  if (sortBy) query.sortBy = sortBy
-  if (filters) Object.assign(query, filters)
+  if (sortBy) {query.sortBy = sortBy}
+  if (filters) {Object.assign(query, filters)}
   return baseService.get<{ products: any[]; pagination: any; filters: any }>(`/categories/${categoryId}/products`, query)
 }
 
@@ -147,7 +147,7 @@ export const getCategoryRecommendations = async (
   limit = 5
 ): Promise<ApiResponse<Array<{ id: string; name: string; slug: string; reason: string; confidence: number }>>> => {
   const query: any = { limit }
-  if (categoryId) query.categoryId = categoryId
+  if (categoryId) {query.categoryId = categoryId}
   return baseService.get<Array<{ id: string; name: string; slug: string; reason: string; confidence: number }>>(
     '/categories/recommendations',
     query

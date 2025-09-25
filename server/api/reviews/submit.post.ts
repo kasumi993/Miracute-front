@@ -1,5 +1,5 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
-import type { Database } from '~/app/types/database'
+import type { Database } from '@/types/database'
 import { sendBrevoNewReviewNotification } from '~/server/services/email/reviewService'
 
 export default defineEventHandler(async (event) => {

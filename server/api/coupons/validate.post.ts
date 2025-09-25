@@ -222,7 +222,7 @@ export default defineEventHandler(async (event) => {
             }
           }
 
-          if (discountItems >= getQty) break
+          if (discountItems >= getQty) {break}
         }
         break
 

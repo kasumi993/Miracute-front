@@ -1,5 +1,5 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
-import type { Database } from '~/types/database'
+import type { Database } from '@/types/database'
 
 export default defineEventHandler(async (event) => {
   const slug = getRouterParam(event, 'slug')

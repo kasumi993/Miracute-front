@@ -1,4 +1,4 @@
-import type { ApiResponse } from '~/types/database'
+import type { ApiResponse } from '@/types/database'
 import { BaseApiService } from '../BaseApiService'
 
 const baseService = new BaseApiService()
@@ -103,7 +103,7 @@ export const updateCategory = async (categoryId: string, data: Partial<CategoryD
  */
 export const deleteCategory = async (categoryId: string, moveProductsTo?: string): Promise<ApiResponse<{ success: boolean; message: string }>> => {
   const data: any = {}
-  if (moveProductsTo) data.moveProductsTo = moveProductsTo
+  if (moveProductsTo) {data.moveProductsTo = moveProductsTo}
   return baseService.post<{ success: boolean; message: string }>(`/categories/${categoryId}/delete`, data)
 }
 
@@ -183,8 +183,8 @@ export const importCategories = async (data: {
   formData.append('file', data.file)
   formData.append('format', data.format)
   formData.append('mapping', JSON.stringify(data.mapping))
-  if (data.updateExisting) formData.append('updateExisting', 'true')
-  if (data.createHierarchy) formData.append('createHierarchy', 'true')
+  if (data.updateExisting) {formData.append('updateExisting', 'true')}
+  if (data.createHierarchy) {formData.append('createHierarchy', 'true')}
 
   return baseService.post<{ success: boolean; imported: number; updated: number; errors: string[] }>('/categories/import', formData)
 }

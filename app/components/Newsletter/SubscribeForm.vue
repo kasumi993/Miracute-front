@@ -54,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { ContactService } from '~/services'
+import { ContactService } from '@/services'
 
 interface Props {
   source?: string

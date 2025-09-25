@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import type { CartItem } from '~/stores/product/cart'
-import { PaymentService, type CheckoutSessionData, type PaymentIntentData } from '~/services'
+import { PaymentService, type CheckoutSessionData, type PaymentIntentData } from '@/services'
 
 export type PaymentMethod = 'card' | 'paypal' | 'apple_pay' | 'google_pay' | 'bank_transfer'
 
@@ -222,7 +222,7 @@ export const useCheckoutStore = defineStore('checkout', {
 
     // Payment method validation
     isPaymentMethodValid: (state) => {
-      if (!state.selectedPaymentMethod) return false
+      if (!state.selectedPaymentMethod) {return false}
 
       switch (state.selectedPaymentMethod) {
         case 'card':
@@ -440,7 +440,7 @@ export const useCheckoutStore = defineStore('checkout', {
 
     // Promo codes
     async applyPromoCode(code: string) {
-      if (!code.trim()) return
+      if (!code.trim()) {return}
 
       this.setLoading('promoCode', true)
       this.setError('promo', null)
@@ -483,9 +483,9 @@ export const useCheckoutStore = defineStore('checkout', {
     },
 
     updateOrderSummary() {
-      if (!this.orderSummary) return
+      if (!this.orderSummary) {return}
 
-      let updatedSummary = { ...this.orderSummary }
+      const updatedSummary = { ...this.orderSummary }
 
       // Update shipping cost
       if (this.selectedShippingMethod) {
@@ -603,6 +603,6 @@ export const useCheckoutStore = defineStore('checkout', {
       this.setOrderSummary(cartSummary)
       this.setCurrentStep('shipping')
     }
-  },
+  }
 
 })

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import type { Database } from '~/types/database'
-import { CategoryService } from '~/services'
+import type { Database } from '@/types/database'
+import { CategoryService } from '@/services'
 
 type Category = Database['public']['Tables']['categories']['Row']
 
@@ -69,7 +69,7 @@ export const useCategoriesStore = defineStore('categories', {
 
     // Cache validation
     isDataStale: (state) => {
-      if (!state.lastFetch) return true
+      if (!state.lastFetch) {return true}
       return Date.now() - state.lastFetch > state.cacheTimeout
     },
 
@@ -94,7 +94,7 @@ export const useCategoriesStore = defineStore('categories', {
 
     getCategoryHierarchy: (state) => (categoryId: string) => {
       const category = state.flatCategories.find(cat => cat.id === categoryId)
-      if (!category) return []
+      if (!category) {return []}
 
       const hierarchy: Category[] = [category]
       let currentCategory = category
@@ -122,7 +122,7 @@ export const useCategoriesStore = defineStore('categories', {
 
     // Search results
     searchResults: (state) => {
-      if (!state.searchQuery.trim()) return state.categories
+      if (!state.searchQuery.trim()) {return state.categories}
 
       const query = state.searchQuery.toLowerCase()
       return state.categories.filter(category =>
@@ -155,7 +155,7 @@ export const useCategoriesStore = defineStore('categories', {
 
     // Breadcrumb for current category
     currentCategoryBreadcrumb: (state) => {
-      if (!state.currentCategory) return []
+      if (!state.currentCategory) {return []}
 
       const breadcrumb: CategoryWithChildren[] = []
       let current = state.currentCategory
@@ -185,7 +185,7 @@ export const useCategoriesStore = defineStore('categories', {
 
     // Fetch all categories
     async fetchCategories(force = false) {
-      if (!force && this.hasCategories && !this.isDataStale) return
+      if (!force && this.hasCategories && !this.isDataStale) {return}
 
       this.setLoading('categories', true)
       this.setError(null)
@@ -329,7 +329,7 @@ export const useCategoriesStore = defineStore('categories', {
           const parent = categoryMap.get(category.parent_id)
           if (parent) {
             category.parent = parent
-            if (!parent.children) parent.children = []
+            if (!parent.children) {parent.children = []}
             parent.children.push(category)
           }
         } else {
@@ -358,7 +358,7 @@ export const useCategoriesStore = defineStore('categories', {
     // Get category path (breadcrumb)
     getCategoryPath(categoryId: string): CategoryWithChildren[] {
       const category = this.getCategoryById(categoryId)
-      if (!category) return []
+      if (!category) {return []}
 
       const path: CategoryWithChildren[] = []
       let current = category as CategoryWithChildren
@@ -439,7 +439,7 @@ export const useCategoriesStore = defineStore('categories', {
 
     // Get maximum category depth
     getMaxCategoryDepth(): number {
-      let maxDepth = 0
+      const maxDepth = 0
 
       const calculateDepth = (categories: CategoryWithChildren[], depth = 0): number => {
         let currentMaxDepth = depth
@@ -456,6 +456,6 @@ export const useCategoriesStore = defineStore('categories', {
 
       return calculateDepth(this.categoryTree)
     }
-  },
+  }
 
 })

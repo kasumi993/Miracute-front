@@ -38,7 +38,7 @@
         <nav class="space-y-1">
           <AdminSidebarLink
             to="/dashboard"
-            :active="$route.path === '/dashboard'"
+            :active="route.path === '/dashboard'"
             icon="heroicons:home"
             @click="$emit('close')"
           >
@@ -47,7 +47,7 @@
 
           <AdminSidebarLink
             to="/dashboard/products"
-            :active="$route.path.startsWith('/dashboard/products')"
+            :active="route.path.startsWith('/dashboard/products')"
             icon="heroicons:squares-2x2"
             @click="$emit('close')"
           >
@@ -56,7 +56,7 @@
 
           <AdminSidebarLink
             to="/dashboard/categories"
-            :active="$route.path.startsWith('/dashboard/categories')"
+            :active="route.path.startsWith('/dashboard/categories')"
             icon="heroicons:folder"
             @click="$emit('close')"
           >
@@ -65,7 +65,7 @@
 
           <AdminSidebarLink
             to="/dashboard/orders"
-            :active="$route.path.startsWith('/dashboard/orders')"
+            :active="route.path.startsWith('/dashboard/orders')"
             icon="heroicons:shopping-bag"
             @click="$emit('close')"
           >
@@ -74,7 +74,7 @@
 
           <AdminSidebarLink
             to="/dashboard/customers"
-            :active="$route.path.startsWith('/dashboard/customers')"
+            :active="route.path.startsWith('/dashboard/customers')"
             icon="heroicons:users"
             @click="$emit('close')"
           >
@@ -83,7 +83,7 @@
 
           <AdminSidebarLink
             to="/dashboard/analytics"
-            :active="$route.path.startsWith('/dashboard/analytics')"
+            :active="route.path.startsWith('/dashboard/analytics')"
             icon="heroicons:chart-bar"
             @click="$emit('close')"
           >
@@ -92,7 +92,7 @@
 
           <AdminSidebarLink
             to="/dashboard/maintenance"
-            :active="$route.path.startsWith('/dashboard/maintenance')"
+            :active="route.path.startsWith('/dashboard/maintenance')"
             icon="heroicons:cog-6-tooth"
             @click="$emit('close')"
           >

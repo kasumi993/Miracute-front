@@ -1,5 +1,5 @@
 import type { Stripe, StripeElements, StripeCardElement } from '@stripe/stripe-js'
-import { PaymentService } from '~/services'
+import { PaymentService } from '@/services'
 
 interface CheckoutSession {
   id: string

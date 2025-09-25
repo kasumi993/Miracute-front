@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const supabase = serverSupabaseClient(event)
+    const supabase = await serverSupabaseServiceRole(event)
 
     // Insert analytics event into database
     const { error } = await supabase

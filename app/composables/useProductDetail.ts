@@ -1,5 +1,5 @@
-import type { ProductWithCategory } from '~/types/database'
-import type { PurchaseVerification, OrdersResponse } from '~/types/product'
+import type { ProductWithCategory } from '@/types/database'
+import type { PurchaseVerification, OrdersResponse } from '@/types/product'
 
 export const useProductDetail = (slug: string) => {
   const product = ref<ProductWithCategory | null>(null)

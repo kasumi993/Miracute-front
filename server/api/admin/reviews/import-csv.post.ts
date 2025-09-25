@@ -1,5 +1,5 @@
 import { serverSupabaseUser, serverSupabaseServiceRole } from '#supabase/server'
-import type { Database } from '~/app/types/database'
+import type { Database } from '@/types/database'
 
 export default defineEventHandler(async (event) => {
   console.log('Admin CSV import API called')
@@ -142,7 +142,7 @@ export default defineEventHandler(async (event) => {
           .insert({
             product_id: body.productId,
             user_id: userId,
-            rating: rating,
+            rating,
             title: rowData.title || null,
             comment: rowData.comment || null,
             is_verified_purchase: rowData.is_verified_purchase === 'true' || false,

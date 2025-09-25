@@ -1,4 +1,4 @@
-import type { ProductWithCategory, ProductWithReviewStats, ApiResponse, SearchResponse } from '~/types/database'
+import type { ProductWithCategory, ProductWithReviewStats, ApiResponse, SearchResponse } from '@/types/database'
 import { BaseApiService } from '../BaseApiService'
 
 export interface ProductFilters {
@@ -64,10 +64,8 @@ export const getProducts = async (
     page: pagination.page || 1,
     limit: pagination.limit || 12
   }
-  console.log('ProductService.getProducts: About to call baseService.get with query:', query)
 
   const result = await baseService.get<SearchResponse<ProductWithCategory>>('/products', query)
-  console.log('ProductService.getProducts: Received result from baseService:', result)
   return result
 }
 

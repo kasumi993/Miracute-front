@@ -1,4 +1,4 @@
-import type { ProductWithCategory, ApiResponse, SearchResponse } from '~/types/database'
+import type { ProductWithCategory, ApiResponse, SearchResponse } from '@/types/database'
 import { BaseApiService } from '../BaseApiService'
 
 export interface AdminProductFilters {

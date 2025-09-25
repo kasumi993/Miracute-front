@@ -3,7 +3,7 @@
  * Replaces scattered error handling with consistent, typed error management
  */
 
-import type { ApiResponse, ApiError } from '~/types/api'
+import type { ApiResponse, ApiError } from '@/types'
 
 // Error Codes
 export const ERROR_CODES = {
@@ -39,7 +39,7 @@ export const ERROR_CODES = {
   SERVER_INTERNAL_ERROR: 'SERVER_INTERNAL_ERROR',
   SERVER_SERVICE_UNAVAILABLE: 'SERVER_SERVICE_UNAVAILABLE',
   SERVER_TIMEOUT: 'SERVER_TIMEOUT',
-  SERVER_MAINTENANCE: 'SERVER_MAINTENANCE',
+  SERVER_MAINTENANCE: 'SERVER_MAINTENANCE'
 } as const
 
 export type ErrorCode = typeof ERROR_CODES[keyof typeof ERROR_CODES]
@@ -273,7 +273,7 @@ export const USER_FRIENDLY_MESSAGES: Record<ErrorCode, string> = {
   [ERROR_CODES.SERVER_INTERNAL_ERROR]: 'Something went wrong on our end. Please try again later',
   [ERROR_CODES.SERVER_SERVICE_UNAVAILABLE]: 'Service temporarily unavailable. Please try again later',
   [ERROR_CODES.SERVER_TIMEOUT]: 'Request timed out. Please try again',
-  [ERROR_CODES.SERVER_MAINTENANCE]: 'System under maintenance. Please try again later',
+  [ERROR_CODES.SERVER_MAINTENANCE]: 'System under maintenance. Please try again later'
 }
 
 export function getUserFriendlyMessage(code: ErrorCode): string {

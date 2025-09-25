@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ProductWithCategory } from '~/types/database'
+import type { ProductWithCategory } from '@/types/database'
 
 interface Props {
   product: ProductWithCategory
