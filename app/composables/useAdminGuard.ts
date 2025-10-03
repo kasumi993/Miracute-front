@@ -23,7 +23,14 @@ export const useAdminGuard = () => {
       if (!auth.isAuthenticated.value) {
         adminError.value = 'Authentication required'
         if (import.meta.client) {
-          const currentPath = useRoute().fullPath
+          // Get current path safely for client-side redirect
+          let currentPath = '/'
+          try {
+            currentPath = useRoute().fullPath
+          } catch (error) {
+            // Fallback to window location if useRoute fails
+            currentPath = window.location.pathname + window.location.search
+          }
           window.location.replace(getLoginUrl(currentPath)) // Redirect to login
         }
         return false

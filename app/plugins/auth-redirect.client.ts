@@ -12,7 +12,8 @@ export default defineNuxtPlugin(() => {
       // Don't store certain paths
       const excludePaths = ['/auth/', '/api/']
       if (!excludePaths.some(path => to.path.startsWith(path))) {
-        storeCurrentPage()
+        // Pass the route path explicitly to avoid useRoute() call in middleware context
+        storeCurrentPage(to.fullPath)
       }
     }
   })
