@@ -1,128 +1,139 @@
 <template>
-  <section class="bg-gradient-to-br from-gray-50 via-white to-gray-50 relative overflow-hidden">
-    <!-- Striking Background Design -->
-    <div class="absolute inset-0 pointer-events-none">
-      <!-- Large geometric shapes -->
-      <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-brand-sage/20 to-brand-pink/15 rounded-full blur-3xl"></div>
-      <div class="absolute -bottom-32 -left-32 w-96 h-96 bg-gradient-to-tr from-brand-warm/25 to-brand-sage/20 rounded-full blur-3xl"></div>
-      <div class="absolute top-1/4 right-1/4 w-64 h-64 bg-gradient-to-bl from-brand-pink/15 to-transparent rounded-full blur-2xl"></div>
-      
-      <!-- Dynamic wave pattern -->
-      <div class="absolute top-0 left-0 w-full h-full">
-        <svg class="w-full h-full" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
-          <!-- Flowing lines -->
-          <path d="M0,400 Q300,200 600,400 T1200,300" stroke="#bbcfca" stroke-width="2" fill="none" opacity="0.3"/>
-          <path d="M0,500 Q300,300 600,500 T1200,400" stroke="#d7c6c8" stroke-width="1.5" fill="none" opacity="0.4"/>
-          <path d="M0,300 Q300,100 600,300 T1200,200" stroke="#e9d1be" stroke-width="3" fill="none" opacity="0.25"/>
-          
-          <!-- Curved shapes -->
-          <path d="M200,0 Q400,200 200,400 Q0,200 200,0 Z" fill="#bbcfca" opacity="0.08"/>
-          <path d="M1000,400 Q800,600 1000,800 Q1200,600 1000,400 Z" fill="#d7c6c8" opacity="0.1"/>
-        </svg>
-      </div>
-      
-      <!-- Card-style decorative elements to match featured section -->
-      <div class="absolute top-20 right-8 bg-white/40 backdrop-blur-sm rounded-2xl w-32 h-20 shadow-sm transform rotate-12 opacity-60"></div>
-      <div class="absolute bottom-32 left-8 bg-white/30 backdrop-blur-sm rounded-2xl w-24 h-16 shadow-sm transform -rotate-6 opacity-50"></div>
-      <div class="absolute top-1/2 left-1/3 bg-white/25 backdrop-blur-sm rounded-xl w-20 h-12 shadow-sm transform rotate-3 opacity-40"></div>
-      
-      <!-- Floating animated elements -->
-      <div class="absolute top-40 right-32 w-6 h-6 bg-brand-pink/30 rounded-lg animate-float transform rotate-45"></div>
-      <div class="absolute bottom-48 left-24 w-4 h-4 bg-brand-sage/40 rounded-full animate-float" style="animation-delay: 2s;"></div>
-      <div class="absolute top-64 left-1/2 w-8 h-8 bg-brand-warm/25 rounded-xl animate-float transform rotate-12" style="animation-delay: 4s;"></div>
-      
-      <!-- Grid overlay pattern -->
-      <div class="absolute inset-0 opacity-5">
-        <div class="h-full w-full" style="background-image: linear-gradient(#955a3f 1px, transparent 1px), linear-gradient(90deg, #955a3f 1px, transparent 1px); background-size: 80px 80px;"></div>
-      </div>
-    </div>
-
-    <!-- Hero Content -->
-    <div class="container-custom pt-12 pb-16 sm:pt-16 sm:pb-20 relative">
-      <!-- Main Hero Text -->
-      <div class="max-w-4xl mx-auto text-center mb-8 sm:mb-12 px-4 sm:px-0">
-        <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-gray-900 mb-4 sm:mb-6 leading-tight">
-          Complete Business Bundles and
-          <span class="text-brand-brown block sm:inline">Canva Website Templates</span>
-        </h1>
-        <p class="text-base sm:text-lg md:text-xl text-gray-600 mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed">
-          Transform your business with our template collections. Get everything you need: wedding website templates, business sites, email sequences, and marketing materials - all designed to work together seamlessly. 
-          <br/>Download instantly and customize in minutes.
-        </p>
-        <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center max-w-lg mx-auto sm:max-w-none">
-          <NuxtLink to="/templates" class="btn-primary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto justify-center">
-            Find Your Perfect Bundle
-            <Icon name="heroicons:arrow-right" class="ml-2 w-4 sm:w-5 h-4 sm:h-5" />
-          </NuxtLink>
-          <NuxtLink to="/about" class="btn-secondary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto justify-center">
-            See What's Possible
-          </NuxtLink>
-        </div>
-      </div>
-
-      <!-- Category Preview Cards -->
-      <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8 sm:mb-12 px-4 sm:px-0">
-
-      <!-- Canva Category -->
-        <NuxtLink to="/templates?category=canva-templates" class="group block">
-          <div class="text-center">
-            <div class="border-2 sm:border-3 border-brand-brown/20 rounded-full w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-2 sm:mb-3 flex items-center justify-center cursor-pointer hover:border-brand-brown hover:shadow-xl hover:bg-brand-brown/5 transition-all duration-200 group-hover:scale-110 active:scale-95">
-              <Icon name="simple-icons:canva" class="w-16 h-16 sm:w-20 sm:h-20 text-[#bdccd7]" />
-            </div>
-            <h3 class="text-xs sm:text-sm font-medium text-gray-900 group-hover:text-brand-brown transition-colors">Canva</h3>
-            <p class="text-xs text-gray-500 mt-1 hidden sm:block">Ready-to-edit</p>
+  <section class="w-full pt-12 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Main Cards Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-5 gap-4 md:gap-6 mb-8">
+        <NuxtLink
+          to="/templates?category=business-templates"
+          class="lg:col-span-3 col-span-1 relative rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group bg-gradient-to-br from-brand-sage/15 via-brand-warm/10 to-brand-brown/8 block"
+        >
+          <div class="px-6 py-8 sm:px-8 sm:py-10 md:px-10 md:py-12 lg:px-12 lg:py-16 min-h-[180px] sm:h-[200px] md:h-[240px] flex flex-col justify-center">
+            <h1 class="text-lg sm:text-xl md:text-2xl lg:text-3xl font-serif text-gray-900 mb-2 sm:mb-3 leading-tight">
+              Complete Business Bundles
+              <span class="block text-brand-brown">& Canva Website Templates</span>
+            </h1>
+            <p class="text-xs sm:text-sm md:text-sm text-gray-700 mb-3 sm:mb-4 leading-relaxed">
+              Transform your business with our template collections. Get everything you need: website templates, email sequences, and marketing materials – all designed to work seamlessly together.
+            </p>
+            <button class="inline-flex items-center px-4 sm:px-5 py-2 sm:py-2.5 bg-brand-brown text-white rounded-full font-medium hover:bg-brand-brown/90 transition-colors duration-200 shadow-md hover:shadow-lg group-hover:scale-105 transform self-start text-xs sm:text-sm">
+              Explore Bundles
+              <svg class="w-4 h-4 sm:w-5 sm:h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+              </svg>
+            </button>
           </div>
         </NuxtLink>
 
-        <!-- Wedding Category -->
-        <NuxtLink to="/templates?category=wedding-templates" class="group block">
-          <div class="text-center">
-            <div class="bg-[#e9d1be] border-2 sm:border-3 border-brand-brown/20 rounded-full w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-2 sm:mb-3 flex items-center justify-center cursor-pointer hover:border-brand-brown hover:shadow-xl hover:bg-brand-brown/5 transition-all duration-200 group-hover:scale-110 active:scale-95">
-              <Icon name="heroicons:heart" class="w-5 h-5 sm:w-6 sm:h-6 text-brand-brown" />
-            </div>
-            <h3 class="text-xs sm:text-sm font-medium text-gray-900 group-hover:text-brand-brown transition-colors">Wedding</h3>
-            <p class="text-xs text-gray-500 mt-1 hidden sm:block line-clamp-2">Complete wedding flows & Wedding planner portfolios</p>
-          </div>
-        </NuxtLink>
+        <!-- Wedding Templates Card - Hidden on mobile, visible on desktop (40%) -->
+        <NuxtLink
+          to="/templates?category=wedding-templates"
+          class="hidden lg:block lg:col-span-2 relative rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group overflow-hidden h-[200px] md:h-[240px]"
+        >
+          <!-- Background Image -->
+          <img
+            src="/screen1.webp"
+            alt="Wedding template preview"
+            class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            loading="lazy"
+          />
 
-        <!-- Business Category -->
-        <NuxtLink to="/templates?category=business-templates" class="group block">
-          <div class="text-center">
-            <div class="bg-[#bbcfca] border-2 sm:border-3 border-brand-brown/20 rounded-full w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-2 sm:mb-3 flex items-center justify-center cursor-pointer hover:border-brand-brown hover:shadow-xl hover:bg-brand-brown/5 transition-all duration-200 group-hover:scale-110 active:scale-95">
-              <Icon name="heroicons:briefcase" class="w-5 h-5 sm:w-6 sm:h-6 text-brand-brown" />
-            </div>
-            <h3 class="text-xs sm:text-sm font-medium text-gray-900 group-hover:text-brand-brown transition-colors">Business</h3>
-            <p class="text-xs text-gray-500 mt-1 hidden sm:block line-clamp-2">Professional website templates for businesses (Therapist, coaches, consultants, etc.)</p>
-          </div>
-        </NuxtLink>
+          <!-- Bottom Overlay Only -->
+          <div class="absolute bottom-0 left-0 right-0 h-2/3 bg-gradient-to-t from-brand-brown to-transparent"></div>
 
-        <!-- Portfolio Category -->
-        <NuxtLink to="/templates?category=portfolio-templates" class="group block">
-          <div class="text-center">
-            <div class="bg-[#d7c6c8] border-2 sm:border-3 border-brand-brown/20 rounded-full w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-2 sm:mb-3 flex items-center justify-center cursor-pointer hover:border-brand-brown hover:shadow-xl hover:bg-brand-brown/5 transition-all duration-200 group-hover:scale-110 active:scale-95">
-              <Icon name="heroicons:photo" class="w-5 h-5 sm:w-6 sm:h-6 text-brand-brown" />
+          <!-- Content Overlay -->
+          <div class="relative z-10 h-full flex flex-col justify-end px-6 md:px-8 py-5">
+            <div>
+              <h2 class="text-lg md:text-xl font-serif font-bold text-white mb-2 drop-shadow-md">
+                Wedding Websites
+              </h2>
+              <p class="text-xs md:text-sm text-white/90 leading-relaxed drop-shadow-md mb-3">
+                Elegant Canva templates for wedding planners and events.
+              </p>
+              <button class="text-white font-bold hover:text-white/80 inline-flex items-center text-xs drop-shadow-md">
+                Browse now
+                <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </button>
             </div>
-            <h3 class="text-xs sm:text-sm font-medium text-gray-900 group-hover:text-brand-brown transition-colors line-clamp-1">Portfolios and Showcases</h3>
-            <p class="text-xs text-gray-500 mt-1 hidden sm:block line-clamp-2">Creative showcase & Trust-building templates for self-promotion</p>
           </div>
         </NuxtLink>
       </div>
 
-      <!-- Social Proof -->
-      <div class="text-center px-4 sm:px-0">
+      <!-- Category Icons Row -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-4xl mx-auto">
+        <CategoryIcon
+          v-for="category in categories"
+          :key="category.slug"
+          :title="category.title"
+          :description="category.description"
+          :icon="category.icon"
+          :iconClass="category.iconClass"
+          :bgColor="category.bgColor"
+          :slug="category.slug"
+        />
+      </div>
+
+       <!-- Social Proof -->
+      <div class="text-center px-4 sm:px-0 py-12">
         <p class="text-sm sm:text-base text-gray-500 mb-3 sm:mb-4 max-w-2xl mx-auto">Where human creativity meets personal care—every template crafted with passion, not algorithms.</p>
         <div class="flex justify-center space-x-1 mb-2">
-          <Icon name="heroicons:star-20-solid" class="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
-          <Icon name="heroicons:star-20-solid" class="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
-          <Icon name="heroicons:star-20-solid" class="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
-          <Icon name="heroicons:star-20-solid" class="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
-          <Icon name="heroicons:star-20-solid" class="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
+          <Icon v-for="value in [1, 2, 3, 4, 5]" :key="value" name="heroicons:star-20-solid" class="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
         </div>
       </div>
     </div>
   </section>
 </template>
 
-<script setup>
-
+<script setup lang="ts">
+const categories = [
+  {
+    title: 'Canva Ready',
+    description: 'Beautifully designed templates you can customize in Canva',
+    icon: 'simple-icons:canva',
+    iconClass: '!w-16 !h-16 !sm:w-20 !sm:h-20 !text-[#bdccd7]',
+    bgColor: '',
+    slug: 'canva-templates'
+  },
+  {
+    title: 'Wedding',
+    icon: 'heroicons:heart',
+    iconClass: 'text-[#e9d1be]',
+    description: 'Complete wedding flows & Wedding planner portfolios',
+    bgColor: 'bg-[#e9d1be]',
+    slug: 'wedding-templates'
+  },
+  {
+    title: 'Business',
+    icon: 'heroicons:briefcase',
+    iconClass: 'text-[#bbcfca]',
+    description: 'Professional website templates for businesses (Therapist, coaches, consultants, etc.)',
+    bgColor: 'bg-[#bbcfca]',
+    slug: 'business-templates'
+  },
+  {
+    title: 'Portfolios and Showcases',
+    description: 'Creative showcase & Trust-building templates for self-promotion',
+    icon: 'heroicons:photo',
+    bgColor: 'bg-[#d7c6c8]',
+    iconClass: 'text-[#d7c6c8]',
+    slug: 'portfolio-templates'
+  }
+]
 </script>
+
+<style scoped>
+/* Custom Miracute colors - add these to your tailwind.config */
+.from-beige-50 { --tw-gradient-from: #faf8f5; }
+.to-beige-50 { --tw-gradient-to: #faf8f5; }
+.from-beige-100 { --tw-gradient-from: #f5f1eb; }
+.to-beige-100 { --tw-gradient-to: #f5f1eb; }
+.to-beige-200 { --tw-gradient-to: #ebe5db; }
+
+.from-sage-50 { --tw-gradient-from: #f4f6f4; }
+.to-sage-50 { --tw-gradient-to: #f4f6f4; }
+.from-sage-100 { --tw-gradient-from: #e8ede8; }
+.to-sage-100 { --tw-gradient-to: #e8ede8; }
+.to-sage-200 { --tw-gradient-to: #d4dfd4; }
+.text-sage-600 { color: #6b8e6b; }
+</style>

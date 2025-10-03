@@ -1,5 +1,5 @@
 <template>
-  <section class="py-12 sm:py-16 bg-white">
+  <section class="py-5 sm:py-5 bg-white">
     <div class="container-custom">
       <!-- Compact Header -->
       <div class="flex items-center justify-between mb-8 sm:mb-10 px-4 sm:px-0">
