@@ -17,7 +17,7 @@
       </div>
 
       <!-- Loading State -->
-      <CardSkeleton
+      <UICardSkeleton
         v-if="isLoading"
         :count="4"
         card-width="lg"
