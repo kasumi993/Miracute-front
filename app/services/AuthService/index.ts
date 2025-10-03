@@ -4,11 +4,16 @@ import * as postMethods from './post'
 
 const getSupabaseClient = () => {
     try {
-        const { $supabase } = useNuxtApp()
-        return $supabase
+        return useSupabaseClient()
     } catch (e) {
-        console.error("Erreur de contexte Nuxt: Impossible d'accéder à $supabase. Assurez-vous que l'appel provient d'un composant, d'un hook, ou d'une action Pinia.", e)
-        throw new Error("L'accès au client Supabase a échoué en dehors du contexte Nuxt.")
+        // Fallback to Nuxt app if composable fails
+        try {
+            const { $supabase } = useNuxtApp()
+            return $supabase
+        } catch (fallbackError) {
+            console.error("Erreur de contexte Nuxt: Impossible d'accéder à Supabase. Assurez-vous que l'appel provient d'un composant, d'un hook, ou d'une action Pinia.", e, fallbackError)
+            throw new Error("L'accès au client Supabase a échoué en dehors du contexte Nuxt.")
+        }
     }
 }
 
@@ -41,18 +46,43 @@ export const authService = {
    * Récupère la session actuelle.
    */
   async getSession() {
-    const supabase = getSupabaseClient()
-    console.log("Supabase client:", supabase)  // Debug log
-    return supabase?.client.auth?.getSession()
+    try {
+      const supabase = getSupabaseClient()
+      if (!supabase?.auth) {
+        console.warn('Supabase auth client not available for getSession')
+        return null
+      }
+
+      return await supabase.auth.getSession()
+    } catch (error) {
+      console.error('Error getting session:', error)
+      return null
+    }
   },
 
   /**
    * Met en place l'écouteur d'état d'authentification en temps réel (Abstraction de Supabase).
    */
   onAuthStateChange(callback: (event: string, session: any) => void) {
-    const supabase = getSupabaseClient()
-    // La méthode onAuthStateChange renvoie une souscription que l'on doit retourner
-    const { data: { subscription } } = supabase?.auth?.onAuthStateChange(callback)
-    return subscription
+    try {
+      const supabase = getSupabaseClient()
+      if (!supabase?.auth) {
+        console.warn('Supabase auth client not available')
+        return null
+      }
+
+      // La méthode onAuthStateChange renvoie une souscription que l'on doit retourner
+      const response = supabase.auth.onAuthStateChange(callback)
+
+      if (!response || !response.data) {
+        console.warn('Auth state change subscription failed')
+        return null
+      }
+
+      return response.data.subscription
+    } catch (error) {
+      console.error('Error setting up auth state change listener:', error)
+      return null
+    }
   },
 }

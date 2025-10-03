@@ -117,7 +117,7 @@ export const useUserStore = defineStore('user', {
         } else {
           // If profile is not found (PGRST116), create it
           const createPayload = mapMetadataToProfile(supabaseUser)
-          
+
           const creationResponse = await authService.createUserProfile({
             user_id: supabaseUser.id,
             email: supabaseUser.email,

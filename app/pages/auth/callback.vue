@@ -110,6 +110,9 @@
 </template>
 
 <script setup>
+import { authService } from '~/services'
+import { useUserStore } from '~/stores/auth/user'
+
 // SEO
 useSeoMeta({
   robots: 'noindex, nofollow'
@@ -119,12 +122,12 @@ const { getRedirectUrl } = useAuthRedirect()
 
 // State
 const userStore = useUserStore()
-const router = useRouter() 
+const router = useRouter()
 const toast = useToast()
 
 const isLoading = ref(true)
 const isSuccess = ref(false)
-const error = ref<string | null>(null)
+const error = ref(null)
 const showResendForm = ref(false)
 const retryEmail = ref('')
 const isResending = ref(false)

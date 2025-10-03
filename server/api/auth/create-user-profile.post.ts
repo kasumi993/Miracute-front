@@ -52,10 +52,23 @@ export default defineEventHandler(async (event) => {
 
     if (existingUser) {
       console.log('User already exists in custom table:', existingUser.id)
+
+      // Fetch the full user profile to return consistent structure
+      const { data: fullUser, error: fetchError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', body.user_id)
+        .single()
+
+      if (fetchError) {
+        console.error('Error fetching existing user profile:', fetchError)
+        throw fetchError
+      }
+
       return {
         success: true,
         message: 'User profile already exists',
-        user_id: existingUser.id
+        data: { user: fullUser }
       }
     }
 
@@ -85,7 +98,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: 'User profile created successfully',
-      user: newUser
+      data: { user: newUser }
     }
 
   } catch (error: any) {
