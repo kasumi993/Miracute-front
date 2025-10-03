@@ -124,10 +124,10 @@ export default defineNuxtConfig({
         { name: 'msapplication-TileColor', content: '#8B7355' },
         { name: 'application-name', content: 'Miracute' },
 
-        // Apple mobile web app
-        { name: 'apple-mobile-web-app-title', content: 'Miracute' },
-        { name: 'apple-mobile-web-app-capable', content: 'yes' },
-        { name: 'apple-mobile-web-app-status-bar-style', content: 'default' },
+        // Mobile web app
+        { name: 'mobile-web-app-title', content: 'Miracute' },
+        { name: 'mobile-web-app-capable', content: 'yes' },
+        { name: 'mobile-web-app-status-bar-style', content: 'default' },
 
         // Security
         { 'http-equiv': 'X-UA-Compatible', content: 'IE=edge' },

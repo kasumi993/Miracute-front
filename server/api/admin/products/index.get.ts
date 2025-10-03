@@ -1,15 +1,18 @@
 import { requireAdminAuthentication } from '../../../utils/auth'
-import type { Database, ProductWithCategory, ApiResponse, SearchResponse } from '@/types/database'
+import type { ProductWithCategory, ApiResponse, PaginatedResponse, PaginationMeta } from '@/types'
 import { createApiResponse, handleSupabaseError } from '../../../utils/apiResponse'
 
+// Utiliser un type plus générique si possible, sinon cette interface est bien placée ici
 interface AdminProductFilters {
   search?: string
   category?: string
   status?: 'active' | 'inactive' | 'featured' | 'all'
   template_type?: string
+  // Ajouter d'autres filtres d'admin : ex: min_stock, has_reviews
 }
 
-export default defineEventHandler(async (event): Promise<ApiResponse<SearchResponse<ProductWithCategory>>> => {
+export default defineEventHandler(async (event): Promise<ApiResponse<PaginatedResponse<ProductWithCategory>>> => {
+  // 1. Authentification et Initialisation
   const { supabase } = await requireAdminAuthentication(event)
 
   const query = getQuery(event)
@@ -25,6 +28,7 @@ export default defineEventHandler(async (event): Promise<ApiResponse<SearchRespo
   }
 
   try {
+    // 2. Construction de la requête de base
     let queryBuilder = supabase
       .from('products')
       .select(`
@@ -34,13 +38,11 @@ export default defineEventHandler(async (event): Promise<ApiResponse<SearchRespo
           name,
           slug
         )
-      `, { count: 'exact' })
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1)
+      `, { count: 'exact' }) // Utilisation de count: 'exact' pour la pagination
 
-    // Apply filters
+    // 3. Application des filtres
     if (filters.search) {
-      const searchTerm = filters.search.trim()
+      const searchTerm = filters.search.trim().toLowerCase() // Utiliser lowercase pour la recherche insensible à la casse
       queryBuilder = queryBuilder.or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,short_description.ilike.%${searchTerm}%`)
     }
 
@@ -59,38 +61,43 @@ export default defineEventHandler(async (event): Promise<ApiResponse<SearchRespo
         case 'featured':
           queryBuilder = queryBuilder.eq('is_featured', true)
           break
-        // 'all' doesn't filter
       }
     }
 
     if (filters.template_type) {
       queryBuilder = queryBuilder.eq('template_type', filters.template_type)
     }
+    
+    // 4. Tri et Pagination
+    queryBuilder = queryBuilder.order('created_at', { ascending: false }) // Tri par défaut
+    queryBuilder = queryBuilder.range(offset, offset + limit - 1)
 
+    // 5. Exécution de la requête
     const { data, error, count } = await queryBuilder
 
     if (error) {
-      console.error('Supabase products query error:', error)
       handleSupabaseError(error, 'Fetch admin products')
     }
 
-
+    // 6. Construction de la réponse PaginatedResponse
     const total = count || 0
     const totalPages = Math.ceil(total / limit)
 
-    const searchResponse: SearchResponse<ProductWithCategory> = {
-      data: (data as ProductWithCategory[]) || [],
-      pagination: {
+    const paginationMeta: PaginationMeta = {
         page,
         limit,
         total,
         totalPages,
-        hasNext: page < totalPages,
-        hasPrev: page > 1
-      }
+        hasNextPage: page < totalPages, // Utilisation du nom de propriété standardisé
+        hasPrevPage: page > 1           // Utilisation du nom de propriété standardisé
     }
 
-    return createApiResponse(searchResponse)
+    const paginatedResponse: PaginatedResponse<ProductWithCategory> = {
+      data: (data as ProductWithCategory[]) || [],
+      meta: paginationMeta
+    }
+
+    return createApiResponse(paginatedResponse)
 
   } catch (error: any) {
     if (error.statusCode) {

@@ -1,16 +1,21 @@
-export default defineNuxtRouteMiddleware((to) => {
-  const user = useSupabaseUser()
+import { useUserStore } from '~/stores/auth/user' 
 
-  // If user is authenticated, redirect them away from guest-only pages
-  if (user.value) {
-    // Check for redirect parameter from query
-    const redirect = to.query.redirect as string
+/**
+ * If user is authenticated, redirect them away from guest-only pages
+ */
+export default defineNuxtRouteMiddleware(
+  async (to) => {
+    const userStore = useUserStore()
+    await userStore.ensureInitialized() 
 
-    if (redirect && redirect.startsWith('/')) {
-      return navigateTo(redirect)
-    }
+    if (userStore.isAuthenticatedAndValid) {
+      const redirect = to.query.redirect as string
+      if (redirect && redirect.startsWith('/')) {
+        return navigateTo(redirect)
+      }
 
-    // Default redirect to account page
-    return navigateTo('/account')
+       // Default redirect to account page
+      return navigateTo('/account') 
   }
-})
+  }
+)

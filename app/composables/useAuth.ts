@@ -3,108 +3,42 @@ import { useUserStore } from '~/stores/auth/user'
 
 export const useAuth = () => {
   const userStore = useUserStore()
-  const supabaseUser = useSupabaseUser()
-  const supabase = useSupabaseClient()
 
   return {
-    // Computed properties - always use store state
-    user: computed(() => userStore.profile),
-    authUser: computed(() => supabaseUser.value),
-    isAuthenticated: computed(() => userStore.isAuthenticated),
+    // Computed properties - always use store state for reactivity
+    user: computed(() => userStore.currentProfile), // Primary profile data
+    authUser: computed(() => userStore.currentUser), // Raw Supabase user data
+    isAuthenticated: computed(() => userStore.isAuthenticatedAndValid),
     isAdmin: computed(() => userStore.isAdmin),
-    isLoading: computed(() => userStore.loading.profile),
+    isLoading: computed(() => userStore.isCurrentlyLoading),
+    authError: computed(() => userStore.error),
 
-    // User display helpers
-    userInitials: computed(() => {
-      const profile = userStore.profile
-      if (!profile) {
-        return 'U'
-      }
+    // User display helpers (delegated to getters for optimized computation)
+    userInitials: computed(() => userStore.initials),
+    displayName: computed(() => userStore.displayName),
 
-      if (profile.first_name && profile.last_name) {
-        return `${profile.first_name.charAt(0)}${profile.last_name.charAt(0)}`.toUpperCase()
-      }
-
-      if (profile.first_name) {
-        return profile.first_name.charAt(0).toUpperCase()
-      }
-
-      return supabaseUser.value?.email?.charAt(0).toUpperCase() || 'U'
-    }),
-
-    displayName: computed(() => {
-      const profile = userStore.profile
-      if (!profile) {
-        return supabaseUser.value?.email || 'User'
-      }
-
-      if (profile.first_name && profile.last_name) {
-        return `${profile.first_name} ${profile.last_name}`
-      }
-
-      return profile.first_name || supabaseUser.value?.email || 'User'
-    }),
-
-    // Methods - delegate to store
+    // Methods - delegate all state-changing and API logic to the store
     initialize: () => userStore.initialize(),
     fetchProfile: () => userStore.fetchProfile(),
     updateProfile: (data: Record<string, unknown>) => userStore.updateProfile(data),
 
-    // Auth actions
-    // Magic link sign-in only (no password login)
+    // Auth actions - delegate to store actions which handle API, state, and redirects
+    async signUpWithMagicLink(data: { email: string, firstName?: string, lastName?: string, marketingOptIn?: boolean }) {
+      await userStore.signUp(data)
+    },
     async signInWithMagicLink(email: string) {
-      try {
-        const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: `${window.location.origin}/auth/callback` } })
-        if (error) { throw error }
-        return { success: true }
-      } catch (error: unknown) {
-        console.error('Magic link error:', error)
-        return { success: false, error: (error as Error).message }
-      }
+      await userStore.signInWithMagicLink(email)
     },
-
-    // Google OAuth sign-in
     async signInWithGoogle() {
-      try {
-        const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: `${window.location.origin}/auth/callback` } })
-        if (error) { throw error }
-        return { success: true }
-      } catch (error: unknown) {
-        console.error('Google auth error:', error)
-        return { success: false, error: (error as Error).message }
-      }
+      // The store handles the API call to get the redirect URL and navigates the browser
+      await userStore.signInWithGoogle()
     },
+    signOut: () => userStore.signOut(),
 
-    signOut: async () => {
-      try {
-        await supabase.auth.signOut()
-        userStore.reset()
-        await navigateTo('/auth/login')
-        return { success: true }
-      } catch (error: unknown) {
-        console.error('Sign out error:', error)
-        return { success: false, error: (error as Error).message }
-      }
-    },
-
-    // Admin helpers
-    requireAdmin: () => {
-      if (!userStore.isAdmin) {
-        throw createError({
-          statusCode: 403,
-          statusMessage: 'Admin access required'
-        })
-      }
-    },
+    // Admin helpers - use store methods which contain the necessary logic
+    requireAdmin: () => userStore.requireAdmin(),
 
     // Auth guards for components
-    requireAuth: () => {
-      if (!userStore.isAuthenticated) {
-        throw createError({
-          statusCode: 401,
-          statusMessage: 'Authentication required'
-        })
-      }
-    }
+    requireAuth: () => userStore.requireAuth(),
   }
 }

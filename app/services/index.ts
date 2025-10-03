@@ -4,13 +4,11 @@
  */
 
 // Service Classes (for advanced usage)
-export { AuthenticationService } from './AuthService'
 export { authService } from './AuthService'
 export { ReviewsService } from './ReviewsService'
-export { reviewsService } from './ReviewsService'
 export { OrderService } from './OrderService'
 export { BaseApiService } from './BaseApiService'
-export { apiService } from './BaseApiService'
+export { apiService } from './BaseApiService' // Singleton instance
 export { AnalyticsService } from './AnalyticsService'
 export { AdminService } from './AdminService'
 export { ProductService } from './ProductService'

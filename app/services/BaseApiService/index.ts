@@ -70,11 +70,6 @@ export class BaseApiService {
       // Prepare headers
       const requestHeaders = await this.prepareHeaders(headers, skipAuth)
 
-      // Log request if enabled
-      if (this.enableLogging) {
-        this.logRequest(requestId, method, url, { headers: requestHeaders, body })
-      }
-
       // Make request with retries
       const response = await this.makeRequestWithRetries<T>(
         url,
@@ -87,12 +82,6 @@ export class BaseApiService {
         retries,
         requestId
       )
-
-      // Log successful response
-      if (this.enableLogging) {
-        const duration = Date.now() - startTime
-        this.logResponse(requestId, response, duration)
-      }
 
       return response
 
@@ -248,10 +237,11 @@ export class BaseApiService {
     }
 
     // Add authentication header if not skipped and on client-side
-    if (!skipAuth && process.client) {
+    if (!skipAuth && import.meta.client) {
       try {
-        const { $supabase } = useNuxtApp()
-        const { data: { session } } = await $supabase.auth.getSession()
+        // Use the typed Supabase client composable instead of accessing unknown injected property
+        const supabase = useSupabaseClient()
+        const { data: { session } } = await supabase.auth.getSession()
 
         if (session?.access_token) {
           headers['Authorization'] = `Bearer ${session.access_token}`
@@ -364,7 +354,6 @@ export class BaseApiService {
     // Log error
     ErrorLogger.log(appError, {
       ...context,
-      duration,
       userAgent: process.client ? navigator.userAgent : undefined
     })
 
@@ -417,44 +406,6 @@ export class BaseApiService {
    */
   private sleep(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms))
-  }
-
-  /**
-   * Log request details
-   */
-  private logRequest(
-    requestId: string,
-    method: string,
-    url: string,
-    data?: { headers?: Record<string, string>; body?: unknown }
-  ): void {
-    console.log(`🚀 API Request [${requestId}]`, {
-      method,
-      url,
-      timestamp: new Date().toISOString(),
-      headers: data?.headers,
-      body: data?.body
-    })
-  }
-
-  /**
-   * Log response details
-   */
-  private logResponse<T>(
-    requestId: string,
-    response: ApiResponse<T>,
-    duration: number
-  ): void {
-    const logLevel = response.success ? 'log' : 'error'
-    const emoji = response.success ? '✅' : '❌'
-
-    console[logLevel](`${emoji} API Response [${requestId}]`, {
-      success: response.success,
-      duration: `${duration}ms`,
-      timestamp: new Date().toISOString(),
-      error: response.error,
-      dataType: response.data ? typeof response.data : null
-    })
   }
 }
 

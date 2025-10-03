@@ -5,6 +5,14 @@
 
 export type UserRole = 'customer' | 'admin' | 'moderator'
 
+export interface AuthState {
+  user: AuthUser | null
+  profile: UserProfile | null
+  isAuthenticated: boolean
+  isLoading: boolean
+  error: String | Error | null
+}
+
 export interface AuthUser {
   id: string
   email: string

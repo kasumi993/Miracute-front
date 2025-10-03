@@ -1,4 +1,4 @@
-import { addToBrevoNewsletter, sendBrevoWelcomeEmail } from '~/server/services/email/newsletterService'
+import { addToBrevoNewsletter } from '../../utils/email'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -39,16 +39,6 @@ export default defineEventHandler(async (event) => {
       // If it's not a "contact already exists" error, throw it
       if (!brevoResult.message?.includes('already exist')) {
         throw new Error(brevoResult.error)
-      }
-    }
-
-    // Send welcome email if this is a new subscription
-    if (brevoResult.success && brevoResult.contactId) {
-      try {
-        await sendBrevoWelcomeEmail({ email: body.email, firstName })
-      } catch (welcomeError) {
-        console.error('Failed to send welcome email:', welcomeError)
-        // Don't fail the subscription if welcome email fails
       }
     }
 

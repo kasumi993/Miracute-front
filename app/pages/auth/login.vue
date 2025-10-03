@@ -100,7 +100,7 @@
             <Icon name="heroicons:exclamation-triangle" class="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
             <div class="text-sm text-yellow-800">
               <p class="font-medium">Having trouble with magic links?</p>
-              <p class="mt-1">Magic links can be unreliable in development. Try Google sign-in as an alternative.</p>
+              <p class="mt-1">Try Google sign-in as an alternative.</p>
             </div>
           </div>
         </div>

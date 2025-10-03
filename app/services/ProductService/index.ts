@@ -16,22 +16,18 @@ import { getProducts as _getProducts } from './get'
 export const ProductService = {
   // GET methods
   getProducts: _getProducts,
-  getProductsWithReviews: (filters?: any, pagination?: any) => import('./get').then(m => m.getProductsWithReviews(filters, pagination)),
   getProduct: (id: string) => import('./get').then(m => m.getProduct(id)),
   getProductBySlug: (slug: string) => import('./get').then(m => m.getProductBySlug(slug)),
   searchProducts: (query: string, filters?: any, pagination?: any) => import('./get').then(m => m.searchProducts(query, filters, pagination)),
   getProductsByCategory: (categoryId: string, filters?: any, pagination?: any) => import('./get').then(m => m.getProductsByCategory(categoryId, filters, pagination)),
   getPopularProducts: (limit?: number) => import('./get').then(m => m.getPopularProducts(limit)),
   getFeaturedProducts: (limit?: number) => import('./get').then(m => m.getFeaturedProducts(limit)),
-  getNewestProducts: (limit?: number) => import('./get').then(m => m.getNewestProducts(limit)),
   getRelatedProducts: (productId: string, categoryId?: string, limit?: number) => import('./get').then(m => m.getRelatedProducts(productId, categoryId, limit)),
   getProductsByTemplateType: (templateType: string, filters?: any, pagination?: any) => import('./get').then(m => m.getProductsByTemplateType(templateType, filters, pagination)),
   getProductsByPriceRange: (minPrice: number, maxPrice: number, filters?: any, pagination?: any) => import('./get').then(m => m.getProductsByPriceRange(minPrice, maxPrice, filters, pagination)),
   getRecommendedProducts: (limit?: number) => import('./get').then(m => m.getRecommendedProducts(limit)),
   getSaleProducts: (filters?: any, pagination?: any) => import('./get').then(m => m.getSaleProducts(filters, pagination)),
   getProductVariants: (productId: string) => import('./get').then(m => m.getProductVariants(productId)),
-  getProductReviewsCount: (productId: string) => import('./get').then(m => m.getProductReviewsCount(productId)),
-  checkProductAvailability: (productId: string) => import('./get').then(m => m.checkProductAvailability(productId)),
 
   // POST methods
   createProduct: (productData: any) => import('./post').then(m => m.createProduct(productData)),

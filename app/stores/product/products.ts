@@ -220,28 +220,6 @@ export const useProductsStore = defineStore('products', {
       }
     },
 
-    // Fetch recent products
-    async fetchRecentProducts(limit = 8) {
-      if (this.recentProducts.length > 0 && !this.isDataStale) {return}
-
-      this.setLoading('recent', true)
-      this.setError(null)
-
-      try {
-        const response = await ProductService.getNewestProducts(limit)
-
-        if (response.success && response.data) {
-          this.recentProducts = response.data
-        } else {
-          throw new Error(response.error || 'Failed to fetch recent products')
-        }
-      } catch (error: any) {
-        console.error('Error fetching recent products:', error)
-        this.setError(error.message || 'Failed to fetch recent products')
-      } finally {
-        this.setLoading('recent', false)
-      }
-    },
 
     // Fetch single product
     async fetchProduct(id: string) {

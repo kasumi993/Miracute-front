@@ -1,84 +1,47 @@
 import { requireAdminAuthentication } from '../../../utils/auth'
-import type { Database } from '@/types/database'
+import type { Product, ApiResponse, ProductCreateInput } from '@/types'
+import { createApiResponse, handleSupabaseError, createApiError } from '../../../utils/apiResponse'
 
-export default defineEventHandler(async (event) => {
+// Utiliser ProductCreateInput ou un ProductUpdateInput si vous avez des différences
+export default defineEventHandler(async (event): Promise<ApiResponse<Product>> => {
   const { supabase } = await requireAdminAuthentication(event)
   const productId = getRouterParam(event, 'id')
 
   if (!productId) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Product ID is required'
-    })
+    throw createApiError('Product ID is required', 400)
   }
 
-  // Get the request body
-  const body = await readBody(event)
+  const body: ProductCreateInput = await readBody(event)
 
   if (!body) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Request body is required'
-    })
+    throw createApiError('Request body is required', 400)
   }
 
   try {
-    // Create a copy of body to potentially modify
-    const updateData = { ...body }
-
-    // Try to update with template_type first
-    let { data, error } = await supabase
+    const { data, error } = await supabase
       .from('products')
-      .update(updateData)
+      .update(body) // Mise à jour complète (PUT)
       .eq('id', productId)
       .select()
       .single()
 
-    // If error is about missing template_type column, try without it
-    if (error && error.message && error.message.includes('template_type')) {
-      const { template_type, ...updateDataWithoutTemplateType } = updateData
-
-      const result = await supabase
-        .from('products')
-        .update(updateDataWithoutTemplateType)
-        .eq('id', productId)
-        .select()
-        .single()
-
-      data = result.data
-      error = result.error
-    }
-
     if (error) {
-      if (error.code === 'PGRST116') {
-        throw createError({
-          statusCode: 404,
-          statusMessage: 'Product not found'
-        })
-      }
-      throw createError({
-        statusCode: 500,
-        statusMessage: 'Failed to update product',
-        data: error
-      })
+      handleSupabaseError(error, 'Update product (PUT)')
+    }
+    
+    if (!data) {
+        throw createApiError('Product not found or update failed.', 404)
     }
 
-    return {
-      success: true,
-      data
-    }
+    return createApiResponse(data as Product)
 
   } catch (error: any) {
-    console.error('Error updating product:', error)
-
+    if (error.statusCode === 404) {
+      throw createApiError('Product not found.', 404)
+    }
     if (error.statusCode) {
       throw error
     }
-
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Failed to update product',
-      data: error
-    })
+    handleSupabaseError(error, 'Update product (PUT)')
   }
 })

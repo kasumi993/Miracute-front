@@ -89,7 +89,7 @@ const isLoading = ref(true)
 const loadFeaturedProducts = async () => {
   try {
     const response = await ProductService.getFeaturedProducts(6)
-    products.value = response.data || []
+    products.value = response.data.items || []
   } catch (error) {
     console.error('Error loading featured products:', error)
     // Fallback to empty array - could add error state here

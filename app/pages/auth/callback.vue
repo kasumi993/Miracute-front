@@ -112,113 +112,25 @@
 <script setup>
 // SEO
 useSeoMeta({
-  title: 'Completing Sign In | Miracute',
-  description: 'Completing your authentication...',
   robots: 'noindex, nofollow'
 })
 
-// Composables
-const supabase = useSupabaseClient()
-const route = useRoute()
-const router = useRouter()
+const { getRedirectUrl } = useAuthRedirect()
 
 // State
+const userStore = useUserStore()
+const router = useRouter() 
+const toast = useToast()
+
 const isLoading = ref(true)
 const isSuccess = ref(false)
-const error = ref('')
+const error = ref<string | null>(null)
 const showResendForm = ref(false)
 const retryEmail = ref('')
 const isResending = ref(false)
 const resendSuccess = ref(false)
 const resendError = ref('')
 
-// State to prevent duplicate redirects
-const hasRedirected = ref(false)
-
-// Handle authentication callback
-const handleCallback = async () => {
-  if (hasRedirected.value) {
-    console.log('Already redirected, skipping callback handler')
-    return
-  }
-
-  try {
-    console.log('Starting auth callback handler...')
-    console.log('Current URL:', window.location.href)
-    
-    // Check if we have auth parameters in URL
-    const hashParams = new URLSearchParams(window.location.hash.substring(1))
-    const queryParams = new URLSearchParams(window.location.search)
-    
-    const hasAuthParams = hashParams.get('access_token') || 
-                         queryParams.get('code') || 
-                         hashParams.get('refresh_token')
-    
-    console.log('Has auth params:', !!hasAuthParams)
-    
-    if (hasAuthParams) {
-      console.log('Found auth tokens in URL, waiting for auth state change...')
-      // Let the auth state change listener handle the redirect
-      // Just wait here and let Supabase process the tokens
-      return
-    }
-    
-    // If no auth params, check current session
-    const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
-    
-    if (sessionError) {
-      console.error('Session error:', sessionError)
-      throw sessionError
-    }
-
-    if (sessionData.session) {
-      console.log('Found existing session, redirecting...')
-      performRedirect()
-    } else {
-      // Wait a bit more for potential auth state changes
-      setTimeout(() => {
-        if (!hasRedirected.value) {
-          console.error('Timeout: No authentication session found')
-          error.value = 'Authentication failed. The magic link may have expired or been used already. Please request a new one.'
-          isLoading.value = false
-        }
-      }, 3000)
-    }
-
-  } catch (err) {
-    console.error('Auth callback error:', err)
-    if (!hasRedirected.value) {
-      error.value = err.message || 'Authentication failed. Please try again.'
-      isLoading.value = false
-    }
-  }
-}
-
-// Centralized redirect function
-const performRedirect = () => {
-  if (hasRedirected.value) {
-    console.log('Already redirected, skipping')
-    return
-  }
-  
-  hasRedirected.value = true
-  console.log('Performing redirect...')
-  
-  // Update state to show success
-  isLoading.value = false
-  isSuccess.value = true
-  
-  const { getRedirectUrl } = useAuthRedirect()
-  // Check if user came from admin dashboard, redirect appropriately
-  const redirectTo = getRedirectUrl().includes('/dashboard') ? getRedirectUrl() : '/account'
-  
-  // Small delay to show success state, then redirect
-  setTimeout(() => {
-    navigateTo(redirectTo, { replace: true })
-  }, 800)
-}
-
-// Resend magic link functionality
 const showQuickResend = () => {
   showResendForm.value = true
   resendSuccess.value = false
@@ -233,73 +145,57 @@ const resendMagicLink = async () => {
   resendSuccess.value = false
   
   try {
-    // Build redirect URL preserving original destination
-    // Use localhost in development, production URL in production
-    const isDev = process.dev || window.location.hostname === 'localhost'
-    const baseUrl = isDev ? window.location.origin : (useRuntimeConfig().public.siteUrl || window.location.origin)
-    const redirectUrl = new URL(`${baseUrl}/auth/callback`)
-    if (route.query.redirect) {
-      redirectUrl.searchParams.set('redirect', route.query.redirect)
-    } else if (route.query.next) {
-      redirectUrl.searchParams.set('next', route.query.next)
-    } else if (route.query.returnTo) {
-      redirectUrl.searchParams.set('returnTo', route.query.returnTo)
-    }
-    
-    console.log('Resend - Development mode:', isDev)
-    console.log('Resend - Base URL:', baseUrl)
-
-    const { error: resendErr } = await supabase.auth.signInWithOtp({
-      email: retryEmail.value,
-      options: {
-        emailRedirectTo: redirectUrl.toString(),
-        shouldCreateUser: true,
-        data: {
-          timestamp: Date.now(),
-          request_id: Math.random().toString(36).substring(2, 15),
-          retry: true
-        }
-      }
-    })
-
-    if (resendErr) {
-      throw resendErr
-    }
+    await authService.sendMagicLink(retryEmail.value)
 
     resendSuccess.value = true
-    useToast().success('New magic link sent to your email!')
+    toast.success('New magic link sent to your email!')
     
   } catch (err) {
     console.error('Resend error:', err)
     resendError.value = err.message || 'Failed to send new magic link'
-    useToast().error('Failed to send new magic link')
+    toast.error('Failed to send new magic link')
   } finally {
     isResending.value = false
   }
 }
 
-// Initialize callback handling
-onMounted(async () => {
-  // Wait a bit for the page to fully load and Supabase to initialize
-  await new Promise(resolve => setTimeout(resolve, 500))
+// --- Core Logic ---
+
+const performRedirect = () => {
+  isLoading.value = false
+  isSuccess.value = true
   
-  // Listen for auth state changes
-  supabase.auth.onAuthStateChange((event, session) => {
-    console.log('Auth state change:', event, session?.user?.email)
-    
-    if (event === 'SIGNED_IN' && session) {
-      console.log('User signed in via state change')
-      performRedirect()
-    } else if (event === 'SIGNED_OUT') {
-      console.log('User signed out')
-      if (!hasRedirected.value) {
-        error.value = 'Authentication session expired. Please try again.'
-        isLoading.value = false
-      }
-    }
-  })
+  // Utilise l'URL stockée ou la destination par défaut
+  const redirectTarget = getRedirectUrl() || '/account'
   
-  // Start the main callback handler
-  handleCallback()
-})
+  // Petit délai pour afficher l'état de succès, puis redirection
+  setTimeout(() => {
+    router.replace(redirectTarget) 
+  }, 800)
+}
+
+/**
+ * Gère le flux de rappel en se fiant à l'état du store.
+ * La gestion des tokens Supabase est effectuée par le Pinia Store/Plugin.
+ */
+const handleCallback = async () => {
+  // 1. Attendre que le store termine son initialisation.
+  // Cela permet au store de capter l'événement SIGNED_IN ou de vérifier la session.
+  await userStore.ensureInitialized()
+
+  // 2. Vérification de l'état final du store
+  if (userStore.isAuthenticatedAndValid) {
+    // Si l'utilisateur est valide, on redirige.
+    performRedirect()
+  } else {
+    // Si l'état n'est pas valide après l'initialisation, c'est une erreur de lien.
+    error.value = 'Authentication failed. The magic link may have expired or been used already. Please request a new one.'
+    isLoading.value = false
+  }
+}
+
+// --- Initialization ---
+
+// Lance la gestion du rappel dès que le composant est monté et que les composables sont prêts.
+handleCallback()
 </script>

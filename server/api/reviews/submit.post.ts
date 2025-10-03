@@ -1,6 +1,6 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 import type { Database } from '@/types/database'
-import { sendBrevoNewReviewNotification } from '~/server/services/email/reviewService'
+import { sendBrevoNewReviewNotification } from '../../utils/email'
 
 export default defineEventHandler(async (event) => {
   console.log('Review submit API called')

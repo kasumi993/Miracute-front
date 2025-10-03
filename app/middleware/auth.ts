@@ -1,39 +1,20 @@
-/**
- * Professional Authentication Middleware
- * Centralized, secure authentication checking with proper error handling
- */
-
+import { useUserStore } from '~/stores/auth/user'
 import type { RouteLocationNormalized } from 'vue-router'
-import { authService } from '@/services'
 
 /**
- * Require user to be authenticated
- * Redirects to login if not authenticated
+ * Exige que l'utilisateur soit authentifié.
+ * Redirige vers la page de connexion si l'utilisateur n'est pas authentifié.
  */
 export default defineNuxtRouteMiddleware(
   async (to: RouteLocationNormalized) => {
-    // Skip on server-side during SSR
-    if (process.server) {return}
+    const userStore = useUserStore()
 
-    try {
-      // Initialize auth service once
-      await authService.initialize()
+    // Attendre que le store Pinia ait complété son initialisation (récupération de session/profil).
+    await userStore.ensureInitialized()
 
-      // Get current auth state after initialization
-      const authState = authService.getAuthState()
-
-      // If not authenticated, redirect to login
-      if (!authState.isAuthenticated) {
-        return navigateTo(`/auth/login?redirect=${encodeURIComponent(to.fullPath)}`)
-      }
-
-      // Check if email is verified (optional - uncomment if needed)
-      // if (!authState.user?.emailConfirmed) {
-      //   return navigateTo('/auth/verify-email')
-      // }
-
-    } catch (error) {
-      console.error('Auth middleware error:', error)
+    // Vérification de l'état d'authentification.
+    if (!userStore.isAuthenticatedAndValid) {
+      // Si non authentifié, rediriger vers la page de connexion, en conservant la destination.
       return navigateTo(`/auth/login?redirect=${encodeURIComponent(to.fullPath)}`)
     }
   }

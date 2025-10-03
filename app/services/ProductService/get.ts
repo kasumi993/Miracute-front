@@ -1,4 +1,4 @@
-import type { ProductWithCategory, ProductWithReviewStats, ApiResponse, SearchResponse } from '@/types/database'
+import type { ProductWithCategory, ApiResponse, SearchResponse } from '@/types'
 import { BaseApiService } from '../BaseApiService'
 
 export interface ProductFilters {
@@ -9,6 +9,8 @@ export interface ProductFilters {
   max_price?: number
   template_type?: string
   sort?: 'newest' | 'oldest' | 'price_low' | 'price_high' | 'popular'
+  featured?: boolean // Ajouté pour le support des filtres
+  on_sale?: boolean
 }
 
 export interface ProductPaginationParams {
@@ -25,98 +27,14 @@ export const getProducts = async (
   filters: ProductFilters = {},
   pagination: ProductPaginationParams = {}
 ): Promise<ApiResponse<SearchResponse<ProductWithCategory>>> => {
-  console.log('ProductService.getProducts called with:', { filters, pagination })
-
-  // Check if we're running on the client side
-  if (process.server) {
-    console.log('ProductService.getProducts: Running on server side, using $fetch directly')
-
-    const query = new URLSearchParams()
-    Object.entries({
-      ...filters,
-      page: (pagination.page || 1).toString(),
-      limit: (pagination.limit || 12).toString()
-    }).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== '') {
-        query.append(key, String(value))
-      }
-    })
-
-    const url = `/api/products?${query.toString()}`
-    console.log('ProductService.getProducts: Making server-side request to:', url)
-
-    try {
-      const response = await $fetch<ApiResponse<SearchResponse<ProductWithCategory>>>(url)
-      console.log('ProductService.getProducts: Server-side response:', response)
-      return response
-    } catch (error) {
-      console.error('ProductService.getProducts: Server-side error:', error)
-      return {
-        success: false,
-        error: 'Failed to fetch products on server',
-        data: null as any
-      }
-    }
-  }
 
   const query = {
     ...filters,
     page: pagination.page || 1,
     limit: pagination.limit || 12
   }
-
-  const result = await baseService.get<SearchResponse<ProductWithCategory>>('/products', query)
-  return result
-}
-
-/**
- * Get paginated list of products with review statistics
- */
-export const getProductsWithReviews = async (
-  filters: ProductFilters = {},
-  pagination: ProductPaginationParams = {}
-): Promise<ApiResponse<SearchResponse<ProductWithReviewStats>>> => {
-  console.log('ProductService.getProductsWithReviews called with:', { filters, pagination })
-
-  // Check if we're running on the client side
-  if (process.server) {
-    console.log('ProductService.getProductsWithReviews: Running on server side, using $fetch directly')
-
-    const query = new URLSearchParams()
-    Object.entries({
-      ...filters,
-      page: (pagination.page || 1).toString(),
-      limit: (pagination.limit || 12).toString()
-    }).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== '') {
-        query.append(key, String(value))
-      }
-    })
-
-    const url = `/api/products/with-reviews?${query.toString()}`
-    console.log('ProductService.getProductsWithReviews: Making server-side request to:', url)
-
-    try {
-      const response = await $fetch<ApiResponse<SearchResponse<ProductWithReviewStats>>>(url)
-      console.log('ProductService.getProductsWithReviews: Server-side response:', response)
-      return response
-    } catch (error) {
-      console.error('ProductService.getProductsWithReviews: Server-side error:', error)
-      return {
-        success: false,
-        error: 'Failed to fetch products with reviews on server',
-        data: null as any
-      }
-    }
-  }
-
-  const query = {
-    ...filters,
-    page: pagination.page || 1,
-    limit: pagination.limit || 12
-  }
-
-  return baseService.get<SearchResponse<ProductWithReviewStats>>('/products/with-reviews', query)
+ 
+  return baseService.get<SearchResponse<ProductWithCategory>>('/products', query)
 }
 
 /**
@@ -156,6 +74,46 @@ export const getProductsByCategory = async (
 }
 
 /**
+ * Get products by template type
+ */
+export const getProductsByTemplateType = async (
+  templateType: string,
+  filters: Omit<ProductFilters, 'template_type'> = {},
+  pagination: ProductPaginationParams = {}
+): Promise<ApiResponse<SearchResponse<ProductWithCategory>>> => {
+  return getProducts({ ...filters, template_type: templateType }, pagination)
+}
+
+/**
+ * Get products by price range
+ */
+export const getProductsByPriceRange = async (
+  minPrice: number,
+  maxPrice: number,
+  filters: Omit<ProductFilters, 'min_price' | 'max_price'> = {},
+  pagination: ProductPaginationParams = {}
+): Promise<ApiResponse<SearchResponse<ProductWithCategory>>> => {
+  return getProducts({ ...filters, min_price: minPrice, max_price: maxPrice }, pagination)
+}
+
+/**
+ * Get products on sale
+ */
+export const getSaleProducts = async (
+  filters: ProductFilters = {},
+  pagination: ProductPaginationParams = {}
+): Promise<ApiResponse<SearchResponse<ProductWithCategory>>> => {
+  return getProducts({ ...filters, on_sale: true }, pagination)
+}
+
+/**
+ * Get product recommendations based on user behavior
+ */
+export const getRecommendedProducts = async (limit = 6): Promise<ApiResponse<ProductWithCategory[]>> => {
+  return baseService.get<ProductWithCategory[]>('/products/recommendations', { limit })
+}
+
+/**
  * Get popular products
  */
 export const getPopularProducts = async (limit = 8): Promise<ApiResponse<ProductWithCategory[]>> => {
@@ -182,6 +140,7 @@ export const getFeaturedProducts = async (limit = 6): Promise<ApiResponse<Produc
     featured: true,
     limit
   })
+  console.log('getFeaturedProducts response:', response)
 
   if (response.success && response.data?.data) {
     return {
@@ -193,24 +152,6 @@ export const getFeaturedProducts = async (limit = 6): Promise<ApiResponse<Produc
   return response as any
 }
 
-/**
- * Get newest products
- */
-export const getNewestProducts = async (limit = 8): Promise<ApiResponse<ProductWithCategory[]>> => {
-  const response = await baseService.get<SearchResponse<ProductWithCategory>>('/products', {
-    sort: 'newest',
-    limit
-  })
-
-  if (response.success && response.data?.data) {
-    return {
-      success: true,
-      data: response.data.data
-    }
-  }
-
-  return response as any
-}
 
 /**
  * Get related products (products in same category)
@@ -226,6 +167,7 @@ export const getRelatedProducts = async (
   }
 
   const response = await getProducts(filters)
+  console.log('getRelatedProducts response:', response)
 
   if (response.success && response.data?.data) {
     // Filter out the current product and limit results
@@ -242,45 +184,9 @@ export const getRelatedProducts = async (
   return response as any
 }
 
-/**
- * Get products by template type
- */
-export const getProductsByTemplateType = async (
-  templateType: string,
-  filters: Omit<ProductFilters, 'template_type'> = {},
-  pagination: ProductPaginationParams = {}
-): Promise<ApiResponse<SearchResponse<ProductWithCategory>>> => {
-  return getProducts({ ...filters, template_type: templateType }, pagination)
-}
 
-/**
- * Get products by price range
- */
-export const getProductsByPriceRange = async (
-  minPrice: number,
-  maxPrice: number,
-  filters: Omit<ProductFilters, 'min_price' | 'max_price'> = {},
-  pagination: ProductPaginationParams = {}
-): Promise<ApiResponse<SearchResponse<ProductWithCategory>>> => {
-  return getProducts({ ...filters, min_price: minPrice, max_price: maxPrice }, pagination)
-}
 
-/**
- * Get product recommendations based on user behavior
- */
-export const getRecommendedProducts = async (limit = 6): Promise<ApiResponse<ProductWithCategory[]>> => {
-  return baseService.get<ProductWithCategory[]>('/products/recommendations', { limit })
-}
 
-/**
- * Get products on sale
- */
-export const getSaleProducts = async (
-  filters: ProductFilters = {},
-  pagination: ProductPaginationParams = {}
-): Promise<ApiResponse<SearchResponse<ProductWithCategory>>> => {
-  return getProducts({ ...filters, on_sale: true }, pagination)
-}
 
 /**
  * Get product variants
@@ -289,16 +195,3 @@ export const getProductVariants = async (productId: string): Promise<ApiResponse
   return baseService.get<any[]>(`/products/${productId}/variants`)
 }
 
-/**
- * Get product reviews count
- */
-export const getProductReviewsCount = async (productId: string): Promise<ApiResponse<{ count: number; average_rating: number }>> => {
-  return baseService.get<{ count: number; average_rating: number }>(`/products/${productId}/reviews/count`)
-}
-
-/**
- * Check product availability
- */
-export const checkProductAvailability = async (productId: string): Promise<ApiResponse<{ available: boolean; stock?: number }>> => {
-  return baseService.get<{ available: boolean; stock?: number }>(`/products/${productId}/availability`)
-}

@@ -507,12 +507,6 @@ export type ProductWithCategory = Product & {
   category: Category | null
 }
 
-export type ProductWithReviewStats = Product & {
-  category: Category | null
-  review_count: number
-  average_rating: number
-}
-
 export type OrderWithItems = Order & {
   order_items: (OrderItem & {
     product: Product

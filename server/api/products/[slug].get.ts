@@ -1,28 +1,21 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
-import type { Database } from '@/types/database'
+import type { Database, ProductWithCategory, ApiResponse } from '@/types/database'
+import { createApiResponse, createApiError, handleSupabaseError } from '../../utils/apiResponse'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (event): Promise<ApiResponse<ProductWithCategory | null>> => {
+  const supabase = serverSupabaseServiceRole<Database>(event)
   const slug = getRouterParam(event, 'slug')
 
   if (!slug) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Product slug is required'
-    })
+    throw createApiError('Product slug is required', 400)
   }
 
   try {
-    const supabase = await serverSupabaseServiceRole<Database>(event)
-
-    const { data: product, error } = await supabase
+    const { data, error } = await supabase
       .from('products')
       .select(`
         *,
-        category:categories(
-          id,
-          name,
-          slug
-        )
+        category:categories(*)
       `)
       .eq('slug', slug)
       .eq('is_active', true)
@@ -30,34 +23,22 @@ export default defineEventHandler(async (event) => {
 
     if (error) {
       if (error.code === 'PGRST116') {
-        throw createError({
-          statusCode: 404,
-          statusMessage: 'Product not found'
-        })
+        return createApiResponse(null) // Not found
       }
-
-      console.error('Product fetch error:', error)
-      throw createError({
-        statusCode: 500,
-        statusMessage: 'Failed to fetch product'
-      })
+      handleSupabaseError(error, 'Fetch product by Slug')
     }
 
-    return {
-      success: true,
-      data: product
+    // Increment view count asynchronously
+    if (data) {
+      supabase.rpc('increment_view_count', { product_id: data.id }).then().catch(console.warn)
     }
+
+    return createApiResponse(data as ProductWithCategory)
 
   } catch (error: any) {
-    console.error('Product API error:', error)
-
     if (error.statusCode) {
       throw error
     }
-
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Internal server error while fetching product'
-    })
+    handleSupabaseError(error, 'Fetch product by Slug')
   }
 })

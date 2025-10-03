@@ -1,11 +1,11 @@
-import type { ApiResponse } from '@/types/database'
+import type { ApiResponse, UserProfile } from '@/types'
 import { BaseApiService } from '../BaseApiService'
 
-const baseService = new BaseApiService()
+const baseService = new BaseApiService({ baseUrl: '/api/auth' })
 
 /**
- * Update user profile
+ * Update user profile (calls server/api/auth/user.ts PATCH)
  */
-export const updateUser = async (updates: any): Promise<ApiResponse<any>> => {
-  return baseService.patch<any>('/auth/user', updates)
+export const updateProfile = async (updates: Record<string, any>): Promise<ApiResponse<{ user: UserProfile }>> => {
+  return baseService.patch<{ user: UserProfile }>('/user', updates)
 }

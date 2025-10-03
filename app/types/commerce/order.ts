@@ -1,11 +1,9 @@
-/**
- * Order Types
- * Types for orders, payments, and fulfillment
- */
-
 import type { Product } from '../catalog/product'
-import type { UserProfile } from '../auth/user'
+import type { UserProfile } from '../auth/user' // Import centralisé
 
+/**
+ * Status of an order in the fulfillment process.
+ */
 export type OrderStatus =
   | 'pending'
   | 'processing'
@@ -14,6 +12,9 @@ export type OrderStatus =
   | 'refunded'
   | 'failed'
 
+/**
+ * Status of the payment transaction.
+ */
 export type PaymentStatus =
   | 'pending'
   | 'processing'
@@ -22,11 +23,28 @@ export type PaymentStatus =
   | 'cancelled'
   | 'refunded'
 
+/**
+ * Order address information (billing or shipping).
+ * Used for both input and final structure.
+ */
+export interface Address {
+  firstName: string
+  lastName: string
+  company?: string
+  address1: string
+  address2?: string
+  city: string
+  province: string
+  postalCode: string
+  country: string
+  phone?: string
+}
+
 export interface Order {
   id: string
   orderNumber: string
   userId: string
-  user: UserProfile
+  user: UserProfile // Utilise UserProfile
   customerEmail: string
   customerFirstName: string
   customerLastName: string
@@ -61,13 +79,16 @@ export interface OrderItem {
   downloadExpiresAt?: string
 }
 
+/**
+ * Input structure for creating a new order.
+ */
 export interface OrderCreateInput {
   customerEmail: string
   customerFirstName: string
   customerLastName: string
   customerPhone?: string
   items: OrderItemInput[]
-  billingAddress?: AddressInput
+  billingAddress?: Address // Utilise Address
   notes?: string
 }
 
@@ -86,30 +107,4 @@ export interface DownloadToken {
   maxDownloads: number
   expiresAt: string
   createdAt: string
-}
-
-export interface Address {
-  firstName: string
-  lastName: string
-  company?: string
-  address1: string
-  address2?: string
-  city: string
-  province: string
-  postalCode: string
-  country: string
-  phone?: string
-}
-
-export interface AddressInput {
-  firstName: string
-  lastName: string
-  company?: string
-  address1: string
-  address2?: string
-  city: string
-  province: string
-  postalCode: string
-  country: string
-  phone?: string
 }

@@ -124,30 +124,5 @@
 </template>
 
 <script setup>
-const searchQuery = ref('')
 
-// Popular search terms for templates
-const popularSearches = ref([
-  'wedding websites',
-  'business templates',
-  'therapy sites',
-  'portfolio designs',
-  'canva templates'
-])
-
-// Top categories for navigation bar
-const topCategories = ref([
-  { name: 'Wedding', slug: 'wedding-templates', icon: 'heroicons:heart' },
-  { name: 'Business', slug: 'business-templates', icon: 'heroicons:briefcase' },
-  { name: 'Wellness', slug: 'therapist-templates', icon: 'heroicons:hand-raised' },
-  { name: 'Portfolio', slug: 'portfolio-templates', icon: 'heroicons:photo' },
-  { name: 'Canva', slug: 'canva-designs', icon: 'heroicons:paint-brush' },
-  { name: 'New', slug: 'new-templates', icon: 'heroicons:sparkles' }
-])
-
-const performSearch = () => {
-  if (searchQuery.value.trim()) {
-    navigateTo(`/search?q=${encodeURIComponent(searchQuery.value)}`)
-  }
-}
 </script>

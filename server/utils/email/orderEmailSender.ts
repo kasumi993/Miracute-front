@@ -136,7 +136,7 @@ export async function sendBrevoAdminOrderNotification(orderData: any) {
 
   return await sendBrevoEmail({
     to: [{ email: 'hello@miracute.com', name: 'Miracute Admin' }],
-    subject: `🎉 New Order #${orderData.order_number} - $${totalAmount}`,
+    subject: `🎉 Cha-ching! New Order #${orderData.order_number} - $${totalAmount}`,
     htmlContent,
     sender: { email: 'hello@miracute.com', name: 'Miracute Orders' }
   })

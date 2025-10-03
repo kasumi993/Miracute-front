@@ -1,49 +1,38 @@
 import { requireAdminAuthentication } from '../../../utils/auth'
-import type { Database } from '@/types/database'
+import type { ApiResponse } from '@/types'
+import { createApiResponse, handleSupabaseError, createApiError } from '../../../utils/apiResponse'
 
-export default defineEventHandler(async (event) => {
+/**
+ * Endpoint pour supprimer un produit par son ID.
+ */
+export default defineEventHandler(async (event): Promise<ApiResponse<null>> => {
   const productId = getRouterParam(event, 'id')
 
   if (!productId) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Product ID is required'
-    })
+    throw createApiError('Product ID is required', 400)
   }
 
+  // 1. Authentification
   const { supabase } = await requireAdminAuthentication(event)
 
   try {
-    // Delete the product
+    // 2. Suppression du produit
     const { error } = await supabase
       .from('products')
       .delete()
       .eq('id', productId)
 
     if (error) {
-      throw createError({
-        statusCode: 500,
-        statusMessage: 'Failed to delete product',
-        data: error
-      })
+      handleSupabaseError(error, 'Delete product')
     }
-
-    return {
-      success: true,
-      message: 'Product deleted successfully'
-    }
+    // Suppression réussie
+    return createApiResponse(null, 'Product deleted successfully')
 
   } catch (error: any) {
-    console.error('Error deleting product:', error)
-
+    // 3. Gestion centralisée des erreurs
     if (error.statusCode) {
       throw error
     }
-
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Failed to delete product',
-      data: error
-    })
+    handleSupabaseError(error, 'Delete product')
   }
 })

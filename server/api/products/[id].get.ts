@@ -1,13 +1,13 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 import type { Database, ProductWithCategory, ApiResponse } from '@/types/database'
-import { createApiResponse, createApiError, handleSupabaseError } from '../../../server/utils/apiResponse'
+import { createApiResponse, createApiError, handleSupabaseError } from '../../utils/apiResponse'
 
 export default defineEventHandler(async (event): Promise<ApiResponse<ProductWithCategory | null>> => {
   const supabase = serverSupabaseServiceRole<Database>(event)
-  const slug = getRouterParam(event, 'id')
+  const productId = getRouterParam(event, 'id')
 
-  if (!slug) {
-    createApiError('Product slug is required', 400)
+  if (!productId) {
+    throw createApiError('Product ID is required', 400)
   }
 
   try {
@@ -15,21 +15,25 @@ export default defineEventHandler(async (event): Promise<ApiResponse<ProductWith
       .from('products')
       .select(`
         *,
-        category:categories(*)
+        category:categories(*),
+        review_count:reviews(count),
+        average_rating:reviews(average_rating:avg(rating))
       `)
-      .eq('slug', slug)
+      .eq('id', productId)
       .eq('is_active', true)
       .single()
 
     if (error) {
       if (error.code === 'PGRST116') {
-        return createApiResponse(null)
+        return createApiResponse(null) // Not found
       }
-      handleSupabaseError(error, 'Fetch product')
+      handleSupabaseError(error, 'Fetch product by ID')
     }
 
-    // Increment view count asynchronously without waiting
-    supabase.rpc('increment_view_count', { product_id: data?.id }).then().catch(console.warn)
+    // Increment view count asynchronously
+    if (data) {
+      supabase.rpc('increment_view_count', { product_id: data.id }).then().catch(console.warn)
+    }
 
     return createApiResponse(data as ProductWithCategory)
 
@@ -37,6 +41,6 @@ export default defineEventHandler(async (event): Promise<ApiResponse<ProductWith
     if (error.statusCode) {
       throw error
     }
-    handleSupabaseError(error, 'Fetch product')
+    handleSupabaseError(error, 'Fetch product by ID')
   }
 })

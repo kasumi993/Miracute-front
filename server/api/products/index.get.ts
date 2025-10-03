@@ -1,6 +1,7 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
-import type { Database, ProductSearchFilters, SearchResponse, ProductWithCategory, ApiResponse } from '@/types/database'
-import { createApiResponse, handleSupabaseError } from '../../../server/utils/apiResponse'
+import type { Database, ProductSearchFilters, SearchResponse, ApiResponse, ProductWithCategory } from '@/types/database'
+import { createApiResponse, handleSupabaseError } from '../../utils/apiResponse'
+
 
 export default defineEventHandler(async (event): Promise<ApiResponse<SearchResponse<ProductWithCategory>>> => {
   const supabase = serverSupabaseServiceRole<Database>(event)
@@ -26,9 +27,7 @@ export default defineEventHandler(async (event): Promise<ApiResponse<SearchRespo
   const excludeId = query.exclude as string
 
   try {
-    console.log('Products API: Received query parameters:', query)
-    console.log('Products API: Parsed filters:', filters)
-
+    // 2. Base Query and Filter Application
     let dbQuery = supabase
       .from('products')
       .select(`
@@ -36,66 +35,38 @@ export default defineEventHandler(async (event): Promise<ApiResponse<SearchRespo
         category:categories(*)
       `, { count: 'exact' })
       .eq('is_active', true)
-
-    if (filters.category) {
-      dbQuery = dbQuery.eq('category_id', filters.category)
-    }
-
-    if (filters.minPrice !== undefined) {
-      dbQuery = dbQuery.gte('price', filters.minPrice.toString())
-    }
-
-    if (filters.maxPrice !== undefined) {
-      dbQuery = dbQuery.lte('price', filters.maxPrice.toString())
-    }
-
-    if (filters.featured) {
-      dbQuery = dbQuery.eq('is_featured', true)
-    }
-
-    if (filters.difficulty) {
-      dbQuery = dbQuery.eq('difficulty_level', filters.difficulty)
-    }
-
-    if (filters.tags && filters.tags.length > 0) {
-      dbQuery = dbQuery.overlaps('tags', filters.tags)
-    }
-
-    if (filters.software && filters.software.length > 0) {
-      dbQuery = dbQuery.overlaps('software_required', filters.software)
-    }
-
-    if (excludeId) {
-      dbQuery = dbQuery.neq('id', excludeId)
-    }
-
+      
+    if (filters.category) { dbQuery = dbQuery.eq('category_id', filters.category) }
+    if (filters.minPrice !== undefined) { dbQuery = dbQuery.gte('price', filters.minPrice.toString()) }
+    if (filters.maxPrice !== undefined) { dbQuery = dbQuery.lte('price', filters.maxPrice.toString()) }
+    if (filters.featured) { dbQuery = dbQuery.eq('is_featured', true) }
+    if (filters.difficulty) { dbQuery = dbQuery.eq('difficulty_level', filters.difficulty) }
+    if (filters.tags && filters.tags.length > 0) { dbQuery = dbQuery.overlaps('tags', filters.tags) }
+    if (filters.software && filters.software.length > 0) { dbQuery = dbQuery.overlaps('software_required', filters.software) }
+    if (excludeId) { dbQuery = dbQuery.neq('id', excludeId) }
+    
     if (filters.search) {
       const searchTerm = filters.search.trim().toLowerCase()
       dbQuery = dbQuery.or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,short_description.ilike.%${searchTerm}%`)
     }
 
+    // 3. Apply Sorting
     switch (filters.sortBy) {
-      case 'price_asc':
-        dbQuery = dbQuery.order('price', { ascending: true })
+      case 'price_asc': dbQuery = dbQuery.order('price', { ascending: true })
         break
-      case 'price_desc':
-        dbQuery = dbQuery.order('price', { ascending: false })
+      case 'price_desc': dbQuery = dbQuery.order('price', { ascending: false })
         break
-      case 'oldest':
-        dbQuery = dbQuery.order('created_at', { ascending: true })
+      case 'oldest': dbQuery = dbQuery.order('created_at', { ascending: true })
         break
-      case 'popular':
-        dbQuery = dbQuery.order('view_count', { ascending: false })
+      case 'popular': dbQuery = dbQuery.order('view_count', { ascending: false })
         break
-      case 'rating':
-        dbQuery = dbQuery.order('created_at', { ascending: false })
-        break
+      case 'rating': // Fallback as direct sorting is complex
       case 'newest':
-      default:
-        dbQuery = dbQuery.order('created_at', { ascending: false })
+      default: dbQuery = dbQuery.order('created_at', { ascending: false })
         break
     }
 
+    // 4. Execute Query
     dbQuery = dbQuery.range(offset, offset + limit - 1)
 
     const { data, count, error } = await dbQuery
@@ -128,9 +99,6 @@ export default defineEventHandler(async (event): Promise<ApiResponse<SearchRespo
     return createApiResponse(searchResponse)
 
   } catch (error: any) {
-    if (error.statusCode) {
-      throw error
-    }
     handleSupabaseError(error, 'Fetch products')
   }
 })

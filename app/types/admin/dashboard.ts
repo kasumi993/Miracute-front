@@ -1,17 +1,14 @@
-/**
- * Admin Dashboard Types
- * Types for admin dashboard statistics and analytics
- */
+// types/admin/dashboard.ts
 
 import type { Order } from '../commerce/order'
 import type { Product } from '../catalog/product'
-import type { UserProfile } from '../auth/user'
+import type { UserProfile } from '../auth/user' // Import centralisé
 
 export interface DashboardStats {
   overview: DashboardOverview
   recentOrders: Order[]
   topProducts: ProductWithSales[]
-  recentCustomers: UserProfile[]
+  recentCustomers: UserProfile[] // Utilise UserProfile
   revenueByPeriod: RevenueByPeriod[]
   productStats: ProductStats
   customerStats: CustomerStats

@@ -442,8 +442,7 @@
 // Import the ReviewForm component explicitly
 import ReviewForm from '@/components/Reviews/ReviewForm.vue'
 import Modal from '@/components/UI/Modal.vue'
-import * as ReviewService from '@/services/ReviewsService/get'
-import { updateReview, deleteReview as deleteReviewService, addReviewEditNote, toggleReviewAnonymity } from '@/services/ReviewsService/post'
+import { ReviewsService } from '@/services'
 
 // Types matching the UI expectations (snake_case as returned by API/UI usage)
 interface ReviewUser {
@@ -506,7 +505,7 @@ const editForm = reactive({
 const fetchReviews = async () => {
   try {
     isLoading.value = true
-    const response = await ReviewService.getProductReviews(props.productId)
+    const response = await ReviewsService.getProductReviews(props.productId)
 
     if (response.success && response.data) {
       reviews.value = (response.data as any).reviews as ReviewListItem[]
@@ -528,7 +527,7 @@ const handleReviewSuccess = (newReview: any) => {
   // Try to refresh all reviews (if provided by parent)
   const refreshAllReviews = inject('refreshAllReviews', null)
   if (refreshAllReviews) {
-    refreshAllReviews()
+    ReviewsService.refreshAllReviews()
   } else {
     // Fallback: refresh only this component
     fetchReviews()
@@ -591,7 +590,7 @@ const submitEditReview = async () => {
   isEditingReview.value = true
 
   try {
-    const response = await updateReview(editingReview.value.id, {
+    const response = await ReviewsService.updateReview(editingReview.value.id, {
       rating: editForm.rating,
       title: editForm.title.trim() || undefined,
       content: editForm.comment.trim() || undefined
@@ -604,7 +603,7 @@ const submitEditReview = async () => {
       // Refresh reviews
       const refreshAllReviews = inject('refreshAllReviews', null)
       if (refreshAllReviews) {
-        refreshAllReviews()
+        ReviewsService.refreshAllReviews()
       } else {
         fetchReviews()
       }
@@ -629,7 +628,7 @@ const deleteReview = async (reviewId: string) => {
   }
 
   try {
-    const response = await deleteReviewService(reviewId)
+    const response = await ReviewsService.deleteReview(reviewId)
 
     if (response.success) {
       toast.success('Review deleted successfully!')
@@ -637,7 +636,7 @@ const deleteReview = async (reviewId: string) => {
       // Refresh reviews
       const refreshAllReviews = inject('refreshAllReviews', null)
       if (refreshAllReviews) {
-        refreshAllReviews()
+        ReviewsService.refreshAllReviews()
       } else {
         fetchReviews()
       }
@@ -656,7 +655,7 @@ const toggleAnonymity = async (review: any) => {
   const toast = useToast()
 
   try {
-    const response = await toggleReviewAnonymity(review.id, !review.is_anonymous)
+    const response = await ReviewsService.toggleReviewAnonymity(review.id, !review.is_anonymous)
 
     if (response.success) {
       toast.success(response.data.message)
@@ -689,7 +688,7 @@ const addEditNote = async (review: any) => {
   const toast = useToast()
 
   try {
-    const response = await addReviewEditNote(review.id, {
+    const response = await ReviewsService.addReviewEditNote(review.id, {
       note: noteText.trim(),
       note_type: 'edit'
     })

@@ -1,38 +1,48 @@
 // Unified admin access guard composable
+import { useAuth } from './useAuth'
+import { authService } from '~/services' // Use the pure service
+import { useUserStore } from '~/stores/auth/user'
+
 export const useAdminGuard = () => {
   const auth = useAuth()
+  const userStore = useUserStore()
   const isCheckingAccess = ref(true)
   const hasAdminAccess = ref(false)
   const adminError = ref<string | null>(null)
+  const { getLoginUrl } = useAuthRedirect() // Access to redirect helper
 
-  // Check admin access on initialization
   const checkAdminAccess = async () => {
     isCheckingAccess.value = true
     adminError.value = null
 
     try {
-      // Ensure auth is initialized
+      // 1. Ensure auth state is initialized (listener is running)
       await auth.initialize()
 
-      // Check if user is authenticated
+      // 2. Check client-side authentication status
       if (!auth.isAuthenticated.value) {
         adminError.value = 'Authentication required'
         if (import.meta.client) {
           const currentPath = useRoute().fullPath
-          window.location.replace(`/auth/login?redirect=${encodeURIComponent(currentPath)}`)
+          window.location.replace(getLoginUrl(currentPath)) // Redirect to login
         }
         return false
       }
+      
+      // 3. Check client-side role (fast check after initialization)
+      if (userStore.isAdmin) {
+          hasAdminAccess.value = true
+          return true
+      }
 
-      // Check admin status via API for server consistency
+      // 4. (Optional) Re-check admin status via API for server consistency, especially if role is customer/unknown
       try {
-        const { AdminService } = await import('~/services')
-        const response = await AdminService.checkAccess()
+        const response = await authService.checkAdmin()
 
-        if (!response.isAdmin) {
+        if (!response.success || !response.data?.isAdmin) {
           adminError.value = 'Admin access required'
           if (import.meta.client) {
-            window.location.replace('/?error=admin-required')
+            window.location.replace('/?error=admin-required') // Redirect to home
           }
           return false
         }
@@ -61,7 +71,6 @@ export const useAdminGuard = () => {
     }
   }
 
-  // Require admin access (for use in pages)
   const requireAdminAccess = async () => {
     const hasAccess = await checkAdminAccess()
     if (!hasAccess) {

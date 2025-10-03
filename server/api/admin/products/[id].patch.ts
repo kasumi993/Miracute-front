@@ -1,53 +1,47 @@
 import { requireAdminAuthentication } from '../../../utils/auth'
-import type { Database } from '@/types/database'
+import type { Product, ApiResponse } from '@/types'
+import { createApiResponse, handleSupabaseError, createApiError } from '../../../utils/apiResponse'
 
-export default defineEventHandler(async (event) => {
+// Utiliser Updates<'products'> de votre type Database si possible pour le patch
+export default defineEventHandler(async (event): Promise<ApiResponse<Product>> => {
+  const { supabase } = await requireAdminAuthentication(event)
   const productId = getRouterParam(event, 'id')
 
   if (!productId) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Product ID is required'
-    })
+    throw createApiError('Product ID is required', 400)
   }
 
-  const body = await readBody(event)
-  const { supabase } = await requireAdminAuthentication(event)
+  const body = await readBody(event) // Lecture du corps pour une mise à jour partielle
+
+  if (!body || Object.keys(body).length === 0) {
+    throw createApiError('Request body is required and cannot be empty.', 400)
+  }
 
   try {
-    // Update the product
     const { data, error } = await supabase
       .from('products')
-      .update(body)
+      .update(body) // Mise à jour partielle (PATCH)
       .eq('id', productId)
       .select()
       .single()
 
     if (error) {
-      throw createError({
-        statusCode: 500,
-        statusMessage: 'Failed to update product',
-        data: error
-      })
+      handleSupabaseError(error, 'Update product (PATCH)')
+    }
+    
+    if (!data) {
+        throw createApiError('Product not found or update failed.', 404)
     }
 
-    return {
-      success: true,
-      data,
-      message: 'Product updated successfully'
-    }
+    return createApiResponse(data as Product, 'Product updated successfully')
 
   } catch (error: any) {
-    console.error('Error updating product:', error)
-
+    if (error.statusCode === 404) {
+      throw createApiError('Product not found.', 404)
+    }
     if (error.statusCode) {
       throw error
     }
-
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Failed to update product',
-      data: error
-    })
+    handleSupabaseError(error, 'Update product (PATCH)')
   }
 })

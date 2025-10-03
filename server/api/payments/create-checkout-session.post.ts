@@ -1,13 +1,13 @@
 import Stripe from 'stripe'
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
 import type { Database } from '@/types/database'
+import { createApiError, handleSupabaseError } from '../../utils/apiResponse'
+// Importation de la fonction utilitaire centralisée
+import { generateOrderNumber } from '../../utils/paymentProcessing' 
 
 export default defineEventHandler(async (event) => {
   if (event.node.req.method !== 'POST') {
-    throw createError({
-      statusCode: 405,
-      statusMessage: 'Method not allowed'
-    })
+    throw createApiError('Method not allowed', 405)
   }
 
   const config = useRuntimeConfig()
@@ -15,6 +15,7 @@ export default defineEventHandler(async (event) => {
     apiVersion: '2023-10-16'
   })
 
+  // Utiliser le client standard (non service role) car l'utilisateur authentifié est vérifié
   const supabase = await serverSupabaseClient<Database>(event)
   const user = await serverSupabaseUser(event)
 
@@ -26,36 +27,32 @@ export default defineEventHandler(async (event) => {
       billing_address,
       create_account = false,
       email_updates = false,
-      user_id = null,
       success_url,
       cancel_url
     } = body
 
     if (!items || !Array.isArray(items) || items.length === 0) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'Invalid items provided'
-      })
+      throw createApiError('Invalid items provided', 400)
     }
 
-    // Validate and fetch products from database
+    // 1. Validation et récupération des produits
     const productIds = items.map(item => item.product_id)
     const { data: products, error: productsError } = await supabase
       .from('products')
-      .select('*')
+      .select('id, name, slug, price, short_description, description, preview_images, category_id') // Sélectionner uniquement les colonnes nécessaires
       .in('id', productIds)
       .eq('is_active', true)
 
-    if (productsError || !products) {
-      throw createError({
-        statusCode: 500,
-        statusMessage: 'Failed to fetch products'
-      })
+    if (productsError) {
+      handleSupabaseError(productsError, 'Fetch active products for checkout')
+    }
+    if (!products || products.length === 0) {
+      throw createApiError('No active products found for the items provided.', 404)
     }
 
-    // Create line items for Stripe
+    // 2. Création des Line Items Stripe et calcul du total
     const lineItems = products.map(product => {
-      const item = items.find(i => i.product_id === product.id)
+      const item = items.find((i: any) => i.product_id === product.id)
       const quantity = item?.quantity || 1
 
       return {
@@ -65,55 +62,41 @@ export default defineEventHandler(async (event) => {
             name: product.name,
             description: product.short_description || product.description?.substring(0, 300),
             images: product.preview_images?.slice(0, 1) || [],
-            metadata: {
-              product_id: product.id,
-              slug: product.slug,
-              category: product.category_id || ''
-            }
+            metadata: { product_id: product.id }
           },
-          unit_amount: Math.round(parseFloat(product.price) * 100) // Convert to cents
+          unit_amount: Math.round(parseFloat(product.price as string) * 100) // Assurez-vous que 'price' est traité comme string ou number
         },
         quantity
       }
     })
 
-    // Calculate total amount for order creation
     const totalAmount = products.reduce((sum, product) => {
-      const item = items.find(i => i.product_id === product.id)
+      const item = items.find((i: any) => i.product_id === product.id)
       const quantity = item?.quantity || 1
-      return sum + (parseFloat(product.price) * quantity)
+      return sum + (parseFloat(product.price as string) * quantity)
     }, 0)
 
-    // Customer email - use authenticated user email or provided email
+    // 3. Gestion de l'e-mail client et de l'utilisateur effectif
     const customerEmail = user?.email || customer_info?.email
 
     if (!customerEmail) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'Customer email is required'
-      })
+      throw createApiError('Customer email is required', 400)
     }
 
-    // Handle optional account creation for guest users
+    // Logique d'inscription pour les utilisateurs invités (conservée et nettoyée)
     let newlyCreatedUserId = null
+    const customerName = customer_info?.name || `${customer_info?.firstName || ''} ${customer_info?.lastName || ''}`.trim()
+    
     if (create_account && !user && customer_info?.email) {
       try {
-        // Create account in Supabase Auth (they'll set password later)
         const { data: authData, error: authError } = await supabase.auth.admin.createUser({
           email: customer_info.email,
           email_confirm: true,
-          user_metadata: {
-            firstName: customer_info.firstName || '',
-            lastName: customer_info.lastName || '',
-            created_during_checkout: true,
-            email_updates
-          }
+          user_metadata: { firstName: customer_info.firstName || '', lastName: customer_info.lastName || '' }
         })
 
         if (authData?.user && !authError) {
           newlyCreatedUserId = authData.user.id
-
-          // Create user profile
           await supabase
             .from('users')
             .insert({
@@ -122,21 +105,18 @@ export default defineEventHandler(async (event) => {
               first_name: customer_info.firstName || '',
               last_name: customer_info.lastName || '',
               email_notifications: email_updates,
-              created_at: new Date().toISOString()
             })
         }
       } catch (error) {
-        console.error('Failed to create account during checkout:', error)
-        // Don't fail checkout if account creation fails
+        console.error('Failed to create account during checkout (ignored):', error)
       }
     }
 
-    // Create or retrieve Stripe customer
+    // 4. Création ou récupération du client Stripe
     let stripeCustomerId: string | undefined
     const effectiveUserId = user?.id || newlyCreatedUserId
 
     if (effectiveUserId) {
-      // Check if user already has a Stripe customer ID
       const { data: userData } = await supabase
         .from('users')
         .select('stripe_customer_id')
@@ -146,18 +126,12 @@ export default defineEventHandler(async (event) => {
       if (userData?.stripe_customer_id) {
         stripeCustomerId = userData.stripe_customer_id
       } else {
-        // Create new Stripe customer
         const customer = await stripe.customers.create({
           email: customerEmail,
-          name: customer_info?.name || `${customer_info?.firstName || ''} ${customer_info?.lastName || ''}`.trim(),
-          metadata: {
-            user_id: effectiveUserId
-          }
+          name: customerName,
+          metadata: { user_id: effectiveUserId }
         })
-
         stripeCustomerId = customer.id
-
-        // Save Stripe customer ID to user record
         await supabase
           .from('users')
           .update({ stripe_customer_id: stripeCustomerId })
@@ -165,7 +139,7 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Create Stripe Checkout session
+    // 5. Création de la Session de Paiement Stripe
     const session = await stripe.checkout.sessions.create({
       customer: stripeCustomerId,
       customer_email: stripeCustomerId ? undefined : customerEmail,
@@ -173,47 +147,30 @@ export default defineEventHandler(async (event) => {
       mode: 'payment',
       success_url: success_url || `${getHeader(event, 'origin')}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: cancel_url || `${getHeader(event, 'origin')}/cart`,
-      automatic_tax: {
-        enabled: false // Enable if you want to calculate taxes
-      },
-      payment_method_types: ['card'],
+      payment_method_types: undefined, // Laisser Stripe décider des méthodes disponibles
       metadata: {
         user_id: effectiveUserId || '',
         customer_email: customerEmail,
         items: JSON.stringify(items),
         create_account: create_account.toString(),
-        billing_address: JSON.stringify(billing_address)
       },
-      // Enable customer creation for guest users
-      customer_creation: stripeCustomerId ? undefined : 'always'
-      // Collect shipping address if needed for tax calculation
-      // shipping_address_collection: {
-      //   allowed_countries: ['US', 'CA']
-      // }
+      customer_creation: stripeCustomerId ? undefined : 'always',
+      setup_future_usage: stripeCustomerId ? 'on_session' : undefined
     })
 
-    // Generate order number
-    const generateOrderNumber = (): string => {
-      const timestamp = Date.now().toString()
-      const random = Math.random().toString(36).substring(2, 6).toUpperCase()
-      return `MIR${timestamp.slice(-6)}${random}`
-    }
-
-    // Create pending order in database
+    // 6. Création de la commande "en attente" (Pending Order)
     const orderData = {
       user_id: effectiveUserId || null,
       subtotal: totalAmount.toString(),
       total_amount: totalAmount.toString(),
       customer_email: customerEmail,
-      customer_name: customer_info?.name || `${customer_info?.firstName || ''} ${customer_info?.lastName || ''}`.trim() || null,
+      customer_name: customerName || null,
       status: 'pending' as const,
       payment_status: 'pending' as const,
       stripe_payment_intent_id: session.payment_intent as string,
-      order_number: generateOrderNumber(),
+      order_number: generateOrderNumber(), // Utilisation de la fonction centralisée
       notes: `Stripe Checkout Session: ${session.id}${create_account && newlyCreatedUserId ? ' - Account created during checkout' : ''}`
     }
-
-    console.log('Creating pending order with data:', { ...orderData, notes: '...' })
 
     const { data: order, error: orderError } = await supabase
       .from('orders')
@@ -222,18 +179,14 @@ export default defineEventHandler(async (event) => {
       .single()
 
     if (orderError || !order) {
-      console.error('Failed to create order:', orderError)
-      // Continue - we can handle this in the payment success endpoint
+      // Ne pas jeter d'erreur ici, le webhook/success gérera la création de la commande si celle-ci échoue.
+      console.warn('Failed to create pending order:', orderError?.message)
     } else {
-      console.log('Successfully created pending order:', order.id)
-    }
-
-    // Create order items if order was created successfully
-    if (order) {
+      // Création des articles de commande
       const orderItems = products.map(product => {
-        const item = items.find(i => i.product_id === product.id)
+        const item = items.find((i: any) => i.product_id === product.id)
         const quantity = item?.quantity || 1
-        const unitPrice = parseFloat(product.price)
+        const unitPrice = parseFloat(product.price as string)
 
         return {
           order_id: order.id,
@@ -246,16 +199,12 @@ export default defineEventHandler(async (event) => {
         }
       })
 
-      console.log('Creating order items:', orderItems.length, 'items')
-
       const { error: itemsError } = await supabase
         .from('order_items')
         .insert(orderItems)
 
       if (itemsError) {
         console.error('Failed to create order items:', itemsError)
-      } else {
-        console.log('Successfully created order items')
       }
     }
 
@@ -270,22 +219,17 @@ export default defineEventHandler(async (event) => {
 
   } catch (error: any) {
     console.error('Stripe checkout error:', error)
-
-    // Handle Stripe-specific errors
+    
+    // 7. Gestion des erreurs centralisée
     if (error.type === 'StripeCardError') {
-      throw createError({
-        statusCode: 400,
-        statusMessage: error.message
-      })
+      throw createApiError(error.message, 400)
     }
 
     if (error.statusCode) {
       throw error
     }
 
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Failed to create checkout session'
-    })
+    // Utilisation de la gestion d'erreur par défaut pour les erreurs inconnues
+    throw createApiError('Failed to create checkout session', 500)
   }
 })
