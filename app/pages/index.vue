@@ -6,6 +6,9 @@
     <!-- Featured Categories Section -->
     <HomeFeaturedCategories />
 
+    <!-- Recently Viewed Section -->
+    <HomeRecentlyViewedSection />
+
     <!-- Benefits Section -->
     <HomeBenefitsSection />
 
