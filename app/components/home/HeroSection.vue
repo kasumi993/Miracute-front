@@ -5,17 +5,17 @@
       <div class="grid grid-cols-1 lg:grid-cols-5 gap-4 md:gap-6 mb-8">
         <NuxtLink
           to="/templates?category=business-templates"
-          class="lg:col-span-3 col-span-1 relative rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group bg-gradient-to-br from-brand-sage/15 via-brand-warm/10 to-brand-brown/8 block"
+          class="lg:col-span-3 col-span-1 relative rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group bg-brand-brown block"
         >
           <div class="px-6 py-8 sm:px-8 sm:py-10 md:px-10 md:py-12 lg:px-12 lg:py-16 min-h-[180px] sm:h-[200px] md:h-[240px] flex flex-col justify-center">
-            <h1 class="text-lg sm:text-xl md:text-2xl lg:text-3xl font-serif text-gray-900 mb-2 sm:mb-3 leading-tight">
+            <h1 class="text-lg sm:text-xl md:text-2xl lg:text-3xl font-serif text-white mb-2 sm:mb-3 leading-tight">
               Complete Business Bundles
-              <span class="block text-brand-brown">& Canva Website Templates</span>
+              <span class="block text-white/90">& Canva Website Templates</span>
             </h1>
-            <p class="text-xs sm:text-sm md:text-sm text-gray-700 mb-3 sm:mb-4 leading-relaxed">
+            <p class="text-xs sm:text-sm md:text-sm text-white/80 mb-3 sm:mb-4 leading-relaxed">
               Transform your business with our template collections. Get everything you need: website templates, email sequences, and marketing materials – all designed to work seamlessly together.
             </p>
-            <button class="inline-flex items-center px-4 sm:px-5 py-2 sm:py-2.5 bg-brand-brown text-white rounded-full font-medium hover:bg-brand-brown/90 transition-colors duration-200 shadow-md hover:shadow-lg group-hover:scale-105 transform self-start text-xs sm:text-sm">
+            <button class="inline-flex items-center px-4 sm:px-5 py-2 sm:py-2.5 bg-white text-brand-brown rounded-full font-medium hover:bg-white/90 transition-colors duration-200 shadow-md hover:shadow-lg group-hover:scale-105 transform self-start text-xs sm:text-sm">
               Explore Bundles
               <svg class="w-4 h-4 sm:w-5 sm:h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
