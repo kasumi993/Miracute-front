@@ -3,8 +3,8 @@
     <!-- Hero Section -->
     <HomeHeroSection />
 
-    <!-- Featured Categories Section -->
-    <HomeFeaturedCategories />
+    <!-- Featured Products Section -->
+    <HomeFeaturedProducts />
 
     <!-- Recently Viewed Section -->
     <HomeRecentlyViewedSection />
