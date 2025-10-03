@@ -16,29 +16,7 @@
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Sidebar Navigation -->
         <div class="lg:col-span-1">
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sticky top-24">
-            <nav class="space-y-2">
-              <NuxtLink to="/account" 
-                        class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
-                <Icon name="heroicons:arrow-down-tray" class="w-5 h-5" />
-                <span>My Downloads</span>
-              </NuxtLink>
-              
-              <NuxtLink to="/account/preferences" 
-                        class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-900 bg-gray-100 font-medium">
-                <Icon name="heroicons:cog-6-tooth" class="w-5 h-5" />
-                <span>Preferences</span>
-              </NuxtLink>
-              
-              <div class="border-t border-gray-200 pt-2 mt-2">
-                <button @click="auth.signOut()" 
-                        class="flex items-center space-x-3 px-3 py-2 rounded-lg text-red-700 hover:bg-red-50 hover:text-red-900 transition-colors w-full text-left">
-                  <Icon name="heroicons:arrow-right-on-rectangle" class="w-5 h-5" />
-                  <span>Sign Out</span>
-                </button>
-              </div>
-            </nav>
-          </div>
+          <AccountSidebar />
         </div>
 
         <!-- Main Content -->
