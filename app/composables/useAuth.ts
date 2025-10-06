@@ -1,4 +1,3 @@
-// Unified authentication composable - single source of truth for auth state
 import { useUserStore } from '~/stores/auth/user'
 
 export const useAuth = () => {

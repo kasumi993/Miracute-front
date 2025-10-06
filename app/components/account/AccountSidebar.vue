@@ -15,6 +15,19 @@
       </NuxtLink>
 
       <NuxtLink
+        to="/account/profile"
+        :class="[
+          'flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors',
+          currentPath === '/account/profile'
+            ? 'text-gray-900 bg-gray-100 font-medium'
+            : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+        ]"
+      >
+        <Icon name="heroicons:user" class="w-5 h-5" />
+        <span>Profile</span>
+      </NuxtLink>
+
+      <NuxtLink
         to="/account/preferences"
         :class="[
           'flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors',

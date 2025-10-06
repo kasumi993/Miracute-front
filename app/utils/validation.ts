@@ -62,10 +62,18 @@ export const categorySchema = z.object({
 
 // User profile validation
 export const userProfileSchema = z.object({
-  first_name: nameSchema.optional(),
-  last_name: nameSchema.optional(),
-  country: z.string().optional(),
-  avatar_url: urlSchema.optional()
+  first_name: nameSchema.nullable().optional(),
+  last_name: nameSchema.nullable().optional(),
+  country: z.string().nullable().optional(),
+  avatar_url: urlSchema.nullable().optional()
+})
+
+// User profile update validation (for existing users)
+export const userProfileUpdateSchema = z.object({
+  first_name: z.string().min(1, 'First name cannot be empty').optional().nullable(),
+  last_name: z.string().min(1, 'Last name cannot be empty').optional().nullable(),
+  country: z.string().optional().nullable(),
+  avatar_url: urlSchema.optional().nullable()
 })
 
 // Auth validation schemas
@@ -155,10 +163,12 @@ export function validateFormData<T>(schema: z.ZodSchema<T>, data: unknown): {
   } catch (error) {
     if (error instanceof z.ZodError) {
       const errors: Record<string, string> = {}
-      error.errors.forEach((err) => {
-        const path = err.path.join('.')
-        errors[path] = err.message
-      })
+      if (error.errors && Array.isArray(error.errors)) {
+        error.errors.forEach((err) => {
+          const path = err.path.join('.')
+          errors[path] = err.message
+        })
+      }
       return { success: false, errors }
     }
     return { success: false, errors: { _root: 'Validation failed' } }

@@ -6,14 +6,9 @@ const getSupabaseClient = () => {
     try {
         return useSupabaseClient()
     } catch (e) {
-        // Fallback to Nuxt app if composable fails
-        try {
-            const { $supabase } = useNuxtApp()
-            return $supabase
-        } catch (fallbackError) {
-            console.error("Erreur de contexte Nuxt: Impossible d'accéder à Supabase. Assurez-vous que l'appel provient d'un composant, d'un hook, ou d'une action Pinia.", e, fallbackError)
-            throw new Error("L'accès au client Supabase a échoué en dehors du contexte Nuxt.")
-        }
+        console.warn("Could not get Supabase client from composable:", e)
+        // For now, just throw the error instead of complex fallbacks
+        throw new Error("Unable to access Supabase client - must be called from Vue context")
     }
 }
 
@@ -35,10 +30,14 @@ export const authService = {
    * Nettoie la session côté client.
    */
   async signOut(): Promise<void> {
-    const supabase = getSupabaseClient()
-    const { error } = await supabase?.auth?.signOut()
-    if (error) {
-      throw new Error(error.message)
+    try {
+      const supabase = getSupabaseClient()
+      const { error } = await supabase?.auth?.signOut()
+      if (error) {
+        throw new Error(error.message)
+      }
+    } catch (error) {
+      console.warn('Could not sign out via Supabase client:', error)
     }
   },
   

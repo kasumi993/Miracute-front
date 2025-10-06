@@ -14,17 +14,19 @@ export const getUserProfile = async (userId?: string): Promise<ApiResponse<any>>
 /**
  * Get user orders with pagination
  */
-export const getUserOrders = async (page = 1, limit = 20, status?: string): Promise<ApiResponse<{ orders: any[]; pagination: any }>> => {
-  const query: any = { page, limit }
+export const getUserOrders = async (page = 1, limit = 20, status?: string): Promise<ApiResponse<any[]>> => {
+  const offset = (page - 1) * limit
+  const query: any = { offset, limit }
   if (status) {query.status = status}
-  return baseService.get<{ orders: any[]; pagination: any }>('/users/orders', query)
+  return baseService.get<any[]>('/account/orders', query)
 }
 
 /**
  * Get user downloads
  */
-export const getUserDownloads = async (page = 1, limit = 20): Promise<ApiResponse<{ downloads: any[]; pagination: any }>> => {
-  return baseService.get<{ downloads: any[]; pagination: any }>('/users/downloads', { page, limit })
+export const getUserDownloads = async (page = 1, limit = 20): Promise<ApiResponse<any[]>> => {
+  const offset = (page - 1) * limit
+  return baseService.get<any[]>('/account/downloads', { offset, limit })
 }
 
 /**
@@ -39,18 +41,18 @@ export const getUserSettings = async (): Promise<ApiResponse<any>> => {
  */
 export const getUserStats = async (): Promise<ApiResponse<{
   totalOrders: number
-  totalSpent: number
+  totalSpent: string
   totalDownloads: number
-  accountAge: number
-  favoriteProducts: any[]
+  completedOrders: number
+  pendingOrders: number
 }>> => {
   return baseService.get<{
     totalOrders: number
-    totalSpent: number
+    totalSpent: string
     totalDownloads: number
-    accountAge: number
-    favoriteProducts: any[]
-  }>('/users/stats')
+    completedOrders: number
+    pendingOrders: number
+  }>('/account/stats')
 }
 
 /**
