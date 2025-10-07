@@ -357,6 +357,7 @@ export interface Database {
           unit_price: string
           quantity: number
           total_price: string
+          download_files: string[] | null
           download_url: string | null
           download_expires_at: string | null
           download_count: number
@@ -372,6 +373,7 @@ export interface Database {
           unit_price: string
           quantity?: number
           total_price: string
+          download_files?: string[] | null
           download_url?: string | null
           download_expires_at?: string | null
           download_count?: number
@@ -387,6 +389,7 @@ export interface Database {
           unit_price?: string
           quantity?: number
           total_price?: string
+          download_files?: string[] | null
           download_url?: string | null
           download_expires_at?: string | null
           download_count?: number

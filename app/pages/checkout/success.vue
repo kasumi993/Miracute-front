@@ -361,7 +361,7 @@ const loadOrderData = async () => {
     // Fallback: try to get recent order if user is authenticated
     if (auth.isAuthenticated) {
       console.log('Fetching recent orders as fallback...')
-      const response = await $fetch('/api/account/orders', {
+      const response = await $fetch('/api/orders', {
         query: { limit: 1 }
       })
 

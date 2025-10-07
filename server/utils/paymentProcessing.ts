@@ -58,12 +58,7 @@ export async function generateDownloadLinks(
   try {
     const { data: orderItems, error } = await supabase
       .from('order_items')
-      .select(
-        `
-        *,
-        product:products(download_files)
-      `
-      )
+      .select('*')
       .eq('order_id', orderId)
 
     if (error || !orderItems) {
@@ -73,11 +68,12 @@ export async function generateDownloadLinks(
     const expiryDate = new Date()
     expiryDate.setDate(expiryDate.getDate() + 30) // 30 days
 
+    // Use download_files from order_items (stored at purchase time) instead of products
     const updates = orderItems
-      .filter((item) => item.product?.download_files?.length)
+      .filter((item) => item.download_files?.length)
       .map((item) => ({
         id: item.id,
-        download_url: item.product.download_files[0], // Utilise le premier fichier
+        download_url: item.download_files[0], // Use first file from order_items.download_files
         download_expires_at: expiryDate.toISOString(),
         max_downloads: 5,
       }))
@@ -176,6 +172,7 @@ export async function createOrderFromSession(
       unit_price: unitPrice.toString(),
       quantity,
       total_price: (unitPrice * quantity).toString(),
+      download_files: product.download_files, // Copy download files at purchase time
     }
   })
 

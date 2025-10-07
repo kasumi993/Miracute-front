@@ -52,7 +52,7 @@ export const useProductDetail = (slug: string) => {
     }
 
     try {
-      const response = await $fetch<OrdersResponse>('/api/account/orders', {
+      const response = await $fetch<OrdersResponse>('/api/orders', {
         query: { product_id: product.value.id }
       })
 

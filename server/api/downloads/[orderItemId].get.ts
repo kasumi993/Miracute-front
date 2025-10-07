@@ -40,41 +40,40 @@ export default defineEventHandler(async (event) => {
         ),
         product:products!inner(
           name,
-          download_files,
           file_size
         )
       `)
       .eq('id', orderItemId)
       // 🔑 Utilisation directe de l'ID utilisateur récupéré
-      .eq('order.user_id', user.id) 
-      .eq('order.payment_status', 'paid') 
+      .eq('order.user_id', user.id)
+      .eq('order.payment_status', 'paid')
       .single()
-      
+
     if (error || !orderItem) {
       throw createApiError('Download not found or not accessible', 404)
     }
 
-    const downloadFiles = orderItem.product.download_files
+    const downloadFiles = orderItem.download_files
     if (!downloadFiles || downloadFiles.length === 0) {
       throw createApiError('No download files available', 404)
     }
-    
+
     const BUCKET_NAME = 'Miracute-templates' // Nom du bucket de stockage
-    const filePath = downloadFiles[0] 
+    const filePath = downloadFiles[0]
 
     const signedUrl = await fileManager.getSignedDownloadUrl(
       BUCKET_NAME,
       filePath,
-      { expiresIn: EXPIRY_SECONDS } 
+      { expiresIn: EXPIRY_SECONDS }
     )
 
     return {
       success: true,
       data: {
         downloadUrl: signedUrl,
-        fileName: `${orderItem.product.name}.zip`,
-        fileSize: orderItem.product.file_size,
-        expiresAt: new Date(Date.now() + EXPIRY_SECONDS * 1000), 
+        fileName: `${orderItem.product_name}`,
+        fileSize: orderItem.file_size,
+        expiresAt: new Date(Date.now() + EXPIRY_SECONDS * 1000),
       }
     }
 

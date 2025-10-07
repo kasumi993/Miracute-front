@@ -22,9 +22,7 @@ export const OrderService = {
   confirmPayment: CheckoutService.confirmPayment,
 
   // Gestion des Téléchargements (DownloadService)
-  getDownloadTokens: DownloadService.getDownloadTokens,
-  regenerateDownloadToken: DownloadService.regenerateDownloadToken,
-  trackDownload: DownloadService.trackDownload,
+  getDownloadUrl: DownloadService.getDownloadUrl,
 
   // Analytique (AnalyticsService)
   getOrderAnalytics: AnalyticsService.getOrderAnalytics,

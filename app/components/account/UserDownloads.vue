@@ -73,8 +73,8 @@ const initiateDownload = async (orderItemId) => {
   try {
     downloadingItems.value.push(orderItemId)
 
-    // Get secure download URL from API
-    const response = await $fetch(`/api/downloads/${orderItemId}`)
+    // Get secure download URL using service
+    const response = await OrderService.getDownloadUrl(orderItemId)
 
     if (response.success && response.data.downloadUrl) {
       // Create a temporary link and trigger download
