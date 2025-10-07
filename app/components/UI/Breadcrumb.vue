@@ -1,31 +1,33 @@
 <template>
-  <nav class="flex items-center space-x-2 text-sm" :aria-label="ariaLabel">
-    <template v-for="(item, index) in items" :key="index">
-      <!-- Separator -->
-      <Icon
-        v-if="index > 0"
-        :name="separatorIcon"
-        class="w-4 h-4 text-gray-400"
-      />
+  <div class="py-3 border-b border-gray-100">
+    <nav class="flex items-center space-x-2 text-sm" :aria-label="ariaLabel">
+      <template v-for="(item, index) in items" :key="index">
+        <!-- Separator -->
+        <Icon
+          v-if="index > 0"
+          :name="separatorIcon"
+          class="w-4 h-4 text-gray-400"
+        />
 
-      <!-- Link -->
-      <NuxtLink
-        v-if="item.to && !item.active"
-        :to="item.to"
-        :class="linkClass"
-      >
-        {{ item.label }}
-      </NuxtLink>
+        <!-- Link -->
+        <NuxtLink
+          v-if="item.to && !item.active"
+          :to="item.to"
+          :class="linkClass"
+        >
+          {{ item.label }}
+        </NuxtLink>
 
-      <!-- Active item -->
-      <span
-        v-else
-        :class="activeClass"
-      >
-        {{ item.label }}
-      </span>
-    </template>
-  </nav>
+        <!-- Active item -->
+        <span
+          v-else
+          :class="activeClass"
+        >
+          {{ item.label }}
+        </span>
+      </template>
+    </nav>
+  </div>
 </template>
 
 <script setup>

@@ -77,7 +77,8 @@ export class BaseApiService {
           method,
           body: body ? JSON.stringify(body) : undefined,
           headers: requestHeaders,
-          signal: AbortSignal.timeout(timeout)
+          signal: AbortSignal.timeout(timeout),
+          credentials: 'include' // Ensure cookies are sent with requests
         },
         retries,
         requestId
