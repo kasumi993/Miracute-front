@@ -1,5 +1,5 @@
 <template>
-  <header class="bg-white/95 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
+  <header class="bg-white/95 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50 py-2">
     <!-- Top Row: Logo, Search, Cart, Track Order -->
     <div class="border-b border-gray-100">
       <div class="container-custom">
@@ -7,7 +7,7 @@
           <!-- Logo (Left) -->
           <div class="flex-shrink-0">
             <NuxtLink to="/" class="flex items-center hover:opacity-80 transition-opacity">
-              <NuxtImg src="/logo.png" alt="Miracute Logo" width="120" class="h-auto"/>
+              <NuxtImg src="/logo.png" alt="Miracute Logo" width="120" class="h-auto sm:w-auto w-[70%] relative sm:-top-2 top-[-9px]"/>
             </NuxtLink>
           </div>
 
