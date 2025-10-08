@@ -382,6 +382,11 @@ export class BaseApiService {
       return true
     }
 
+    // Don't retry auth session errors even if 500
+    if (error.message.includes('Auth session missing') || error.message.includes('session missing') || error.message.includes('unauthorized')) {
+      return true
+    }
+
     // Don't retry client errors (4xx)
     if (error.message.includes('400') || error.message.includes('422')) {
       return true
