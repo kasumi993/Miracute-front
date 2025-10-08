@@ -4,7 +4,7 @@
       <!-- Main Cards Grid -->
       <div class="grid grid-cols-1 lg:grid-cols-5 gap-4 md:gap-6 mb-8">
         <NuxtLink
-          to="/templates?category=business-templates"
+          to="/templates"
           class="lg:col-span-3 col-span-1 relative rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group bg-brand-brown block"
         >
           <div class="px-6 py-8 sm:px-8 sm:py-10 md:px-10 md:py-12 lg:px-12 lg:py-16 min-h-[180px] sm:h-[200px] md:h-[240px] flex flex-col justify-center">
