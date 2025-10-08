@@ -16,8 +16,8 @@
       @custom-range-applied="applyCustomRange"
     />
 
-    <!-- Analytics Metrics Cards -->
-    <AnalyticsMetricsCards
+    <!-- Analytics Metrics Overview -->
+    <AnalyticsOverview
       :analytics="analytics"
       :is-loading="isLoading"
       :period-label="getPeriodLabel()"
@@ -48,7 +48,7 @@ useSeoMeta({
 })
 
 // Store
-const analyticsStore = useAnalyticsStore()
+const analyticsStore = useAnalyticsDashboardStore()
 
 // State
 const selectedPeriod = ref('today')

@@ -24,6 +24,7 @@ export * from './content/review'
 
 // Admin types
 export * from './admin/dashboard'
+export * from './admin/analytics'
 
 // Utility types
 export * from './utils/validation'

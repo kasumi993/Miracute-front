@@ -3,10 +3,10 @@
  * Simplified interface to the analytics store
  */
 
-import { useAnalyticsStore } from '~/stores/analytics'
+import { useAnalyticsTrackingStore } from '~/stores/analytics'
 
 export const useAnalytics = () => {
-  const analyticsStore = useAnalyticsStore()
+  const analyticsStore = useAnalyticsTrackingStore()
 
   // Initialize analytics if not already initialized
   if (!analyticsStore.isInitialized && process.client) {

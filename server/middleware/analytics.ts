@@ -1,6 +1,12 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
-import { generateSessionId } from '../utils/analyticsTracker'
 import type { Database } from '@/types/database'
+
+/**
+ * Generate a session ID for tracking
+ */
+function generateSessionId(): string {
+  return `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`
+}
 
 /**
  * Analytics middleware to track page views automatically

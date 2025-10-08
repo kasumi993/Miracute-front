@@ -8,5 +8,4 @@
 </template>
 
 <script setup lang="ts">
-// Simple header component - no props needed
 </script>

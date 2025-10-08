@@ -13,7 +13,7 @@
   <!-- Visitor Metrics Cards -->
   <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6">
     <!-- Total Visitors -->
-    <AnalyticsMetricCard
+    <AnalyticsCard
       :title="`${periodLabel} Visitors`"
       :value="analytics.visitors"
       :change="analytics.visitorsChange"
@@ -23,7 +23,7 @@
     />
 
     <!-- Page Views -->
-    <AnalyticsMetricCard
+    <AnalyticsCard
       title="Page Views"
       :value="analytics.pageViews"
       :change="analytics.pageViewsChange"
@@ -33,7 +33,7 @@
     />
 
     <!-- Product Views -->
-    <AnalyticsMetricCard
+    <AnalyticsCard
       title="Product Views"
       :value="analytics.productViews"
       :subtitle="`${Math.round((analytics.productViews / analytics.pageViews) * 100)}% of all page views`"
@@ -43,7 +43,7 @@
     />
 
     <!-- Add to Carts -->
-    <AnalyticsMetricCard
+    <AnalyticsCard
       title="Add to Carts"
       :value="analytics.addToCarts"
       :subtitle="`${Math.round((analytics.addToCarts / analytics.productViews) * 100)}% conversion rate`"

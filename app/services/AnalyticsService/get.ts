@@ -203,3 +203,29 @@ export const getDashboardData = async (
 }>> => {
   return baseService.get('/analytics/dashboard', { type: dashboardType })
 }
+
+/**
+ * Get analytics metrics for admin dashboard
+ */
+export const getAnalytics = async (
+  filters?: {
+    period?: string
+    from?: string
+    to?: string
+  }
+): Promise<ApiResponse<{
+  visitors: number
+  visitorsChange: number
+  pageViews: number
+  pageViewsChange: number
+  productViews: number
+  addToCarts: number
+  topPages: Array<{
+    url: string
+    title: string
+    views: number
+    uniqueViews: number
+  }>
+}>> => {
+  return baseService.get('/admin/analytics', filters)
+}

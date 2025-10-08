@@ -78,7 +78,16 @@ export const trackEventsBatch = async (events: AnalyticsEventData[]): Promise<Ap
  * Track page view
  */
 export const trackPageView = async (data: PageViewData): Promise<ApiResponse<{ success: boolean; viewId: string }>> => {
-  return baseService.post<{ success: boolean; viewId: string }>('/analytics/pageviews', data)
+  const trackData = {
+    event_type: 'page_view',
+    page_path: data.path,
+    page_title: data.title,
+    referrer: data.referrer,
+    visitor_id: data.userId,
+    session_id: data.sessionId,
+    ...data.properties
+  }
+  return baseService.post<{ success: boolean; viewId: string }>('/analytics/track', trackData)
 }
 
 /**

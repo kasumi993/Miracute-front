@@ -5,29 +5,10 @@
 
 import { defineStore } from 'pinia'
 import { apiService } from '@/services'
+import type { AnalyticsEvent, AnalyticsTrackingState } from '@/types/admin/analytics'
 
-export interface AnalyticsEvent {
-  event_type: string
-  page_path: string
-  page_title: string
-  visitor_id: string | null
-  session_id: string | null
-  user_agent?: string
-  referrer?: string
-  product_id?: string | number
-  [key: string]: unknown
-}
-
-export interface AnalyticsState {
-  visitorId: string | null
-  sessionId: string | null
-  isInitialized: boolean
-  eventQueue: AnalyticsEvent[]
-  isProcessing: boolean
-}
-
-export const useAnalyticsStore = defineStore('analytics', {
-  state: (): AnalyticsState => ({
+export const useAnalyticsTrackingStore = defineStore('analytics-tracking', {
+  state: (): AnalyticsTrackingState => ({
     visitorId: null,
     sessionId: null,
     isInitialized: false,
