@@ -38,7 +38,7 @@ export const useUserStore = defineStore('user', {
     },
 
     // Role-based access
-    isAdmin: (state): boolean => state.profile?.role === 'admin'
+    isAdmin: (state) => state.profile?.role === 'admin'
   },
 
   actions: {
@@ -52,11 +52,18 @@ export const useUserStore = defineStore('user', {
         const sessionResponse = await authService.getSession()
         if (sessionResponse?.data?.session?.user) {
           this.setUser(sessionResponse.data.session.user)
+          // Set authenticated state before loading profile
+          this.isAuthenticated = true
           await this.loadProfile()
+        } else {
+          // No session, clear auth state
+          this.clearAuthState()
         }
         this.isInitialized = true
       } catch (error) {
         console.warn('Auth initialization failed:', error)
+        this.clearAuthState()
+        this.isInitialized = true // Still mark as initialized to prevent loops
       } finally {
         this.setLoading(false)
       }
@@ -155,9 +162,18 @@ export const useUserStore = defineStore('user', {
         const response = await authService.getCurrentProfile()
         if (response.success && response.data?.user) {
           this.profile = response.data.user
+        } else if (response.error?.includes('session missing') || response.error?.includes('unauthorized')) {
+          // Session is invalid, clear auth state
+          console.warn('Session invalid, clearing auth state')
+          this.clearAuthState()
         }
-      } catch (error) {
+      } catch (error: any) {
         console.warn('Failed to load profile:', error)
+        // If it's an auth error, clear the state to prevent loops
+        if (error.message?.includes('session missing') || error.message?.includes('unauthorized') || error.status === 401 || error.status === 403) {
+          console.warn('Auth error detected, clearing auth state')
+          this.clearAuthState()
+        }
       }
     },
 
