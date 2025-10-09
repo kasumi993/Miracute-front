@@ -11,18 +11,9 @@
       <div class="">
         <UISearchFilterContainer
           :config="searchFilterConfig"
-          v-model:search="searchState.search"
-          v-model:filters="searchState.filters"
-          v-model:sort="searchState.sort"
-          :is-searching="isSearching"
           :result-count="results.length"
           :total-count="searchState.pagination.total"
           search-placeholder="Search templates, categories, software..."
-          @search="handleSearch"
-          @filter-change="handleFilterChange"
-          @sort-change="handleSortChange"
-          @clear-filters="handleClearFilters"
-          @clear-search="handleClearSearch"
         />
       </div>
       </div>
@@ -33,7 +24,7 @@
     <div class="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-8">
       <!-- Search Results Header -->
       <SearchResults
-        v-if="searchState.search"
+        v-if="hasActiveSearch || hasActiveFilters"
         :search-query="searchState.search"
         :total-results="searchState.pagination.total"
         :displayed-results="results.length"
@@ -71,34 +62,17 @@ definePageMeta({
   description: 'Browse our collection of premium digital templates for Canva, websites, social media, and more.'
 })
 
-const route = useRoute()
-
 // Categories store
 const categoriesStore = useCategoriesStore()
-const categories = computed(() => categoriesStore.categories)
 
 // Search filter configuration
 const searchFilterConfig = computed(() => ({
   searchEnabled: true,
-  searchDebounceMs: 300,
-  searchMinChars: 0,
-  sortEnabled: true,
-  sortOptions: [
-    { value: 'newest', label: 'Newest First' },
-    { value: 'oldest', label: 'Oldest First' },
-    { value: 'price_asc', label: 'Price: Low to High' },
-    { value: 'price_desc', label: 'Price: High to Low' },
-    { value: 'popular', label: 'Most Popular' },
-    { value: 'rating', label: 'Highest Rated' }
-  ],
-  defaultSort: 'newest',
-  paginationEnabled: true,
-  defaultPageSize: 12,
-  urlSync: true,
-  filters: {
+  searchDebounceMs: 500,
+  filterOptions: {
     category: {
       type: 'select',
-      options: categories.value || [],
+      options: categoriesStore.categories || [],
       optionValue: 'id',
       optionLabel: 'name',
       placeholder: 'All Categories',
@@ -118,35 +92,74 @@ const searchFilterConfig = computed(() => ({
       step: 1,
       defaultValue: { min: '', max: '' },
       debounceMs: 1000
+    },
+    sort: {
+      type: 'sort',
+      options: [
+        { value: 'newest', label: 'Newest First' },
+        { value: 'oldest', label: 'Oldest First' },
+        { value: 'price_asc', label: 'Price: Low to High' },
+        { value: 'price_desc', label: 'Price: High to Low' },
+        { value: 'popular', label: 'Most Popular' },
+        { value: 'rating', label: 'Highest Rated' }
+      ],
+      placeholder: 'Sort by',
+      defaultValue: 'newest'
     }
   }
 }))
 
-// Use unified search filter composable
+// API function for searching products
+const searchProducts = async (searchParams, paginationParams) => {
+  console.log('Searching products with:', searchParams, paginationParams)
+
+  // Transform filters for API
+  const apiParams = { ...searchParams }
+
+  // Handle price range filter
+  if (searchParams.priceRange) {
+    const min = searchParams.priceRange.min
+    const max = searchParams.priceRange.max
+
+    console.log('Price range debug:', { min, max })
+
+    if (min && min !== '' && min !== null && min !== undefined) {
+      apiParams.minPrice = parseFloat(min)
+      console.log('Set minPrice:', apiParams.minPrice)
+    }
+    if (max && max !== '' && max !== null && max !== undefined) {
+      apiParams.maxPrice = parseFloat(max)
+      console.log('Set maxPrice:', apiParams.maxPrice)
+    }
+    delete apiParams.priceRange
+  }
+
+  return await ProductService.getProducts(apiParams, paginationParams)
+}
+
+// Create and provide search filter composable
+const searchFilter = useSearchFilter(searchFilterConfig.value)
 const {
   state: searchState,
   results,
   isLoading,
-  isSearching,
   isLoadingMore,
-  hasResults,
-  isEmpty,
+  hasActiveFilters,
+  hasActiveSearch,
   search,
-  loadMore,
-  updateSearch,
-  updateFilter,
-  updateSort,
-  clearFilters,
-  clearSearch
-} = useSearchFilter(searchFilterConfig.value)
+  loadMore
+} = searchFilter
 
-// SEO
-const { setTemplatesSEO } = useSEO()
+// Provide to child components
+provide('searchFilter', searchFilter)
+provide('searchProducts', searchProducts)
+
+
 
 // Computed properties
 const activeCategory = computed(() => {
-  if (!searchState.filters.category || !categories.value) return null
-  return categories.value.find(cat => cat.id === searchState.filters.category)
+  if (!searchState.filters.category || !categoriesStore.categories) return null
+  return categoriesStore.categories.find(cat => cat.id === searchState.filters.category)
 })
 
 const breadcrumbItems = computed(() => {
@@ -176,68 +189,17 @@ const emptyMessage = computed(() => {
   return 'We couldn\'t find any templates matching your criteria. Try adjusting your filters.'
 })
 
-// API function for searching products
-const searchProducts = async (searchParams, paginationParams) => {
-  console.log('Searching products with:', searchParams, paginationParams)
-
-  // Transform filters for API
-  const apiParams = { ...searchParams }
-
-  // Handle price range filter
-  if (searchParams.priceRange) {
-    if (searchParams.priceRange.min) apiParams.minPrice = parseFloat(searchParams.priceRange.min)
-    if (searchParams.priceRange.max) apiParams.maxPrice = parseFloat(searchParams.priceRange.max)
-    delete apiParams.priceRange
-  }
-
-  return await ProductService.getProducts(apiParams, paginationParams)
-}
-
-// Event handlers
-const handleSearch = (query) => {
-  updateSearch(query, searchProducts)
-}
-
-const handleFilterChange = ({ key, value, filters }) => {
-  updateFilter(key, value, searchProducts)
-}
-
-const handleSortChange = (sortValue) => {
-  updateSort(sortValue, searchProducts)
-}
-
-const handleClearFilters = () => {
-  clearFilters(searchProducts)
-}
-
-const handleClearSearch = () => {
-  clearSearch(searchProducts)
-}
-
 const handleLoadMore = () => {
   loadMore(searchProducts)
 }
 
-// Watch for SEO updates
-watch([
-  () => searchState.search,
-  () => searchState.filters.category,
-  () => searchState.pagination.total
-], () => {
-  const category = categories.value?.find(cat => cat.id === searchState.filters.category)
-  setTemplatesSEO({
-    category: category?.name,
-    search: searchState.search,
-    total: searchState.pagination.total
-  })
-}, { immediate: true })
 
-// Initialize
+
 onMounted(async () => {
   try {
     console.log('Loading categories...')
     await categoriesStore.fetchCategories()
-    console.log('Categories loaded:', categories.value?.length)
+    console.log('Categories loaded:', categoriesStore.categories?.length)
 
     console.log('Starting initial product search...')
     await search(searchProducts)

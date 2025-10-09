@@ -79,7 +79,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:modelValue', 'change'])
+const emit = defineEmits(['update'])
 
 const localMin = ref(props.modelValue.min || '')
 const localMax = ref(props.modelValue.max || '')
@@ -120,8 +120,7 @@ const debouncedEmit = debounce(() => {
     min: localMin.value,
     max: localMax.value
   }
-  emit('update:modelValue', value)
-  emit('change', value)
+  emit('update', value)
 }, props.debounceMs)
 
 const handleMinChange = () => {

@@ -1,35 +1,16 @@
 export interface SearchFilterConfig {
-  // Search configuration
-  searchEnabled?: boolean
   searchDebounceMs?: number
-  searchMinChars?: number
-
-  // Filter configuration
-  filters?: Record<string, {
-    type: 'select' | 'range' | 'toggle' | 'multiselect'
-    options?: any[]
+  filterOptions?: Record<string, {
+    type: 'select' | 'range' | 'toggle' | 'sort'
     defaultValue?: any
-    debounceMs?: number
+    options?: any[]
   }>
-
-  // Sort configuration
-  sortEnabled?: boolean
-  sortOptions?: Array<{ value: string; label: string }>
-  defaultSort?: string
-
-  // Pagination configuration
-  paginationEnabled?: boolean
   defaultPageSize?: number
-
-  // URL sync configuration
-  urlSync?: boolean
-  urlParams?: Record<string, string>
 }
 
 export interface SearchFilterState {
   search: string
   filters: Record<string, any>
-  sort: string
   pagination: {
     page: number
     pageSize: number
@@ -41,17 +22,10 @@ export interface SearchFilterState {
 }
 
 export const useSearchFilter = (config: SearchFilterConfig = {}) => {
-  // Default configuration
   const defaultConfig: SearchFilterConfig = {
-    searchEnabled: true,
     searchDebounceMs: 300,
-    searchMinChars: 0,
-    sortEnabled: true,
-    defaultSort: 'newest',
-    paginationEnabled: true,
-    defaultPageSize: 12,
-    urlSync: true,
-    filters: {},
+    defaultPageSize: 20,
+    filterOptions: {},
     ...config
   }
 
@@ -59,7 +33,6 @@ export const useSearchFilter = (config: SearchFilterConfig = {}) => {
   const state = reactive<SearchFilterState>({
     search: '',
     filters: {},
-    sort: defaultConfig.defaultSort || 'newest',
     pagination: {
       page: 1,
       pageSize: defaultConfig.defaultPageSize || 12,
@@ -70,25 +43,23 @@ export const useSearchFilter = (config: SearchFilterConfig = {}) => {
     }
   })
 
-  // Initialize filter default values
-  if (defaultConfig.filters) {
-    for (const [key, filterConfig] of Object.entries(defaultConfig.filters)) {
+  // Initialize all filter default values
+  if (defaultConfig.filterOptions) {
+    for (const [key, filterConfig] of Object.entries(defaultConfig.filterOptions)) {
       state.filters[key] = filterConfig.defaultValue ?? ''
     }
   }
 
   // Loading states
   const isLoading = ref(false)
-  const isSearching = ref(false)
   const isLoadingMore = ref(false)
 
   // Results
-  const results = ref([])
+  const results = ref<any[]>([])
 
   // Computed properties
   const hasActiveFilters = computed(() => {
     return Object.values(state.filters).some(value => {
-      if (Array.isArray(value)) return value.length > 0
       return value !== '' && value !== null && value !== undefined && value !== false
     })
   })
@@ -101,78 +72,6 @@ export const useSearchFilter = (config: SearchFilterConfig = {}) => {
 
   const isEmpty = computed(() => !hasResults.value && !isLoading.value)
 
-  // URL synchronization
-  const route = useRoute()
-  const router = useRouter()
-
-  const syncToUrl = () => {
-    if (!defaultConfig.urlSync) return
-
-    const query: Record<string, any> = {}
-
-    // Add search to URL
-    if (state.search) {
-      query.search = state.search
-    }
-
-    // Add filters to URL
-    for (const [key, value] of Object.entries(state.filters)) {
-      if (Array.isArray(value) && value.length > 0) {
-        query[key] = value.join(',')
-      } else if (value !== '' && value !== null && value !== undefined && value !== false) {
-        query[key] = value
-      }
-    }
-
-    // Add sort to URL
-    if (state.sort !== defaultConfig.defaultSort) {
-      query.sort = state.sort
-    }
-
-    // Add pagination to URL
-    if (state.pagination.page > 1) {
-      query.page = state.pagination.page
-    }
-
-    // Update URL without causing navigation
-    router.replace({ query })
-  }
-
-  const syncFromUrl = () => {
-    if (!defaultConfig.urlSync) return
-
-    const query = route.query
-
-    // Sync search from URL
-    if (query.search && typeof query.search === 'string') {
-      state.search = query.search
-    }
-
-    // Sync filters from URL
-    for (const key of Object.keys(state.filters)) {
-      if (query[key]) {
-        const filterConfig = defaultConfig.filters?.[key]
-        if (filterConfig?.type === 'multiselect' && typeof query[key] === 'string') {
-          state.filters[key] = query[key].split(',')
-        } else {
-          state.filters[key] = query[key]
-        }
-      }
-    }
-
-    // Sync sort from URL
-    if (query.sort && typeof query.sort === 'string') {
-      state.sort = query.sort
-    }
-
-    // Sync pagination from URL
-    if (query.page && typeof query.page === 'string') {
-      const page = parseInt(query.page)
-      if (page > 0) {
-        state.pagination.page = page
-      }
-    }
-  }
 
   // Search and filter methods
   const buildSearchParams = () => {
@@ -183,33 +82,24 @@ export const useSearchFilter = (config: SearchFilterConfig = {}) => {
       params.search = state.search.trim()
     }
 
-    // Add filters
+    // Add filters (map sort to sortBy)
     for (const [key, value] of Object.entries(state.filters)) {
-      if (Array.isArray(value) && value.length > 0) {
-        params[key] = value
-      } else if (value !== '' && value !== null && value !== undefined && value !== false) {
-        params[key] = value
+      if (value !== '' && value !== null && value !== undefined && value !== false) {
+        params[key === 'sort' ? 'sortBy' : key] = value
       }
-    }
-
-    // Add sort
-    if (state.sort) {
-      params.sortBy = state.sort
     }
 
     return params
   }
 
-  const resetPagination = () => {
-    state.pagination.page = 1
-    state.pagination.total = 0
-    state.pagination.totalPages = 0
-    state.pagination.hasNext = false
-    state.pagination.hasPrev = false
-  }
-
-  const updatePagination = (paginationData: any) => {
-    if (paginationData) {
+  const updatePagination = (paginationData?: any, reset = false) => {
+    if (reset) {
+      state.pagination.page = 1
+      state.pagination.total = 0
+      state.pagination.totalPages = 0
+      state.pagination.hasNext = false
+      state.pagination.hasPrev = false
+    } else if (paginationData) {
       state.pagination.page = paginationData.page || state.pagination.page
       state.pagination.pageSize = paginationData.limit || state.pagination.pageSize
       state.pagination.total = paginationData.total || 0
@@ -219,43 +109,24 @@ export const useSearchFilter = (config: SearchFilterConfig = {}) => {
     }
   }
 
-  // Debounced search function
-  const debouncedSearch = debounce(async (searchFn?: Function) => {
-    if (!searchFn) return
-
-    try {
-      isSearching.value = true
-      resetPagination()
-
-      const searchParams = buildSearchParams()
-      const paginationParams = {
-        page: state.pagination.page,
-        limit: state.pagination.pageSize
-      }
-
-      const response = await searchFn(searchParams, paginationParams)
-
-      if (response && response.success) {
-        results.value = response.data?.data || []
-        updatePagination(response.data?.pagination)
-      }
-    } catch (error) {
-      console.error('Search error:', error)
-      results.value = []
-    } finally {
-      isSearching.value = false
-      isLoading.value = false
-    }
-  }, defaultConfig.searchDebounceMs || 300)
 
   // Main search function
   const search = async (searchFn?: Function, reset = true) => {
-    if (!searchFn) return
+    const callId = Math.random().toString(36).substr(2, 9)
+    console.log(`🔍 [${callId}] Search function called with reset:`, reset)
+    console.log(`🔍 [${callId}] Current states - isLoading:`, isLoading.value)
+
+    if (!searchFn) {
+      console.log(`❌ [${callId}] No searchFn provided`)
+      return
+    }
 
     if (reset) {
+      console.log(`🔄 [${callId}] Setting isLoading to true`)
       isLoading.value = true
-      resetPagination()
+      updatePagination(undefined, true)
     } else {
+      console.log(`📚 [${callId}] Setting isLoadingMore to true`)
       isLoadingMore.value = true
     }
 
@@ -266,7 +137,9 @@ export const useSearchFilter = (config: SearchFilterConfig = {}) => {
         limit: state.pagination.pageSize
       }
 
+      console.log(`🚀 [${callId}] Calling searchFn with params:`, searchParams, paginationParams)
       const response = await searchFn(searchParams, paginationParams)
+      console.log(`📡 [${callId}] Received response:`, response)
 
       if (response && response.success) {
         const newResults = response.data?.data || []
@@ -275,38 +148,40 @@ export const useSearchFilter = (config: SearchFilterConfig = {}) => {
           results.value = newResults
           state.pagination.page = 1
         } else {
-          results.value.push(...newResults)
+          results.value = [...results.value, ...newResults]
           state.pagination.page = paginationParams.page
         }
 
         updatePagination(response.data?.pagination)
       }
     } catch (error) {
-      console.error('Search error:', error)
+      console.error(`❌ [${callId}] Search error:`, error)
       if (reset) {
         results.value = []
       }
     } finally {
+      console.log(`🏁 [${callId}] Finally block: resetting loading states`)
       isLoading.value = false
       isLoadingMore.value = false
+      console.log(`✅ [${callId}] Loading states reset - isLoading:`, isLoading.value)
     }
 
-    if (reset) {
-      syncToUrl()
-    }
   }
 
   // Load more results
-  const loadMore = (searchFn?: Function) => {
-    if (!state.pagination.hasNext || isLoadingMore.value) return
-    return search(searchFn, false)
-  }
+  const loadMore = (searchFn?: Function) => !state.pagination.hasNext || isLoadingMore.value ? undefined : search(searchFn, false)
 
   // Update search query
   const updateSearch = (query: string, searchFn?: Function) => {
+    console.log('🔎 updateSearch called with query:', query)
+    console.log('🔎 Current search state before update:', state.search)
     state.search = query
+    console.log('🔎 Search state after update:', state.search)
     if (searchFn) {
-      debouncedSearch(searchFn)
+      console.log('🔄 Calling search function from updateSearch')
+      search(searchFn, true)
+    } else {
+      console.log('❌ No searchFn provided to updateSearch')
     }
   }
 
@@ -318,26 +193,17 @@ export const useSearchFilter = (config: SearchFilterConfig = {}) => {
     }
   }
 
-  // Update sort
-  const updateSort = (sortValue: string, searchFn?: Function) => {
-    state.sort = sortValue
-    if (searchFn) {
-      search(searchFn, true)
-    }
-  }
 
   // Clear all filters
   const clearFilters = (searchFn?: Function) => {
     state.search = ''
 
-    // Reset filters to default values
-    if (defaultConfig.filters) {
-      for (const [key, filterConfig] of Object.entries(defaultConfig.filters)) {
+    // Reset all filters to default values (including sort)
+    if (defaultConfig.filterOptions) {
+      for (const [key, filterConfig] of Object.entries(defaultConfig.filterOptions)) {
         state.filters[key] = filterConfig.defaultValue ?? ''
       }
     }
-
-    state.sort = defaultConfig.defaultSort || 'newest'
 
     if (searchFn) {
       search(searchFn, true)
@@ -352,23 +218,13 @@ export const useSearchFilter = (config: SearchFilterConfig = {}) => {
     }
   }
 
-  // Initialize from URL on mount
-  onMounted(() => {
-    syncFromUrl()
-  })
-
-  // Watch for route changes
-  watch(() => route.query, () => {
-    syncFromUrl()
-  })
 
   return {
     // State
-    state: readonly(state),
-    results: readonly(results),
-    isLoading: readonly(isLoading),
-    isSearching: readonly(isSearching),
-    isLoadingMore: readonly(isLoadingMore),
+    state,
+    results,
+    isLoading,
+    isLoadingMore,
 
     // Computed
     hasActiveFilters,
@@ -381,19 +237,8 @@ export const useSearchFilter = (config: SearchFilterConfig = {}) => {
     loadMore,
     updateSearch,
     updateFilter,
-    updateSort,
     clearFilters,
-    clearSearch,
-    buildSearchParams,
-    syncToUrl,
-    syncFromUrl
+    clearSearch
   }
 }
 
-function debounce(func: Function, wait: number) {
-  let timeout: NodeJS.Timeout
-  return function executedFunction(...args: any[]) {
-    clearTimeout(timeout)
-    timeout = setTimeout(() => func.apply(this, args), wait)
-  }
-}

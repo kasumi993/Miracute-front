@@ -37,7 +37,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:modelValue', 'change'])
+const emit = defineEmits(['update'])
 
 const localValue = ref(props.modelValue)
 
@@ -75,8 +75,7 @@ const textClass = computed(() => {
 })
 
 const handleChange = () => {
-  emit('update:modelValue', localValue.value)
-  emit('change', localValue.value)
+  emit('update', localValue.value)
 }
 
 watch(() => props.modelValue, (newValue) => {

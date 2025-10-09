@@ -59,7 +59,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:modelValue', 'change'])
+const emit = defineEmits(['update'])
 
 const localValue = ref(props.modelValue)
 
@@ -82,15 +82,15 @@ const formattedOptions = computed(() => {
   })
 })
 
-const wrapperClass = computed(() => 'flex-shrink-0')
+const wrapperClass = computed(() => '')
 
 const selectClass = computed(() => {
-  const baseClasses = 'appearance-none bg-white border border-gray-300 focus:ring-2 focus:ring-brand-sage focus:border-transparent text-gray-900 pr-8'
+  const baseClasses = 'appearance-none bg-white border border-gray-300 focus:ring-2 focus:ring-brand-sage focus:border-transparent text-gray-900 pr-8 w-full'
 
   const sizeClasses = {
-    sm: 'px-2 py-1.5 text-sm min-w-[100px]',
-    md: 'px-3 py-2.5 text-sm min-w-[120px]',
-    lg: 'px-4 py-3 text-base min-w-[140px]'
+    sm: 'px-2 py-1.5 text-sm',
+    md: 'px-3 py-2.5 text-sm',
+    lg: 'px-4 py-3 text-base'
   }
 
   const variantClasses = {
@@ -114,8 +114,7 @@ const iconClass = computed(() => {
 })
 
 const handleChange = () => {
-  emit('update:modelValue', localValue.value)
-  emit('change', localValue.value)
+  emit('update', localValue.value)
 }
 
 watch(() => props.modelValue, (newValue) => {
