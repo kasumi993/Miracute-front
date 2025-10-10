@@ -31,16 +31,7 @@
     </button>
 
     <!-- Cart -->
-    <button @click="cartCounter?.goToCart?.()" class="relative p-2 text-gray-700 hover:text-gray-900 transition-colors">
-      <Icon name="heroicons:shopping-bag" class="w-6 h-6" />
-      <!-- Cart Badge -->
-      <span
-        v-if="cartCounter?.cartCount > 0"
-        class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium min-w-[20px]"
-      >
-        {{ cartCounter?.cartCount || 0 }}
-      </span>
-    </button>
+    <CartIcon />
 
     <!-- Authentication Actions -->
     <div v-if="isAuthenticated" class="hidden lg:flex items-center">
@@ -120,9 +111,7 @@
 <script setup>
 // Composables - use unified auth pattern
 const auth = useAuth()
-const cartCounter = useCartCounter()
 const wishlist = useWishlist()
-const route = useRoute()
 const toast = useToast()
 
 // Emits
@@ -135,7 +124,6 @@ const isUserMenuOpen = ref(false)
 const isAuthenticated = auth.isAuthenticated
 const userEmail = computed(() => auth.authUser.value?.email || '')
 const userInitials = auth.userInitials
-const displayName = auth.displayName
 const accountType = computed(() => {
   const provider = auth.authUser.value?.app_metadata?.provider
   return provider === 'google' ? 'Google Account' : 'Magic Link Account'
@@ -157,8 +145,6 @@ const handleSignOut = async () => {
     const result = await auth.signOut()
     if (result.success) {
       toast.success('Signed out successfully')
-    } else {
-      toast.error('Failed to sign out')
     }
   } catch (error) {
     console.error('Sign out error:', error)

@@ -3,16 +3,14 @@
  * Types for shopping cart functionality
  */
 
-import type { Product } from '../catalog/product'
+import type { ProductWithCategory } from '@/types/database'
 
 export interface CartItem {
   id: string
-  productId: string
-  product: Product
-  quantity: number
-  unitPrice: number
-  totalPrice: number
+  product: ProductWithCategory
+  selectedVariant?: string
   addedAt: string
+  price: number // Price at time of adding to cart
 }
 
 export interface Cart {

@@ -12,10 +12,10 @@
           <div v-for="item in cartItems" :key="item.id" class="flex items-center space-x-3">
             <!-- Product Image -->
             <div class="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-              <img 
-                v-if="item.image" 
-                :src="item.image" 
-                :alt="item.name"
+              <img
+                v-if="item.product.preview_images && item.product.preview_images.length > 0"
+                :src="item.product.preview_images[0]"
+                :alt="item.product.name"
                 class="w-full h-full object-cover"
               >
               <div v-else class="w-full h-full flex items-center justify-center text-gray-400">
@@ -25,8 +25,8 @@
             
             <!-- Product Info -->
             <div class="flex-1 min-w-0">
-              <h5 class="text-sm font-medium text-gray-900 line-clamp-2">{{ item.name }}</h5>
-              <p class="text-xs text-gray-500" v-if="item.category">{{ item.category }}</p>
+              <h5 class="text-sm font-medium text-gray-900 line-clamp-2">{{ item.product.name }}</h5>
+              <p class="text-xs text-gray-500" v-if="item.product.category">{{ item.product.category.name }}</p>
             </div>
             
             <!-- Price -->

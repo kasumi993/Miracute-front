@@ -58,12 +58,12 @@ export const useOrderStore = defineStore('order', {
         id: `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         items: cartItems.map(item => ({
           id: item.id,
-          name: item.name,
-          slug: item.slug,
+          name: item.product.name,
+          slug: item.product.slug,
           price: item.price,
           quantity: item.quantity,
-          templateId: item.id,
-          downloadUrl: item.downloadUrl
+          templateId: item.product.id,
+          downloadUrl: item.product.downloadUrl
         })),
         total: cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0),
         savings: cartItems.reduce((sum, item) => {

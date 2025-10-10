@@ -53,7 +53,6 @@ import OrderSummary from '~/components/Checkout/OrderSummary.vue'
 import type { CustomerForm } from '~/components/Checkout/CustomerInformation.vue'
 import type { PaymentData } from '~/components/Checkout/PaymentMethod.vue'
 import { AccountService } from '@/services'
-import { useCartStore } from '~/stores/product/cart'
 
 definePageMeta({
   layout: 'default'
@@ -61,7 +60,6 @@ definePageMeta({
 
 // Composables
 const cartCounter = useCartCounter()
-const cartStore = useCartStore() // Add Pinia store
 const orderStore = useOrderStore() // Add order store
 const { getCheckoutPrefillData, updateProfileFromCheckout, hasCompleteProfile } = useUserProfile()
 const auth = useAuth()
@@ -278,7 +276,7 @@ const handleCompleteOrder = async () => {
 
   try {
     // Create order using the order store
-    const order = await orderStore.createOrder(cartStore.items, {
+    const order = await orderStore.createOrder(cartCounter.cartItems.value, {
       email: customerData.value.email,
       firstName: customerData.value.firstName,
       lastName: customerData.value.lastName
@@ -332,7 +330,6 @@ const handleCompleteOrder = async () => {
     
     // Clear cart and redirect to success page with order ID
     cartCounter.clearCart()
-    cartStore.clearCart() // Clear Pinia store too
     
     console.log('Order completed successfully!')
     await navigateTo(`/checkout/success?order_id=${order.id}`)

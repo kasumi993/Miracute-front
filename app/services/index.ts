@@ -16,6 +16,7 @@ export { CategoryService } from './CategoryService'
 export { ContactService } from './ContactService'
 export { PaymentService } from './PaymentService'
 export { AccountService } from './AccountService'
+export { CartService } from './CartService'
 
 
 // Re-export types for convenience

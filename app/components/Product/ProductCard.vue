@@ -110,7 +110,6 @@
 </template>
 
 <script setup lang="ts">
-import { useCartStore } from '@/stores/product/cart'
 import type { ProductWithCategory } from '@/types/database'
 
 type Product = ProductWithCategory & {
@@ -130,7 +129,7 @@ interface Props {
 const props = defineProps<Props>()
 
 // Composables
-const cartStore = useCartStore()
+const cartCounter = useCartCounter()
 const wishlist = useWishlist()
 const toast = useToast()
 
@@ -149,14 +148,14 @@ const discountPercentage = computed(() => {
   return Math.round(((comparePrice.value! - price.value) / comparePrice.value!) * 100)
 })
 
-const isProductInCart = computed(() => cartStore.isInCart(props.product.id))
+const isProductInCart = computed(() => cartCounter.isInCart(props.product.id))
 
 // Wishlist state
 const isInWishlist = computed(() => wishlist.isInWishlist(props.product.id))
 
 // Cart methods
 const quickAddToCart = () => {
-  cartStore.addItem(props.product)
+  cartCounter.addToCart(props.product)
 }
 
 const toggleWishlist = () => {
