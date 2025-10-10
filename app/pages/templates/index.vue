@@ -195,6 +195,21 @@ const handleLoadMore = () => {
 
 
 
+// Watch for route changes to handle search from header
+const route = useRoute()
+watch(() => route.query.search, (newSearch) => {
+  if (newSearch && typeof newSearch === 'string' && newSearch !== searchState.search) {
+    console.log('Route search changed:', newSearch)
+    searchState.search = newSearch
+    search(searchProducts)
+  } else if (!newSearch && searchState.search) {
+    // URL search param was cleared, clear the search state
+    console.log('URL search cleared, clearing search state')
+    searchState.search = ''
+    search(searchProducts)
+  }
+}, { immediate: true })
+
 onMounted(async () => {
   try {
     console.log('Loading categories...')
