@@ -102,7 +102,7 @@
 </template>
 
 <script setup lang="ts">
-import { reviewsService } from '@/services'
+import { ReviewsService } from '@/services'
 
 interface Props {
   productId: string
@@ -209,7 +209,7 @@ const submitReview = async () => {
     }
     console.log('ReviewForm: Request body =', requestBody)
     
-    const response = await reviewsService.submitReview(requestBody)
+    const response = await ReviewsService.submitReview(requestBody)
     
     console.log('ReviewForm: Response =', response)
     

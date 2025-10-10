@@ -1,10 +1,10 @@
-import { reviewsService } from '@/services'
+import { ReviewsService } from '@/services'
 
 export const useReviews = () => {
   // Get reviews for a product
   const getProductReviews = async (productId: string) => {
     try {
-      const response = await reviewsService.getProductReviews(productId)
+      const response = await ReviewsService.getProductReviews(productId)
       return response
     } catch (error) {
       console.error('Error fetching reviews:', error)
@@ -21,7 +21,7 @@ export const useReviews = () => {
     comment?: string
   }) => {
     try {
-      const response = await reviewsService.submitReview(reviewData)
+      const response = await ReviewsService.submitReview(reviewData)
       return response
     } catch (error) {
       console.error('Error submitting review:', error)
@@ -38,7 +38,7 @@ export const useReviews = () => {
     rating?: number
   } = {}) => {
     try {
-      const response = await reviewsService.getReviewsForModeration(params.page, params.limit, params.status)
+      const response = await ReviewsService.getReviewsForModeration(params.page, params.limit, params.status)
       return response
     } catch (error) {
       console.error('Error fetching admin reviews:', error)
@@ -54,7 +54,7 @@ export const useReviews = () => {
     rating?: number
   }) => {
     try {
-      const response = await reviewsService.updateReview(reviewId, updates)
+      const response = await ReviewsService.updateReview(reviewId, updates)
       return response
     } catch (error) {
       console.error('Error updating review:', error)
@@ -65,7 +65,7 @@ export const useReviews = () => {
   // Delete review (admin)
   const deleteReview = async (reviewId: string) => {
     try {
-      const response = await reviewsService.deleteReview(reviewId)
+      const response = await ReviewsService.deleteReview(reviewId)
       return response
     } catch (error) {
       console.error('Error deleting review:', error)
@@ -85,7 +85,7 @@ export const useReviews = () => {
     force_override?: boolean
   }) => {
     try {
-      const response = await reviewsService.submitReview(reviewData)
+      const response = await ReviewsService.submitReview(reviewData)
       return response
     } catch (error) {
       console.error('Error creating review:', error)
