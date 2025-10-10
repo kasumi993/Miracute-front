@@ -134,13 +134,14 @@ export const useUserStore = defineStore('user', {
       }
     },
 
-    async signOut(): Promise<void> {
+    async signOut(): Promise<{ success: boolean; error?: string }> {
       this.setLoading(true)
 
       try {
         await authService.signOut()
       } catch (error) {
         console.warn('Auth service signOut failed:', error)
+        // Note: We still continue with local sign out even if server call fails
       }
 
       this.clearAuthState()
@@ -152,6 +153,8 @@ export const useUserStore = defineStore('user', {
       }
 
       this.setLoading(false)
+      // Always return success since we clear local state regardless
+      return { success: true }
     },
 
     // Profile management
