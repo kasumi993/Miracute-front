@@ -18,7 +18,6 @@ export const useCartCounter = () => {
 
     // Methods - map store methods
     addToCart: cartStore.addItem, // Now works as toggle for digital items
-    toggleCart: cartStore.toggleItem, // Explicit toggle method
     removeFromCart: cartStore.removeItem,
     clearCart: cartStore.clearCart,
     isInCart: (productId: string) => cartStore.isInCart(productId),
