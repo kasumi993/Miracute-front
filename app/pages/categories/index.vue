@@ -109,7 +109,7 @@
       </div>
 
       <div class="text-center mt-12">
-        <NuxtLink to="/templates" class="btn-primary">
+        <NuxtLink to="/listings" class="btn-primary">
           View All Templates
           <Icon name="heroicons:arrow-right" class="ml-2 w-5 h-5" />
         </NuxtLink>

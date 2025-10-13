@@ -133,7 +133,7 @@ export function generateWebsiteStructuredData() {
     },
     potentialAction: {
       '@type': 'SearchAction',
-      target: `${SEO_CONFIG.siteUrl}/templates?search={search_term_string}`,
+      target: `${SEO_CONFIG.siteUrl}/listings?search={search_term_string}`,
       'query-input': 'required name=search_term_string'
     }
   }

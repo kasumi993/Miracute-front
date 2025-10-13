@@ -38,7 +38,7 @@ const performSearch = async (query) => {
   const searchTerm = query || searchQuery.value
   if (searchTerm.trim()) {
     // Navigate to templates page with search query
-    await navigateTo(`/templates?search=${encodeURIComponent(searchTerm.trim())}`)
+    await navigateTo(`/listings?search=${encodeURIComponent(searchTerm.trim())}`)
   }
 }
 
@@ -53,8 +53,8 @@ const clearSearch = () => {
 
   // If we're on templates page, clear the URL search param
   const route = useRoute()
-  if (route.path === '/templates') {
-    navigateTo('/templates')
+  if (route.path === '/listings') {
+    navigateTo('/listings')
   }
 }
 

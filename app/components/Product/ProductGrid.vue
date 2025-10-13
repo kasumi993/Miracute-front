@@ -73,7 +73,7 @@ const props = withDefaults(defineProps<Props>(), {
   emptyMessage: 'We couldn\'t find any templates matching your criteria. Try adjusting your filters or search terms.',
   emptyAction: () => ({
     text: 'Browse All Templates',
-    link: '/templates'
+    link: '/listings'
   })
 })
 

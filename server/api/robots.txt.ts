@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
 Allow: /
 
 # Allow important pages
-Allow: /templates
+Allow: /listings
 Allow: /categories
 Allow: /about
 Allow: /contact

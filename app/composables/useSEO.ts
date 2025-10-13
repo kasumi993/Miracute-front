@@ -129,7 +129,7 @@ export const useSEO = () => {
       keywords,
       image: product.preview_images?.[0] || '/images/og-template.jpg',
       type: 'product',
-      canonical: `/templates/${product.slug}`
+      canonical: `/listings/${product.slug}`
     })
   }
 
@@ -224,7 +224,7 @@ export const useSEO = () => {
       description,
       keywords: 'website templates, professional design, business templates, portfolio templates, wedding templates, canva templates',
       image: '/images/og-templates.jpg',
-      canonical: '/templates'
+      canonical: '/listings'
     })
   }
 

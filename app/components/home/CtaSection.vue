@@ -11,7 +11,7 @@
       <p class="text-base sm:text-lg lg:text-xl text-gray-300 mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed">
         Join a growing community of entrepreneurs, couples, and creatives who've chosen human-crafted design over AI-generated templates.
       </p>
-      <NuxtLink to="/templates" class="btn-primary bg-white text-gray-900 hover:bg-gray-100 text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto justify-center">
+      <NuxtLink to="/listings" class="btn-primary bg-white text-gray-900 hover:bg-gray-100 text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto justify-center">
         Find Your Template
         <Icon name="heroicons:arrow-right" class="ml-2 w-4 sm:w-5 h-4 sm:h-5" />
       </NuxtLink>

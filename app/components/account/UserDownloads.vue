@@ -10,7 +10,7 @@
     <div v-if="userDownloads.length === 0" class="text-center py-8">
       <Icon name="heroicons:arrow-down-tray" class="w-12 h-12 text-gray-300 mx-auto mb-4" />
       <p class="text-gray-500">No downloads yet</p>
-      <NuxtLink to="/templates" class="text-brand-brown hover:text-brand-brown/80 font-medium text-sm mt-2 block">
+      <NuxtLink to="/listings" class="text-brand-brown hover:text-brand-brown/80 font-medium text-sm mt-2 block">
         Browse Templates →
       </NuxtLink>
     </div>

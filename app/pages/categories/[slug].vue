@@ -27,7 +27,7 @@
         <NuxtLink to="/categories" class="btn-primary">
           View All Categories
         </NuxtLink>
-        <NuxtLink to="/templates" class="btn-secondary">
+        <NuxtLink to="/listings" class="btn-secondary">
           Browse Templates
         </NuxtLink>
       </div>
@@ -125,7 +125,7 @@
           <Icon name="heroicons:squares-2x2" class="w-16 h-16 text-gray-300 mx-auto mb-6" />
           <h3 class="text-xl font-heading font-medium text-gray-900 mb-2">No templates found</h3>
           <p class="text-gray-600 mb-6">We're working on adding more templates to this category.</p>
-          <NuxtLink to="/templates" class="btn-primary">
+          <NuxtLink to="/listings" class="btn-primary">
             Browse All Templates
           </NuxtLink>
         </div>

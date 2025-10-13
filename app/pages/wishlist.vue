@@ -61,7 +61,7 @@
             class="group"
           >
             <NuxtLink
-              :to="`/templates/${item.slug}`"
+              :to="`/listings/${item.slug}`"
               class="block bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
             >
               <!-- Product Image -->

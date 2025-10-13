@@ -7,7 +7,7 @@
     <div v-else-if="error || !product" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
       <h1 class="text-2xl font-medium text-gray-900 mb-2">Template not found</h1>
       <p class="text-gray-600 mb-6">{{ error || 'This template may have been removed or doesn\'t exist.' }}</p>
-      <NuxtLink to="/templates" class="text-brand-brown hover:text-brand-brown/80 font-medium">
+      <NuxtLink to="/listings" class="text-brand-brown hover:text-brand-brown/80 font-medium">
         ← Back to templates
       </NuxtLink>
     </div>
@@ -20,7 +20,7 @@
           <nav class="flex items-center space-x-2 text-sm">
             <NuxtLink to="/" class="text-gray-500 hover:text-gray-700">Home</NuxtLink>
             <Icon name="heroicons:chevron-right" class="w-4 h-4 text-gray-400" />
-            <NuxtLink to="/templates" class="text-gray-500 hover:text-gray-700">Templates</NuxtLink>
+            <NuxtLink to="/listings" class="text-gray-500 hover:text-gray-700">Templates</NuxtLink>
             <Icon name="heroicons:chevron-right" class="w-4 h-4 text-gray-400" />
             <span class="text-gray-900">{{ product.name }}</span>
           </nav>
@@ -28,11 +28,14 @@
       </div>
 
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-8">
-        <!-- Mobile Product Header -->
-        <ProductMobileHeader
-          :product="product"
-          :review-count="reviewCount"
-        />
+        <!-- Product Header (Mobile only) -->
+        <div class="lg:hidden mb-4">
+          <ProductHeader
+            :product="product"
+            :review-count="reviewCount"
+            :download-count="downloadCount"
+          />
+        </div>
 
         <!-- Main Content -->
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-16 mb-8 lg:mb-16">
@@ -93,11 +96,13 @@
           <!-- Right Column: Product Info + Actions + Sections -->
           <div class="lg:col-span-2 space-y-6">
             <!-- Desktop Product Header -->
-            <ProductDesktopHeader
-              :product="product"
-              :review-count="reviewCount"
-              :download-count="downloadCount"
-            />
+            <div class="hidden lg:block">
+              <ProductHeader
+                :product="product"
+                :review-count="reviewCount"
+                :download-count="downloadCount"
+              />
+            </div>
 
             <!-- Desktop Actions -->
             <div class="hidden lg:block">
@@ -111,21 +116,18 @@
               />
             </div>
 
-            <!-- Desktop Sections -->
-            <ProductDesktopSections :product="product" />
-
-            <!-- Mobile Collapsible Sections -->
-            <ProductMobileSections
+            <!-- Product Sections (Responsive) -->
+            <ProductSections
               :product="product"
               :user-id="user?.id"
               :can-write-review="canUserReview"
-              ref="mobileSections"
+              ref="productSections"
             />
           </div>
         </div>
 
         <!-- Related Products -->
-        <div v-if="relatedProducts.length > 0">
+        <div v-if="relatedProducts && relatedProducts.length > 0">
           <h2 class="text-2xl font-medium text-gray-900 mb-6">Similar templates</h2>
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <ProductCard
@@ -169,7 +171,7 @@ const downloadCount = computed(() => getDownloadCount())
 
 // Template refs
 const reviewsListDesktop = ref()
-const mobileSections = ref()
+const productSections = ref()
 
 // Review refresh functionality
 const refreshAllReviews = () => {
@@ -179,15 +181,15 @@ const refreshAllReviews = () => {
   }
 
   // Refresh mobile reviews
-  if (mobileSections.value?.reviewsList?.refreshReviews) {
-    mobileSections.value.reviewsList.refreshReviews()
+  if (productSections.value?.reviewsList?.refreshReviews) {
+    productSections.value.reviewsList.refreshReviews()
   }
 }
 
 // Update review count from ReviewsList components
 const updateReviewCount = () => {
   const desktopStats = reviewsListDesktop.value?.stats
-  const mobileStats = mobileSections.value?.reviewsList?.stats
+  const mobileStats = productSections.value?.reviewsList?.stats
 
   const stats = desktopStats || mobileStats
   if (stats?.total_reviews) {
@@ -196,7 +198,7 @@ const updateReviewCount = () => {
 }
 
 // Watch for changes in ReviewsList components
-watch([reviewsListDesktop, mobileSections], updateReviewCount, { deep: true })
+watch([reviewsListDesktop, productSections], updateReviewCount, { deep: true })
 
 // Provide refresh function to child components
 provide('refreshAllReviews', refreshAllReviews)

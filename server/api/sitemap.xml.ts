@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
     // Static pages
     const staticPages = [
       { url: '', priority: '1.0', changefreq: 'weekly' },
-      { url: 'templates', priority: '0.9', changefreq: 'daily' },
+      { url: 'listings', priority: '0.9', changefreq: 'daily' },
       { url: 'categories', priority: '0.8', changefreq: 'weekly' },
       { url: 'about', priority: '0.7', changefreq: 'monthly' },
       { url: 'contact', priority: '0.6', changefreq: 'monthly' },
@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
   </url>`).join('') || ''}
   ${products?.map(product => `
   <url>
-    <loc>${siteUrl}/templates/${product.slug}</loc>
+    <loc>${siteUrl}/listings/${product.slug}</loc>
     <lastmod>${product.updated_at.split('T')[0]}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>

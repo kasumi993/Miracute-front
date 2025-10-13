@@ -25,7 +25,7 @@
     >
       <div v-show="showMobileMenu" class="lg:hidden border-t border-gray-200 bg-white">
         <div class="px-4 py-3 space-y-3">
-          <NuxtLink to="/templates" @click="closeMenu" class="block text-gray-700 hover:text-gray-900 font-medium py-2">
+          <NuxtLink to="/listings" @click="closeMenu" class="block text-gray-700 hover:text-gray-900 font-medium py-2">
             Templates
           </NuxtLink>
           
@@ -51,13 +51,13 @@
                 <NuxtLink 
                   v-for="category in categories" 
                   :key="category.slug"
-                  :to="`/templates?category=${category.slug}`" 
+                  :to="`/listings?category=${category.slug}`" 
                   @click="closeMenu"
                   class="block text-sm text-gray-600 hover:text-gray-900 py-1"
                 >
                   {{ category.name }}
                 </NuxtLink>
-                <NuxtLink to="/templates" @click="closeMenu" class="block text-sm text-gray-600 hover:text-gray-900 py-1 font-medium">
+                <NuxtLink to="/listings" @click="closeMenu" class="block text-sm text-gray-600 hover:text-gray-900 py-1 font-medium">
                   View All Categories →
                 </NuxtLink>
               </div>

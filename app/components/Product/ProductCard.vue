@@ -1,7 +1,7 @@
 <template>
   <div class="group">
-    <NuxtLink :to="`/templates/${product.slug}`" class="block">
-      <!-- Large Image Card - Etsy Style -->
+    <NuxtLink :to="`/listings/${product.slug}`" class="block">
+      <!-- Large Image Card -->
       <div class="aspect-[4/5] bg-white rounded-2xl overflow-hidden mb-3 group-hover:shadow-xl transition-all duration-300 relative border border-gray-100">
         <img 
           v-if="product.preview_images?.[0]"

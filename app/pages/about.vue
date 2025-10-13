@@ -225,8 +225,8 @@
 
           <!-- CTA Buttons -->
           <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <NuxtLink 
-              to="/templates" 
+            <NuxtLink
+              to="/listings"
               class="bg-gray-900 text-white px-8 py-4 rounded-2xl font-medium hover:bg-gray-800 transition-colors inline-flex items-center justify-center"
             >
               Browse Templates

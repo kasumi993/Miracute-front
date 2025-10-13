@@ -43,7 +43,7 @@
           Clear Cart
         </button>
         <div class="text-center">
-          <NuxtLink to="/templates" class="text-brand-brown hover:text-brand-brown/80 font-medium text-sm inline-flex items-center space-x-1">
+          <NuxtLink to="/listings" class="text-brand-brown hover:text-brand-brown/80 font-medium text-sm inline-flex items-center space-x-1">
             <Icon name="heroicons:arrow-left" class="w-4 h-4" />
             <span>Continue Shopping</span>
           </NuxtLink>

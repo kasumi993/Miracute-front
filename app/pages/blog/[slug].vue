@@ -105,7 +105,7 @@
                   <NuxtLink to="/contact" class="text-brand-brown hover:text-brand-brown/80 font-medium text-sm">
                     Get in touch →
                   </NuxtLink>
-                  <NuxtLink to="/templates" class="text-brand-brown hover:text-brand-brown/80 font-medium text-sm">
+                  <NuxtLink to="/listings" class="text-brand-brown hover:text-brand-brown/80 font-medium text-sm">
                     View templates →
                   </NuxtLink>
                 </div>

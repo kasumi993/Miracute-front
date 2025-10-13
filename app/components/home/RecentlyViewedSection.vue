@@ -26,7 +26,7 @@
           :key="template.id"
           class="group relative"
         >
-          <NuxtLink :to="`/templates/${template.slug}`" class="block">
+          <NuxtLink :to="`/listings/${template.slug}`" class="block">
             <div class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-100 group-hover:border-brand-sage/20">
               <!-- Template Image -->
               <div class="aspect-[4/3] bg-gradient-to-br from-brand-sage/10 to-brand-warm/10 relative overflow-hidden">
@@ -78,7 +78,7 @@
       <!-- View All Link -->
       <div class="text-center mt-8">
         <NuxtLink
-          to="/templates"
+          to="/listings"
           class="inline-flex items-center text-brand-brown hover:text-brand-brown/80 font-medium transition-colors"
         >
           Browse all templates

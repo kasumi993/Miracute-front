@@ -204,7 +204,7 @@
                     <span>View My Downloads</span>
                   </NuxtLink>
 
-                  <NuxtLink to="/templates"
+                  <NuxtLink to="/listings"
                             class="w-full flex items-center justify-center space-x-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 rounded-lg transition-colors text-sm">
                     <Icon name="heroicons:sparkles" class="w-3 h-3" />
                     <span>Browse More</span>
@@ -277,7 +277,7 @@
           <NuxtLink to="/contact" class="btn-primary">
             Contact Support
           </NuxtLink>
-          <NuxtLink to="/templates" class="btn-secondary">
+          <NuxtLink to="/listings" class="btn-secondary">
             Continue Shopping
           </NuxtLink>
         </div>

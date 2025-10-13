@@ -12,7 +12,7 @@
 
       <!-- Button -->
       <NuxtLink
-        to="/templates"
+        to="/listings"
         class="inline-flex items-center space-x-2 bg-gray-900 hover:bg-gray-800 text-white font-medium py-3 px-6 rounded-lg transition-colors"
       >
         <span>Browse Templates</span>

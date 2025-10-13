@@ -62,27 +62,27 @@
             <h3 class="font-heading font-medium text-base sm:text-lg mb-3 sm:mb-4">Templates</h3>
             <ul class="space-y-2 sm:space-y-3">
               <li>
-                <NuxtLink to="/templates?category=wedding-templates" class="text-gray-300 hover:text-white transition-colors text-xs sm:text-sm lg:text-base">
+                <NuxtLink to="/listings?category=wedding-templates" class="text-gray-300 hover:text-white transition-colors text-xs sm:text-sm lg:text-base">
                   Wedding Templates
                 </NuxtLink>
               </li>
               <li>
-                <NuxtLink to="/templates?category=business-templates" class="text-gray-300 hover:text-white transition-colors text-xs sm:text-sm lg:text-base">
+                <NuxtLink to="/listings?category=business-templates" class="text-gray-300 hover:text-white transition-colors text-xs sm:text-sm lg:text-base">
                   Business Templates
                 </NuxtLink>
               </li>
               <li>
-                <NuxtLink to="/templates?category=therapist-templates" class="text-gray-300 hover:text-white transition-colors text-xs sm:text-sm lg:text-base">
+                <NuxtLink to="/listings?category=therapist-templates" class="text-gray-300 hover:text-white transition-colors text-xs sm:text-sm lg:text-base">
                   Therapist Templates
                 </NuxtLink>
               </li>
               <li>
-                <NuxtLink to="/templates?category=portfolio-templates" class="text-gray-300 hover:text-white transition-colors text-xs sm:text-sm lg:text-base">
+                <NuxtLink to="/listings?category=portfolio-templates" class="text-gray-300 hover:text-white transition-colors text-xs sm:text-sm lg:text-base">
                   Portfolio Templates
                 </NuxtLink>
               </li>
               <li>
-                <NuxtLink to="/templates" class="text-white font-medium hover:text-gray-300 transition-colors text-xs sm:text-sm lg:text-base">
+                <NuxtLink to="/listings" class="text-white font-medium hover:text-gray-300 transition-colors text-xs sm:text-sm lg:text-base">
                   View All Templates →
                 </NuxtLink>
               </li>

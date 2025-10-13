@@ -9,7 +9,7 @@
           </h2>
           <p class="text-sm sm:text-base text-gray-600">Complete bundles that work together</p>
         </div>
-        <NuxtLink to="/templates" 
+        <NuxtLink to="/listings"
                   class="hidden sm:flex items-center text-brand-brown hover:text-brand-brown/80 font-medium group text-sm md:text-base">
           View All
           <Icon name="heroicons:arrow-right" class="ml-1 w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -32,7 +32,7 @@
       <div v-else-if="featuredProducts.length > 0" class="overflow-x-auto pb-4 px-4 sm:px-0 -mx-4 sm:mx-0">
         <div class="flex space-x-4 sm:space-x-6 min-w-max pl-4 sm:pl-0">
           <div v-for="product in featuredProducts" :key="product.id" class="group flex-none w-72 sm:w-80">
-            <NuxtLink :to="`/templates/${product.slug}`" class="block">
+            <NuxtLink :to="`/listings/${product.slug}`" class="block">
               <div class="bg-white border-2 border-gray-100 rounded-2xl overflow-hidden hover:border-brand-brown/20 hover:shadow-lg transition-all duration-300">
                 <!-- Template Preview - Compact -->
                 <div class="relative overflow-hidden bg-gray-100 h-44 sm:h-48">
@@ -105,7 +105,7 @@
 
       <!-- Mobile CTA -->
       <div class="text-center mt-6 sm:mt-8 sm:hidden px-4">
-        <NuxtLink to="/templates" 
+        <NuxtLink to="/listings"
                   class="inline-flex items-center px-6 py-3 bg-gray-900 text-white rounded-xl font-medium hover:bg-gray-800 transition-colors text-sm">
           View All Templates
           <Icon name="heroicons:arrow-right" class="ml-2 w-4 h-4" />
