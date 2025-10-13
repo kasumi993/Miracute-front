@@ -349,43 +349,9 @@ const getStatusColor = (status) => {
   }
 }
 
-// Initialize and check access immediately
+// Load dashboard data when component mounts
 onMounted(async () => {
-  console.log('Dashboard mounted, checking access...')
-
-  try {
-    // Ensure auth state is initialized (fallback if plugin failed)
-    if (!userStore.isInitialized) {
-      await userStore.loadAuthState()
-    }
-
-    // Check admin access through store
-    if (!userStore.isAuthenticated) {
-      console.log('Dashboard: Not authenticated, redirecting to home...')
-      if (process.client) {
-        window.location.replace('/')
-      }
-      return
-    }
-
-    if (!userStore.isAdmin) {
-      console.log('Dashboard: Not admin, redirecting to home...')
-      if (process.client) {
-        window.location.replace('/')
-      }
-      return
-    }
-
-    console.log('Dashboard: Admin access granted, loading data...')
-
-    // Load dashboard data
-    await loadDashboardData()
-
-  } catch (error) {
-    console.error('Dashboard access error:', error)
-    if (process.client) {
-      window.location.replace('/')
-    }
-  }
+  console.log('Dashboard mounted, loading data...')
+  await loadDashboardData()
 })
 </script>

@@ -1,5 +1,5 @@
-import { useUserStore } from '~/stores/auth/user'
 import type { RouteLocationNormalized } from 'vue-router'
+import { ensureAuthState, shouldRunMiddleware } from '~/utils/middleware-auth'
 
 /**
  * Requires user to be authenticated.
@@ -7,14 +7,10 @@ import type { RouteLocationNormalized } from 'vue-router'
  */
 export default defineNuxtRouteMiddleware(
   async (to: RouteLocationNormalized) => {
-    const userStore = useUserStore()
+    if (!shouldRunMiddleware()) return
 
-    // Ensure auth state is initialized (fallback if plugin failed)
-    if (!userStore.isInitialized) {
-      await userStore.loadAuthState()
-    }
+    const userStore = await ensureAuthState()
 
-    // Check if authenticated
     if (!userStore.isAuthenticatedAndValid) {
       return navigateTo(`/auth/login?redirect=${encodeURIComponent(to.fullPath)}`)
     }
