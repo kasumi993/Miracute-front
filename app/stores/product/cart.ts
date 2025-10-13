@@ -13,7 +13,8 @@ interface CartState {
     clear: boolean
   }
   error: string | null
-  lastUpdated: number | null
+  isInitialized: boolean
+  hasAuthWatcher: boolean
 }
 
 export const useCartStore = defineStore('cart', {
@@ -26,7 +27,8 @@ export const useCartStore = defineStore('cart', {
       clear: false
     },
     error: null,
-    lastUpdated: null
+    isInitialized: false,
+    hasAuthWatcher: false
   }),
 
   getters: {
@@ -88,9 +90,6 @@ export const useCartStore = defineStore('cart', {
       this.error = error
     },
 
-    updateLastModified() {
-      this.lastUpdated = Date.now()
-    },
 
     // Toggle item in cart (add if not present, remove if present)
     async addItem(product: ProductWithCategory, variant?: string) {
@@ -115,7 +114,6 @@ export const useCartStore = defineStore('cart', {
           }
 
           this.items.push(cartItem)
-          this.updateLastModified()
 
           // Persist cart changes
           await this.persistCart()
@@ -140,7 +138,6 @@ export const useCartStore = defineStore('cart', {
         const index = this.items.findIndex(item => item.id === itemId)
         if (index !== -1) {
           this.items.splice(index, 1)
-          this.updateLastModified()
 
           // Persist cart changes
           await this.persistCart()
@@ -164,7 +161,6 @@ export const useCartStore = defineStore('cart', {
 
       try {
         this.items = []
-        this.updateLastModified()
 
         // Persist cart changes
         await this.persistCart()
@@ -188,18 +184,20 @@ export const useCartStore = defineStore('cart', {
     // Cart persistence using composable
     async persistCart() {
       const { syncCart } = useCartPersistence()
-      await syncCart(this.items, this.lastUpdated)
+      await syncCart(this.items)
     },
 
     async initializeCart() {
+      if (this.isInitialized) return
+
       const { initializeCart } = useCartPersistence()
       const result = await initializeCart()
       this.items = result.items
-      this.lastUpdated = result.lastUpdated
+      this.isInitialized = true
     },
 
     initializeAuthWatcher() {
-      if (import.meta.client) {
+      if (import.meta.client && !this.hasAuthWatcher) {
         const auth = useAuth()
         let wasAuthenticated = auth.isAuthenticated.value
 
@@ -210,6 +208,8 @@ export const useCartStore = defineStore('cart', {
           }
           wasAuthenticated = isAuthenticated
         })
+
+        this.hasAuthWatcher = true
       }
     },
 
@@ -239,7 +239,6 @@ export const useCartStore = defineStore('cart', {
 
         await saveToDatabase(this.items)
         clearLocalStorage()
-        this.updateLastModified()
         console.log('Guest cart migration completed')
       }
     }

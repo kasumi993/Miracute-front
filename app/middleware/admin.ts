@@ -9,8 +9,10 @@ export default defineNuxtRouteMiddleware(
     // Skip on server-side during SSR
     if (process.server) {return}
     const userStore = useUserStore()
-    await userStore.ensureInitialized() // Attendre la fin de l'initialisation
-
+    // Ensure auth state is initialized (fallback if plugin failed)
+    if (!userStore.isInitialized) {
+      await userStore.loadAuthState()
+    }
     // 1. Vérification de l'authentification
     if (!userStore.isAuthenticatedAndValid) {
       return navigateTo(`/auth/login?redirect=${encodeURIComponent(to.fullPath)}`)

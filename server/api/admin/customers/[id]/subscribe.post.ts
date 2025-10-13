@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
     // Get customer details
     const { data: customer, error: customerError } = await supabase
       .from('users')
-      .select('email, full_name')
+      .select('email, first_name, last_name')
       .eq('id', customerId)
       .single()
 
@@ -29,8 +29,8 @@ export default defineEventHandler(async (event) => {
     }
 
     // Add customer to Brevo newsletter list
-    const firstName = customer.full_name ? customer.full_name.split(' ')[0] : customer.email.split('@')[0]
-    const lastName = customer.full_name ? customer.full_name.split(' ').slice(1).join(' ') : undefined
+    const firstName = customer.first_name || customer.email.split('@')[0]
+    const lastName = customer.last_name || undefined
 
     const brevoResult = await addToNewsletterList(customer.email, firstName, lastName)
 

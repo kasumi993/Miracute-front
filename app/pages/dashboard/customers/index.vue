@@ -174,13 +174,13 @@
                     <div class="flex-shrink-0 h-10 w-10">
                       <div class="h-10 w-10 rounded-full bg-brand-brown flex items-center justify-center">
                         <span class="text-white font-medium">
-                          {{ getInitials(customer.full_name || customer.email) }}
+                          {{ getInitials(customer) }}
                         </span>
                       </div>
                     </div>
                     <div class="ml-4">
                       <div class="text-sm font-medium text-gray-900">
-                        {{ customer.full_name || 'Guest Customer' }}
+                        {{ getCustomerFullName(customer) }}
                       </div>
                       <div class="text-sm text-gray-500">
                         {{ customer.email }}
@@ -312,7 +312,8 @@ useSeoMeta({
 interface CustomerData {
   id: string
   email: string
-  full_name: string | null
+  first_name: string | null
+  last_name: string | null
   avatar_url: string | null
   role: 'customer' | 'admin'
   stripe_customer_id: string | null
@@ -409,18 +410,28 @@ const changePage = (page: number) => {
   fetchCustomers()
 }
 
-// Get initials from name or email
-const getInitials = (name: string) => {
-  if (!name) return '?'
-  
-  const parts = name.split(' ')
-  if (parts.length >= 2) {
-    return (parts[0][0] + parts[1][0]).toUpperCase()
-  } else if (name.includes('@')) {
-    return name[0].toUpperCase()
-  } else {
-    return name.slice(0, 2).toUpperCase()
+// Helper functions for customer data
+const getCustomerFullName = (customer: CustomerData) => {
+  if (!customer) return 'Guest Customer'
+  if (customer.first_name || customer.last_name) {
+    return `${customer.first_name || ''} ${customer.last_name || ''}`.trim()
   }
+  return 'Guest Customer'
+}
+
+const getInitials = (customer: CustomerData) => {
+  if (!customer) return '?'
+
+  if (customer.first_name && customer.last_name) {
+    return `${customer.first_name.charAt(0)}${customer.last_name.charAt(0)}`.toUpperCase()
+  } else if (customer.first_name) {
+    return customer.first_name.charAt(0).toUpperCase()
+  } else if (customer.last_name) {
+    return customer.last_name.charAt(0).toUpperCase()
+  } else if (customer.email) {
+    return customer.email.charAt(0).toUpperCase()
+  }
+  return '?'
 }
 
 // Format date
@@ -446,7 +457,7 @@ const subscribeToNewsletter = async (customer: CustomerData) => {
     })
     
     customer.newsletter_subscribed = true
-    useToast().success(`${customer.full_name || customer.email} subscribed to newsletter`)
+    useToast().success(`${getCustomerFullName(customer) || customer.email} subscribed to newsletter`)
     
   } catch (error: any) {
     console.error('Failed to subscribe customer:', error)

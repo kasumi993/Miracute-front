@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
 
     // Apply filters
     if (search) {
-      customersQuery = customersQuery.or(`full_name.ilike.%${search}%,email.ilike.%${search}%`)
+      customersQuery = customersQuery.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,email.ilike.%${search}%`)
     }
 
     if (type === 'registered') {

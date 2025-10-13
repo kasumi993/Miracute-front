@@ -42,7 +42,25 @@ export const authService = {
   },
   
   /**
-   * Récupère la session actuelle.
+   * Récupère l'utilisateur authentifié actuel (recommandé par Supabase).
+   */
+  async getUser() {
+    try {
+      const supabase = getSupabaseClient()
+      if (!supabase?.auth) {
+        console.warn('Supabase auth client not available for getUser')
+        return null
+      }
+
+      return await supabase.auth.getUser()
+    } catch (error) {
+      console.error('Error getting user:', error)
+      return null
+    }
+  },
+
+  /**
+   * Récupère la session actuelle (pour les tokens uniquement).
    */
   async getSession() {
     try {

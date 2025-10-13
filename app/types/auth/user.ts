@@ -26,7 +26,6 @@ export interface AuthUser {
 
 export interface UserMetadata {
   avatar_url?: string
-  full_name?: string
   first_name?: string
   last_name?: string
 }
@@ -42,7 +41,6 @@ export interface UserProfile {
   email: string
   firstName?: string
   lastName?: string
-  fullName?: string
   avatarUrl?: string
   role: UserRole
   stripeCustomerId?: string

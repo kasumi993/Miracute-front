@@ -354,9 +354,9 @@ onMounted(async () => {
   console.log('Dashboard mounted, checking access...')
 
   try {
-    // Initialize user store if not already initialized
+    // Ensure auth state is initialized (fallback if plugin failed)
     if (!userStore.isInitialized) {
-      await userStore.initialize()
+      await userStore.loadAuthState()
     }
 
     // Check admin access through store

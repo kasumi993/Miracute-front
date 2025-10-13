@@ -6,7 +6,10 @@ import { useUserStore } from '~/stores/auth/user'
 export default defineNuxtRouteMiddleware(
   async (to) => {
     const userStore = useUserStore()
-    await userStore.ensureInitialized() 
+    // Ensure auth state is initialized (fallback if plugin failed)
+    if (!userStore.isInitialized) {
+      await userStore.loadAuthState()
+    }
 
     if (userStore.isAuthenticatedAndValid) {
       const redirect = to.query.redirect as string
@@ -14,8 +17,8 @@ export default defineNuxtRouteMiddleware(
         return navigateTo(redirect)
       }
 
-       // Default redirect to account page
-      return navigateTo('/account') 
-  }
+      // Default redirect to account page
+      return navigateTo('/account')
+    }
   }
 )

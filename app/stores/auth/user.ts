@@ -38,25 +38,51 @@ export const useUserStore = defineStore('user', {
     },
 
     // Role-based access
-    isAdmin: (state) => state.profile?.role === 'admin'
+    isAdmin: (state) => state.profile?.role === 'admin',
   },
 
   actions: {
-    // Initialize authentication
-    async initialize(): Promise<void> {
+
+    // Get access token (for API calls)
+    async getAccessToken(): Promise<string | null> {
+      if (!this.isAuthenticated) return null
+
+      try {
+        const sessionResponse = await authService.getSession()
+        return sessionResponse?.data?.session?.access_token || null
+      } catch (error) {
+        console.warn('Failed to get session token:', error)
+        return null
+      }
+    },
+
+
+    // Load authentication state
+    async loadAuthState(): Promise<void> {
       if (this.isInitialized) return
 
       this.setLoading(true)
 
       try {
-        const sessionResponse = await authService.getSession()
-        if (sessionResponse?.data?.session?.user) {
-          this.setUser(sessionResponse.data.session.user)
+        console.log('🔄 Starting auth initialization...')
+        const userResponse = await authService.getUser()
+        console.log('📋 User response:', userResponse?.data?.user ? 'Found' : 'Not found')
+
+        if (userResponse?.data?.user) {
+          this.setUser(userResponse.data.user)
           // Set authenticated state before loading profile
           this.isAuthenticated = true
+          console.log('✅ User authenticated, waiting before profile load...')
+
+          // Add a delay to ensure auth is fully available for API calls
+          await new Promise(resolve => setTimeout(resolve, 300))
+
+          console.log('📡 Loading profile...')
           await this.loadProfile()
+          console.log('✅ Profile loaded successfully')
         } else {
-          // No session, clear auth state
+          // No user, clear auth state
+          console.log('❌ No user found, clearing auth state')
           this.clearAuthState()
         }
         this.isInitialized = true
@@ -66,12 +92,6 @@ export const useUserStore = defineStore('user', {
         this.isInitialized = true // Still mark as initialized to prevent loops
       } finally {
         this.setLoading(false)
-      }
-    },
-
-    async ensureInitialized(): Promise<void> {
-      if (!this.isInitialized) {
-        await this.initialize()
       }
     },
 
@@ -158,23 +178,38 @@ export const useUserStore = defineStore('user', {
     },
 
     // Profile management
-    async loadProfile(): Promise<void> {
+    async loadProfile(retryCount = 0): Promise<void> {
       if (!this.isAuthenticated) return
+
+      // Don't load profile during SSR to avoid "Auth session missing" errors
+      if (import.meta.server) return
 
       try {
         const response = await authService.getCurrentProfile()
         if (response.success && response.data?.user) {
           this.profile = response.data.user
         } else if (response.error?.includes('session missing') || response.error?.includes('unauthorized')) {
-          // Session is invalid, clear auth state
-          console.warn('Session invalid, clearing auth state')
+          // If this is the first attempt and session is missing, wait and retry once
+          if (retryCount === 0) {
+            console.warn('Session missing, retrying profile load in 500ms...')
+            await new Promise(resolve => setTimeout(resolve, 500))
+            return this.loadProfile(1)
+          }
+          // Session is invalid after retry, clear auth state
+          console.warn('Session invalid after retry, clearing auth state')
           this.clearAuthState()
         }
       } catch (error: any) {
         console.warn('Failed to load profile:', error)
-        // If it's an auth error, clear the state to prevent loops
+        // If it's an auth error and first attempt, retry once
+        if ((error.message?.includes('session missing') || error.message?.includes('unauthorized') || error.status === 401 || error.status === 403) && retryCount === 0) {
+          console.warn('Auth error on first attempt, retrying profile load in 500ms...')
+          await new Promise(resolve => setTimeout(resolve, 500))
+          return this.loadProfile(1)
+        }
+        // Auth error after retry, clear the state
         if (error.message?.includes('session missing') || error.message?.includes('unauthorized') || error.status === 401 || error.status === 403) {
-          console.warn('Auth error detected, clearing auth state')
+          console.warn('Auth error detected after retry, clearing auth state')
           this.clearAuthState()
         }
       }

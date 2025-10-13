@@ -1,5 +1,6 @@
 import type { ApiResponse } from '@/types'
 import type { RequestConfig, RequestOptions } from '@/types/api/requests'
+import { useUserStore } from '~/stores/auth/user'
 
 export class BaseApiService {
   private readonly baseUrl: string
@@ -119,14 +120,17 @@ export class BaseApiService {
 
     if (!skipAuth && import.meta.client) {
       try {
-        const supabase = useSupabaseClient()
-        const { data: { session } } = await supabase.auth.getSession()
+        // Get access token from store
+        const userStore = useUserStore()
+        const token = await userStore.getAccessToken()
 
-        if (session?.access_token) {
-          headers['Authorization'] = `Bearer ${session.access_token}`
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`
+        } else {
+          console.warn('No active session token available for API request')
         }
-      } catch {
-        // Ignore auth errors
+      } catch (error) {
+        console.warn('Failed to get session token for API request:', error)
       }
     }
 

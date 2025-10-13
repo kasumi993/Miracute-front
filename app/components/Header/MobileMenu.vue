@@ -78,29 +78,41 @@
 
           <!-- Authentication Actions for Mobile -->
           <div class="pt-4 border-t border-gray-200">
-            <template v-if="isAuthenticated">
-              <NuxtLink to="/account" @click="closeMenu" class="block text-gray-700 hover:text-gray-900 font-medium py-2">
-                My Downloads
-              </NuxtLink>
-              <NuxtLink to="/account/preferences" @click="closeMenu" class="block text-gray-700 hover:text-gray-900 font-medium py-2">
-                Preferences
-              </NuxtLink>
-              <button 
-                @click="handleSignOut" 
-                class="block w-full text-left text-red-700 hover:text-red-900 font-medium py-2"
-              >
-                Sign Out
-              </button>
-            </template>
-            <template v-else>
-              <NuxtLink 
-                :to="`/auth/login?redirect=${encodeURIComponent($route.fullPath)}`"
-                @click="closeMenu"
-                class="block text-gray-700 hover:text-gray-900 font-medium py-2"
-              >
-                Access Downloads
-              </NuxtLink>
-            </template>
+            <ClientOnly>
+              <template v-if="isAuthenticated">
+                <NuxtLink to="/account" @click="closeMenu" class="block text-gray-700 hover:text-gray-900 font-medium py-2">
+                  My Downloads
+                </NuxtLink>
+                <NuxtLink to="/account/profile" @click="closeMenu" class="block text-gray-700 hover:text-gray-900 font-medium py-2">
+                  Profile
+                </NuxtLink>
+                <NuxtLink to="/account/preferences" @click="closeMenu" class="block text-gray-700 hover:text-gray-900 font-medium py-2">
+                  Preferences
+                </NuxtLink>
+                <button
+                  @click="handleSignOut"
+                  class="block w-full text-left text-red-700 hover:text-red-900 font-medium py-2"
+                >
+                  Sign Out
+                </button>
+              </template>
+              <template v-else>
+                <NuxtLink
+                  :to="`/auth/login?redirect=${encodeURIComponent($route.fullPath)}`"
+                  @click="closeMenu"
+                  class="block text-gray-700 hover:text-gray-900 font-medium py-2"
+                >
+                  Access Downloads
+                </NuxtLink>
+              </template>
+
+              <!-- Fallback for SSR -->
+              <template #fallback>
+                <div class="animate-pulse">
+                  <div class="h-6 bg-gray-200 rounded mb-2"></div>
+                </div>
+              </template>
+            </ClientOnly>
           </div>
         </div>
       </div>
@@ -126,7 +138,6 @@ const emit = defineEmits(['close-menu'])
 
 // Composables
 const auth = useAuth()
-const route = useRoute()
 
 // State
 const searchQuery = ref('')

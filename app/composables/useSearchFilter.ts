@@ -51,7 +51,7 @@ export const useSearchFilter = (config: SearchFilterConfig = {}) => {
   }
 
   // Loading states
-  const isLoading = ref(false)
+  const isLoading = ref(true) // Start with true to show loading on initial render
   const isLoadingMore = ref(false)
 
   // Results
@@ -69,8 +69,6 @@ export const useSearchFilter = (config: SearchFilterConfig = {}) => {
   })
 
   const hasResults = computed(() => results.value.length > 0)
-
-  const isEmpty = computed(() => !hasResults.value && !isLoading.value)
 
 
   // Search and filter methods
@@ -230,7 +228,6 @@ export const useSearchFilter = (config: SearchFilterConfig = {}) => {
     hasActiveFilters,
     hasActiveSearch,
     hasResults,
-    isEmpty,
 
     // Methods
     search,

@@ -9,16 +9,16 @@ export const useAuth = () => {
     authUser: computed(() => userStore.currentUser), // Raw Supabase user data
     isAuthenticated: computed(() => userStore.isAuthenticatedAndValid),
     isAdmin: computed(() => userStore.isAdmin),
-    isLoading: computed(() => userStore.isCurrentlyLoading),
     authError: computed(() => userStore.error),
 
     // User display helpers (delegated to getters for optimized computation)
     userInitials: computed(() => userStore.initials),
     displayName: computed(() => userStore.displayName),
 
+
+
     // Methods - delegate all state-changing and API logic to the store
-    initialize: () => userStore.initialize(),
-    fetchProfile: () => userStore.fetchProfile(),
+    loadAuthState: () => userStore.loadAuthState(),
     updateProfile: (data: Record<string, unknown>) => userStore.updateProfile(data),
 
     // Auth actions - delegate to store actions which handle API, state, and redirects

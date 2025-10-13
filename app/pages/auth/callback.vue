@@ -184,7 +184,10 @@ const performRedirect = () => {
 const handleCallback = async () => {
   // 1. Attendre que le store termine son initialisation.
   // Cela permet au store de capter l'événement SIGNED_IN ou de vérifier la session.
-  await userStore.ensureInitialized()
+  // Ensure auth state is initialized (fallback if plugin failed)
+  if (!userStore.isInitialized) {
+    await userStore.loadAuthState()
+  }
 
   // 2. Vérification de l'état final du store
   if (userStore.isAuthenticatedAndValid) {

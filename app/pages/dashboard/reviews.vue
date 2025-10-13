@@ -149,11 +149,11 @@
                     <div class="flex items-center space-x-2">
                       <div class="w-8 h-8 rounded-full bg-brand-sage/20 flex items-center justify-center">
                         <span class="text-xs font-medium text-brand-brown">
-                          {{ review.user?.full_name?.charAt(0) || 'A' }}
+                          {{ getUserInitials(review.user) }}
                         </span>
                       </div>
                       <div>
-                        <p class="text-sm font-medium text-gray-900">{{ review.user?.full_name || 'Anonymous' }}</p>
+                        <p class="text-sm font-medium text-gray-900">{{ getUserFullName(review.user) }}</p>
                         <p class="text-xs text-gray-500">{{ review.user?.email }}</p>
                       </div>
                     </div>
@@ -235,7 +235,7 @@
                     </button>
                     
                     <button
-                      @click="confirmDeleteReview(review.id, review.user?.full_name)"
+                      @click="confirmDeleteReview(review.id, getUserFullName(review.user))"
                       class="text-red-600 hover:text-red-900 transition-colors"
                       title="Delete Review"
                     >
@@ -492,6 +492,26 @@ const formatDate = (dateString: string) => {
     month: 'short',
     day: 'numeric'
   })
+}
+
+const getUserFullName = (user: any) => {
+  if (!user) return 'Anonymous'
+  if (user.first_name || user.last_name) {
+    return `${user.first_name || ''} ${user.last_name || ''}`.trim()
+  }
+  return 'Anonymous'
+}
+
+const getUserInitials = (user: any) => {
+  if (!user) return 'A'
+  if (user.first_name && user.last_name) {
+    return `${user.first_name.charAt(0)}${user.last_name.charAt(0)}`
+  } else if (user.first_name) {
+    return user.first_name.charAt(0)
+  } else if (user.last_name) {
+    return user.last_name.charAt(0)
+  }
+  return 'A'
 }
 
 // Load reviews on mount

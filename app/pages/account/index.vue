@@ -103,13 +103,16 @@ const formatDate = (dateString) => {
 
 
 const getUserInitials = () => {
-  if (!user.value?.user_metadata?.full_name) {
+  const firstName = user.value?.user_metadata?.first_name
+  const lastName = user.value?.user_metadata?.last_name
+
+  if (firstName && lastName) {
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase()
+  } else if (firstName) {
+    return firstName.charAt(0).toUpperCase()
+  } else {
     return user.value?.email?.charAt(0).toUpperCase() || 'U'
   }
-  const names = user.value.user_metadata.full_name.split(' ')
-  return names.length > 1
-    ? `${names[0].charAt(0)}${names[1].charAt(0)}`.toUpperCase()
-    : names[0].charAt(0).toUpperCase()
 }
 
 

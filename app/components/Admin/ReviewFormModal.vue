@@ -60,7 +60,7 @@
               @click="selectUser(user)"
               class="w-full text-left px-4 py-2 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
             >
-              <div class="font-medium text-gray-900">{{ user.full_name || 'Anonymous' }}</div>
+              <div class="font-medium text-gray-900">{{ getUserFullName(user) }}</div>
               <div class="text-sm text-gray-500">{{ user.email }}</div>
             </button>
           </div>
@@ -269,10 +269,18 @@ const searchUsers = debounce(async () => {
   }
 }, 300)
 
+const getUserFullName = (user: any) => {
+  if (!user) return 'Anonymous'
+  if (user.first_name || user.last_name) {
+    return `${user.first_name || ''} ${user.last_name || ''}`.trim()
+  }
+  return 'Anonymous'
+}
+
 const selectUser = (user: any) => {
   selectedUser.value = user
   form.user_id = user.id
-  userSearch.value = `${user.full_name} (${user.email})`
+  userSearch.value = `${getUserFullName(user)} (${user.email})`
   showUserDropdown.value = false
   errors.user_id = ''
 }

@@ -16,10 +16,12 @@ export const useAdminGuard = () => {
     adminError.value = null
 
     try {
-      // 1. Ensure auth state is initialized (listener is running)
-      await auth.initialize()
+      // Ensure auth state is initialized (fallback if plugin failed)
+      if (!auth.isAuthenticated.value && !userStore.isInitialized) {
+        await auth.loadAuthState()
+      }
 
-      // 2. Check client-side authentication status
+      // Check auth state
       if (!auth.isAuthenticated.value) {
         adminError.value = 'Authentication required'
         if (import.meta.client) {

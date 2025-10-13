@@ -5,7 +5,7 @@ export const useCartCounter = () => {
   const cartStore = useCartStore()
 
   // Initialize cart from storage on first use
-  if (import.meta.client && !cartStore.lastUpdated) {
+  if (import.meta.client && !cartStore.isInitialized) {
     cartStore.initializeCart()
     cartStore.initializeAuthWatcher()
   }

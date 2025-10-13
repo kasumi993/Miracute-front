@@ -5,12 +5,11 @@ export const useCartPersistence = () => {
   /**
    * Save cart items to localStorage for guest users
    */
-  const saveToLocalStorage = (items: CartItem[], lastUpdated: number | null) => {
+  const saveToLocalStorage = (items: CartItem[]) => {
     if (import.meta.client) {
       try {
         const cartData = {
-          items,
-          lastUpdated
+          items
         }
         localStorage.setItem('miracute_cart', JSON.stringify(cartData))
       } catch (error) {
@@ -22,15 +21,14 @@ export const useCartPersistence = () => {
   /**
    * Load cart items from localStorage for guest users
    */
-  const loadFromLocalStorage = (): { items: CartItem[], lastUpdated: number | null } => {
+  const loadFromLocalStorage = (): { items: CartItem[] } => {
     if (import.meta.client) {
       try {
         const saved = localStorage.getItem('miracute_cart')
         if (saved) {
           const cartData = JSON.parse(saved)
           return {
-            items: cartData.items || [],
-            lastUpdated: cartData.lastUpdated || null
+            items: cartData.items || []
           }
         }
       } catch (error) {
@@ -38,7 +36,7 @@ export const useCartPersistence = () => {
         localStorage.removeItem('miracute_cart')
       }
     }
-    return { items: [], lastUpdated: null }
+    return { items: [] }
   }
 
   /**
@@ -93,7 +91,7 @@ export const useCartPersistence = () => {
   /**
    * Smart persistence: save to appropriate storage based on auth state
    */
-  const syncCart = async (items: CartItem[], lastUpdated: number | null) => {
+  const syncCart = async (items: CartItem[]) => {
     const auth = useAuth()
 
     if (auth.isAuthenticated.value) {
@@ -101,21 +99,21 @@ export const useCartPersistence = () => {
       await saveToDatabase(items)
     } else {
       // Save to localStorage for guest users
-      saveToLocalStorage(items, lastUpdated)
+      saveToLocalStorage(items)
     }
   }
 
   /**
    * Initialize cart: load from appropriate storage based on auth state
    */
-  const initializeCart = async (): Promise<{ items: CartItem[], lastUpdated: number | null }> => {
+  const initializeCart = async (): Promise<{ items: CartItem[] }> => {
     const auth = useAuth()
 
     if (auth.isAuthenticated.value) {
       // Try to load from database first
       const dbResult = await loadFromDatabase()
       if (dbResult.success) {
-        return { items: dbResult.items, lastUpdated: Date.now() }
+        return { items: dbResult.items }
       }
       // Fallback to localStorage if database load fails
       return loadFromLocalStorage()

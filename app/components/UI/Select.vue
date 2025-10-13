@@ -140,7 +140,7 @@ const emit = defineEmits<{
 const isOpen = ref(false)
 const searchQuery = ref('')
 const dropdownRef = ref<HTMLElement>()
-const selectId = `select-${Math.random().toString(36).substring(2)}`
+const selectId = useId()
 
 const selectValue = computed({
   get: () => props.modelValue,

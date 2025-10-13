@@ -57,7 +57,8 @@ export default defineEventHandler(async (event) => {
         ),
         user:users (
           id,
-          full_name,
+          first_name,
+          last_name,
           email
         )
       `)
