@@ -1,52 +1,59 @@
 <template>
   <div class="min-h-screen bg-neutral-50">
-    <!-- Simple Hero -->
-    <section class="py-16 sm:py-24">
-      <div class="max-w-4xl mx-auto px-4 text-center">
-        <div class="mb-8">
-          <div class="w-20 h-20 bg-brand-pink rounded-full mx-auto mb-6 flex items-center justify-center">
-            <span class="text-white text-2xl font-bold">👋</span>
-          </div>
-          
-          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-heading font-medium text-gray-900 mb-6">
-            Hi, I'm behind every template you see here
+    <!-- Hero Section -->
+    <section class="py-12 sm:py-16 lg:py-20 bg-gradient-to-b from-neutral-50 to-white">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6">
+        <div class="text-center mb-8 sm:mb-12 lg:mb-16">
+          <h1 class="text-2xl sm:text-3xl lg:text-4xl font-heading font-medium text-gray-900 mb-4 sm:mb-6">
+            Hi, welcome to Miracute
           </h1>
-          
-          <p class="text-lg sm:text-xl text-gray-700 leading-relaxed">
-            Let me tell you why I started Miracute and what makes each template special.
+
+          <p class="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            I'm Kasumi, and with my team, we handcraft templates that bring personality back to design.
           </p>
         </div>
-      </div>
-    </section>
 
-    <!-- Story Section -->
-    <section class="py-16 sm:py-20">
-      <div class="max-w-3xl mx-auto px-4">
-        <div class="bg-white rounded-3xl p-8 sm:p-12 shadow-sm">
-          <h2 class="text-2xl sm:text-3xl font-heading font-medium text-gray-900 mb-8 text-center">
-            My story is probably like yours
-          </h2>
-          
-          <div class="prose prose-lg prose-gray max-w-none">
-            <p class="text-gray-700 leading-relaxed mb-6">
-              I used to build websites for a living. Clean code, fast loading times, all the technical stuff that makes developers happy. But something always felt... missing.
-            </p>
-            
-            <p class="text-gray-700 leading-relaxed mb-6">
-              Every project felt the same. Functional, sure. But where was the personality? The warmth? The thing that made someone smile when they visited the site?
-            </p>
-            
-            <p class="text-gray-700 leading-relaxed mb-6">
-              Then AI started making designs. Thousands of them. In seconds. And I realized what I'd been missing all along—the irreplaceable value of someone actually caring about what they're creating.
-            </p>
-            
-            <p class="text-gray-700 leading-relaxed mb-6">
-              So I started designing templates by hand. Every color choice, every font pairing, every little detail—all chosen by a real person (me) who genuinely wants your project to succeed.
-            </p>
-            
-            <p class="text-gray-700 leading-relaxed">
-              That's Miracute. Templates made with actual human care, designed to work with Canva's free plan, because great design shouldn't cost a fortune.
-            </p>
+        <!-- Story Card -->
+        <div class="bg-white rounded-2xl sm:rounded-3xl shadow-xl p-6 sm:p-8 lg:p-12 border border-gray-100">
+          <div class="flex flex-col sm:flex-row items-center justify-center mb-6 sm:mb-8">
+            <div class="w-12 h-12 sm:w-16 sm:h-16 mb-3 sm:mb-0 sm:mr-4 relative flex-shrink-0">
+              <img
+                src="/images/creator4.png"
+                alt="Kasumi, founder of Miracute"
+                class="w-full h-full rounded-full object-cover shadow-lg border-2 border-brand-pink"
+                loading="lazy"
+              />
+              <div class="absolute inset-0 rounded-full ring-2 ring-brand-pink/20 ring-offset-2"></div>
+            </div>
+            <h2 class="text-xl sm:text-2xl lg:text-3xl font-heading font-medium text-gray-900 text-center sm:text-left">
+              My story is probably like yours
+            </h2>
+          </div>
+
+          <div class="max-w-3xl mx-auto">
+            <div class="prose prose-gray max-w-none">
+              <p class="text-gray-700 leading-relaxed text-sm sm:text-base mb-4 sm:mb-6">
+                I used to work behind the scenes at a company, building websites. Clean code, fast loading times, all the technical stuff that makes developers happy. But something always felt... incomplete.
+              </p>
+
+              <p class="text-gray-700 leading-relaxed text-sm sm:text-base mb-4 sm:mb-6">
+                Every project felt functional but soulless. Where was the heart? The personality? The little spark that makes someone feel genuinely connected to what they're seeing?
+              </p>
+
+              <p class="text-gray-700 leading-relaxed text-sm sm:text-base mb-4 sm:mb-6">
+                Then AI started making designs. Thousands of them. In seconds. And I realized what I'd been missing all along: the irreplaceable value of someone actually caring about what they're creating.
+              </p>
+
+              <!-- Highlighted conclusion -->
+              <div class="bg-gradient-to-r from-brand-pink/10 via-brand-sage/10 to-brand-warm/10 rounded-xl sm:rounded-2xl p-4 sm:p-6 border-l-4 border-brand-pink">
+                <p class="text-gray-800 leading-relaxed text-sm sm:text-base font-medium mb-3 sm:mb-4">
+                  So I started designing templates by hand with my team's support. Every color choice, every font pairing, every little detail, all chosen with care for your project's success.
+                </p>
+                <p class="text-brand-brown leading-relaxed text-sm sm:text-base font-semibold">
+                  That's Miracute. Templates made with actual human care, designed to work with Canva's free plan, because great design shouldn't cost a fortune.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -67,7 +74,7 @@
             </div>
             <h3 class="text-lg font-heading font-medium text-gray-900 mb-4">Made by hand</h3>
             <p class="text-gray-600 leading-relaxed">
-              Every single element is designed by me, pixel by pixel. No AI, no copy-paste, no shortcuts.
+              Every single element is personally crafted by me and my team, pixel by pixel. No AI, no copy-paste, no shortcuts.
             </p>
           </div>
 
@@ -89,7 +96,7 @@
             </div>
             <h3 class="text-lg font-heading font-medium text-gray-900 mb-4">Real support</h3>
             <p class="text-gray-600 leading-relaxed">
-              Got questions? You'll talk directly to me—the person who designed your template.
+              Got questions? You'll talk directly to me and my team, the people who designed your template.
             </p>
           </div>
         </div>
@@ -117,12 +124,12 @@
             
             <div>
               <div class="text-3xl sm:text-4xl font-heading font-bold text-brand-warm mb-2">0</div>
-              <div class="text-sm text-gray-600">AI-generated elements</div>
+              <div class="text-sm text-gray-600">Generic templates</div>
             </div>
             
             <div>
               <div class="text-3xl sm:text-4xl font-heading font-bold text-gray-800 mb-2">1</div>
-              <div class="text-sm text-gray-600">Human designer</div>
+              <div class="text-sm text-gray-600">Creative team</div>
             </div>
           </div>
           
@@ -241,7 +248,7 @@
               <div class="w-8 h-8 bg-brand-pink rounded-full flex items-center justify-center">
                 <span class="text-white text-sm">👩‍💻</span>
               </div>
-              <span class="text-sm">Personally designed and supported by a real human</span>
+              <span class="text-sm">Personally designed and supported by a real human, <span class="font-script italic text-brand-brown">kasumi</span>.</span>
             </div>
           </div>
         </div>
