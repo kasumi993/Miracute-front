@@ -25,22 +25,22 @@
         <NuxtLink :to="featuredPost._path" class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow cursor-pointer block">
           <div class="md:flex">
             <div class="md:w-1/2 relative">
-              <!-- Always show placeholder for now since images don't exist -->
+              <!-- Always show the placeholder div, then show image on top if it loads successfully -->
               <div class="w-full h-64 md:h-full bg-gradient-to-br from-brand-pink/20 to-brand-sage/20 flex items-center justify-center">
                 <div class="text-center text-gray-500">
                   <Icon name="heroicons:photo" class="w-12 h-12 mx-auto mb-2 opacity-50" />
                   <p class="text-sm">Blog Image</p>
                 </div>
               </div>
-              <!-- Uncomment once images are uploaded:
-              <img 
-                v-if="featuredPost.image && !featuredImageError"
-                :src="featuredPost.image" 
+              <img
+                v-if="featuredPost.image"
+                :src="featuredPost.image"
                 :alt="featuredPost.title"
-                class="w-full h-64 md:h-full object-cover"
+                class="absolute inset-0 w-full h-full object-cover"
+                :class="{ 'opacity-0': featuredImageError }"
                 @error="handleImageError"
+                @load="handleImageLoad"
               >
-              -->
             </div>
             <div class="md:w-1/2 p-8">
               <div class="flex items-center space-x-2 text-sm text-gray-500 mb-4">
@@ -90,35 +90,25 @@
             :to="post._path"
             class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow group cursor-pointer block"
           >
-            <div class="relative">
-              <!-- Always show placeholder for now since images don't exist -->
-              <div class="w-full h-48 bg-gradient-to-br from-brand-pink/20 to-brand-sage/20 flex items-center justify-center">
+            <div class="relative overflow-hidden h-48">
+              <!-- Always show the placeholder div first -->
+              <div class="absolute inset-0 w-full h-full bg-gradient-to-br from-brand-pink/20 to-brand-sage/20 flex items-center justify-center">
                 <div class="text-center text-gray-500">
                   <Icon name="heroicons:photo" class="w-8 h-8 mx-auto mb-1 opacity-50" />
                   <p class="text-xs">Blog Image</p>
                 </div>
               </div>
-              <!-- 
-              Uncomment once images are uploaded:
-              <img 
-                v-if="post.image && !postImageErrors[post._path]"
-                :src="post.image" 
+              <!-- Then overlay the image if it exists and loads successfully -->
+              <img
+                v-if="post.image"
+                :src="post.image"
                 :alt="post.title"
-                class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 z-10"
+                :class="{ 'opacity-0': postImageErrors[post._path] }"
                 @error="(e) => handlePostImageError(e, post._path)"
               >
-              <div 
-                v-else
-                class="w-full h-48 bg-gradient-to-br from-brand-pink/20 to-brand-sage/20 flex items-center justify-center"
-              >
-                <div class="text-center text-gray-500">
-                  <Icon name="heroicons:photo" class="w-8 h-8 mx-auto mb-1 opacity-50" />
-                  <p class="text-xs">Blog Image</p>
-                </div>
-              </div>
-              -->
-              <div class="absolute top-3 left-3">
-                <span 
+              <div class="absolute top-3 left-3 z-20">
+                <span
                   class="px-3 py-1 rounded-full text-xs font-medium"
                   :class="getCategoryBadgeClass(post.category)"
                 >
@@ -191,6 +181,7 @@
 </template>
 
 <script setup>
+
 // SEO
 useSeoMeta({
   title: 'Design Stories & Tips | Miracute Blog - Wedding & Design Inspiration',
@@ -206,11 +197,38 @@ const selectedCategory = ref('')
 const newsletterEmail = ref('')
 const featuredImageError = ref(false)
 const postImageErrors = ref({})
+const featuredImageLoaded = ref(false)
 
-// Query all blog posts using Nuxt Content
-const { data: allPosts } = await useAsyncData('blog-posts', () => 
-  queryContent('/blog').sort({ date: -1 }).find()
-)
+// Query blog posts using queryCollection (Nuxt Content v3 API)
+const { data: allPosts } = await useAsyncData('blog-posts', async () => {
+  try {
+    const allContent = await queryCollection('content').all()
+
+    // Filter blog posts and sort manually
+    const blogPosts = allContent
+      ?.filter(item => item.path?.startsWith('/blog'))
+      ?.sort((a, b) => new Date(b.meta?.date || b.date) - new Date(a.meta?.date || a.date))
+      ?.map(item => ({
+        // Map the content structure to match the old format
+        _path: item.path,
+        title: item.title || item.meta?.title,
+        date: item.meta?.date || item.date,
+        readTime: item.meta?.readTime,
+        category: item.meta?.category,
+        categoryLabel: item.meta?.categoryLabel,
+        excerpt: item.description || item.meta?.excerpt,
+        image: item.meta?.image,
+        featured: item.meta?.featured,
+        ...item
+      })) || []
+
+    return blogPosts
+  } catch (error) {
+    console.error('Error loading blog posts:', error)
+    return []
+  }
+})
+
 
 const hasMorePosts = ref(false)
 
@@ -267,15 +285,18 @@ const subscribeNewsletter = () => {
 
 // Image error handling
 const handleImageError = () => {
+  console.log('Featured image failed to load')
   featuredImageError.value = true
 }
 
 const handleImageLoad = () => {
+  console.log('Featured image loaded successfully')
   featuredImageError.value = false
+  featuredImageLoaded.value = true
 }
 
 const handlePostImageError = (event, path) => {
-  console.log('Image error for post:', path)
+  console.log('Post image error for:', path, event)
   postImageErrors.value = { ...postImageErrors.value, [path]: true }
 }
 </script>

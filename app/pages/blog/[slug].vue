@@ -194,10 +194,34 @@
 const route = useRoute()
 const slug = route.params.slug
 
-// Use Nuxt Content to query the blog post
-const { data: post, error } = await useAsyncData(`blog-${slug}`, () => 
-  queryContent('/blog').where({ _path: `/blog/${slug}` }).findOne()
-)
+// Use Nuxt Content v3 to query the blog post
+const { data: post, error } = await useAsyncData(`blog-${slug}`, async () => {
+  try {
+    const allContent = await queryCollection('content').all()
+    const blogPost = allContent.find(item => item.path === `/blog/${slug}`)
+
+    if (blogPost) {
+      // Map the content structure to match expected format
+      return {
+        _path: blogPost.path,
+        title: blogPost.title || blogPost.meta?.title,
+        date: blogPost.meta?.date || blogPost.date,
+        readTime: blogPost.meta?.readTime,
+        category: blogPost.meta?.category,
+        categoryLabel: blogPost.meta?.categoryLabel,
+        excerpt: blogPost.description || blogPost.meta?.excerpt,
+        image: blogPost.meta?.image,
+        body: blogPost.body,
+        ...blogPost
+      }
+    }
+
+    return null
+  } catch (err) {
+    console.error('Error loading blog post:', err)
+    return null
+  }
+})
 
 // Handle 404 if post not found
 if (error.value || !post.value) {
@@ -208,15 +232,35 @@ if (error.value || !post.value) {
 }
 
 // Query related posts (same category, excluding current post)
-const { data: relatedPosts } = await useAsyncData(`blog-related-${slug}`, () =>
-  queryContent('/blog')
-    .where({ 
-      category: post.value.category,
-      _path: { $ne: `/blog/${slug}` }
-    })
-    .limit(2)
-    .find()
-)
+const { data: relatedPosts } = await useAsyncData(`blog-related-${slug}`, async () => {
+  if (!post.value) return []
+
+  try {
+    const allContent = await queryCollection('content').all()
+
+    const blogPosts = allContent
+      .filter(item => item.path?.startsWith('/blog'))
+      .filter(item => item.path !== `/blog/${slug}`)
+      .filter(item => (item.meta?.category || item.category) === post.value.category)
+      .slice(0, 2)
+      .map(item => ({
+        _path: item.path,
+        title: item.title || item.meta?.title,
+        date: item.meta?.date || item.date,
+        readTime: item.meta?.readTime,
+        category: item.meta?.category,
+        categoryLabel: item.meta?.categoryLabel,
+        excerpt: item.description || item.meta?.excerpt,
+        image: item.meta?.image,
+        ...item
+      }))
+
+    return blogPosts
+  } catch (err) {
+    console.error('Error loading related posts:', err)
+    return []
+  }
+})
 
 // State
 const newsletterEmail = ref('')
