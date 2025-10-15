@@ -1,9 +1,10 @@
+import { defineContentConfig, defineCollection } from '@nuxt/content'
+
 export default defineContentConfig({
-  markdown: {
-    anchorLinks: false, // Disable anchor links for security
-    mdc: true
-  },
-  highlight: {
-    theme: 'github-light'
+  collections: {
+    content: defineCollection({
+      type: 'page',
+      source: '**/*.md'
+    })
   }
 })
