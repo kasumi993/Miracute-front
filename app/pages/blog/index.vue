@@ -22,7 +22,7 @@
       <!-- Featured Post -->
       <div v-if="featuredPost" class="mb-16">
         <h2 class="text-2xl font-heading font-medium text-gray-900 mb-8">Featured Post</h2>
-        <NuxtLink :to="featuredPost._path" class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow cursor-pointer block">
+        <NuxtLink :to="featuredPost.path" class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow cursor-pointer block">
           <div class="md:flex">
             <div class="md:w-1/2 relative">
               <!-- Always show the placeholder div, then show image on top if it loads successfully -->
@@ -84,10 +84,10 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <NuxtLink 
-            v-for="post in filteredPosts" 
-            :key="post._path"
-            :to="post._path"
+          <NuxtLink
+            v-for="post in filteredPosts"
+            :key="post.path"
+            :to="post.path"
             class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow group cursor-pointer block"
           >
             <div class="relative overflow-hidden h-48">
@@ -104,8 +104,8 @@
                 :src="post.image"
                 :alt="post.title"
                 class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 z-10"
-                :class="{ 'opacity-0': postImageErrors[post._path] }"
-                @error="(e) => handlePostImageError(e, post._path)"
+                :class="{ 'opacity-0': postImageErrors[post.path] }"
+                @error="(e) => handlePostImageError(e, post.path)"
               >
               <div class="absolute top-3 left-3 z-20">
                 <span
@@ -204,23 +204,10 @@ const { data: allPosts } = await useAsyncData('blog-posts', async () => {
   try {
     const allContent = await queryCollection('content').all()
 
-    // Filter blog posts and sort manually
+    // Filter blog posts and sort by date
     const blogPosts = allContent
       ?.filter(item => item.path?.startsWith('/blog'))
-      ?.sort((a, b) => new Date(b.meta?.date || b.date) - new Date(a.meta?.date || a.date))
-      ?.map(item => ({
-        // Map the content structure to match the old format
-        _path: item.path,
-        title: item.title || item.meta?.title,
-        date: item.meta?.date || item.date,
-        readTime: item.meta?.readTime,
-        category: item.meta?.category,
-        categoryLabel: item.meta?.categoryLabel,
-        excerpt: item.description || item.meta?.excerpt,
-        image: item.meta?.image,
-        featured: item.meta?.featured,
-        ...item
-      })) || []
+      ?.sort((a, b) => new Date(b.date) - new Date(a.date)) || []
 
     return blogPosts
   } catch (error) {

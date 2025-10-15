@@ -198,25 +198,7 @@ const slug = route.params.slug
 const { data: post, error } = await useAsyncData(`blog-${slug}`, async () => {
   try {
     const allContent = await queryCollection('content').all()
-    const blogPost = allContent.find(item => item.path === `/blog/${slug}`)
-
-    if (blogPost) {
-      // Map the content structure to match expected format
-      return {
-        _path: blogPost.path,
-        title: blogPost.title || blogPost.meta?.title,
-        date: blogPost.meta?.date || blogPost.date,
-        readTime: blogPost.meta?.readTime,
-        category: blogPost.meta?.category,
-        categoryLabel: blogPost.meta?.categoryLabel,
-        excerpt: blogPost.description || blogPost.meta?.excerpt,
-        image: blogPost.meta?.image,
-        body: blogPost.body,
-        ...blogPost
-      }
-    }
-
-    return null
+    return allContent.find(item => item.path === `/blog/${slug}`) || null
   } catch (err) {
     console.error('Error loading blog post:', err)
     return null
