@@ -10,35 +10,44 @@
           <p class="text-xl text-gray-600 mb-4">
             Save your favorite templates for later and never lose track of the designs you love.
           </p>
-          <div class="flex items-center justify-center space-x-2 text-brand-brown">
-            <Icon name="heroicons:heart" class="w-5 h-5" />
-            <span class="font-medium">{{ wishlist.wishlistCount.value }} item{{ wishlist.wishlistCount.value !== 1 ? 's' : '' }} in your wishlist</span>
-          </div>
+          <ClientOnly>
+            <div class="flex items-center justify-center space-x-2 text-brand-brown">
+              <Icon name="heroicons:heart" class="w-5 h-5" />
+              <span class="font-medium">{{ wishlist.wishlistCount.value }} item{{ wishlist.wishlistCount.value !== 1 ? 's' : '' }} in your wishlist</span>
+            </div>
+            <template #fallback>
+              <div class="flex items-center justify-center space-x-2 text-brand-brown">
+                <Icon name="heroicons:heart" class="w-5 h-5" />
+                <span class="font-medium">Loading wishlist...</span>
+              </div>
+            </template>
+          </ClientOnly>
         </div>
       </div>
     </section>
 
     <!-- Wishlist Content -->
     <div class="container-custom py-8 sm:py-16">
-      <!-- Empty State -->
-      <div v-if="wishlist.wishlistCount.value === 0" class="text-center py-16">
-        <div class="max-w-md mx-auto">
-          <Icon name="heroicons:heart" class="w-24 h-24 mx-auto text-gray-300 mb-8" />
-          <h2 class="text-2xl font-heading font-medium text-gray-900 mb-4">
-            Your wishlist is empty
-          </h2>
-          <p class="text-gray-600 mb-8">
-            Start browsing our beautiful templates and add your favorites to your wishlist by clicking the heart icon.
-          </p>
-          <NuxtLink to="/" class="btn-primary inline-flex items-center space-x-2">
-            <Icon name="heroicons:heart" class="w-4 h-4" />
-            <span>Start Shopping</span>
-          </NuxtLink>
+      <ClientOnly>
+        <!-- Empty State -->
+        <div v-if="wishlist.wishlistCount.value === 0" class="text-center py-16">
+          <div class="max-w-md mx-auto">
+            <Icon name="heroicons:heart" class="w-24 h-24 mx-auto text-gray-300 mb-8" />
+            <h2 class="text-2xl font-heading font-medium text-gray-900 mb-4">
+              Your wishlist is empty
+            </h2>
+            <p class="text-gray-600 mb-8">
+              Start browsing our beautiful templates and add your favorites to your wishlist by clicking the heart icon.
+            </p>
+            <NuxtLink to="/" class="btn-primary inline-flex items-center space-x-2">
+              <Icon name="heroicons:heart" class="w-4 h-4" />
+              <span>Start Shopping</span>
+            </NuxtLink>
+          </div>
         </div>
-      </div>
 
-      <!-- Wishlist Items -->
-      <div v-else>
+        <!-- Wishlist Items -->
+        <div v-else>
         <!-- Actions Bar -->
         <div class="flex justify-between items-center mb-8">
           <h2 class="text-2xl font-heading font-medium text-gray-900">
@@ -105,10 +114,17 @@
                   <!-- Add to Cart Button -->
                   <button
                     @click.prevent="handleAddToCart(item)"
-                    class="btn-primary px-2 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm hover:scale-105 transition-transform w-full sm:w-auto"
+                    :disabled="addingToCart.has(item.id)"
+                    class="btn-primary px-2 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm hover:scale-105 transition-transform w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                   >
-                    <span class="sm:hidden">+</span>
-                    <span class="hidden sm:inline">Add to Cart</span>
+                    <div v-if="addingToCart.has(item.id)" class="flex items-center justify-center space-x-1">
+                      <Icon name="heroicons:arrow-path" class="w-3 h-3 sm:w-4 sm:h-4 animate-spin" />
+                      <span class="hidden sm:inline">Adding...</span>
+                    </div>
+                    <div v-else>
+                      <span class="sm:hidden">+</span>
+                      <span class="hidden sm:inline">Add to Cart</span>
+                    </div>
                   </button>
                 </div>
               </div>
@@ -116,29 +132,48 @@
           </div>
         </div>
 
-        <!-- Continue Shopping -->
-        <div class="text-center mt-16">
-          <NuxtLink to="/" class="btn-outline inline-flex items-center space-x-2">
-            <Icon name="heroicons:arrow-left" class="w-4 h-4" />
-            <span>Continue Shopping</span>
-          </NuxtLink>
+          <!-- Continue Shopping -->
+          <div class="text-center mt-16">
+            <NuxtLink to="/" class="btn-outline inline-flex items-center space-x-2">
+              <Icon name="heroicons:arrow-left" class="w-4 h-4" />
+              <span>Continue Shopping</span>
+            </NuxtLink>
+          </div>
         </div>
-      </div>
+
+        <!-- Fallback for server-side rendering -->
+        <template #fallback>
+          <div class="text-center py-16">
+            <div class="max-w-md mx-auto">
+              <Icon name="heroicons:heart" class="w-24 h-24 mx-auto text-gray-300 mb-8" />
+              <h2 class="text-2xl font-heading font-medium text-gray-900 mb-4">
+                Loading your wishlist...
+              </h2>
+              <div class="animate-pulse bg-gray-200 h-4 w-32 mx-auto rounded"></div>
+            </div>
+          </div>
+        </template>
+      </ClientOnly>
     </div>
   </div>
 </template>
 
 <script setup>
+import { getProduct } from '@/services/ProductService'
+
 // Composables
 const wishlist = useWishlist()
 const cartCounter = useCartCounter()
 const toast = useToast()
 
-// SEO
+// Loading states
+const addingToCart = ref(new Set())
+
+// SEO - Use static title to avoid hydration issues
 useSeoMeta({
-  title: `My Wishlist (${wishlist.wishlistCount.value} items) - Miracute`,
+  title: 'My Wishlist - Miracute',
   description: 'Your saved favorite templates and designs. Never lose track of the templates you love.',
-  ogTitle: `My Wishlist - Miracute`,
+  ogTitle: 'My Wishlist - Miracute',
   ogDescription: 'Your saved favorite templates and designs.',
 })
 
@@ -157,12 +192,29 @@ const handleClearWishlist = () => {
   }
 }
 
-const handleAddToCart = (item) => {
-  const success = cartCounter.addToCart(item)
-  if (success !== false) {
-    toast.show('Added to cart', 'success')
-  } else {
-    toast.show('Item already in cart', 'info')
+const handleAddToCart = async (item) => {
+  // Prevent duplicate requests
+  if (addingToCart.value.has(item.id)) return
+
+  addingToCart.value.add(item.id)
+
+  try {
+    // Fetch full product data using ProductService
+    const response = await getProduct(item.id)
+
+    if (!response.success || !response.data) {
+      toast.error('Product not found')
+      return
+    }
+
+    // Add full product to cart
+    cartCounter.addToCart(response.data)
+    toast.success('Added to cart')
+  } catch (error) {
+    console.error('Error adding to cart from wishlist:', error)
+    toast.error('Failed to add item to cart')
+  } finally {
+    addingToCart.value.delete(item.id)
   }
 }
 </script>

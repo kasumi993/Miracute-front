@@ -5,13 +5,13 @@ export const useCartCalculations = () => {
    * Calculate cart subtotal
    */
   const calculateSubtotal = (items: CartItem[]): number => {
-    return items.reduce((total, item) => total + item.price, 0)
+    return items.reduce((total, item) => total + parseFloat(String(item.price)), 0)
   }
 
   /**
    * Calculate tax amount
    */
-  const calculateTax = (subtotal: number, taxRate = 0.08): number => {
+  const calculateTax = (subtotal: number, taxRate = 0.0): number => {
     return subtotal * taxRate
   }
 
@@ -26,7 +26,7 @@ export const useCartCalculations = () => {
     tax: number
     total: number
   } => {
-    const { taxRate = 0.08 } = options || {}
+    const { taxRate = 0.0 } = options || {}
 
     const subtotal = calculateSubtotal(items)
     const tax = calculateTax(subtotal, taxRate)
