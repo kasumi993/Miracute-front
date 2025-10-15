@@ -59,7 +59,7 @@ export default defineEventHandler(async (event) => {
             <h1 style="margin: 0; font-size: 28px;">💌 New Contact Message</h1>
             <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Someone reached out via your contact form</p>
           </div>
-          
+
           <div style="padding: 30px; background: #f9f9f9;">
             <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
               <h2 style="color: #8B4513; margin-top: 0;">Contact Details</h2>
@@ -76,13 +76,13 @@ export default defineEventHandler(async (event) => {
                 ${formData.subject ? `<tr><td style="padding: 8px 0; font-weight: bold;">Subject:</td><td style="padding: 8px 0;">${formData.subject}</td></tr>` : ''}
               </table>
             </div>
-            
+
             <div style="background: white; padding: 20px; border-radius: 8px;">
               <h2 style="color: #8B4513; margin-top: 0;">Message</h2>
               <div style="background: #f5f5f5; padding: 15px; border-radius: 4px; white-space: pre-wrap;">${formData.message}</div>
             </div>
           </div>
-          
+
           <div style="text-align: center; padding: 20px; color: #666; font-size: 14px;">
             <p>Reply directly to this email to respond to ${formData.name}</p>
           </div>
@@ -91,14 +91,15 @@ export default defineEventHandler(async (event) => {
 
       const sendSmtpEmail = new brevo.SendSmtpEmail()
       sendSmtpEmail.to = [{ email: 'hello@miracute.com', name: 'Miracute Admin' }]
-      sendSmtpEmail.subject = `💌 New Contact Form Submission from ${formData.name}`
+      sendSmtpEmail.subject = `💌 Hey kasumi, you've got a new message from ${formData.name}`
       sendSmtpEmail.htmlContent = htmlContent
-      sendSmtpEmail.sender = { email: formData.email, name: formData.name }
+      sendSmtpEmail.sender = { email: 'hello@miracute.com', name: 'Miracute' }
+      sendSmtpEmail.replyTo = { email: formData.email, name: formData.name }
 
       await apiInstance.sendTransacEmail(sendSmtpEmail)
       return { success: true }
 
-    } catch (error) {
+    } catch (error: any) {
       return { success: false, error: error.message }
     }
   }
@@ -119,7 +120,7 @@ export default defineEventHandler(async (event) => {
           <div style="padding: 30px; background: #f9f9f9;">
             <div style="background: white; padding: 20px; border-radius: 8px;">
               <h2 style="color: #8B4513; margin-top: 0;">Hi ${formData.name}! 👋</h2>
-              <p style="margin-bottom: 20px;">Thank you for contacting Miracute! I've received your message and I'll get back to you as soon as possible.</p>
+              <p style="margin-bottom: 20px;">Thank you for contacting Miracute! We've received your message and will get back to you as soon as possible.</p>
               <p style="margin-bottom: 20px;">Here's a copy of what you sent:</p>
               
               <div style="background: #f5f5f5; padding: 15px; border-radius: 4px; margin: 20px 0;">
@@ -128,7 +129,7 @@ ${formData.subject ? `<strong>Subject:</strong> ${formData.subject}<br><br>` : '
                 <span style="white-space: pre-wrap;">${formData.message}</span>
               </div>
               
-              <p style="margin-top: 20px;">I typically respond within a few hours during business days. In the meantime, feel free to browse our beautiful template collection!</p>
+              <p style="margin-top: 20px;">We typically respond within a few hours during business days. In the meantime, feel free to browse our beautiful template collection!</p>
               
               <div style="text-align: center; margin-top: 30px;">
                 <a href="${config.public.siteUrl}/listings"
@@ -148,14 +149,14 @@ ${formData.subject ? `<strong>Subject:</strong> ${formData.subject}<br><br>` : '
 
       const sendSmtpEmail = new brevo.SendSmtpEmail()
       sendSmtpEmail.to = [{ email: formData.email, name: formData.name }]
-      sendSmtpEmail.subject = 'Thank you for contacting Miracute!'
+      sendSmtpEmail.subject = 'Thank you for contacting Miracute! we\'ll be in touch soon'
       sendSmtpEmail.htmlContent = htmlContent
       sendSmtpEmail.sender = { email: 'hello@miracute.com', name: 'Miracute' }
 
       await apiInstance.sendTransacEmail(sendSmtpEmail)
       return { success: true }
 
-    } catch (error) {
+    } catch (error: any) {
       return { success: false, error: error.message }
     }
   }

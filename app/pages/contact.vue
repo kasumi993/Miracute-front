@@ -8,7 +8,7 @@
             Let's Chat About Your Project
           </h1>
           <p class="text-xl text-gray-600 mb-4">
-            Hi! I'm the designer behind every Miracute template. I'd love to help you find the perfect design for your special day or business.
+            Hi! I'm kasumi, the designer behind Miracute. I'd love to help you find the perfect design for your special day or business.
           </p>
           <div class="flex items-center justify-center space-x-2 text-brand-brown">
             <Icon name="heroicons:clock" class="w-5 h-5" />
@@ -79,7 +79,7 @@
                 <option value="custom-design">Custom Design Request</option>
                 <option value="billing">Order Questions</option>
                 <option value="feedback">Feedback & Suggestions</option>
-                <option value="other">Just Want to Say Hi</option>
+                <option value="other">Other</option>
               </select>
               <p v-if="errors.subject" class="mt-1 text-sm text-red-600">{{ errors.subject }}</p>
             </div>
@@ -147,7 +147,7 @@
             <div class="flex items-center space-x-2">
               <Icon name="heroicons:check-circle" class="w-5 h-5 text-green-600" />
               <p class="text-sm text-green-800">
-                Thank you for your message! I'll get back to you personally within a few hours.
+                Thank you for your message! We'll get back to you personally within a few hours.
               </p>
             </div>
           </div>
