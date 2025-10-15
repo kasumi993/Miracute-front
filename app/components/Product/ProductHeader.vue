@@ -27,7 +27,7 @@
               class="w-4 h-4 text-yellow-400"
             />
           </div>
-          <span class="text-sm text-gray-600">({{ reviewCount }})</span>
+          <span class="text-sm text-gray-600">({{ product.review_count || 0 }})</span>
         </div>
       </div>
     </div>
@@ -66,7 +66,7 @@
               class="w-4 h-4 text-yellow-400"
             />
           </div>
-          <span class="text-sm text-gray-600">({{ reviewCount }} reviews)</span>
+          <span class="text-sm text-gray-600">({{ product.review_count || 0 }} reviews)</span>
         </div>
         <div class="text-sm text-gray-600">
           {{ downloadCount }} downloads
@@ -97,6 +97,8 @@
 </template>
 
 <script setup lang="ts">
+import type { ProductWithCategory } from '@/types/database'
+
 interface Product {
   id: string
   name: string
@@ -106,20 +108,18 @@ interface Product {
     id: string
     name: string
     slug: string
-  }
+  } | null
   software_required?: string[]
   is_featured?: boolean
   short_description?: string
 }
 
 interface Props {
-  product: Product
-  reviewCount?: number
+  product: ProductWithCategory
   downloadCount?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  reviewCount: 0,
   downloadCount: 0
 })
 

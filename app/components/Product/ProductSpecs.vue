@@ -11,7 +11,7 @@
         class="w-5 h-5 text-gray-400 lg:hidden"
       />
     </button>
-    <div :class="['overflow-hidden transition-all duration-300', isOpen || $device.isDesktop ? 'max-h-96 opacity-100 mt-4' : 'max-h-0 opacity-0']">
+    <div :class="['overflow-hidden transition-all duration-300', isOpen ? 'max-h-96 opacity-100 mt-4' : 'max-h-0 opacity-0 lg:max-h-96 lg:opacity-100 lg:mt-4']">
       <div class="bg-white rounded-xl lg:rounded-2xl shadow-sm border border-gray-100 p-4 lg:p-6">
         <div class="space-y-2 lg:space-y-3">
           <div v-if="product.difficulty_level" class="flex items-center justify-between py-2 lg:py-3 px-3 lg:px-4 bg-gray-50 rounded-lg lg:rounded-xl border border-gray-100">

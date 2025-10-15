@@ -11,7 +11,7 @@
         class="w-5 h-5 text-gray-400 lg:hidden"
       />
     </button>
-    <div :class="['overflow-hidden transition-all duration-300', isOpen || $device.isDesktop ? 'max-h-96 opacity-100 mt-4' : 'max-h-0 opacity-0']">
+    <div :class="['overflow-hidden transition-all duration-300', isOpen ? 'max-h-96 opacity-100 mt-4' : 'max-h-0 opacity-0 lg:max-h-96 lg:opacity-100 lg:mt-4']">
       <div class="prose prose-gray max-w-none">
         <p class="text-sm lg:text-base text-gray-700 leading-relaxed">{{ description }}</p>
       </div>

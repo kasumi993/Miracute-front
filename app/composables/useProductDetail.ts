@@ -15,7 +15,6 @@ export const useProductDetail = (slug: string) => {
   })
 
   // Composables
-  const { $fetch } = useNuxtApp()
   const user = useSupabaseUser()
   const auth = useAuth()
 
@@ -99,9 +98,9 @@ export const useProductDetail = (slug: string) => {
             productData.category_id,
             4
           )
-          // Get related products from store
-          const productsStore = useProductsStore()
-          relatedProducts.value = productsStore.relatedProducts
+          // Get related products from the composable itself (which accesses the store)
+          const { relatedProducts: storeRelatedProducts } = useProducts()
+          relatedProducts.value = storeRelatedProducts.value
         } catch (error) {
           console.warn('Failed to load related products:', error)
         }
