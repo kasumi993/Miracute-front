@@ -180,13 +180,13 @@ const handleReviewSuccess = (review: any) => {
   
   // Redirect to product page
   setTimeout(() => {
-    router.push(`/templates/${product.value.slug}`)
+    router.push(`/listings/${product.value.slug}`)
   }, 2000)
 }
 
 const handleCancel = () => {
   if (product.value?.slug) {
-    router.push(`/templates/${product.value.slug}`)
+    router.push(`/listings/${product.value.slug}`)
   } else {
     router.push('/')
   }

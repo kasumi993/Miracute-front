@@ -119,6 +119,7 @@ const emit = defineEmits<Emits>()
 
 // Composables
 const toast = useToast()
+const auth = useAuth()
 
 // Form state
 const form = reactive({
@@ -209,7 +210,7 @@ const submitReview = async () => {
     }
     console.log('ReviewForm: Request body =', requestBody)
     
-    const response = await ReviewsService.submitReview(requestBody)
+    const response = await ReviewsService.submitReview(requestBody, auth.isAdmin.value)
     
     console.log('ReviewForm: Response =', response)
     

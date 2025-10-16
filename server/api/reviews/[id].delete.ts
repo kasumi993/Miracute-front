@@ -1,15 +1,21 @@
 import { serverSupabaseUser, serverSupabaseServiceRole } from '#supabase/server'
 import type { Database } from '@/types/database'
+import { isAdminUser } from '../../utils/auth'
 
 export default defineEventHandler(async (event) => {
-  console.log('Review delete API called')
-
   const supabase = serverSupabaseServiceRole<Database>(event)
   const user = await serverSupabaseUser(event)
   const reviewId = getRouterParam(event, 'id')
 
-  console.log('Review delete API: reviewId =', reviewId)
-  console.log('Review delete API: user =', user?.id)
+  if (!user) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Authentication required'
+    })
+  }
+
+  // Check if user is admin
+  const isAdmin = await isAdminUser(user.id)
 
   if (!reviewId) {
     throw createError({
@@ -40,8 +46,8 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Check if the review belongs to the current user
-    if (existingReview.user_id !== user.id) {
+    // Check if the review belongs to the current user (unless admin)
+    if (!isAdmin && existingReview.user_id !== user.id) {
       throw createError({
         statusCode: 403,
         statusMessage: 'You can only delete your own reviews'

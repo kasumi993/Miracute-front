@@ -1,73 +1,68 @@
-// User downloads API endpoint
 import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
+import type { Database } from '@/types/database'
 
 export default defineEventHandler(async (event) => {
+  const supabase = await serverSupabaseServiceRole<Database>(event)
+  const user = await serverSupabaseUser(event)
+
+  if (!user) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Authentication required'
+    })
+  }
+
+  const query = getQuery(event)
+  // Support both page-based and offset-based pagination for backward compatibility
+  const page = parseInt(query.page as string) || 1
+  const limit = Math.min(parseInt(query.limit as string) || 20, 100)
+  const offset = parseInt(query.offset as string) || ((page - 1) * limit)
+
   try {
-    const user = await serverSupabaseUser(event)
-
-    if (!user) {
-      throw createError({
-        statusCode: 401,
-        statusMessage: 'Authentication required'
-      })
-    }
-
-    const query = getQuery(event)
-    const page = parseInt(query.page as string) || 1
-    const limit = Math.min(parseInt(query.limit as string) || 20, 100)
-
-    const supabase = serverSupabaseServiceRole(event)
-
-    // Get user's order items with download info
-    const offset = (page - 1) * limit
-
-    const { data: downloads, error, count } = await supabase
+    // Get user's downloadable items from completed orders
+    const { data: downloads, count, error } = await supabase
       .from('order_items')
       .select(`
-        id,
-        download_count,
-        max_downloads,
-        created_at,
-        products (
-          id,
+        *,
+        product:products(
           name,
-          featured_image_url,
-          preview_images
+          slug,
+          preview_images,
+          file_formats,
+          featured_image_url
         ),
-        orders!inner (
+        order:orders!inner(
           id,
-          user_id,
-          payment_status,
-          created_at
+          status,
+          created_at,
+          user_id
         )
       `, { count: 'exact' })
-      .eq('orders.user_id', user.id)
-      .eq('orders.payment_status', 'paid')
+      .eq('order.user_id', user.id)
+      .eq('order.status', 'completed')
+      .not('download_url', 'is', null)
+      .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1)
-      .order('orders.created_at', { ascending: false })
 
-    if (error) {
-      console.error('Downloads query error:', error)
-      throw createError({
-        statusCode: 500,
-        statusMessage: 'Failed to fetch downloads'
-      })
-    }
+    if (error) {throw error}
 
-    // Transform the data to match the expected format
-    const transformedDownloads = downloads?.map(item => ({
-      id: item.id,
-      product_name: item.products?.name || 'Unknown Product',
-      download_count: item.download_count || 0,
-      max_downloads: item.max_downloads || 5,
-      created_at: item.created_at,
-      product: {
-        id: item.products?.id,
-        name: item.products?.name,
-        featured_image_url: item.products?.featured_image_url,
-        preview_images: item.products?.preview_images || []
-      }
-    })) || []
+    // Filter and transform the data
+    const transformedDownloads = (downloads || []).map(download => ({
+      id: download.id,
+      product_name: download.product_name,
+      product_slug: download.product_slug,
+      download_url: download.download_url,
+      download_expires_at: download.download_expires_at,
+      download_count: download.download_count || 0,
+      max_downloads: download.max_downloads || 5,
+      created_at: download.created_at,
+      product: download.product,
+      order: download.order,
+      // Check if download is still valid
+      is_expired: download.download_expires_at ?
+        new Date(download.download_expires_at) < new Date() : false,
+      is_download_limit_reached: (download.download_count || 0) >= (download.max_downloads || 5)
+    }))
 
     const totalPages = Math.ceil((count || 0) / limit)
 
@@ -77,17 +72,18 @@ export default defineEventHandler(async (event) => {
       pagination: {
         page,
         limit,
+        offset,
         total: count || 0,
-        totalPages
+        totalPages,
+        hasMore: (count || 0) > offset + limit
       }
     }
 
   } catch (error: any) {
-    console.error('User downloads error:', error)
-    return {
-      success: false,
-      error: 'Failed to fetch user downloads',
-      details: error.message
-    }
+    console.error('Error fetching user downloads:', error)
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to fetch downloads'
+    })
   }
 })

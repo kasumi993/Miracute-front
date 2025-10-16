@@ -19,13 +19,13 @@
               v-for="star in 5"
               :key="star"
               name="heroicons:star-20-solid"
-              :class="star <= Math.round(stats.average_rating) ? 'text-yellow-400' : 'text-gray-300'"
+              :class="star <= Math.round(stats?.averageRating) ? 'text-yellow-400' : 'text-gray-300'"
               class="w-3.5 h-3.5"
             />
           </div>
-          <span class="font-medium ml-1">{{ stats.average_rating.toFixed(1) }}</span>
+          <span class="font-medium ml-1">{{ (stats?.averageRating || 0).toFixed(1) }}</span>
         </div>
-        <span>{{ stats.total_reviews }} review{{ stats.total_reviews !== 1 ? 's' : '' }}</span>
+        <span>{{ stats?.totalReviews }} review{{ stats?.totalReviews !== 1 ? 's' : '' }}</span>
       </div>
     </div>
 
@@ -40,13 +40,13 @@
                 v-for="star in 5"
                 :key="star"
                 name="heroicons:star-20-solid"
-                :class="star <= Math.round(stats.average_rating) ? 'text-yellow-400' : 'text-gray-300'"
+                :class="star <= Math.round(stats?.averageRating) ? 'text-yellow-400' : 'text-gray-300'"
                 class="w-4 h-4"
               />
             </div>
-            <span class="font-medium ml-1">{{ stats.average_rating.toFixed(1) }}</span>
+            <span class="font-medium ml-1">{{ (stats?.averageRating || 0).toFixed(1) }}</span>
           </div>
-          <span>{{ stats.total_reviews }} review{{ stats.total_reviews !== 1 ? 's' : '' }}</span>
+          <span>{{ stats?.totalReviews }} review{{ stats?.totalReviews !== 1 ? 's' : '' }}</span>
         </div>
       </div>
 
@@ -61,7 +61,7 @@
     </div>
     
     <!-- Rating Breakdown -->
-    <div v-if="stats && stats.total_reviews > 0" class="mb-6 lg:mb-8">
+    <div v-if="stats && stats?.totalReviews > 0" class="mb-6 lg:mb-8">
       <!-- Mobile: Collapsible Rating Breakdown -->
       <div class="lg:hidden">
         <button
@@ -88,13 +88,13 @@
               <div
                 class="bg-yellow-400 h-1.5 rounded-full transition-all duration-300"
                 :style="{
-                  width: stats.total_reviews > 0
-                    ? `${(stats.rating_breakdown[rating] / stats.total_reviews) * 100}%`
+                  width: stats?.totalReviews > 0
+                    ? `${(stats?.ratingDistribution[rating] / stats?.totalReviews) * 100}%`
                     : '0%'
                 }"
               ></div>
             </div>
-            <span class="text-gray-600 w-6 text-right text-xs">{{ stats.rating_breakdown[rating] }}</span>
+            <span class="text-gray-600 w-6 text-right text-xs">{{ stats?.ratingDistribution[rating] }}</span>
           </div>
         </div>
       </div>
@@ -115,13 +115,13 @@
               <div
                 class="bg-yellow-400 h-2 rounded-full transition-all duration-300"
                 :style="{
-                  width: stats.total_reviews > 0
-                    ? `${(stats.rating_breakdown[rating] / stats.total_reviews) * 100}%`
+                  width: stats?.totalReviews > 0
+                    ? `${(stats?.ratingDistribution[rating] / stats?.totalReviews) * 100}%`
                     : '0%'
                 }"
               ></div>
             </div>
-            <span class="text-gray-600 w-8 text-right">{{ stats.rating_breakdown[rating] }}</span>
+            <span class="text-gray-600 w-8 text-right">{{ stats?.ratingDistribution[rating] }}</span>
           </div>
         </div>
       </div>
@@ -138,7 +138,7 @@
     </div>
     
     <!-- Reviews List -->
-    <div v-if="reviews.length > 0" class="space-y-4 lg:space-y-6">
+    <div v-if="reviews && reviews.length > 0" class="space-y-4 lg:space-y-6">
       <div
         v-for="review in reviews"
         :key="review.id"
@@ -505,14 +505,27 @@ const editForm = reactive({
 const fetchReviews = async () => {
   try {
     isLoading.value = true
-    const response = await ReviewsService.getProductReviews(props.productId)
 
-    if (response.success && response.data) {
-      reviews.value = (response.data as any).reviews as ReviewListItem[]
-      stats.value = (response.data as any).stats as ReviewStatsUI
+    // Fetch both reviews and stats in parallel
+    const [reviewsResponse, statsResponse] = await Promise.all([
+      ReviewsService.getProductReviews(props.productId),
+      ReviewsService.getProductReviewStats(props.productId)
+    ])
+
+    if (reviewsResponse.success && reviewsResponse.data) {
+      reviews.value = (reviewsResponse.data as any).data as ReviewListItem[]
     } else {
       reviews.value = []
-      stats.value = null
+    }
+
+    if (statsResponse.success && statsResponse.data) {
+      stats.value = statsResponse.data as ReviewStatsUI
+    } else {
+      stats.value = {
+        totalReviews: 0,
+        averageRating: 0,
+        ratingDistribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+      }
     }
   } catch (error) {
     console.error('Error fetching reviews:', error)

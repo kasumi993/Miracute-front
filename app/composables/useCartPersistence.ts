@@ -80,8 +80,14 @@ export const useCartPersistence = () => {
         throw new Error(response.error || 'Failed to load cart from database')
       }
 
-      console.log('Cart loaded from database successfully:', response.data?.length || 0, 'items')
-      return { success: true, items: response.data || [] }
+      // Set price from product.price to avoid NaN
+      const items = response.data.map((item: any) => ({
+        ...item,
+        price: item.product.price
+      }))
+
+      console.log('Cart loaded from database successfully:', items.length, 'items')
+      return { success: true, items }
     } catch (error) {
       console.error('Error loading cart from database:', error)
       return { success: false, items: [] }

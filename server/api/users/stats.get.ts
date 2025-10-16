@@ -1,41 +1,43 @@
-// User statistics API endpoint
 import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
+import type { Database } from '@/types/database'
 
 export default defineEventHandler(async (event) => {
+  const supabase = await serverSupabaseServiceRole<Database>(event)
+  const user = await serverSupabaseUser(event)
+
+  if (!user) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Authentication required'
+    })
+  }
+
   try {
-    const user = await serverSupabaseUser(event)
-
-    if (!user) {
-      throw createError({
-        statusCode: 401,
-        statusMessage: 'Authentication required'
-      })
-    }
-
-    const supabase = serverSupabaseServiceRole(event)
-
-    // Get user orders count and total spent
-    const { data: orderStats } = await supabase
+    // Get total orders count and amount
+    const { data: orderStats, error: orderError } = await supabase
       .from('orders')
-      .select('total_amount, created_at')
+      .select('id, total_amount, status, created_at')
       .eq('user_id', user.id)
-      .eq('payment_status', 'paid')
 
-    // Get user downloads count
-    const { data: downloadStats } = await supabase
-      .from('order_items')
-      .select(`
-        id,
-        download_count,
-        orders!inner(user_id, payment_status)
-      `)
-      .eq('orders.user_id', user.id)
-      .eq('orders.payment_status', 'paid')
+    if (orderError) {throw orderError}
 
     // Calculate statistics
     const totalOrders = orderStats?.length || 0
-    const totalSpent = orderStats?.reduce((sum, order) => sum + parseFloat(order.total_amount), 0) || 0
-    const totalDownloads = downloadStats?.reduce((sum, item) => sum + (item.download_count || 0), 0) || 0
+    const totalSpent = orderStats?.reduce((sum, order) => {
+      return sum + parseFloat(order.total_amount || '0')
+    }, 0) || 0
+
+    // Get total downloads count
+    const { data: downloadStats, error: downloadError } = await supabase
+      .from('order_items')
+      .select('download_count')
+      .in('order_id',
+        orderStats?.map(o => o.id) || []
+      )
+
+    const totalDownloads = downloadStats?.reduce((sum, item) => {
+      return sum + (item.download_count || 0)
+    }, 0) || 0
 
     // Calculate account age in days
     const accountCreated = new Date(user.created_at)
@@ -47,17 +49,18 @@ export default defineEventHandler(async (event) => {
         totalOrders,
         totalSpent: totalSpent.toFixed(2),
         totalDownloads,
+        completedOrders: orderStats?.filter(o => o.status === 'completed').length || 0,
+        pendingOrders: orderStats?.filter(o => o.status === 'pending').length || 0,
         accountAge,
         favoriteProducts: [] // TODO: Implement favorites/wishlist
       }
     }
 
   } catch (error: any) {
-    console.error('User stats error:', error)
-    return {
-      success: false,
-      error: 'Failed to fetch user statistics',
-      details: error.message
-    }
+    console.error('Error fetching user stats:', error)
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to fetch user statistics'
+    })
   }
 })

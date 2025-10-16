@@ -1,6 +1,12 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 import type { Database } from '@/types/database'
 
+// Helper function to check if string is a valid UUID
+function isValidUUID(str: string): boolean {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  return uuidRegex.test(str)
+}
+
 export default defineEventHandler(async (event) => {
   const supabase = serverSupabaseServiceRole<Database>(event)
 
@@ -26,6 +32,14 @@ export default defineEventHandler(async (event) => {
     throw createError({
       statusCode: 400,
       statusMessage: 'Product ID is required'
+    })
+  }
+
+  // Check if the ID is a valid UUID - if not, this might not be intended for this endpoint
+  if (!isValidUUID(productId)) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: 'Not Found'
     })
   }
 

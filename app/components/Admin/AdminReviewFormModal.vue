@@ -187,6 +187,7 @@
 
 <script setup lang="ts">
 import { debounce } from 'lodash-es'
+import { ProductService } from '@/services'
 
 interface Props {
   review?: any
@@ -202,6 +203,7 @@ const emit = defineEmits<Emits>()
 
 // Composables
 const { createReview, updateReview } = useReviews()
+const { getProducts } = ProductService
 const toast = useToast()
 
 // State
@@ -226,9 +228,8 @@ const errors = reactive({
 })
 
 const isSubmitting = ref(false)
-const products = ref([])
-const users = ref([])
-const filteredUsers = ref([])
+const products = ref<any[]>([])
+const filteredUsers = ref<any[]>([])
 const userSearch = ref('')
 const showUserDropdown = ref(false)
 const selectedUser = ref(null)
@@ -252,15 +253,14 @@ const searchUsers = debounce(async () => {
     showUserDropdown.value = false
     return
   }
-  
+
   try {
-    // In a real app, you'd have a user search API
-    // For now, we'll mock this with a simple filter
-    const response = await $fetch('/api/admin/users/search', {
+    // Use AdminService or dedicated user search service
+    const response = await $fetch<{users: any[]}>('/api/admin/users/search', {
       method: 'GET',
       query: { q: userSearch.value, limit: 10 }
     })
-    
+
     filteredUsers.value = response.users || []
     showUserDropdown.value = filteredUsers.value.length > 0
   } catch (error) {
@@ -287,16 +287,14 @@ const selectUser = (user: any) => {
 
 const loadProducts = async () => {
   try {
-    const response = await $fetch('/api/admin/products', {
-      method: 'GET',
-      query: { limit: 1000, status: 'active' }
-    })
-    
-    if (response.success) {
-      products.value = response.products
+    const response = await getProducts({}, { limit: 1000 })
+
+    if (response.success && response.data) {
+      products.value = (response.data as any).data || []
     }
   } catch (error) {
     console.error('Error loading products:', error)
+    toast.error('Failed to load products')
   }
 }
 
@@ -337,8 +335,8 @@ const handleSubmit = async () => {
     if (isEditing.value) {
       await updateReview(props.review.id, {
         rating: form.rating,
-        title: form.title.trim() || null,
-        comment: form.comment.trim() || null,
+        title: form.title.trim() || undefined,
+        comment: form.comment.trim() || undefined,
         is_approved: form.is_approved
       })
     } else {
@@ -346,8 +344,8 @@ const handleSubmit = async () => {
         product_id: form.product_id,
         user_id: form.user_id,
         rating: form.rating,
-        title: form.title.trim() || null,
-        comment: form.comment.trim() || null,
+        title: form.title.trim() || undefined,
+        comment: form.comment.trim() || undefined,
         is_verified_purchase: form.is_verified_purchase,
         is_approved: form.is_approved,
         force_override: true
@@ -382,8 +380,8 @@ onMounted(() => {
   }
 })
 
-// Click outside handler to close user dropdown
-onClickOutside($refs.userDropdown, () => {
-  showUserDropdown.value = false
-})
+// Note: Click outside handler would need a proper ref setup for the dropdown
+// onClickOutside(userDropdownRef, () => {
+//   showUserDropdown.value = false
+// })
 </script>

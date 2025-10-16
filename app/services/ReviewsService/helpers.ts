@@ -56,30 +56,65 @@ export const validateReviewSubmission = (data: ReviewSubmissionData): void => {
 // --- Internal API Helpers ---
 
 /**
- * Checks if a user has already reviewed a product.
+ * Checks if a user has already reviewed a product by querying product reviews.
  */
 export const checkExistingReview = async (
   productId: string,
-  customerEmail: string
+  customerEmail?: string // Made optional since we now use user authentication
 ): Promise<any> => { // Used 'any' to match original return, but should ideally be ApiResponse<Review | null>
   try {
-    return await baseService.get('/reviews/check-existing', { productId, customerEmail })
+    // Get reviews for this product to check if user already reviewed
+    const reviews = await baseService.get(`/products/${productId}/reviews`, { limit: 100 })
+    if (!reviews.success || !reviews.data?.data) {
+      return { success: true, data: null, error: null }
+    }
+
+    // Find existing review by current user (if authenticated) or email
+    const auth = useAuth()
+    const existingReview = reviews.data.data.find((review: any) => {
+      if (auth.isAuthenticated.value && auth.user.value) {
+        return review.user_id === auth.user.value.id
+      }
+      return customerEmail && review.customerEmail === customerEmail
+    })
+
+    return { success: true, data: existingReview || null, error: null }
   } catch {
     return { success: true, data: null, error: null }
   }
 }
 
 /**
- * Verifies if the customer has purchased the product.
+ * Verifies if the customer has purchased the product by checking their orders.
  */
 export const verifyPurchase = async (
   productId: string,
-  customerEmail: string
+  customerEmail?: string // Made optional since we now use user authentication
 ): Promise<any> => { // Used 'any' to match original return, should ideally be ApiResponse<{ verified: boolean }>
   try {
-    return await baseService.get('/reviews/verify-purchase', { productId, customerEmail })
+    const auth = useAuth()
+
+    // Check if user is admin
+    if (auth.isAuthenticated.value && auth.user.value?.role === 'admin') {
+      return { success: true, data: { verified: true, isAdmin: true }, error: null }
+    }
+
+    // For authenticated users, check their orders for this product
+    if (auth.isAuthenticated.value) {
+      const orders = await baseService.get('/orders', { product_id: productId, limit: 1 })
+      if (orders.success && orders.data?.data?.length > 0) {
+        // Check if any order has paid status
+        const hasPaidOrder = orders.data.data.some((order: any) =>
+          order.payment_status === 'paid' &&
+          order.order_items?.some((item: any) => item.product_id === productId)
+        )
+        return { success: true, data: { verified: hasPaidOrder, isAdmin: false }, error: null }
+      }
+    }
+
+    return { success: true, data: { verified: false, isAdmin: false }, error: null }
   } catch {
-    return { success: true, data: { verified: false }, error: null }
+    return { success: true, data: { verified: false, isAdmin: false }, error: null }
   }
 }
 

@@ -1,5 +1,5 @@
-import { requireAdminAuthentication } from '../../../../utils/auth'
-import { sendBrevoReviewRequestEmail } from '../../../../utils/email'
+import { requireAdminAuthentication } from '../../../utils/auth'
+import { sendBrevoReviewRequestEmail } from '../../../utils/email'
 
 export default defineEventHandler(async (event) => {
   const { supabase } = await requireAdminAuthentication(event)

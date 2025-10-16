@@ -321,7 +321,7 @@
     <!-- Create/Edit Review Modal -->
     <div v-if="showCreateModal || editingReview" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-        <ReviewFormModal
+        <AdminReviewFormModal
           :review="editingReview"
           @save="handleReviewSave"
           @cancel="closeModal"

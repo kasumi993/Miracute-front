@@ -71,7 +71,8 @@ export const getProductReviewStats = async (productId: string, forceRefresh: boo
  * Submit a new review with comprehensive validation
  */
 export const submitReview = async (
-  reviewData: ReviewSubmissionData | { product_id: string; user_id: string; rating: number; title?: string | null; comment?: string | null }
+  reviewData: ReviewSubmissionData | { product_id: string; user_id: string; rating: number; title?: string | null; comment?: string | null },
+  isAdmin: boolean = false
 ): Promise<ApiResponse<Review>> => {
   const normalized: ReviewSubmissionData = 'product_id' in reviewData
     ? {
@@ -84,22 +85,27 @@ export const submitReview = async (
 
   validateReviewSubmission(normalized)
 
-  const existingReview = await checkExistingReview(
-    normalized.productId,
-    normalized.customerEmail ?? ''
-  )
+  // Skip verification steps for admin users
+  let purchaseVerified = { data: { verified: true } }
 
-  if (existingReview.data) {
-    throw new BusinessLogicError(
-      'You have already reviewed this product. You can update your existing review instead.',
-      'DUPLICATE_REVIEW'
+  if (!isAdmin) {
+    const existingReview = await checkExistingReview(
+      normalized.productId,
+      normalized.customerEmail ?? ''
+    )
+
+    if (existingReview.data) {
+      throw new BusinessLogicError(
+        'You have already reviewed this product. You can update your existing review instead.',
+        'DUPLICATE_REVIEW'
+      )
+    }
+
+    purchaseVerified = await verifyPurchase(
+      normalized.productId,
+      normalized.customerEmail ?? ''
     )
   }
-
-  const purchaseVerified = await verifyPurchase(
-    normalized.productId,
-    normalized.customerEmail ?? ''
-  )
 
   const reviewPayload: ReviewCreateInput = {
     productId: normalized.productId,
@@ -117,7 +123,10 @@ export const submitReview = async (
   }
 
   const response = await baseService.post<Review>('/reviews/submit', {
-    ...reviewPayload,
+    product_id: reviewPayload.productId,
+    rating: reviewPayload.rating,
+    title: reviewPayload.title,
+    comment: reviewPayload.comment,
     customerEmail: normalized.customerEmail ?? 'anonymous@local',
     customerName: normalized.customerName ?? 'Anonymous',
     isVerifiedPurchase: purchaseVerified.data?.verified || false
