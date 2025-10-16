@@ -1,6 +1,6 @@
-import { requireAdminAuthentication } from '../../../utils/auth'
+import { requireAdminAuthentication } from '../../utils/auth'
 import type { Database, ApiResponse, Product } from '@/types/database'
-import { createApiResponse, handleSupabaseError, createApiError } from '../../../utils/apiResponse'
+import { createApiResponse, handleSupabaseError, createApiError } from '../../utils/apiResponse'
 
 // Définir un type enrichi pour le résultat
 interface ProductWithSales extends Product {

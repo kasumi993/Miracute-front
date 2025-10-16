@@ -1,12 +1,23 @@
-import { serverSupabaseServiceRole } from '#supabase/server'
+import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
 import type { Database, ProductSearchFilters, SearchResponse, ApiResponse, ProductWithCategory } from '@/types/database'
 import { createApiResponse, handleSupabaseError } from '../../utils/apiResponse'
-
+import { isAdminUser } from '../../utils/auth'
 
 export default defineEventHandler(async (event): Promise<ApiResponse<SearchResponse<ProductWithCategory>>> => {
   const supabase = serverSupabaseServiceRole<Database>(event)
 
   const query = getQuery(event)
+
+  // Try to get user, but don't fail if not authenticated
+  let user = null
+  try {
+    user = await serverSupabaseUser(event)
+  } catch {
+    // User is not authenticated, which is fine for public endpoints
+  }
+
+  // Check if user is admin to determine what products to show
+  const isAdmin = user ? await isAdminUser(user.id) : false
 
   const page = parseInt(query.page as string) || 1
   const limit = Math.min(parseInt(query.limit as string) || 12, 50)
@@ -34,7 +45,11 @@ export default defineEventHandler(async (event): Promise<ApiResponse<SearchRespo
         *,
         category:categories(*)
       `, { count: 'exact' })
-      .eq('is_active', true)
+
+    // If not admin, only show active products
+    if (!isAdmin) {
+      dbQuery = dbQuery.eq('is_active', true)
+    }
       
     if (filters.category) { dbQuery = dbQuery.eq('category_id', filters.category) }
     if (filters.minPrice !== undefined) { dbQuery = dbQuery.gte('price', filters.minPrice.toString()) }

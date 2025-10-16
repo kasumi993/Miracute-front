@@ -174,7 +174,7 @@ const loadProduct = async (productId) => {
   isInitialLoading.value = true
   
   try {
-    const response = await $fetch(`/api/admin/products/${productId}`)
+    const response = await $fetch(`/api/products/${productId}.admin`)
 
     if (!response.success || !response.data) {
       throw new Error('Product not found or invalid response')
@@ -451,7 +451,7 @@ const saveProduct = async () => {
     }
     
     if (isEditing.value) {
-      const response = await $fetch(`/api/admin/products/${editProductId.value}`, {
+      const response = await $fetch(`/api/products/${editProductId.value}`, {
         method: 'PUT',
         body: cleanProductData
       })
@@ -459,7 +459,7 @@ const saveProduct = async () => {
       if (!response.success) throw new Error('Failed to update product')
       useToast().success('Template updated successfully!')
     } else {
-      const response = await $fetch('/api/admin/products', {
+      const response = await $fetch('/api/products', {
         method: 'POST',
         body: cleanProductData
       })
