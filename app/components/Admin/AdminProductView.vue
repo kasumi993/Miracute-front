@@ -103,7 +103,7 @@
 
     <!-- Desktop Grid View -->
     <div class="hidden lg:block">
-      <ProductGrid
+      <AdminProductList
         :products="products"
         :categories="categories"
         :is-loading="isLoading"

@@ -45,9 +45,11 @@
             @click="toggleUserMenu"
             class="flex items-center space-x-2 p-2 text-gray-700 hover:text-gray-900 transition-colors"
           >
-            <div class="w-8 h-8 bg-brand-pink rounded-full flex items-center justify-center text-sm font-medium text-gray-700">
-              {{ userInitials }}
-            </div>
+            <UserIcon
+              :initials="userInitials"
+              variant="pink"
+              size="md"
+            />
           </button>
 
           <!-- User Dropdown -->
@@ -109,7 +111,11 @@
       <!-- Fallback for SSR - show loading state -->
       <template #fallback>
         <div class="hidden lg:flex items-center">
-          <div class="w-8 h-8 bg-gray-200 animate-pulse rounded-full"></div>
+          <UserIcon
+            variant="pink"
+            size="md"
+            :is-loading="true"
+          />
         </div>
       </template>
     </ClientOnly>

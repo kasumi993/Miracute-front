@@ -94,14 +94,30 @@
         </div>
 
         <!-- Simple User Indicator -->
-        <div class="flex items-center text-sm text-gray-600">
-          <div class="hidden sm:block mr-2">
-            {{ user?.first_name || user?.email?.split('@')[0] || 'Admin' }}
+        <ClientOnly>
+          <div class="flex items-center text-sm text-gray-600">
+            <div class="hidden sm:block mr-2">
+              {{ user?.first_name || user?.email?.split('@')[0] || 'Admin' }}
+            </div>
+            <UserIcon
+              :initials="userInitials"
+              variant="brown"
+              size="md"
+            />
           </div>
-          <div class="w-8 h-8 bg-brand-brown text-white rounded-full flex items-center justify-center text-sm font-medium">
-            {{ userInitials }}
-          </div>
-        </div>
+
+          <!-- Fallback for SSR - show loading state -->
+          <template #fallback>
+            <div class="flex items-center text-sm text-gray-600">
+              <div class="hidden sm:block mr-2 w-16 h-4 bg-gray-200 animate-pulse rounded"></div>
+              <UserIcon
+                variant="brown"
+                size="md"
+                :is-loading="true"
+              />
+            </div>
+          </template>
+        </ClientOnly>
       </div>
     </div>
   </header>
@@ -131,7 +147,8 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits(['toggle-sidebar'])
 
 // Auth composable
-const { authUser: user, userInitials } = useAuth()
+const auth = useAuth()
+const { authUser: user, userInitials } = auth
 
 // Reactive state
 const quickSearch = ref('')
