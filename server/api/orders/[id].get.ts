@@ -1,5 +1,6 @@
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
 import type { Database } from '@/types/database'
+import { isAdminUser } from '../../utils/auth'
 
 export default defineEventHandler(async (event) => {
   const supabase = await serverSupabaseClient<Database>(event)
@@ -13,6 +14,9 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  // Check if user is admin
+  const isAdmin = await isAdminUser(user.id)
+
   if (!orderId) {
     throw createError({
       statusCode: 400,
@@ -22,7 +26,7 @@ export default defineEventHandler(async (event) => {
 
   try {
     // Fetch specific order with order items and product details
-    const { data: order, error } = await supabase
+    let query = supabase
       .from('orders')
       .select(`
         *,
@@ -42,8 +46,13 @@ export default defineEventHandler(async (event) => {
         )
       `)
       .eq('id', orderId)
-      .eq('user_id', user.id) // Ensure user can only access their own orders
-      .single()
+
+    // If not admin, only show user's own orders
+    if (!isAdmin) {
+      query = query.eq('user_id', user.id)
+    }
+
+    const { data: order, error } = await query.single()
 
     if (error) {
       if (error.code === 'PGRST116') {

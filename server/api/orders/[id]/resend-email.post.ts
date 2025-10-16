@@ -1,4 +1,4 @@
-import { requireAdminAuthentication } from '../../../../utils/auth'
+import { requireAdminAuthentication } from '../../../utils/auth'
 import type { Database } from '@/types/database'
 import * as brevo from '@getbrevo/brevo'
 
