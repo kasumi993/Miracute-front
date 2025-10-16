@@ -1,4 +1,4 @@
-import { requireAdminAuthentication } from '../../../utils/auth'
+import { requireAdminAuthentication } from '../../utils/auth'
 import type { Database } from '@/types/database'
 
 export default defineEventHandler(async (event) => {

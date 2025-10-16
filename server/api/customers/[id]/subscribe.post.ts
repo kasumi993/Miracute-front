@@ -1,4 +1,4 @@
-import { requireAdminAuthentication } from '../../../../utils/auth'
+import { requireAdminAuthentication } from '../../../utils/auth'
 import type { Database } from '@/types/database'
 import * as brevo from '@getbrevo/brevo'
 
@@ -131,7 +131,7 @@ export default defineEventHandler(async (event) => {
             </ul>
             
             <div style="text-align: center; margin-top: 30px;">
-              <a href="${config.public.siteUrl}/templates" 
+              <a href="${config.public.siteUrl}/listings"
                  style="background: #8B4513; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
                 Browse Templates
               </a>

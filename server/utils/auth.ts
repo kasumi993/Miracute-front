@@ -308,6 +308,30 @@ export function handleCORS(event: H3Event, allowedOrigins: string[] = []): void 
   }
 }
 
+/**
+ * Check if a user is an admin by user ID
+ * Utility function for checking admin status without full auth context
+ */
+export async function isAdminUser(userId: string): Promise<boolean> {
+  try {
+    const supabase = serverSupabaseServiceRole<Database>({} as H3Event)
+
+    const { data: userData, error } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', userId)
+      .single()
+
+    if (error || !userData) {
+      return false
+    }
+
+    return userData.role === 'admin'
+  } catch {
+    return false
+  }
+}
+
 // Backward compatibility exports
 export const validateAdminAccess = requireAdminAuthentication
 export const adminAuth = requireAdminAuthentication
