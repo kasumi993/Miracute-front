@@ -1,9 +1,10 @@
-import { requireAdminAuthentication } from '../../../utils/auth'
+import { requireAdminAuthentication } from '../../utils/auth'
 import type { Database } from '@/types/database'
 
 export default defineEventHandler(async (event) => {
   const { supabase } = await requireAdminAuthentication(event)
   const id = getRouterParam(event, 'id')
+  const body = await readBody(event)
 
   if (!id) {
     throw createError({
@@ -13,26 +14,28 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('categories')
-      .delete()
+      .update(body)
       .eq('id', id)
+      .select()
+      .single()
 
     if (error) {
       throw createError({
         statusCode: 500,
-        statusMessage: 'Failed to delete category',
+        statusMessage: 'Failed to update category',
         data: error
       })
     }
 
     return {
       success: true,
-      message: 'Category deleted successfully'
+      data
     }
 
   } catch (error: any) {
-    console.error('Error deleting category:', error)
+    console.error('Error updating category:', error)
 
     if (error.statusCode) {
       throw error
@@ -40,7 +43,7 @@ export default defineEventHandler(async (event) => {
 
     throw createError({
       statusCode: 500,
-      statusMessage: 'Failed to delete category',
+      statusMessage: 'Failed to update category',
       data: error
     })
   }

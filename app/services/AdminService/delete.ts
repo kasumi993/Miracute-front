@@ -7,35 +7,35 @@ const baseService = new BaseApiService()
  * Delete product
  */
 export const deleteProduct = async (id: string): Promise<ApiResponse<void>> => {
-  return baseService.delete<void>(`/admin/products/${id}`)
+  return baseService.delete<void>(`/products/${id}`)
 }
 
 /**
  * Delete category
  */
 export const deleteCategory = async (id: string): Promise<ApiResponse<void>> => {
-  return baseService.delete<void>(`/admin/categories/${id}`)
+  return baseService.delete<void>(`/categories/${id}`)
 }
 
 /**
  * Delete review
  */
 export const deleteReview = async (id: string): Promise<ApiResponse<void>> => {
-  return baseService.delete<void>(`/admin/reviews/${id}`)
+  return baseService.delete<void>(`/reviews/${id}`)
 }
 
 /**
  * Delete order (soft delete)
  */
 export const deleteOrder = async (id: string): Promise<ApiResponse<void>> => {
-  return baseService.delete<void>(`/admin/orders/${id}`)
+  return baseService.delete<void>(`/orders/${id}`)
 }
 
 /**
  * Delete customer account
  */
 export const deleteCustomer = async (id: string): Promise<ApiResponse<void>> => {
-  return baseService.delete<void>(`/admin/customers/${id}`)
+  return baseService.delete<void>(`/customers/${id}`)
 }
 
 /**
@@ -63,7 +63,7 @@ export const deleteImage = async (imageId: string): Promise<ApiResponse<void>> =
  * Bulk delete products
  */
 export const bulkDeleteProducts = async (productIds: string[]): Promise<ApiResponse<{ deleted: number }>> => {
-  return baseService.request<{ deleted: number }>('/admin/products/bulk-delete', {
+  return baseService.request<{ deleted: number }>('/products/bulk-delete', {
     method: 'DELETE',
     body: { ids: productIds }
   })
@@ -73,7 +73,7 @@ export const bulkDeleteProducts = async (productIds: string[]): Promise<ApiRespo
  * Bulk delete categories
  */
 export const bulkDeleteCategories = async (categoryIds: string[]): Promise<ApiResponse<{ deleted: number }>> => {
-  return baseService.request<{ deleted: number }>('/admin/categories/bulk-delete', {
+  return baseService.request<{ deleted: number }>('/categories/bulk-delete', {
     method: 'DELETE',
     body: { ids: categoryIds }
   })
@@ -83,7 +83,7 @@ export const bulkDeleteCategories = async (categoryIds: string[]): Promise<ApiRe
  * Bulk delete reviews
  */
 export const bulkDeleteReviews = async (reviewIds: string[]): Promise<ApiResponse<{ deleted: number }>> => {
-  return baseService.request<{ deleted: number }>('/admin/reviews/bulk-delete', {
+  return baseService.request<{ deleted: number }>('/reviews/bulk-delete', {
     method: 'DELETE',
     body: { ids: reviewIds }
   })
@@ -93,14 +93,14 @@ export const bulkDeleteReviews = async (reviewIds: string[]): Promise<ApiRespons
  * Delete product variant
  */
 export const deleteProductVariant = async (productId: string, variantId: string): Promise<ApiResponse<void>> => {
-  return baseService.delete<void>(`/admin/products/${productId}/variants/${variantId}`)
+  return baseService.delete<void>(`/products/${productId}/variants/${variantId}`)
 }
 
 /**
  * Delete product image
  */
 export const deleteProductImage = async (productId: string, imageId: string): Promise<ApiResponse<void>> => {
-  return baseService.delete<void>(`/admin/products/${productId}/images/${imageId}`)
+  return baseService.delete<void>(`/products/${productId}/images/${imageId}`)
 }
 
 /**
