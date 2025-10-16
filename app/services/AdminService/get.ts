@@ -20,7 +20,7 @@ const baseService = new BaseApiService()
  */
 export const checkAccess = async (): Promise<{ isAdmin: boolean; error?: string; role?: string; userId?: string; email?: string }> => {
   try {
-    const response = await baseService.get<{ isAdmin: boolean; error?: string; role?: string; userId?: string; email?: string }>('/admin/check-access')
+    const response = await baseService.get<{ isAdmin: boolean; error?: string; role?: string; userId?: string; email?: string }>('/auth/admin-check')
     return response.data || { isAdmin: false, error: 'No data returned' }
   } catch (error: any) {
     console.error('Admin access check failed:', error)
@@ -44,49 +44,49 @@ export const getProducts = async (
     limit: pagination.limit || 20
   }
 
-  return baseService.get<SearchResponse<ProductWithCategory>>('/admin/products', query)
+  return baseService.get<SearchResponse<ProductWithCategory>>('/products', query)
 }
 
 /**
  * Get single product by ID
  */
 export const getProduct = async (id: string): Promise<ApiResponse<ProductWithCategory>> => {
-  return baseService.get<ProductWithCategory>(`/admin/products/${id}`)
+  return baseService.get<ProductWithCategory>(`/products/${id}`)
 }
 
 /**
  * Get categories for admin
  */
 export const getCategories = async (): Promise<ApiResponse<any[]>> => {
-  return baseService.get<any[]>('/admin/categories')
+  return baseService.get<any[]>('/categories')
 }
 
 /**
  * Get template types for filtering
  */
 export const getTemplateTypes = async (): Promise<ApiResponse<string[]>> => {
-  return baseService.get<string[]>('/admin/template-types')
+  return baseService.get<string[]>('/template-types')
 }
 
 /**
  * Get admin dashboard data
  */
 export const getDashboardData = async (): Promise<ApiResponse<any>> => {
-  return baseService.get<any>('/admin/dashboard-data')
+  return baseService.get<any>('/admin-utils/dashboard-data')
 }
 
 /**
  * Get admin statistics
  */
 export const getStats = async (): Promise<ApiResponse<any>> => {
-  return baseService.get<any>('/admin/stats')
+  return baseService.get<any>('/analytics/stats')
 }
 
 /**
  * Get admin analytics
  */
 export const getAnalytics = async (params?: Record<string, any>): Promise<ApiResponse<any>> => {
-  return baseService.get<any>('/admin/analytics', params)
+  return baseService.get<any>('/analytics', params)
 }
 
 /**
@@ -98,14 +98,14 @@ export const getOrders = async (filters?: Record<string, any>, pagination?: Pagi
     page: pagination?.page || 1,
     limit: pagination?.limit || 20
   }
-  return baseService.get<any>('/admin/orders', query)
+  return baseService.get<any>('/orders', query)
 }
 
 /**
  * Get single admin order
  */
 export const getOrder = async (id: string): Promise<ApiResponse<any>> => {
-  return baseService.get<any>(`/admin/orders/${id}`)
+  return baseService.get<any>(`/orders/${id}`)
 }
 
 /**
@@ -117,14 +117,14 @@ export const getCustomers = async (filters?: Record<string, any>, pagination?: P
     page: pagination?.page || 1,
     limit: pagination?.limit || 20
   }
-  return baseService.get<any>('/admin/customers', query)
+  return baseService.get<any>('/customers', query)
 }
 
 /**
  * Get customer statistics
  */
 export const getCustomerStats = async (): Promise<ApiResponse<any>> => {
-  return baseService.get<any>('/admin/customers/stats')
+  return baseService.get<any>('/customers/stats')
 }
 
 /**
@@ -136,14 +136,14 @@ export const getReviews = async (filters?: Record<string, any>, pagination?: Pag
     page: pagination?.page || 1,
     limit: pagination?.limit || 20
   }
-  return baseService.get<any>('/admin/reviews', query)
+  return baseService.get<any>('/reviews', query)
 }
 
 /**
  * Get popular products for admin
  */
 export const getPopularProducts = async (): Promise<ApiResponse<any>> => {
-  return baseService.get<any>('/admin/products/popular')
+  return baseService.get<any>('/products/popular')
 }
 
 /**
