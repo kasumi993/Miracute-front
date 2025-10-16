@@ -32,7 +32,6 @@
         <div class="lg:hidden mb-4">
           <ProductHeader
             :product="product"
-            :review-count="reviewCount"
             :download-count="downloadCount"
           />
         </div>
@@ -99,7 +98,6 @@
             <div class="hidden lg:block">
               <ProductHeader
                 :product="product"
-                :review-count="reviewCount"
                 :download-count="downloadCount"
               />
             </div>
@@ -165,8 +163,6 @@ const {
 // Product actions
 const productActions = useProductActions(product)
 
-// Review count (will be updated by ReviewsList components)
-const reviewCount = ref(0)
 const downloadCount = computed(() => getDownloadCount())
 
 // Template refs
@@ -186,19 +182,6 @@ const refreshAllReviews = () => {
   }
 }
 
-// Update review count from ReviewsList components
-const updateReviewCount = () => {
-  const desktopStats = reviewsListDesktop.value?.stats
-  const mobileStats = productSections.value?.reviewsList?.stats
-
-  const stats = desktopStats || mobileStats
-  if (stats?.total_reviews) {
-    reviewCount.value = stats.total_reviews
-  }
-}
-
-// Watch for changes in ReviewsList components
-watch([reviewsListDesktop, productSections], updateReviewCount, { deep: true })
 
 // Provide refresh function to child components
 provide('refreshAllReviews', refreshAllReviews)
@@ -222,6 +205,23 @@ useHead({
     {
       name: 'description',
       content: computed(() => product.value?.short_description || product.value?.description || '')
+    },
+    {
+      name: 'keywords',
+      content: computed(() => {
+        const tags = product.value?.tags || []
+        const category = product.value?.category?.name || ''
+        const softwareRequired = product.value?.software_required || []
+
+        return [
+          ...tags,
+          category,
+          ...softwareRequired,
+          'template',
+          'design',
+          'download'
+        ].filter(Boolean).join(', ')
+      })
     }
   ]
 })
