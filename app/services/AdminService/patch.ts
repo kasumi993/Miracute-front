@@ -7,35 +7,35 @@ const baseService = new BaseApiService()
  * Update product status (active/inactive)
  */
 export const updateProductStatus = async (id: string, isActive: boolean): Promise<ApiResponse<ProductWithCategory>> => {
-  return baseService.patch<ProductWithCategory>(`/admin/products/${id}`, { is_active: isActive })
+  return baseService.patch<ProductWithCategory>(`/products/${id}`, { is_active: isActive })
 }
 
 /**
  * Update product details
  */
 export const updateProduct = async (id: string, updateData: any): Promise<ApiResponse<ProductWithCategory>> => {
-  return baseService.patch<ProductWithCategory>(`/admin/products/${id}`, updateData)
+  return baseService.patch<ProductWithCategory>(`/products/${id}`, updateData)
 }
 
 /**
  * Update order status
  */
 export const updateOrderStatus = async (id: string, status: string): Promise<ApiResponse<any>> => {
-  return baseService.patch<any>(`/admin/orders/${id}`, { status })
+  return baseService.patch<any>(`/orders/${id}`, { status })
 }
 
 /**
  * Update order details
  */
 export const updateOrder = async (id: string, updateData: any): Promise<ApiResponse<any>> => {
-  return baseService.patch<any>(`/admin/orders/${id}`, updateData)
+  return baseService.patch<any>(`/orders/${id}`, updateData)
 }
 
 /**
  * Update customer details
  */
 export const updateCustomer = async (id: string, updateData: any): Promise<ApiResponse<any>> => {
-  return baseService.patch<any>(`/admin/customers/${id}`, updateData)
+  return baseService.patch<any>(`/customers/${id}`, updateData)
 }
 
 /**
@@ -48,7 +48,7 @@ export const updateReview = async (id: string, updateData: {
   is_approved?: boolean
   is_featured?: boolean
 }): Promise<ApiResponse<any>> => {
-  return baseService.patch<any>(`/admin/reviews/${id}`, updateData)
+  return baseService.patch<any>(`/reviews/${id}`, updateData)
 }
 
 /**
@@ -62,7 +62,7 @@ export const updateCategory = async (id: string, updateData: {
   is_active?: boolean
   sort_order?: number
 }): Promise<ApiResponse<any>> => {
-  return baseService.patch<any>(`/admin/categories/${id}`, updateData)
+  return baseService.patch<any>(`/categories/${id}`, updateData)
 }
 
 /**
@@ -90,28 +90,28 @@ export const updateUserRole = async (userId: string, role: string): Promise<ApiR
  * Update product visibility
  */
 export const updateProductVisibility = async (id: string, isVisible: boolean): Promise<ApiResponse<any>> => {
-  return baseService.patch<any>(`/admin/products/${id}`, { is_visible: isVisible })
+  return baseService.patch<any>(`/products/${id}`, { is_visible: isVisible })
 }
 
 /**
  * Update product featured status
  */
 export const updateProductFeatured = async (id: string, isFeatured: boolean): Promise<ApiResponse<any>> => {
-  return baseService.patch<any>(`/admin/products/${id}`, { is_featured: isFeatured })
+  return baseService.patch<any>(`/products/${id}`, { is_featured: isFeatured })
 }
 
 /**
  * Update category status
  */
 export const updateCategoryStatus = async (id: string, isActive: boolean): Promise<ApiResponse<any>> => {
-  return baseService.patch<any>(`/admin/categories/${id}`, { is_active: isActive })
+  return baseService.patch<any>(`/categories/${id}`, { is_active: isActive })
 }
 
 /**
  * Update review status (approve/reject)
  */
 export const updateReviewStatus = async (id: string, isApproved: boolean): Promise<ApiResponse<any>> => {
-  return baseService.patch<any>(`/admin/reviews/${id}`, { is_approved: isApproved })
+  return baseService.patch<any>(`/reviews/${id}`, { is_approved: isApproved })
 }
 
 /**
@@ -122,14 +122,14 @@ export const updateOrderFulfillment = async (id: string, fulfillmentData: {
   tracking_number?: string
   notes?: string
 }): Promise<ApiResponse<any>> => {
-  return baseService.patch<any>(`/admin/orders/${id}/fulfillment`, fulfillmentData)
+  return baseService.patch<any>(`/orders/${id}/fulfillment`, fulfillmentData)
 }
 
 /**
  * Update customer status
  */
 export const updateCustomerStatus = async (id: string, status: 'active' | 'suspended' | 'banned'): Promise<ApiResponse<any>> => {
-  return baseService.patch<any>(`/admin/customers/${id}/status`, { status })
+  return baseService.patch<any>(`/customers/${id}/status`, { status })
 }
 
 /**
@@ -139,7 +139,7 @@ export const bulkUpdateProducts = async (updates: Array<{
   id: string
   data: any
 }>): Promise<ApiResponse<any>> => {
-  return baseService.patch<any>('/admin/products/bulk-update', { updates })
+  return baseService.patch<any>('/products/bulk-update', { updates })
 }
 
 /**
