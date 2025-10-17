@@ -57,41 +57,11 @@ export interface DashboardStats {
   }
 }
 
-export interface AdminAlert {
-  id: string
-  type: 'info' | 'warning' | 'error' | 'success'
-  title: string
-  message: string
-  action?: {
-    label: string
-    url: string
-  }
-  createdAt: string
-  dismissed: boolean
-}
 
-export interface SystemHealth {
-  status: 'healthy' | 'warning' | 'critical'
-  uptime: number
-  lastCheck: string
-  services: Array<{
-    name: string
-    status: 'up' | 'down' | 'degraded'
-    responseTime?: number
-    lastCheck: string
-  }>
-}
 
 interface AdminDashboardState {
   // Dashboard data
   stats: DashboardStats | null
-
-  // Admin notifications and alerts
-  alerts: AdminAlert[]
-  unreadAlertsCount: number
-
-  // System monitoring
-  systemHealth: SystemHealth | null
 
   // Admin UI state
   selectedDateRange: {
@@ -110,8 +80,6 @@ interface AdminDashboardState {
   // Loading states
   loading: {
     stats: boolean
-    alerts: boolean
-    systemHealth: boolean
     export: boolean
   }
 
@@ -121,8 +89,6 @@ interface AdminDashboardState {
   // Cache management
   lastFetch: {
     stats: number | null
-    alerts: number | null
-    systemHealth: number | null
   }
   cacheTimeout: number
 }
@@ -130,9 +96,6 @@ interface AdminDashboardState {
 export const useAdminDashboardStore = defineStore('adminDashboard', {
   state: (): AdminDashboardState => ({
     stats: null,
-    alerts: [],
-    unreadAlertsCount: 0,
-    systemHealth: null,
 
     selectedDateRange: {
       start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -148,17 +111,13 @@ export const useAdminDashboardStore = defineStore('adminDashboard', {
 
     loading: {
       stats: false,
-      alerts: false,
-      systemHealth: false,
       export: false
     },
 
     error: null,
 
     lastFetch: {
-      stats: null,
-      alerts: null,
-      systemHealth: null
+      stats: null
     },
     cacheTimeout: 5 * 60 * 1000 // 5 minutes
   }),
@@ -179,31 +138,7 @@ export const useAdminDashboardStore = defineStore('adminDashboard', {
     ordersGrowth: (state) => state.stats?.overview.ordersGrowth || 0,
     customersGrowth: (state) => state.stats?.overview.customersGrowth || 0,
 
-    // Alerts getters
-    hasUnreadAlerts: (state) => state.unreadAlertsCount > 0,
 
-    criticalAlerts: (state) => state.alerts.filter(alert =>
-      alert.type === 'error' && !alert.dismissed
-    ),
-
-    warningAlerts: (state) => state.alerts.filter(alert =>
-      alert.type === 'warning' && !alert.dismissed
-    ),
-
-    unreadAlerts: (state) => state.alerts.filter(alert => !alert.dismissed),
-
-    // System health getters
-    isSystemHealthy: (state) => state.systemHealth?.status === 'healthy',
-
-    systemStatus: (state) => state.systemHealth?.status || 'unknown',
-
-    downtimeServices: (state) => state.systemHealth?.services?.filter(service =>
-      service.status === 'down'
-    ) || [],
-
-    degradedServices: (state) => state.systemHealth?.services?.filter(service =>
-      service.status === 'degraded'
-    ) || [],
 
     // Cache validation
     isStatsStale: (state) => {
@@ -211,10 +146,6 @@ export const useAdminDashboardStore = defineStore('adminDashboard', {
       return Date.now() - state.lastFetch.stats > state.cacheTimeout
     },
 
-    isAlertsStale: (state) => {
-      if (!state.lastFetch.alerts) {return true}
-      return Date.now() - state.lastFetch.alerts > state.cacheTimeout
-    },
 
     // Quick stats for cards
     pendingOrdersCount: (state) => state.stats?.orderStats.pendingOrders || 0,
@@ -323,92 +254,7 @@ export const useAdminDashboardStore = defineStore('adminDashboard', {
       this.fetchDashboardStats(true)
     },
 
-    // Alerts management
-    async fetchAlerts(force = false) {
-      if (!force && this.alerts.length > 0 && !this.isAlertsStale) {return}
 
-      this.setLoading('alerts', true)
-      this.setError(null)
-
-      try {
-        const response = await AdminService.getAdminAlerts()
-
-        if (response.success && response.data) {
-          this.alerts = response.data
-          this.unreadAlertsCount = response.data.filter(alert => !alert.dismissed).length
-          this.lastFetch.alerts = Date.now()
-        } else {
-          throw new Error(response.error || 'Failed to fetch alerts')
-        }
-      } catch (error: any) {
-        console.error('Error fetching alerts:', error)
-        this.setError(error.message || 'Failed to fetch alerts')
-      } finally {
-        this.setLoading('alerts', false)
-      }
-    },
-
-    async dismissAlert(alertId: string) {
-      try {
-        const response = await AdminService.dismissAlert(alertId)
-
-        if (response.success) {
-          const alert = this.alerts.find(a => a.id === alertId)
-          if (alert) {
-            alert.dismissed = true
-            this.unreadAlertsCount = Math.max(0, this.unreadAlertsCount - 1)
-          }
-        } else {
-          throw new Error(response.error || 'Failed to dismiss alert')
-        }
-      } catch (error: any) {
-        console.error('Error dismissing alert:', error)
-        this.setError(error.message || 'Failed to dismiss alert')
-      }
-    },
-
-    async markAllAlertsRead() {
-      try {
-        const response = await AdminService.markAllAlertsRead()
-
-        if (response.success) {
-          this.alerts.forEach(alert => {
-            alert.dismissed = true
-          })
-          this.unreadAlertsCount = 0
-        } else {
-          throw new Error(response.error || 'Failed to mark alerts as read')
-        }
-      } catch (error: any) {
-        console.error('Error marking alerts as read:', error)
-        this.setError(error.message || 'Failed to mark alerts as read')
-      }
-    },
-
-    // System health
-    async fetchSystemHealth(force = false) {
-      if (!force && this.systemHealth && Date.now() - (this.lastFetch.systemHealth || 0) < this.cacheTimeout) {
-        return
-      }
-
-      this.setLoading('systemHealth', true)
-
-      try {
-        const response = await AdminService.getSystemHealth()
-
-        if (response.success && response.data) {
-          this.systemHealth = response.data
-          this.lastFetch.systemHealth = Date.now()
-        } else {
-          throw new Error(response.error || 'Failed to fetch system health')
-        }
-      } catch (error: any) {
-        console.error('Error fetching system health:', error)
-        // Don't set error for system health as it's not critical
-      } finally {
-        this.setLoading('systemHealth', false)
-      }
-    },
 
     // Data export
     async exportData(type: 'orders' | 'customers' | 'products' | 'analytics', format: 'csv' | 'xlsx' = 'csv') {
@@ -446,9 +292,7 @@ export const useAdminDashboardStore = defineStore('adminDashboard', {
     // Refresh all data
     async refreshAllData() {
       await Promise.all([
-        this.fetchDashboardStats(true),
-        this.fetchAlerts(true),
-        this.fetchSystemHealth(true)
+        this.fetchDashboardStats(true)
       ])
     },
 
@@ -463,18 +307,16 @@ export const useAdminDashboardStore = defineStore('adminDashboard', {
       // For now, we'll use polling
       if (process.client) {
         setInterval(() => {
-          this.fetchAlerts(true)
-          this.fetchSystemHealth(true)
-        }, 30000) // Poll every 30 seconds
+          // Poll for dashboard stats periodically
+          this.fetchDashboardStats(true)
+        }, 300000) // Poll every 5 minutes
       }
     },
 
     // Initialize dashboard
     async initialize() {
       await Promise.all([
-        this.fetchDashboardStats(),
-        this.fetchAlerts(),
-        this.fetchSystemHealth()
+        this.fetchDashboardStats()
       ])
 
       this.setupRealTimeUpdates()

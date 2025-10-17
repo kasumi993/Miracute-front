@@ -1,14 +1,15 @@
 <template>
-  <!-- Loading State -->
-  <div v-if="isCheckingAccess" class="min-h-screen flex items-center justify-center bg-gray-50">
-    <div class="text-center">
-      <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-brand-brown mb-4"></div>
-      <p class="text-gray-600 font-medium">Verifying access...</p>
+  <ClientOnly>
+    <!-- Loading State -->
+    <div v-if="isCheckingAccess" class="min-h-screen flex items-center justify-center bg-gray-50">
+      <div class="text-center">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-brand-brown mb-4"></div>
+        <p class="text-gray-600 font-medium">Verifying access...</p>
+      </div>
     </div>
-  </div>
 
-  <!-- Dashboard Content -->
-  <div v-else-if="hasAdminAccess">
+    <!-- Dashboard Content -->
+    <div v-else-if="hasAdminAccess">
           <!-- Quick Stats -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
@@ -271,7 +272,18 @@
               </NuxtLink>
             </div>
           </div>
-  </div>
+    </div>
+
+    <!-- Fallback for SSR -->
+    <template #fallback>
+      <div class="min-h-screen flex items-center justify-center bg-gray-50">
+        <div class="text-center">
+          <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-brand-brown mb-4"></div>
+          <p class="text-gray-600 font-medium">Loading dashboard...</p>
+        </div>
+      </div>
+    </template>
+  </ClientOnly>
 </template>
 
 <script setup>
