@@ -137,7 +137,7 @@ useSeoMeta({
   robots: 'noindex, nofollow'
 })
 
-const supabase = useSupabaseClient()
+import { CategoryService } from '@/services'
 
 // State
 const isLoading = ref(false)
@@ -161,14 +161,14 @@ const generateSlug = () => {
 
 const createCategory = async () => {
   isLoading.value = true
-  
+
   try {
-    const { error } = await supabase
-      .from('categories')
-      .insert(form.value)
-    
-    if (error) throw error
-    
+    const response = await CategoryService.createCategory(form.value)
+
+    if (!response.success) {
+      throw new Error(response.error || 'Failed to create category')
+    }
+
     useToast().success('Category created successfully!')
     await navigateTo('/dashboard/categories')
   } catch (error) {
@@ -181,14 +181,12 @@ const createCategory = async () => {
 
 const addSampleCategories = async () => {
   isLoading.value = true
-  
+
   try {
-    console.log('Adding sample categories via API...')
-    const response = await $fetch('/api/admin/categories/sample', {
-      method: 'POST'
-    })
-    
-    console.log('API response:', response)
+    console.log('Adding sample categories via service...')
+    const response = await CategoryService.createSampleCategories()
+
+    console.log('Service response:', response)
     
     useToast().success('Sample categories added successfully!')
     await navigateTo('/dashboard/categories')
