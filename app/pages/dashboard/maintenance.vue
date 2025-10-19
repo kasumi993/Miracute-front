@@ -49,48 +49,11 @@
         </div>
       </div>
     </div>
-
-    <!-- Run Task Section -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-      <h2 class="text-xl font-semibold text-gray-900 mb-4">Manual Task Execution</h2>
-      <p class="text-gray-600 mb-4">
-        Run maintenance tasks manually using the task runner.
-      </p>
-      
-      <div class="flex items-center space-x-4">
-        <button
-          @click="runTask"
-          :disabled="isRunningTask"
-          class="btn-outline"
-        >
-          <Icon 
-            :name="isRunningTask ? 'heroicons:arrow-path' : 'heroicons:cog-6-tooth'" 
-            :class="['w-5 h-5 mr-2', { 'animate-spin': isRunningTask }]" 
-          />
-          {{ isRunningTask ? 'Running Task...' : 'Run Cleanup Task' }}
-        </button>
-      </div>
-      
-      <!-- Task Results -->
-      <div v-if="taskResult" class="mt-4 p-4 rounded-lg" :class="taskResult.success ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'">
-        <div class="flex items-start">
-          <Icon 
-            :name="taskResult.success ? 'heroicons:check-circle' : 'heroicons:x-circle'" 
-            :class="['w-5 h-5 mr-2 mt-0.5', taskResult.success ? 'text-green-600' : 'text-red-600']" 
-          />
-          <div>
-            <p :class="['font-medium', taskResult.success ? 'text-green-800' : 'text-red-800']">
-              Task {{ taskResult.success ? 'completed successfully' : 'failed' }}
-            </p>
-            <pre v-if="taskResult.details" class="mt-2 text-xs overflow-auto max-h-32" :class="taskResult.success ? 'text-green-700' : 'text-red-700'">{{ JSON.stringify(taskResult.details, null, 2) }}</pre>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { AdminService } from '@/services'
 // Middleware and SEO
 definePageMeta({
   middleware: 'admin',
@@ -105,29 +68,29 @@ useSeoMeta({
 
 // State
 const isRunningCleanup = ref(false)
-const isRunningTask = ref(false)
 const cleanupResult = ref<any>(null)
-const taskResult = ref<any>(null)
 
-// Run image cleanup via API
+// Run image cleanup via service
 const runImageCleanup = async () => {
   isRunningCleanup.value = true
   cleanupResult.value = null
-  
+
   try {
-    const response = await $fetch('/api/admin/cleanup-images', {
-      method: 'POST'
-    })
-    
-    cleanupResult.value = {
-      success: true,
-      message: response.message,
-      details: {
-        totalFiles: response.totalFiles,
-        orphanedFiles: response.orphanedFiles,
-        deletedCount: response.deletedCount,
-        usedImages: response.usedImages
+    const response = await AdminService.cleanupImages()
+
+    if (response.success && response.data) {
+      cleanupResult.value = {
+        success: true,
+        message: response.data.message,
+        details: {
+          totalFiles: response.data.totalFiles,
+          orphanedFiles: response.data.orphanedFiles,
+          deletedCount: response.data.deletedCount,
+          usedImages: response.data.usedImages
+        }
       }
+    } else {
+      throw new Error(response.error || 'Cleanup failed')
     }
     
     useToast().success(response.message)
@@ -141,37 +104,6 @@ const runImageCleanup = async () => {
     useToast().error('Cleanup failed')
   } finally {
     isRunningCleanup.value = false
-  }
-}
-
-// Run task via task runner
-const runTask = async () => {
-  isRunningTask.value = true
-  taskResult.value = null
-  
-  try {
-    // Note: In production, you would call this via a proper task runner API
-    // For now, we'll just call the cleanup API
-    const response = await $fetch('/api/admin/cleanup-images', {
-      method: 'POST'
-    })
-    
-    taskResult.value = {
-      success: true,
-      details: response
-    }
-    
-    useToast().success('Task completed successfully')
-    
-  } catch (error: any) {
-    taskResult.value = {
-      success: false,
-      details: error.data || error.message
-    }
-    
-    useToast().error('Task failed')
-  } finally {
-    isRunningTask.value = false
   }
 }
 </script>
