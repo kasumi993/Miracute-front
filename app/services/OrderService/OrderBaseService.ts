@@ -81,3 +81,20 @@ export const cancelOrder = async (
     refundAmount
   })
 }
+
+/**
+ * Request reviews for an order (admin action)
+ */
+export const requestOrderReviews = async (orderId: string): Promise<ApiResponse<any>> => {
+  validateRequired(orderId, 'Order ID')
+  return baseService.post<any>(`/orders/${orderId}/request-reviews`)
+}
+
+/**
+ * Resend order email (admin action)
+ */
+export const resendOrderEmail = async (orderId: string, emailType: string): Promise<ApiResponse<any>> => {
+  validateRequired(orderId, 'Order ID')
+  validateRequired(emailType, 'Email type')
+  return baseService.post<any>(`/orders/${orderId}/resend-email`, { emailType })
+}

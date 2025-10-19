@@ -14,6 +14,8 @@ export const OrderService = {
   getOrders: OrderBaseService.getOrders,
   updateOrderStatus: OrderBaseService.updateOrderStatus,
   cancelOrder: OrderBaseService.cancelOrder,
+  requestOrderReviews: OrderBaseService.requestOrderReviews,
+  resendOrderEmail: OrderBaseService.resendOrderEmail,
 
   // Processus de Paiement (CheckoutService)
   calculateOrderSummary: CheckoutService.getOrderSummary, // Renommé pour clarté

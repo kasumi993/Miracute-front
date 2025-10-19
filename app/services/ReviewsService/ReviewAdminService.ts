@@ -57,3 +57,16 @@ export const moderateReview = async (
 
   return response
 }
+
+/**
+ * Create admin review
+ */
+export const createReview = async (reviewData: {
+  product_id: string
+  user_id: string
+  rating: number
+  title?: string
+  comment?: string
+}): Promise<ApiResponse<any>> => {
+  return baseService.post<any>('/reviews/create', reviewData)
+}

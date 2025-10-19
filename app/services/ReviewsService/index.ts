@@ -19,6 +19,7 @@ export const ReviewsService = {
   // --- Admin Methods ---
   getReviewsForModeration: AdminService.getReviewsForModeration,
   moderateReview: AdminService.moderateReview,
+  createReview: AdminService.createReview,
 
   // --- Cache Management (exposed for tools/debugging) ---
   clearStatsCache: (productId: string) => getCacheService().clearCache(productId),
