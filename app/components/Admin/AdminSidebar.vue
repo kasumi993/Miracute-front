@@ -10,11 +10,11 @@
     <!-- Sidebar -->
     <div
       :class="[
-        'fixed lg:static inset-y-0 left-0 z-40 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:transform-none flex flex-col',
+        'fixed lg:sticky inset-y-0 left-0 z-40 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:transform-none flex flex-col',
         isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       ]"
-      :style="{ 
-        top: '64px', 
+      :style="{
+        top: '64px',
         height: 'calc(100vh - 64px)',
         willChange: 'transform'
       }"
@@ -88,6 +88,15 @@
             @click="$emit('close')"
           >
             Analytics
+          </AdminSidebarLink>
+
+          <AdminSidebarLink
+            to="/dashboard/emails/test"
+            :active="route.path.startsWith('/dashboard/emails')"
+            icon="heroicons:envelope"
+            @click="$emit('close')"
+          >
+            Email Testing
           </AdminSidebarLink>
 
           <AdminSidebarLink
