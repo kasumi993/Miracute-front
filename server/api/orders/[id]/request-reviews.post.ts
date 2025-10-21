@@ -1,5 +1,5 @@
-import { requireAdminAuthentication } from '../../../utils/auth'
-import { sendBrevoReviewRequestEmail } from '../../../utils/email'
+import { requireAdminAuthentication } from '../../../utils/security/auth'
+import { ServerEmailService } from '../../../utils/email/ServerEmailService'
 
 export default defineEventHandler(async (event) => {
   const { supabase } = await requireAdminAuthentication(event)
@@ -54,7 +54,17 @@ export default defineEventHandler(async (event) => {
     }
 
     // Send review request email
-    await sendBrevoReviewRequestEmail(order)
+    const emailService = new ServerEmailService()
+    const reviewData = {
+      orderId: order.id,
+      customerName: order.customer_name || 'Customer',
+      customerEmail: order.customer_email,
+      items: order.items?.map(item => ({
+        productId: item.product_id,
+        productName: item.product_name || 'Product'
+      })) || []
+    }
+    await emailService.sendReviewRequest(reviewData)
 
     return {
       success: true,

@@ -1,27 +1,38 @@
-import * as ClientService from './ReviewClientService'
-import * as AdminService from './ReviewAdminService'
-import { getCacheService } from './ReviewClientService'
+// Export all GET methods
+export * from './get'
 
-/**
- * Professional Reviews Service Singleton
- * Aggregates client, admin, and cache functionality.
- */
+// Export all POST methods
+export * from './post'
+
+// Export all PATCH methods
+export * from './patch'
+
+// Export all DELETE methods
+export * from './delete'
+
+// Export helpers
+export * from './helpers'
+
+
+// Create a unified ReviewsService object for easier usage
 export const ReviewsService = {
-  // --- Client Methods ---
-  getProductReviews: ClientService.getProductReviews,
-  getProductReviewStats: ClientService.getProductReviewStats,
-  submitReview: ClientService.submitReview,
-  updateReview: ClientService.updateReview,
-  deleteReview: ClientService.deleteReview,
-  reportReview: ClientService.reportReview,
-  markReviewHelpful: ClientService.markReviewHelpful,
+  // GET methods
+  getProductReviews: (productId: string, filters?: any, pagination?: any) => import('./get').then(m => m.getProductReviews(productId, filters, pagination)),
+  getProductReviewStats: (productId: string) => import('./get').then(m => m.getProductReviewStats(productId)),
+  getReviewsForModeration: (filters?: any, pagination?: any) => import('./get').then(m => m.getReviewsForModeration(filters, pagination)),
 
-  // --- Admin Methods ---
-  getReviewsForModeration: AdminService.getReviewsForModeration,
-  moderateReview: AdminService.moderateReview,
-  createReview: AdminService.createReview,
+  // POST methods
+  submitReview: (reviewData: any, userId?: string) => import('./post').then(m => m.submitReview(reviewData, userId)),
+  reportReview: (reviewId: string, reason: string, details?: string) => import('./post').then(m => m.reportReview(reviewId, reason, details)),
+  markReviewHelpful: (reviewId: string, isHelpful: boolean) => import('./post').then(m => m.markReviewHelpful(reviewId, isHelpful)),
+  createReview: (reviewData: any) => import('./post').then(m => m.createReview(reviewData)),
 
-  // --- Cache Management (exposed for tools/debugging) ---
-  clearStatsCache: (productId: string) => getCacheService().clearCache(productId),
-  clearAllCache: () => getCacheService().clearAllCache(),
+  // PATCH methods
+  updateReview: (reviewId: string, updates: any) => import('./patch').then(m => m.updateReview(reviewId, updates)),
+  moderateReview: (reviewId: string, action: any) => import('./patch').then(m => m.moderateReview(reviewId, action)),
+
+  // DELETE methods
+  deleteReview: (reviewId: string) => import('./delete').then(m => m.deleteReview(reviewId)),
+  bulkDeleteReviews: (reviewIds: string[]) => import('./delete').then(m => m.bulkDeleteReviews(reviewIds)),
+
 }

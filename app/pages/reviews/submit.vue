@@ -114,6 +114,8 @@
 <script setup lang="ts">
 // Import the ReviewForm component explicitly
 import ReviewForm from '~/components/Reviews/ReviewForm.vue'
+import { ProductService } from '@/services/ProductService'
+import { OrderService } from '@/services/OrderService'
 
 // SEO
 useSeoMeta({
@@ -143,31 +145,30 @@ const loadProductAndOrder = async () => {
     isLoading.value = false
     return
   }
-  
+
   try {
-    // Load product details
-    const productResponse = await $fetch(`/api/products/${productId}`)
-    if (productResponse.success) {
-      product.value = productResponse.product
+    // Load product details using ProductService
+    const productResponse = await ProductService.getProduct(productId)
+    if (productResponse.success && productResponse.data) {
+      product.value = productResponse.data
+    } else if (productResponse.data) {
+      product.value = productResponse.data
     }
-    
+
     // If we have order info, load order details and verify token
     if (orderId && token) {
       try {
-        const orderResponse = await $fetch(`/api/orders/${orderId}/verify-review-token`, {
-          method: 'POST',
-          body: { token, product_id: productId }
-        })
-        
-        if (orderResponse.success) {
-          order.value = orderResponse.order
-          userId.value = orderResponse.order.user_id
+        const orderResponse = await OrderService.verifyReviewToken(orderId, token, productId)
+
+        if (orderResponse.success && orderResponse.data) {
+          order.value = orderResponse.data.order || orderResponse.data
+          userId.value = order.value?.user_id
         }
       } catch (error) {
         console.warn('Could not verify review token, proceeding without order context')
       }
     }
-    
+
   } catch (error) {
     console.error('Error loading product:', error)
   } finally {
@@ -175,18 +176,22 @@ const loadProductAndOrder = async () => {
   }
 }
 
-const handleReviewSuccess = (review: any) => {
+const handleReviewSuccess = () => {
   toast.success('Thank you for your review! 🌟')
-  
+
   // Redirect to product page
   setTimeout(() => {
-    router.push(`/listings/${product.value.slug}`)
+    if (product.value && (product.value as any).slug) {
+      router.push(`/listings/${(product.value as any).slug}`)
+    } else {
+      router.push('/')
+    }
   }, 2000)
 }
 
 const handleCancel = () => {
-  if (product.value?.slug) {
-    router.push(`/listings/${product.value.slug}`)
+  if (product.value && (product.value as any).slug) {
+    router.push(`/listings/${(product.value as any).slug}`)
   } else {
     router.push('/')
   }

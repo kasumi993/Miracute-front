@@ -1,7 +1,7 @@
 import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
 import type { Database, ApiResponse } from '@/types/database'
-import { createApiResponse, createApiError, handleSupabaseError } from '../../utils/apiResponse'
-import { sendBrevoNewReviewNotification } from '../../utils/email'
+import { createApiResponse, createApiError, handleSupabaseError } from '../../utils/api/apiResponse'
+import { ServerEmailService } from '../../utils/email/ServerEmailService'
 
 export default defineEventHandler(async (event): Promise<ApiResponse<{ review: any }>> => {
   try {
@@ -118,15 +118,17 @@ export default defineEventHandler(async (event): Promise<ApiResponse<{ review: a
         .eq('id', user.id)
         .single()
 
-      await sendBrevoNewReviewNotification({
+      const emailService = new ServerEmailService()
+      await emailService.sendAdminReviewNotification({
         productId: body.product_id,
-        productName: productData?.name,
+        productName: productData?.name || 'Unknown Product',
         rating: review.rating,
+        isVerified: review.is_verified_purchase,
         title: review.title,
         comment: review.comment,
-        userName: userData ? `${userData.first_name || ''} ${userData.last_name || ''}`.trim() : undefined,
-        userEmail: userData?.email,
-        isVerifiedPurchase: review.is_verified_purchase
+        customerName: userData ? `${userData.first_name || ''} ${userData.last_name || ''}`.trim() : 'Anonymous',
+        customerEmail: userData?.email,
+        reviewId: review.id
       })
     } catch (emailError) {
       console.error('Failed to send notification email:', emailError)
