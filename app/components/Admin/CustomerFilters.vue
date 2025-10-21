@@ -1,6 +1,6 @@
 <template>
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-4 sm:mb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
       <!-- Search -->
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
@@ -37,7 +37,7 @@
       </div>
 
       <!-- Clear Filters -->
-      <div class="flex items-end">
+      <div class="flex items-end sm:col-span-2 lg:col-span-1">
         <UIClearFiltersButton
           @clear="$emit('clearFilters')"
           size="md"

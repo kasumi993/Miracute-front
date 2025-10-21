@@ -116,7 +116,7 @@
 </template>
 
 <script setup>
-import { ProductService } from '@/services'
+import { ProductService } from '@/services/ProductService'
 
 const featuredProducts = ref([])
 const isLoading = ref(true)

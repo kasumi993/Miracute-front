@@ -5,10 +5,10 @@
   <!-- Admin Content -->
   <div v-else-if="hasAdminAccess">
     <!-- Header -->
-    <div class="flex justify-between items-center mb-8">
-      <div>
-        <h1 class="text-3xl font-heading font-medium text-gray-900">Customers</h1>
-        <p class="text-gray-600 mt-2">Manage your customers, newsletter subscribers, and contact submissions</p>
+    <div class="mb-4 sm:mb-6 lg:mb-8">
+      <div class="min-w-0">
+        <h1 class="text-xl sm:text-2xl lg:text-3xl font-heading font-medium text-gray-900">Customers</h1>
+        <p class="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Manage your customers, newsletter subscribers, and contact submissions</p>
       </div>
     </div>
 

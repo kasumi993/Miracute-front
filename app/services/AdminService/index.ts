@@ -1,61 +1,130 @@
-// Export all GET methods
-export * from './get'
+import type { ApiResponse } from '@/types/database'
+import { BaseApiService } from '../BaseApiService'
 
-// Export all POST methods
-export * from './post'
 
-// Export all PATCH methods
-export * from './patch'
+const baseService = new BaseApiService()
 
-// Export all DELETE methods
-export * from './delete'
 
-// Create a unified AdminService object for easier usage
+/**
+ * Get order statistics
+ */
+export const getOrderStats = async (params?: Record<string, any>): Promise<ApiResponse<any>> => {
+  return baseService.get<any>('/stats/orders', params)
+}
+
+/**
+ * Get product statistics
+ */
+export const getProductStats = async (params?: Record<string, any>): Promise<ApiResponse<any>> => {
+  return baseService.get<any>('/stats/products', params)
+}
+
+/**
+ * Compute overview statistics from orders and products data
+ */
+const computeOverviewStats = (ordersData: any, productsData: any) => {
+  const orderStats = ordersData?.orderStats || {}
+  const productStats = productsData?.productStats || {}
+
+  // Calculate total revenue from recent orders (simplified)
+  const totalRevenue = ordersData?.recentOrders?.reduce((sum: number, order: any) => {
+    return sum + (parseFloat(order.total_amount) || 0)
+  }, 0) || 0
+
+  // Extract customer count from orders data (would need proper calculation)
+  const totalCustomers = orderStats.totalOrders || 0 // Simplified
+
+  return {
+    totalRevenue,
+    totalOrders: orderStats.totalOrders || 0,
+    totalCustomers,
+    totalProducts: productStats.totalProducts || 0,
+    revenueGrowth: 0, // Would need historical data
+    ordersGrowth: 0,
+    customersGrowth: 0,
+    productsGrowth: 0
+  }
+}
+
+/**
+ * Get aggregated dashboard statistics by calling multiple endpoints
+ */
+export const getDashboardStats = async (params?: Record<string, any>): Promise<ApiResponse<any>> => {
+  try {
+    // Fetch all stats in parallel with error handling
+    const [ordersRes, productsRes] = await Promise.allSettled([
+      getOrderStats(params),
+      getProductStats(params)
+    ])
+
+    // Extract data from successful responses, provide defaults for failures
+    const ordersData = ordersRes.status === 'fulfilled' && ordersRes.value?.success
+      ? ordersRes.value.data
+      : {
+          recentOrders: [],
+          orderStats: {
+            totalOrders: 0,
+            pendingOrders: 0,
+            processingOrders: 0,
+            paidOrders: 0,
+            failedOrders: 0,
+            cancelledOrders: 0
+          }
+        }
+
+    const productsData = productsRes.status === 'fulfilled' && productsRes.value?.success
+      ? productsRes.value.data
+      : {
+          productStats: {
+            totalProducts: 0,
+            activeProducts: 0,
+            inactiveProducts: 0,
+            featuredProducts: 0,
+            outOfStock: 0,
+            lowStock: 0
+          }
+        }
+
+
+    // Compute overview stats from the fetched data
+    const overview = computeOverviewStats(ordersData, productsData)
+
+    // Combine all stats
+    const dashboardStats = {
+      overview,
+      recentOrders: ordersData.recentOrders || [],
+      orderStats: ordersData.orderStats || {},
+      productStats: productsData.productStats || {},
+      customerStats: {
+        totalCustomers: overview.totalCustomers || 0,
+        newCustomers: 0,
+        returningCustomers: 0,
+        averageOrderValue: (overview.totalOrders && overview.totalOrders > 0)
+          ? (overview.totalRevenue || 0) / overview.totalOrders
+          : 0
+      },
+      revenueByPeriod: [],
+      topProducts: []
+    }
+
+    return {
+      success: true,
+      data: dashboardStats,
+      error: null
+    }
+
+  } catch (error: any) {
+    console.error('Dashboard stats aggregation error:', error)
+    return {
+      success: false,
+      data: null,
+      error: error.message || 'Failed to fetch dashboard stats'
+    }
+  }
+}
+
 export const AdminService = {
-  // GET methods
-  checkAccess: () => import('./get').then(m => m.checkAccess()),
-  getProducts: (filters?: any, pagination?: any) => import('./get').then(m => m.getProducts(filters, pagination)),
-  getProduct: (id: string) => import('./get').then(m => m.getProduct(id)),
-  getCategories: () => import('./get').then(m => m.getCategories()),
-  getTemplateTypes: () => import('./get').then(m => m.getTemplateTypes()),
-  getStats: () => import('./get').then(m => m.getStats()),
-  getAnalytics: (params?: any) => import('./get').then(m => m.getAnalytics(params)),
-  getOrders: (filters?: any, pagination?: any) => import('./get').then(m => m.getOrders(filters, pagination)),
-  getOrder: (id: string) => import('./get').then(m => m.getOrder(id)),
-  getCustomers: (filters?: any, pagination?: any) => import('./get').then(m => m.getCustomers(filters, pagination)),
-  getCustomerStats: () => import('./get').then(m => m.getCustomerStats()),
-  getReviews: (filters?: any, pagination?: any) => import('./get').then(m => m.getReviews(filters, pagination)),
-  getPopularProducts: () => import('./get').then(m => m.getPopularProducts()),
-  getOrderStats: (params?: any) => import('./get').then(m => m.getOrderStats(params)),
-  getProductStats: (params?: any) => import('./get').then(m => m.getProductStats(params)),
-  getDashboardStats: (params?: any) => import('./get').then(m => m.getDashboardStats(params)),
-
-  // POST methods
-  uploadImages: (files: File[] | FileList, onProgress?: (progress: number) => void) => import('./post').then(m => m.uploadImages(files, onProgress)),
-  cleanupImages: () => import('./post').then(m => m.cleanupImages()),
-  testEmail: (emailData: any) => import('./post').then(m => m.testEmail(emailData)),
-  testSimpleEmail: (emailData: any) => import('./post').then(m => m.testSimpleEmail(emailData)),
-  testPurchaseEmail: (emailData: any) => import('./post').then(m => m.testPurchaseEmail(emailData)),
-  diagnoseEmailIssue: (data: any) => import('./post').then(m => m.diagnoseEmailIssue(data)),
-  subscribeCustomer: (customerId: string, data: any) => import('./post').then(m => m.subscribeCustomer(customerId, data)),
-  executeQuickAction: (actionData: any) => import('./post').then(m => m.executeQuickAction(actionData)),
-  exportData: (exportConfig: any) => import('./post').then(m => m.exportData(exportConfig)),
-
-  // PATCH methods
-  updateProductStatus: (id: string, isActive: boolean) => import('./patch').then(m => m.updateProductStatus(id, isActive)),
-  updateProduct: (id: string, data: any) => import('./patch').then(m => m.updateProduct(id, data)),
-  updateOrderStatus: (id: string, status: string) => import('./patch').then(m => m.updateOrderStatus(id, status)),
-  updateOrder: (id: string, data: any) => import('./patch').then(m => m.updateOrder(id, data)),
-  updateCustomer: (id: string, data: any) => import('./patch').then(m => m.updateCustomer(id, data)),
-  updateReview: (id: string, data: any) => import('./patch').then(m => m.updateReview(id, data)),
-  updateCategory: (id: string, data: any) => import('./patch').then(m => m.updateCategory(id, data)),
-
-  // DELETE methods
-  deleteAdminSession: (sessionId: string) => import('./delete').then(m => m.deleteAdminSession(sessionId)),
-  deleteNotification: (id: string) => import('./delete').then(m => m.deleteNotification(id)),
-  deleteLogEntry: (id: string) => import('./delete').then(m => m.deleteLogEntry(id)),
-  clearAllLogs: (confirm?: boolean) => import('./delete').then(m => m.clearAllLogs(confirm)),
-  deleteBackup: (backupId: string) => import('./delete').then(m => m.deleteBackup(backupId)),
-  deleteCacheEntry: (key: string) => import('./delete').then(m => m.deleteCacheEntry(key)),
-  clearAllCache: () => import('./delete').then(m => m.clearAllCache())
+  getOrderStats,
+  getProductStats,
+  getDashboardStats
 }

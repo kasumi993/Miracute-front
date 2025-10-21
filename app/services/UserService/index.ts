@@ -77,21 +77,21 @@ export const getUsers = async (params?: {
   date_from?: string
 }): Promise<ApiResponse<any>> => {
   const query = params ? `?${new URLSearchParams(params as any).toString()}` : ''
-  return baseService.get<any>(`/admin/customers${query}`)
+  return baseService.get<any>(`/users${query}`)
 }
 
 /**
  * Get customer statistics (admin use)
  */
 export const getCustomerStats = async (): Promise<ApiResponse<any>> => {
-  return baseService.get<any>('/admin/customers/stats')
+  return baseService.get<any>('/users/stats')
 }
 
 /**
  * Subscribe customer to newsletter (admin use)
  */
 export const subscribeCustomerToNewsletter = async (id: string): Promise<ApiResponse<any>> => {
-  return baseService.post<any>(`/admin/customers/${id}/subscribe`)
+  return baseService.post<any>(`/users/${id}/subscribe`)
 }
 
 // Create a unified UserService object for easier usage
