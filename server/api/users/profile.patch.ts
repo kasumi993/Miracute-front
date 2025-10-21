@@ -1,6 +1,6 @@
 import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
 import type { Database, User, ApiResponse } from '@/types/database'
-import { createApiResponse, createApiError, handleSupabaseError } from '../../utils/apiResponse'
+import { createApiResponse, createApiError, handleSupabaseError } from '../../utils/api/apiResponse'
 import { userProfileSchema, validateFormData } from '~/utils/validation'
 
 export default defineEventHandler(async (event): Promise<ApiResponse<User | null>> => {

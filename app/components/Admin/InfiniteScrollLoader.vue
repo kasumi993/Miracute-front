@@ -35,11 +35,12 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const infiniteScrollTrigger = ref<HTMLElement | null>(null)
+let observer: IntersectionObserver | null = null
 
 const setupInfiniteScroll = () => {
   if (!infiniteScrollTrigger.value) return
-  
-  const observer = new IntersectionObserver(
+
+  observer = new IntersectionObserver(
     (entries) => {
       const [entry] = entries
       if (entry.isIntersecting && props.hasNextPage && !props.isLoadingMore) {
@@ -50,13 +51,8 @@ const setupInfiniteScroll = () => {
       rootMargin: '100px'
     }
   )
-  
+
   observer.observe(infiniteScrollTrigger.value)
-  
-  // Cleanup observer on unmount
-  onUnmounted(() => {
-    observer.disconnect()
-  })
 }
 
 // Setup infinite scroll after component is mounted
@@ -64,5 +60,12 @@ onMounted(() => {
   nextTick(() => {
     setupInfiniteScroll()
   })
+})
+
+// Cleanup observer on unmount
+onUnmounted(() => {
+  if (observer) {
+    observer.disconnect()
+  }
 })
 </script>
