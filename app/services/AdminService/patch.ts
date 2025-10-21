@@ -62,7 +62,7 @@ export const updateCategory = async (id: string, updateData: {
   is_active?: boolean
   sort_order?: number
 }): Promise<ApiResponse<any>> => {
-  return baseService.patch<any>(`/categories/${id}`, updateData)
+  return baseService.put<any>(`/categories/${id}`, updateData)
 }
 
 /**
@@ -104,7 +104,7 @@ export const updateProductFeatured = async (id: string, isFeatured: boolean): Pr
  * Update category status
  */
 export const updateCategoryStatus = async (id: string, isActive: boolean): Promise<ApiResponse<any>> => {
-  return baseService.patch<any>(`/categories/${id}`, { is_active: isActive })
+  return baseService.put<any>(`/categories/${id}`, { is_active: isActive })
 }
 
 /**
