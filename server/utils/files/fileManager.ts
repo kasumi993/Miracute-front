@@ -134,23 +134,20 @@ export class FileManager {
 
 // Predefined configurations for different file types
 export const FileConfigs = {
-  PRODUCT_IMAGES: {
-    bucket: 'product-images',
-    allowedTypes: ['jpg', 'jpeg', 'png', 'webp'],
-    maxSize: 5 * 1024 * 1024, // 5MB
-    folder: 'products'
+  PRODUCT_MEDIA: {
+    bucket: 'Product-images',
+    allowedTypes: ['jpg', 'jpeg', 'png', 'webp', 'mp4', 'mov', 'avi', 'webm'],
+    maxSize: 50 * 1024 * 1024, // 50MB (increased for videos)
   },
   PRODUCT_FILES: {
-    bucket: 'product-files',
+    bucket: 'Miracute-templates',
     allowedTypes: ['zip', 'pdf', 'psd', 'ai', 'fig', 'sketch'],
     maxSize: 100 * 1024 * 1024, // 100MB
-    folder: 'downloads'
   },
-  USER_AVATARS: {
-    bucket: 'user-avatars',
+  BLOG_IMAGES: {
+    bucket: 'blog-images',
     allowedTypes: ['jpg', 'jpeg', 'png', 'webp'],
     maxSize: 2 * 1024 * 1024, // 2MB
-    folder: 'avatars'
   }
 } as const
 
