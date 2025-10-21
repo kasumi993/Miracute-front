@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Request - How was your experience?</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f5f5f5; font-family: Arial, sans-serif;">
+    <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+        <!-- Header -->
+        <div style="background: linear-gradient(135deg, #8B4513, #A0522D); color: white; padding: 30px; text-align: center;">
+            <h1 style="margin: 0; font-size: 28px;">How was your experience? ⭐</h1>
+            <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">We'd love to hear your thoughts!</p>
+        </div>
+
+        <!-- Content -->
+        <div style="padding: 30px; background: #f9f9f9;">
+            <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <h2 style="color: #8B4513; margin-top: 0;">Hi {{customerFirstName}}! 👋</h2>
+                <p style="margin-bottom: 20px;">Thank you for your recent purchase from Miracute! I hope you're loving your new templates.</p>
+                <p style="margin-bottom: 20px;">As a small business, your feedback means the world to me. Would you take a moment to share your experience with others?</p>
+                <p style="margin-bottom: 20px;"><strong>Your honest review helps other customers find the perfect templates and helps me improve my designs.</strong></p>
+            </div>
+
+            <!-- Products to Review -->
+            <div style="margin-bottom: 20px;">
+                <h3 style="color: #8B4513; margin-bottom: 16px;">Please review your templates:</h3>
+                {{#each items}}
+                <div style="border: 1px solid #e5e5e5; border-radius: 8px; padding: 20px; margin-bottom: 16px; background: white;">
+                    <h3 style="margin: 0 0 10px 0; color: #8B4513; font-size: 16px;">{{productName}}</h3>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <a href="{{reviewUrl}}"
+                           style="background: #8B4513; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+                            ⭐ Write a Review
+                        </a>
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+
+            <!-- Personal Message -->
+            <div style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #8B4513;">
+                <p style="margin: 0; font-style: italic; color: #666;">
+                    "Every review, whether it's 5 stars or suggestions for improvement, helps me create better templates for amazing customers like you!" - The Designer
+                </p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="text-align: center; padding: 20px; color: #666; font-size: 14px;">
+            <p style="margin: 0 0 10px 0;">Thank you for choosing Miracute! ✨</p>
+            <p style="margin: 0;">Questions? Reply to this email - I read every message personally!</p>
+
+            <!-- Unsubscribe -->
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
+                <p style="margin: 0; font-size: 12px;">
+                    Don't want review request emails?
+                    <a href="{{unsubscribeUrl}}" style="color: #8B4513; text-decoration: none;">Unsubscribe from review requests</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

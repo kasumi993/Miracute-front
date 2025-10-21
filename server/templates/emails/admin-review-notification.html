@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Review Notification</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f5f5f5; font-family: Arial, sans-serif;">
+    <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+        <!-- Header -->
+        <div style="background: linear-gradient(135deg, #8B4513, #A0522D); color: white; padding: 30px; text-align: center;">
+            <h1 style="margin: 0; font-size: 28px;">⭐ New Review Submitted!</h1>
+            <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Someone left a review on your product</p>
+        </div>
+
+        <!-- Content -->
+        <div style="padding: 30px; background: #f9f9f9;">
+            <!-- Review Rating -->
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div style="background: white; padding: 20px; border-radius: 8px; display: inline-block;">
+                    <div style="font-size: 32px; margin-bottom: 10px;">
+                        {{#repeat rating}}⭐{{/repeat}}{{#repeat (subtract 5 rating)}}⚫{{/repeat}}
+                    </div>
+                    <div style="font-size: 18px; font-weight: bold; color: #8B4513;">
+                        {{rating}}/5 Stars
+                    </div>
+                </div>
+            </div>
+
+            <!-- Review Details -->
+            <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <h2 style="color: #8B4513; margin-top: 0;">Review Details</h2>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 8px 0; font-weight: bold; width: 120px;">Product:</td>
+                        <td style="padding: 8px 0;">{{productName}}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; font-weight: bold;">Customer:</td>
+                        <td style="padding: 8px 0;">{{customerName}} {{#if customerEmail}}({{customerEmail}}){{/if}}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; font-weight: bold;">Verified:</td>
+                        <td style="padding: 8px 0;">
+                            {{#if isVerifiedPurchase}}
+                                <span style="color: #28a745; font-weight: bold;">✅ Verified Purchase</span>
+                            {{else}}
+                                <span style="color: #dc3545; font-weight: bold;">❌ Not Verified</span>
+                            {{/if}}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; font-weight: bold;">Date:</td>
+                        <td style="padding: 8px 0;">{{reviewDate}}</td>
+                    </tr>
+                </table>
+            </div>
+
+            {{#if title}}
+            <!-- Review Title -->
+            <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <h3 style="color: #8B4513; margin-top: 0;">Review Title</h3>
+                <p style="margin: 0; font-size: 16px; font-weight: bold;">"{{title}}"</p>
+            </div>
+            {{/if}}
+
+            {{#if comment}}
+            <!-- Review Comment -->
+            <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <h3 style="color: #8B4513; margin-top: 0;">Review Comment</h3>
+                <div style="background: #f5f5f5; padding: 15px; border-radius: 4px; font-style: italic; border-left: 4px solid #8B4513;">
+                    "{{comment}}"
+                </div>
+            </div>
+            {{/if}}
+
+            <!-- Actions -->
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="{{dashboardUrl}}/reviews"
+                   style="background: #8B4513; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-right: 10px;">
+                    📊 View All Reviews
+                </a>
+                {{#if needsModeration}}
+                <a href="{{dashboardUrl}}/reviews/{{reviewId}}"
+                   style="background: #dc3545; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+                    🔍 Review & Moderate
+                </a>
+                {{/if}}
+            </div>
+
+            <!-- Quick Stats -->
+            {{#if productStats}}
+            <div style="background: white; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                <h3 style="color: #8B4513; margin-top: 0;">Product Review Stats</h3>
+                <div style="display: flex; justify-content: space-around; text-align: center;">
+                    <div>
+                        <div style="font-size: 24px; font-weight: bold; color: #8B4513;">{{productStats.totalReviews}}</div>
+                        <div style="font-size: 14px; color: #666;">Total Reviews</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 24px; font-weight: bold; color: #8B4513;">{{productStats.averageRating}}</div>
+                        <div style="font-size: 14px; color: #666;">Avg Rating</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 24px; font-weight: bold; color: #28a745;">{{productStats.verifiedCount}}</div>
+                        <div style="font-size: 14px; color: #666;">Verified</div>
+                    </div>
+                </div>
+            </div>
+            {{/if}}
+        </div>
+
+        <!-- Footer -->
+        <div style="text-align: center; padding: 20px; color: #666; font-size: 14px; background: #f9f9f9;">
+            <p style="margin: 0 0 10px 0;">Miracute Admin Notifications</p>
+            <p style="margin: 0; font-size: 12px;">
+                <a href="{{settingsUrl}}" style="color: #8B4513; text-decoration: none;">Update notification preferences</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
