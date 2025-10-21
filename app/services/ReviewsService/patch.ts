@@ -4,7 +4,7 @@ import type {
 import { validateRequired, validatePositiveNumber, validateStringLength, ValidationError } from '~/utils/errors'
 import { BaseApiService } from '../BaseApiService/index'
 
-const baseService = new BaseApiService({ baseUrl: '/api' })
+const baseService = new BaseApiService()
 
 /**
  * Update an existing review
@@ -47,7 +47,7 @@ export const moderateReview = async (
     validateStringLength(action.adminResponse, 'Admin response', 10, 500)
   }
 
-  return baseService.patch<Review>(`/admin/reviews/${reviewId}/moderate`, {
+  return baseService.patch<Review>(`/reviews/${reviewId}/moderate`, {
     action: action.action,
     reason: action.reason?.trim(),
     adminResponse: action.adminResponse?.trim(),

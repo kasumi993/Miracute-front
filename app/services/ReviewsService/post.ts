@@ -130,7 +130,7 @@ export const createReview = async (reviewData: {
     validateStringLength(reviewData.title, 'Title', 5, 100)
   }
 
-  const response = await baseService.post<Review>('/admin/reviews', {
+  const response = await baseService.post<Review>('/reviews', {
     productId: reviewData.productId,
     rating: reviewData.rating,
     title: reviewData.title?.trim(),

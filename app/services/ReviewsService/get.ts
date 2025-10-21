@@ -50,6 +50,6 @@ export const getReviewsForModeration = async (
     limit: Math.min(pagination.limit || 20, 100)
   }
 
-  return baseService.get<PaginatedResponse<Review>>('/admin/reviews', query)
+  return baseService.get<PaginatedResponse<Review>>('/reviews', query)
 }
 
