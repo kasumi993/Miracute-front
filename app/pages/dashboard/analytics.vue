@@ -48,6 +48,7 @@ useSeoMeta({
 })
 
 // Store
+import { useAnalyticsDashboardStore } from '~/stores/data/analytics'
 const analyticsStore = useAnalyticsDashboardStore()
 
 // State

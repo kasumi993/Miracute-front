@@ -23,8 +23,9 @@ export const AnalyticsService = {
   getCustomReport: (reportId: string, parameters?: Record<string, any>) => import('./get').then(m => m.getCustomReport(reportId, parameters)),
   getDashboardData: (dashboardType?: 'overview' | 'ecommerce' | 'marketing' | 'content') =>
     import('./get').then(m => m.getDashboardData(dashboardType)),
-  getAnalytics: (filters?: { period?: string; from?: string; to?: string }) =>
+  getAnalytics: (filters?: { period?: string; from?: string; to?: string; simple?: boolean }) =>
     import('./get').then(m => m.getAnalytics(filters)),
+  getSimpleStats: () => import('./get').then(m => m.getSimpleStats()),
 
   // POST methods
   trackEvent: (data: any) => import('./post').then(m => m.trackEvent(data)),

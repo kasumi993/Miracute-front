@@ -1,5 +1,5 @@
 import type { ApiResponse } from '@/types/database'
-import { BaseApiService } from '../BaseApiService'
+import { BaseApiService } from '../BaseApiService/index'
 
 const baseService = new BaseApiService()
 
@@ -212,20 +212,20 @@ export const getAnalytics = async (
     period?: string
     from?: string
     to?: string
+    simple?: boolean
   }
-): Promise<ApiResponse<{
-  visitors: number
-  visitorsChange: number
-  pageViews: number
-  pageViewsChange: number
-  productViews: number
-  addToCarts: number
-  topPages: Array<{
-    url: string
-    title: string
-    views: number
-    uniqueViews: number
-  }>
+): Promise<ApiResponse<any>> => {
+  return baseService.get('/analytics', filters)
+}
+
+/**
+ * Get simple stats (legacy format)
+ */
+export const getSimpleStats = async (): Promise<ApiResponse<{
+  orders: number
+  products: number
+  reviews: number
+  revenue: number
 }>> => {
-  return baseService.get('/admin/analytics', filters)
+  return baseService.get('/analytics', { simple: true })
 }

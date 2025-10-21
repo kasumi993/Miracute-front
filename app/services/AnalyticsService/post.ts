@@ -1,5 +1,5 @@
 import type { ApiResponse } from '@/types/database'
-import { BaseApiService } from '../BaseApiService'
+import { BaseApiService } from '../BaseApiService/index'
 
 const baseService = new BaseApiService()
 
