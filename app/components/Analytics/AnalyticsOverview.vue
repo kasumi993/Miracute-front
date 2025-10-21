@@ -36,7 +36,7 @@
     <AnalyticsCard
       title="Product Views"
       :value="analytics.productViews"
-      :subtitle="`${Math.round((analytics.productViews / analytics.pageViews) * 100)}% of all page views`"
+      :subtitle="analytics.pageViews && analytics.productViews ? `${Math.round((analytics.productViews / analytics.pageViews) * 100)}% of all page views` : ''"
       icon="heroicons:shopping-bag"
       icon-color="purple"
       :show-change="false"
@@ -46,7 +46,7 @@
     <AnalyticsCard
       title="Add to Carts"
       :value="analytics.addToCarts"
-      :subtitle="`${Math.round((analytics.addToCarts / analytics.productViews) * 100)}% conversion rate`"
+      :subtitle="analytics.productViews && analytics.addToCarts ? `${Math.round((analytics.addToCarts / analytics.productViews) * 100)}% conversion rate` : ''"
       icon="heroicons:shopping-cart"
       icon-color="orange"
       :show-change="false"

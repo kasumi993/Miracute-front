@@ -14,13 +14,13 @@
       {{ formatNumber(value) }}
     </div>
     
-    <div v-if="showChange" :class="[
+    <div v-if="showChange && !isNaN(change) && change !== null && change !== undefined" :class="[
       'text-sm flex items-center',
       change >= 0 ? 'text-green-600' : 'text-red-600'
     ]">
-      <Icon 
-        :name="change >= 0 ? 'heroicons:arrow-trending-up' : 'heroicons:arrow-trending-down'" 
-        class="w-4 h-4 mr-1" 
+      <Icon
+        :name="change >= 0 ? 'heroicons:arrow-trending-up' : 'heroicons:arrow-trending-down'"
+        class="w-4 h-4 mr-1"
       />
       {{ Math.abs(change) }}% vs previous period
     </div>
@@ -65,6 +65,9 @@ const iconTextClass = computed(() => {
 })
 
 const formatNumber = (number: number) => {
+  if (!number && number !== 0) {
+    return '0'
+  }
   if (number >= 1000000) {
     return (number / 1000000).toFixed(1) + 'M'
   }
