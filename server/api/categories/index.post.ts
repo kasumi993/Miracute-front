@@ -1,6 +1,6 @@
 import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
-import { isAdminUser } from '../../utils/auth'
-import { createApiResponse, createApiError } from '../../utils/apiResponse'
+import { isAdminUser } from '../../utils/security/auth'
+import { createApiResponse, createApiError } from '../../utils/api/apiResponse'
 import type { Database } from '@/types/database'
 
 interface CreateCategoryRequest {
@@ -9,7 +9,6 @@ interface CreateCategoryRequest {
   description?: string
   sort_order?: number
   is_active?: boolean
-  parent_id?: string
 }
 
 export default defineEventHandler(async (event) => {
@@ -67,9 +66,7 @@ export default defineEventHandler(async (event) => {
         slug: body.slug,
         description: body.description || null,
         sort_order: body.sort_order || 0,
-        is_active: body.is_active !== undefined ? body.is_active : true,
-        parent_id: body.parent_id || null,
-        created_by: user.id
+        is_active: body.is_active !== undefined ? body.is_active : true
       })
       .select()
       .single()

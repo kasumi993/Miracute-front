@@ -107,62 +107,45 @@
 
           <!-- Desktop Table View -->
           <div class="hidden lg:block overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
+            <table class="w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Category
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Slug
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Products
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Sort Order
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Products
+                </th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Created
                 </th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
               <tr v-for="category in categories" :key="category.id" class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div>
-                    <div class="text-sm font-medium text-gray-900">
+                <td class="px-4 py-4">
+                  <div class="max-w-sm">
+                    <div class="text-sm font-medium text-gray-900 mb-1">
                       {{ category.name }}
                     </div>
-                    <div class="text-sm text-gray-500 truncate max-w-xs">
+                    <div class="text-xs text-gray-500 mb-1">
+                      /{{ category.slug }}
+                    </div>
+                    <div v-if="category.description" class="text-xs text-gray-500 truncate">
                       {{ category.description }}
                     </div>
                   </div>
                 </td>
-                
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <code class="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded">
-                    {{ category.slug }}
-                  </code>
-                </td>
-                
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {{ category.product_count || 0 }}
-                </td>
-                
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {{ category.sort_order }}
-                </td>
-                
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span 
-                    class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
+
+                <td class="px-4 py-4">
+                  <span
+                    class="inline-flex px-2 py-1 text-xs font-medium rounded-full"
                     :class="{
                       'bg-green-100 text-green-800': category.is_active,
                       'bg-gray-100 text-gray-800': !category.is_active
@@ -171,24 +154,36 @@
                     {{ category.is_active ? 'Active' : 'Inactive' }}
                   </span>
                 </td>
-                
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+
+                <td class="px-4 py-4 text-sm text-gray-900">
+                  {{ category.product_count || 0 }}
+                </td>
+
+                <td class="px-4 py-4 text-sm text-gray-500">
                   {{ formatDate(category.created_at) }}
                 </td>
-                
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <div class="flex items-center justify-end space-x-2">
+
+                <td class="px-4 py-4 text-right">
+                  <div class="flex items-center justify-end space-x-1">
+                    <button
+                      @click="editCategory(category)"
+                      class="text-gray-400 hover:text-gray-600 p-1 rounded"
+                      title="Edit"
+                    >
+                      <Icon name="heroicons:pencil" class="w-4 h-4" />
+                    </button>
+
                     <button
                       @click="toggleCategoryStatus(category)"
-                      class="text-gray-600 hover:text-gray-900 p-1"
+                      class="text-gray-400 hover:text-gray-600 p-1 rounded"
                       :title="category.is_active ? 'Deactivate' : 'Activate'"
                     >
                       <Icon :name="category.is_active ? 'heroicons:eye-slash' : 'heroicons:eye'" class="w-4 h-4" />
                     </button>
-                    
+
                     <button
                       @click="deleteCategory(category)"
-                      class="text-red-600 hover:text-red-900 p-1"
+                      class="text-red-400 hover:text-red-600 p-1 rounded"
                       title="Delete"
                     >
                       <Icon name="heroicons:trash" class="w-4 h-4" />
@@ -203,18 +198,33 @@
       </div>
 
     <!-- Floating Action Button -->
-    <NuxtLink 
-      to="/dashboard/categories/create" 
-      class="fixed bottom-6 left-6 z-50 w-14 h-14 bg-brand-brown hover:bg-brand-brown/90 text-white rounded-full shadow-lg hover:shadow-xl flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95"
+    <NuxtLink
+      to="/dashboard/categories/create"
+      class="fixed bottom-6 right-6 z-50 w-14 h-14 bg-brand-brown hover:bg-brand-brown/90 text-white rounded-full shadow-lg hover:shadow-xl flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95"
       title="Add Category"
     >
       <Icon name="heroicons:plus" class="w-6 h-6" />
     </NuxtLink>
+
+    <!-- Delete Confirmation Modal -->
+    <UIConfirmationModal
+      :is-open="showDeleteModal"
+      :title="deleteModalTitle"
+      :message="deleteModalMessage"
+      confirm-text="Delete Category"
+      cancel-text="Cancel"
+      :is-loading="isDeletingCategory"
+      loading-text="Deleting..."
+      variant="danger"
+      @confirm="confirmDelete"
+      @cancel="cancelDelete"
+    />
   </div>
 </template>
 
 <script setup>
 import { AdminService } from '@/services'
+import { CategoryService } from '@/services'
 
 // Admin Guard
 const { isCheckingAccess, hasAdminAccess } = useAdminGuard()
@@ -234,6 +244,13 @@ useSeoMeta({
 // State
 const isLoading = ref(false)
 const categories = ref([])
+
+// Delete Modal State
+const showDeleteModal = ref(false)
+const isDeletingCategory = ref(false)
+const categoryToDelete = ref(null)
+const deleteModalTitle = ref('')
+const deleteModalMessage = ref('')
 
 // Methods
 const loadCategories = async () => {
@@ -261,10 +278,15 @@ const formatDate = (date) => {
 
 const toggleCategoryStatus = async (category) => {
   try {
-    const response = await AdminService.updateCategory(category.id, { is_active: !category.is_active })
-    
-    category.is_active = !category.is_active
-    useToast().success(`Category ${category.is_active ? 'activated' : 'deactivated'}`)
+    const { updateCategory } = await import('@/services/CategoryService')
+    const response = await updateCategory(category.id, { is_active: !category.is_active })
+
+    if (response.success) {
+      category.is_active = !category.is_active
+      useToast().success(`Category ${category.is_active ? 'activated' : 'deactivated'}`)
+    } else {
+      throw new Error(response.error || 'Update failed')
+    }
   } catch (error) {
     console.error('Error updating category status:', error)
     useToast().error('Failed to update category status')
@@ -272,23 +294,47 @@ const toggleCategoryStatus = async (category) => {
 }
 
 const editCategory = (category) => {
-  navigateTo(`/dashboard/categories/edit/${category.id}`)
+  navigateTo(`/dashboard/categories/create?id=${category.id}`)
 }
 
-const deleteCategory = async (category) => {
-  if (!confirm(`Are you sure you want to delete "${category.name}"? This action cannot be undone.`)) {
-    return
-  }
-  
+const deleteCategory = (category) => {
+  categoryToDelete.value = category
+  deleteModalTitle.value = 'Delete Category'
+  deleteModalMessage.value = `Are you sure you want to delete "${category.name}"? This action cannot be undone.`
+  showDeleteModal.value = true
+}
+
+const confirmDelete = async () => {
+  if (!categoryToDelete.value) return
+
+  isDeletingCategory.value = true
+
   try {
-    await AdminService.deleteCategory(category.id)
-    
-    useToast().success('Category deleted successfully')
-    await loadCategories()
+    const response = await CategoryService.deleteCategory(categoryToDelete.value.id)
+
+    if (response.success) {
+      useToast().success('Category deleted successfully')
+      await loadCategories()
+      showDeleteModal.value = false
+      categoryToDelete.value = null
+    } else {
+      if (response.error && response.error.includes('products assigned')) {
+        useToast().error('Cannot delete category: It has products assigned to it. Please move or delete the products first.')
+      } else {
+        useToast().error(response.error || 'Failed to delete category')
+      }
+    }
   } catch (error) {
     console.error('Error deleting category:', error)
     useToast().error('Failed to delete category')
+  } finally {
+    isDeletingCategory.value = false
   }
+}
+
+const cancelDelete = () => {
+  showDeleteModal.value = false
+  categoryToDelete.value = null
 }
 
 // Initialize

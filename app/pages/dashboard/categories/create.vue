@@ -3,8 +3,12 @@
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-6 sm:mb-8 space-y-4 sm:space-y-0">
       <div class="min-w-0 flex-1">
-        <h1 class="text-xl sm:text-2xl lg:text-3xl font-heading font-medium text-gray-900">Add Category</h1>
-        <p class="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Create a new template category</p>
+        <h1 class="text-xl sm:text-2xl lg:text-3xl font-heading font-medium text-gray-900">
+          {{ isEditing ? 'Edit Category' : 'Add Category' }}
+        </h1>
+        <p class="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">
+          {{ isEditing ? 'Update category information' : 'Create a new template category' }}
+        </p>
       </div>
       <div class="flex-shrink-0">
         <NuxtLink to="/dashboard/categories" class="btn-secondary w-full sm:w-auto justify-center items-center h-12 sm:h-10 text-base sm:text-sm px-6 sm:px-4 rounded-xl sm:rounded-lg inline-flex">
@@ -14,9 +18,19 @@
       </div>
     </div>
 
+      <!-- Loading State -->
+      <div v-if="isLoadingCategory" class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 lg:p-8">
+        <div class="flex items-center justify-center py-12">
+          <div class="text-center">
+            <Icon name="heroicons:arrow-path" class="w-8 h-8 animate-spin mx-auto mb-4 text-brand-brown" />
+            <p class="text-gray-500">Loading category data...</p>
+          </div>
+        </div>
+      </div>
+
       <!-- Form -->
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 lg:p-8">
-        <form @submit.prevent="createCategory" class="space-y-6">
+      <div v-else class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6 lg:p-8">
+        <form @submit.prevent="saveCategory" class="space-y-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Name -->
             <div>
@@ -97,8 +111,8 @@
               class="btn-primary w-full sm:w-auto justify-center items-center h-12 sm:h-10 text-base sm:text-sm px-6 sm:px-4 rounded-xl sm:rounded-lg font-medium order-1 sm:order-none inline-flex"
             >
               <Icon v-if="isLoading" name="heroicons:arrow-path" class="w-5 h-5 sm:w-4 sm:h-4 mr-2 animate-spin" />
-              <Icon v-else name="heroicons:plus" class="w-5 h-5 sm:w-4 sm:h-4 mr-2" />
-              <span>Create Category</span>
+              <Icon v-else :name="isEditing ? 'heroicons:check' : 'heroicons:plus'" class="w-5 h-5 sm:w-4 sm:h-4 mr-2" />
+              <span>{{ isEditing ? 'Update Category' : 'Create Category' }}</span>
             </button>
             
             <NuxtLink to="/dashboard/categories" class="btn-secondary w-full sm:w-auto justify-center items-center h-12 sm:h-10 text-base sm:text-sm px-6 sm:px-4 rounded-xl sm:rounded-lg order-2 sm:order-none inline-flex">
@@ -137,10 +151,16 @@ useSeoMeta({
   robots: 'noindex, nofollow'
 })
 
-import { CategoryService } from '@/services'
+import { CategoryService, AdminService } from '@/services'
+
+// Route and query params
+const route = useRoute()
+const categoryId = computed(() => route.query.id)
+const isEditing = computed(() => !!categoryId.value)
 
 // State
 const isLoading = ref(false)
+const isLoadingCategory = ref(false)
 const form = ref({
   name: '',
   slug: '',
@@ -151,7 +171,8 @@ const form = ref({
 
 // Methods
 const generateSlug = () => {
-  if (form.value.name && !form.value.slug) {
+  // Only auto-generate slug when creating a new category (not editing)
+  if (form.value.name && !isEditing.value) {
     form.value.slug = form.value.name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
@@ -159,21 +180,56 @@ const generateSlug = () => {
   }
 }
 
-const createCategory = async () => {
+const loadCategory = async () => {
+  if (!categoryId.value) return
+
+  isLoadingCategory.value = true
+  try {
+    const response = await AdminService.getCategories()
+    if (response.success && response.data) {
+      const category = response.data.find(cat => cat.id === categoryId.value)
+      if (category) {
+        form.value = {
+          name: category.name || '',
+          slug: category.slug || '',
+          description: category.description || '',
+          sort_order: category.sort_order || 0,
+          is_active: category.is_active !== undefined ? category.is_active : true
+        }
+      } else {
+        useToast().error('Category not found')
+        await navigateTo('/dashboard/categories')
+      }
+    }
+  } catch (error) {
+    console.error('Error loading category:', error)
+    useToast().error('Failed to load category data')
+    await navigateTo('/dashboard/categories')
+  } finally {
+    isLoadingCategory.value = false
+  }
+}
+
+const saveCategory = async () => {
   isLoading.value = true
 
   try {
-    const response = await CategoryService.createCategory(form.value)
-
-    if (!response.success) {
-      throw new Error(response.error || 'Failed to create category')
+    let response
+    if (isEditing.value) {
+      response = await CategoryService.updateCategory(categoryId.value, form.value)
+    } else {
+      response = await CategoryService.createCategory(form.value)
     }
 
-    useToast().success('Category created successfully!')
+    if (!response.success) {
+      throw new Error(response.error || `Failed to ${isEditing.value ? 'update' : 'create'} category`)
+    }
+
+    useToast().success(`Category ${isEditing.value ? 'updated' : 'created'} successfully!`)
     await navigateTo('/dashboard/categories')
   } catch (error) {
-    console.error('Error creating category:', error)
-    useToast().error('Failed to create category')
+    console.error(`Error ${isEditing.value ? 'updating' : 'creating'} category:`, error)
+    useToast().error(`Failed to ${isEditing.value ? 'update' : 'create'} category`)
   } finally {
     isLoading.value = false
   }
@@ -197,4 +253,11 @@ const addSampleCategories = async () => {
     isLoading.value = false
   }
 }
+
+// Initialize
+onMounted(async () => {
+  if (isEditing.value) {
+    await loadCategory()
+  }
+})
 </script>

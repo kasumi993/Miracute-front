@@ -6,8 +6,8 @@ const baseService = new BaseApiService()
 /**
  * Get all categories
  */
-export const getCategories = async (includeHidden = false): Promise<ApiResponse<any[]>> => {
-  const query = includeHidden ? { includeHidden: 'true' } : undefined
+export const getCategories = async (filter: 'active' | 'all' = 'active'): Promise<ApiResponse<any[]>> => {
+  const query = filter === 'all' ? { filter: 'all' } : { filter: 'active' }
   return baseService.get<any[]>('/categories', query)
 }
 
