@@ -94,7 +94,10 @@ import ProductTechnicalDetails from '~/components/Admin/ProductTechnicalDetails.
 import ProductPricingVisibility from '~/components/Admin/ProductPricingVisibility.vue'
 
 // Service imports
-import { AdminService, ProductService } from '~/services'
+import { CategoryService } from '@/services/CategoryService'
+import { TemplateTypeService } from '@/services/TemplateTypeService'
+import { ProductService } from '@/services/ProductService'
+import { FileService } from '@/services/FileService'
 
 // Middleware
 definePageMeta({
@@ -159,7 +162,7 @@ const product = ref({
 // Methods
 const loadCategories = async () => {
   try {
-    const response = await AdminService.getCategories()
+    const response = await CategoryService.getCategories()
     categories.value = response.data.filter(cat => cat.is_active) || []
   } catch (error) {
     console.error('Error loading categories:', error)
@@ -169,7 +172,7 @@ const loadCategories = async () => {
 
 const loadTemplateTypes = async () => {
   try {
-    const response = await AdminService.getTemplateTypes()
+    const response = await TemplateTypeService.getTemplateTypes()
     templateTypes.value = response.data || []
   } catch (error) {
     console.error('Error loading template types:', error)
@@ -181,7 +184,7 @@ const loadProduct = async (productId) => {
   isInitialLoading.value = true
   
   try {
-    const response = await AdminService.getProduct(productId)
+    const response = await ProductService.getProduct(productId)
 
     if (!response.success || !response.data) {
       throw new Error('Product not found or invalid response')
@@ -344,8 +347,8 @@ const handleImageUpload = async (files) => {
     isUploading.value = true
     uploadProgress.value = 0
 
-    // Upload via AdminService with progress tracking
-    const response = await AdminService.uploadImages(filesToUpload, (progress) => {
+    // Upload via FileService with progress tracking
+    const response = await FileService.uploadImages(filesToUpload, (progress) => {
       uploadProgress.value = progress
     })
 
@@ -387,8 +390,8 @@ const handleVideoUpload = async (files) => {
     isUploading.value = true
     uploadProgress.value = 0
 
-    // Upload via AdminService with progress tracking
-    const response = await AdminService.uploadImages([file], (progress) => {
+    // Upload via FileService with progress tracking
+    const response = await FileService.uploadImages([file], (progress) => {
       uploadProgress.value = progress
     })
 
@@ -490,7 +493,7 @@ const saveProduct = async () => {
     }
     
     if (isEditing.value) {
-      const response = await AdminService.updateProduct(editProductId.value, cleanProductData)
+      const response = await ProductService.updateProduct(editProductId.value, cleanProductData)
 
       if (!response.success) throw new Error('Failed to update product')
       useToast().success('Template updated successfully!')

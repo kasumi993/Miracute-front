@@ -83,7 +83,8 @@
 
 <script setup lang="ts">
 // Import services
-import { AdminService, ProductService } from '@/services'
+import { CategoryService, TemplateTypeService } from '@/services'
+import { ProductService } from '@/services/ProductService'
 
 // Admin Guard
 const { isCheckingAccess, hasAdminAccess } = useAdminGuard()
@@ -166,7 +167,7 @@ const loadProducts = async (reset = true) => {
       limit: pagination.value.limit
     }
 
-    const response = await AdminService.getProducts(filters, paginationParams)
+    const response = await ProductService.getProducts(filters, paginationParams)
 
     if (response.success && response.data) {
       if (reset) {
@@ -198,7 +199,7 @@ const loadMoreProducts = async () => {
 
 const loadCategories = async () => {
   try {
-    const response = await AdminService.getCategories()
+    const response = await CategoryService.getCategories()
     if (response.success && response.data) {
       categories.value = response.data.filter(cat => cat.is_active) || []
     }
@@ -209,7 +210,7 @@ const loadCategories = async () => {
 
 const loadTemplateTypes = async () => {
   try {
-    const response = await AdminService.getTemplateTypes()
+    const response = await TemplateTypeService.getTemplateTypes()
     if (response.success && response.data) {
       templateTypes.value = response.data || []
     }
@@ -222,7 +223,7 @@ const toggleProductStatus = async (product: any) => {
   try {
     const newStatus = !product.is_active
 
-    const response = await AdminService.updateProductStatus(product.id, newStatus)
+    const response = await ProductService.updateProductStatus(product.id, newStatus)
 
     if (response.success) {
       product.is_active = newStatus
@@ -247,7 +248,7 @@ const confirmDelete = async () => {
   isDeleting.value = true
 
   try {
-    const response = await AdminService.deleteProduct(productToDelete.value.id)
+    const response = await ProductService.deleteProduct(productToDelete.value.id)
 
     if (response.success) {
       useToast().success('Product deleted successfully')
