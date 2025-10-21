@@ -1,6 +1,6 @@
 import { serverSupabaseClient } from '#supabase/server'
 import type { Database, ApiResponse } from '@/types/database'
-import { createApiResponse, createApiError } from '../../utils/apiResponse'
+import { createApiResponse, createApiError } from '../../utils/api/apiResponse'
 
 // The response will now contain the redirect URL
 interface GoogleSignInResponse {

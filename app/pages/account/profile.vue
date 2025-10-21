@@ -155,7 +155,7 @@ const user = useSupabaseUser()
 const toast = useToast()
 
 // Services
-import { authService } from '~/services'
+import { authService } from '~/services/AuthService'
 
 // State
 const userProfile = ref(null)

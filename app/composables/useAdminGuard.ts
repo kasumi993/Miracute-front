@@ -1,6 +1,6 @@
 // Unified admin access guard composable
 import { useAuth } from './useAuth'
-import { authService } from '~/services' // Use the pure service
+import { authService } from '~/services/AuthService' // Direct import to avoid circular dependency
 import { useUserStore } from '~/stores/auth/user'
 
 export const useAdminGuard = () => {

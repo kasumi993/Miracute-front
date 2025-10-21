@@ -1,7 +1,7 @@
 import Stripe from 'stripe'
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
 import type { Database } from '@/types/database'
-import { createApiError, handleSupabaseError } from '../../utils/apiResponse'
+import { createApiError, handleSupabaseError } from '../../utils/api/apiResponse'
 // Importation de la fonction utilitaire centralisée
 import { generateOrderNumber } from '../../utils/paymentProcessing' 
 

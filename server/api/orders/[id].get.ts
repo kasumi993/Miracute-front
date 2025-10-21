@@ -1,6 +1,6 @@
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
 import type { Database } from '@/types/database'
-import { isAdminUser } from '../../utils/auth'
+import { isAdminUser } from '../../utils/security/auth'
 
 export default defineEventHandler(async (event) => {
   const supabase = await serverSupabaseClient<Database>(event)

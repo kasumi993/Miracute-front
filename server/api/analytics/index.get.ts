@@ -1,6 +1,6 @@
 import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
 import type { Database } from '@/types/database'
-import { isAdminUser } from '../../utils/auth'
+import { isAdminUser } from '../../utils/security/auth'
 
 export default defineEventHandler(async (event) => {
   const user = await serverSupabaseUser(event)
@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Check if user is admin
-  const isAdmin = await isAdminUser(user.id)
+  const isAdmin = await isAdminUser(user.id, event)
 
   if (!isAdmin) {
     throw createError({

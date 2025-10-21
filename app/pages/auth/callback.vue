@@ -110,7 +110,7 @@
 </template>
 
 <script setup>
-import { authService } from '~/services'
+import { authService } from '~/services/AuthService'
 import { useUserStore } from '~/stores/auth/user'
 
 // SEO

@@ -1,6 +1,6 @@
 import { serverSupabaseClient } from '#supabase/server'
 import type { Database, ApiResponse } from '@/types/database'
-import { createApiResponse, createApiError } from '../../utils/apiResponse'
+import { createApiResponse, createApiError } from '../../utils/api/apiResponse'
 import { z } from 'zod'
 
 // Define a simple schema for the request body

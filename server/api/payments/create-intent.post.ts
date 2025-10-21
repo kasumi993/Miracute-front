@@ -1,7 +1,7 @@
 import Stripe from 'stripe'
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server'
 import type { Database } from '@/types/database'
-import { createApiError, handleSupabaseError } from '../../utils/apiResponse'
+import { createApiError, handleSupabaseError } from '../../utils/api/apiResponse'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()

@@ -1,6 +1,6 @@
-import { createFileManager } from '../../utils/fileManager' 
+import { createFileManager } from '../../utils/files/fileManager' 
 import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server' 
-import { createApiError } from '../../utils/apiResponse' 
+import { createApiError } from '../../utils/api/apiResponse' 
 import type { Database } from '@/types/database' // Assurez-vous d'avoir le type Database
 
 
