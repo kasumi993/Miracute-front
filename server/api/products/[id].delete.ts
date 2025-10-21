@@ -1,6 +1,6 @@
-import { requireAdminAuthentication } from '../../utils/auth'
+import { requireAdminAuthentication } from '../../utils/security/auth'
 import type { ApiResponse } from '@/types'
-import { createApiResponse, handleSupabaseError, createApiError } from '../../utils/apiResponse'
+import { createApiResponse, handleSupabaseError, createApiError } from '../../utils/api/apiResponse'
 
 /**
  * Endpoint pour supprimer un produit par son ID.

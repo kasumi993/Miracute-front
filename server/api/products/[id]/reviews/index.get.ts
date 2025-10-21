@@ -1,7 +1,7 @@
 import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
 import type { Database, Review, ApiResponse, SearchResponse } from '@/types/database'
-import { createApiResponse, createApiError, handleSupabaseError } from '../../../../utils/apiResponse'
-import { isAdminUser } from '../../../../utils/auth'
+import { createApiResponse, createApiError, handleSupabaseError } from '../../../../../utils/api/apiResponse'
+import { isAdminUser } from '../../../../../utils/security/auth'
 
 // Helper function to check if string is a valid UUID
 function isValidUUID(str: string): boolean {

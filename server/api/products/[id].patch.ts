@@ -1,6 +1,6 @@
-import { requireAdminAuthentication } from '../../utils/auth'
+import { requireAdminAuthentication } from '../../utils/security/auth'
 import type { Product, ApiResponse } from '@/types'
-import { createApiResponse, handleSupabaseError, createApiError } from '../../utils/apiResponse'
+import { createApiResponse, handleSupabaseError, createApiError } from '../../utils/api/apiResponse'
 
 // Utiliser Updates<'products'> de votre type Database si possible pour le patch
 export default defineEventHandler(async (event): Promise<ApiResponse<Product>> => {

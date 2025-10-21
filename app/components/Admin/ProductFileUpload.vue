@@ -4,8 +4,9 @@
     
     <div
       @drop="handleDrop"
-      @dragover.prevent
-      @dragenter.prevent
+      @dragover.prevent="handleDragOver"
+      @dragenter.prevent="handleDragEnter"
+      @dragleave="handleDragLeave"
       :class="[
         'border-2 border-dashed rounded-lg p-8 text-center transition-colors',
         isDragging ? 'border-blue-500 bg-blue-50' : 'border-blue-300 bg-blue-50'
@@ -126,6 +127,9 @@ const emit = defineEmits<Emits>()
 const showPreviewModal = ref(false)
 const previewUrl = ref('')
 
+// Drag and drop state
+const isDragging = ref(false)
+
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes'
   const k = 1024
@@ -146,6 +150,32 @@ const handleFileUpload = (event: Event) => {
 
 const removeUploadedFile = () => {
   emit('remove-file')
+}
+
+// Drag and drop handlers
+const handleDragEnter = (event: DragEvent) => {
+  event.preventDefault()
+  isDragging.value = true
+}
+
+const handleDragOver = (event: DragEvent) => {
+  event.preventDefault()
+}
+
+const handleDragLeave = (event: DragEvent) => {
+  event.preventDefault()
+  isDragging.value = false
+}
+
+const handleDrop = (event: DragEvent) => {
+  event.preventDefault()
+  isDragging.value = false
+
+  const files = event.dataTransfer?.files
+  if (files && files.length > 0) {
+    const file = files[0]
+    emit('upload-file', file)
+  }
 }
 
 const previewFile = async () => {

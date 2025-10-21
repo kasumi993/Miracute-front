@@ -1,7 +1,7 @@
 import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
 import type { Database, ProductWithCategory, ApiResponse } from '@/types/database'
-import { createApiResponse, createApiError, handleSupabaseError } from '../../utils/apiResponse'
-import { isAdminUser } from '../../utils/auth'
+import { createApiResponse, createApiError, handleSupabaseError } from '../../utils/api/apiResponse'
+import { isAdminUser } from '../../utils/security/auth'
 
 // Helper function to check if string is a valid UUID
 function isValidUUID(str: string): boolean {
@@ -26,7 +26,7 @@ export default defineEventHandler(async (event): Promise<ApiResponse<ProductWith
   }
 
   // Check if user is admin
-  const isAdmin = user ? await isAdminUser(user.id) : false
+  const isAdmin = user ? await isAdminUser(user.id, event) : false
 
   try {
     // Determine if the identifier is a UUID (ID) or slug

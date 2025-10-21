@@ -28,6 +28,7 @@ export interface Product {
   category: Category
   tags: string[]
   previewImages: string[]
+  videoUrl?: string
   downloadFiles: DownloadFile[]
   specifications: ProductSpecification[]
   whatIncluded: string[]
@@ -60,6 +61,7 @@ export interface ProductCreateInput {
   categoryId: string
   tags?: string[]
   previewImages?: string[]
+  videoUrl?: string
   downloadFiles?: DownloadFileInput[]
   specifications?: ProductSpecificationInput[]
   whatIncluded?: string[]
@@ -85,6 +87,7 @@ export interface ProductUpdateInput {
   categoryId?: string
   tags?: string[]
   previewImages?: string[]
+  videoUrl?: string
   downloadFiles?: DownloadFileInput[]
   specifications?: ProductSpecificationInput[]
   whatIncluded?: string[]

@@ -1,7 +1,7 @@
 import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
 import type { Database, ProductSearchFilters, SearchResponse, ApiResponse, ProductWithCategory } from '@/types/database'
-import { createApiResponse, handleSupabaseError } from '../../utils/apiResponse'
-import { isAdminUser } from '../../utils/auth'
+import { createApiResponse, handleSupabaseError } from '../../utils/api/apiResponse'
+import { isAdminUser } from '../../utils/security/auth'
 
 export default defineEventHandler(async (event): Promise<ApiResponse<SearchResponse<ProductWithCategory>>> => {
   const supabase = serverSupabaseServiceRole<Database>(event)
@@ -17,7 +17,7 @@ export default defineEventHandler(async (event): Promise<ApiResponse<SearchRespo
   }
 
   // Check if user is admin to determine what products to show
-  const isAdmin = user ? await isAdminUser(user.id) : false
+  const isAdmin = user ? await isAdminUser(user.id, event) : false
 
   const page = parseInt(query.page as string) || 1
   const limit = Math.min(parseInt(query.limit as string) || 12, 50)
@@ -35,6 +35,10 @@ export default defineEventHandler(async (event): Promise<ApiResponse<SearchRespo
     sortBy: query.sortBy as any || 'newest'
   }
 
+  // Status and template type filters (available to all users)
+  const statusFilter = query.status as string
+  const templateTypeFilter = query.template_type as string
+
   const excludeId = query.exclude as string
 
   try {
@@ -46,11 +50,25 @@ export default defineEventHandler(async (event): Promise<ApiResponse<SearchRespo
         category:categories(*)
       `, { count: 'exact' })
 
-    // If not admin, only show active products
-    if (!isAdmin) {
+    // Apply status filter if provided
+    if (statusFilter) {
+      switch (statusFilter) {
+        case 'active':
+          dbQuery = dbQuery.eq('is_active', true)
+          break
+        case 'inactive':
+          dbQuery = dbQuery.eq('is_active', false)
+          break
+        case 'featured':
+          dbQuery = dbQuery.eq('is_featured', true)
+          break
+        // 'all' or any other value shows all products
+      }
+    } else if (!isAdmin) {
+      // If no status filter and not admin, only show active products
       dbQuery = dbQuery.eq('is_active', true)
     }
-      
+
     if (filters.category) { dbQuery = dbQuery.eq('category_id', filters.category) }
     if (filters.minPrice !== undefined) { dbQuery = dbQuery.gte('price', filters.minPrice.toString()) }
     if (filters.maxPrice !== undefined) { dbQuery = dbQuery.lte('price', filters.maxPrice.toString()) }
@@ -59,6 +77,11 @@ export default defineEventHandler(async (event): Promise<ApiResponse<SearchRespo
     if (filters.tags && filters.tags.length > 0) { dbQuery = dbQuery.overlaps('tags', filters.tags) }
     if (filters.software && filters.software.length > 0) { dbQuery = dbQuery.overlaps('software_required', filters.software) }
     if (excludeId) { dbQuery = dbQuery.neq('id', excludeId) }
+
+    // Template type filter (available to all users)
+    if (templateTypeFilter) {
+      dbQuery = dbQuery.eq('template_type', templateTypeFilter)
+    }
     
     if (filters.search) {
       const searchTerm = filters.search.trim().toLowerCase()

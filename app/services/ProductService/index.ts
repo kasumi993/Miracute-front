@@ -48,6 +48,8 @@ export const ProductService = {
   saveForLater: (productId: string) => import('./post').then(m => m.saveForLater(productId)),
   shareProduct: (productId: string, shareData: any) => import('./post').then(m => m.shareProduct(productId, shareData)),
   createProductBundle: (bundleData: any) => import('./post').then(m => m.createProductBundle(bundleData)),
+  createSampleProducts: () => import('./post').then(m => m.createSampleProducts()),
+  bulkImportProducts: (importData: any) => import('./post').then(m => m.bulkImportProducts(importData)),
 
   // PUT methods
   updateProduct: (id: string, data: any) => import('./put').then(m => m.updateProduct(id, data)),

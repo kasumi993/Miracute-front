@@ -39,10 +39,13 @@
           <!-- Product Images -->
           <AdminProductImageUpload
             :images="product.preview_images || []"
+            :video-url="product.video_url"
             :is-uploading="isUploading"
             :upload-progress="uploadProgress"
             @update:images="updateProductImages"
+            @update:video="updateProductVideo"
             @upload-images="handleImageUpload"
+            @upload-video="handleVideoUpload"
           />
 
           <!-- File Upload Component -->
@@ -90,6 +93,9 @@ import ProductFileUpload from '~/components/Admin/ProductFileUpload.vue'
 import ProductTechnicalDetails from '~/components/Admin/ProductTechnicalDetails.vue'
 import ProductPricingVisibility from '~/components/Admin/ProductPricingVisibility.vue'
 
+// Service imports
+import { AdminService, ProductService } from '~/services'
+
 // Middleware
 definePageMeta({
   middleware: 'admin',
@@ -135,6 +141,7 @@ const product = ref({
   category_id: '',
   templateType: 'canva', // Default to Canva
   preview_images: [],
+  video_url: null,
   download_files: [],
   file_size: '',
   file_formats: [],
@@ -152,7 +159,7 @@ const product = ref({
 // Methods
 const loadCategories = async () => {
   try {
-    const response = await $fetch('/api/admin/categories')
+    const response = await AdminService.getCategories()
     categories.value = response.data.filter(cat => cat.is_active) || []
   } catch (error) {
     console.error('Error loading categories:', error)
@@ -162,7 +169,7 @@ const loadCategories = async () => {
 
 const loadTemplateTypes = async () => {
   try {
-    const response = await $fetch('/api/admin/template-types')
+    const response = await AdminService.getTemplateTypes()
     templateTypes.value = response.data || []
   } catch (error) {
     console.error('Error loading template types:', error)
@@ -174,7 +181,7 @@ const loadProduct = async (productId) => {
   isInitialLoading.value = true
   
   try {
-    const response = await $fetch(`/api/products/${productId}.admin`)
+    const response = await AdminService.getProduct(productId)
 
     if (!response.success || !response.data) {
       throw new Error('Product not found or invalid response')
@@ -194,6 +201,7 @@ const loadProduct = async (productId) => {
       category_id: data.category_id || '',
       templateType: data.template_type || 'canva',
       preview_images: data.preview_images || [],
+      video_url: data.video_url || null,
       download_files: data.download_files || [],
       file_size: data.file_size || '',
       file_formats: data.file_formats || [],
@@ -331,31 +339,24 @@ const handleImageUpload = async (files) => {
   }
 
   const filesToUpload = Array.from(files).slice(0, remainingSlots)
-  
+
   try {
     isUploading.value = true
     uploadProgress.value = 0
-    
-    // Create FormData for multipart upload
-    const formData = new FormData()
-    filesToUpload.forEach((file, index) => {
-      formData.append(`file-${index}`, file)
-    })
-    
-    // Upload via server API
-    const response = await $fetch('/api/admin/upload-images', {
-      method: 'POST',
-      body: formData,
-      onUploadProgress: (progress) => {
-        uploadProgress.value = Math.round((progress.loaded / progress.total) * 100)
-      }
+
+    // Upload via AdminService with progress tracking
+    const response = await AdminService.uploadImages(filesToUpload, (progress) => {
+      uploadProgress.value = progress
     })
 
     // Update product with new images
-    const newImages = [...currentImages, ...response.urls]
-    product.value.preview_images = newImages
-
-    useToast().success(response.message)
+    if (response.success && response.data) {
+      const newImages = [...currentImages, ...response.data.urls]
+      product.value.preview_images = newImages
+      useToast().success(response.data.message || 'Images uploaded successfully')
+    } else {
+      throw new Error(response.error || 'Failed to upload images')
+    }
     
   } catch (error) {
     console.error('Error uploading images:', error)
@@ -369,6 +370,43 @@ const handleImageUpload = async (files) => {
 // Update product images
 const updateProductImages = (newImages) => {
   product.value.preview_images = newImages
+}
+
+// Update product video
+const updateProductVideo = (videoUrl) => {
+  product.value.video_url = videoUrl
+}
+
+// Video upload handler
+const handleVideoUpload = async (files) => {
+  if (!files || files.length === 0) return
+
+  const file = files[0] // Only one video file
+
+  try {
+    isUploading.value = true
+    uploadProgress.value = 0
+
+    // Upload via AdminService with progress tracking
+    const response = await AdminService.uploadImages([file], (progress) => {
+      uploadProgress.value = progress
+    })
+
+    // Update product with video URL
+    if (response.success && response.data) {
+      product.value.video_url = response.data.urls[0]
+      useToast().success('Video uploaded successfully')
+    } else {
+      throw new Error(response.error || 'Failed to upload video')
+    }
+
+  } catch (error) {
+    console.error('Error uploading video:', error)
+    useToast().error(error.data?.message || 'Failed to upload video. Please try again.')
+  } finally {
+    isUploading.value = false
+    uploadProgress.value = 0
+  }
 }
 
 const saveProduct = async () => {
@@ -436,6 +474,7 @@ const saveProduct = async () => {
       category_id: product.value.category_id || null,
       template_type: product.value.templateType,
       preview_images: product.value.preview_images || null,
+      video_url: product.value.video_url || null,
       download_files: product.value.download_files || null,
       file_size: product.value.file_size || null,
       file_formats: product.value.file_formats || null,
@@ -451,19 +490,13 @@ const saveProduct = async () => {
     }
     
     if (isEditing.value) {
-      const response = await $fetch(`/api/products/${editProductId.value}`, {
-        method: 'PUT',
-        body: cleanProductData
-      })
-      
+      const response = await AdminService.updateProduct(editProductId.value, cleanProductData)
+
       if (!response.success) throw new Error('Failed to update product')
       useToast().success('Template updated successfully!')
     } else {
-      const response = await $fetch('/api/products', {
-        method: 'POST',
-        body: cleanProductData
-      })
-      
+      const response = await ProductService.createProduct(cleanProductData)
+
       if (!response.success) throw new Error('Failed to create product')
       useToast().success('Template created successfully!')
     }
@@ -574,6 +607,7 @@ watch(() => route.query.edit, async (editId) => {
       category_id: '',
       templateType: 'canva',
       preview_images: [],
+      video_url: null,
       download_files: [],
       file_size: '',
       file_formats: [],

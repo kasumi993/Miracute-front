@@ -215,3 +215,17 @@ export const createProductBundle = async (bundleData: {
 }): Promise<ApiResponse<ProductWithCategory>> => {
   return baseService.post<ProductWithCategory>('/products/bundles', bundleData)
 }
+
+/**
+ * Create sample products (for testing)
+ */
+export const createSampleProducts = async (): Promise<ApiResponse<void>> => {
+  return baseService.post<void>('/products/sample')
+}
+
+/**
+ * Bulk import products
+ */
+export const bulkImportProducts = async (importData: any): Promise<ApiResponse<any>> => {
+  return baseService.post<any>('/products/bulk-import', importData)
+}

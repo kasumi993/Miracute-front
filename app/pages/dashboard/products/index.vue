@@ -49,7 +49,7 @@
 
     <!-- Infinite Scroll Loader -->
     <AdminInfiniteScrollLoader
-      :has-next-page="pagination.hasNextPage"
+      :has-next-page="pagination.hasNextPage ?? false"
       :is-initial-loading="isLoading"
       :is-loading-more="isLoadingMore"
       @load-more="loadMoreProducts"
@@ -73,7 +73,7 @@
     <!-- Floating Action Button -->
     <NuxtLink 
       to="/dashboard/products/create" 
-      class="fixed bottom-6 left-6 z-50 w-14 h-14 bg-brand-brown hover:bg-brand-brown/90 text-white rounded-full shadow-lg hover:shadow-xl flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95"
+      class="fixed bottom-6 right-6 z-50 w-14 h-14 bg-brand-brown hover:bg-brand-brown/90 text-white rounded-full shadow-lg hover:shadow-xl flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95"
       title="Add Template"
     >
       <Icon name="heroicons:plus" class="w-6 h-6" />
@@ -83,7 +83,7 @@
 
 <script setup lang="ts">
 // Import services
-import { AdminService } from '@/services'
+import { AdminService, ProductService } from '@/services'
 
 // Admin Guard
 const { isCheckingAccess, hasAdminAccess } = useAdminGuard()
@@ -276,7 +276,7 @@ const editProduct = (product: any) => {
 
 const createSampleProducts = async () => {
   try {
-    const response = await AdminService.createSampleProducts()
+    const response = await ProductService.createSampleProducts()
 
     if (response.success) {
       useToast().success('Sample products created successfully!')

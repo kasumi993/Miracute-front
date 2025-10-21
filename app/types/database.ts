@@ -138,6 +138,7 @@ export interface Database {
           category_id: string | null
           template_type: string
           preview_images: string[] | null
+          video_url: string | null
           download_files: string[] | null
           file_size: string | null
           file_formats: string[] | null
@@ -167,6 +168,7 @@ export interface Database {
           category_id?: string | null
           template_type?: string
           preview_images?: string[] | null
+          video_url?: string | null
           download_files?: string[] | null
           file_size?: string | null
           file_formats?: string[] | null
@@ -196,6 +198,7 @@ export interface Database {
           category_id?: string | null
           template_type?: string
           preview_images?: string[] | null
+          video_url?: string | null
           download_files?: string[] | null
           file_size?: string | null
           file_formats?: string[] | null

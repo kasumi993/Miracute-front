@@ -1,6 +1,6 @@
-import { requireAdminAuthentication } from '../../utils/auth'
+import { requireAdminAuthentication } from '../../utils/security/auth'
 import type { Product, ApiResponse, ProductCreateInput } from '@/types'
-import { createApiResponse, handleSupabaseError, createApiError } from '../../utils/apiResponse'
+import { createApiResponse, handleSupabaseError, createApiError } from '../../utils/api/apiResponse'
 
 // Utiliser ProductCreateInput ou un ProductUpdateInput si vous avez des différences
 export default defineEventHandler(async (event): Promise<ApiResponse<Product>> => {
