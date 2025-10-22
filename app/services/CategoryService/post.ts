@@ -36,22 +36,6 @@ export const deleteCategory = async (id: string): Promise<ApiResponse<void>> => 
   return baseService.delete<void>(`/categories/${id}`)
 }
 
-/**
- * Bulk delete categories
- */
-export const bulkDeleteCategories = async (categoryIds: string[]): Promise<ApiResponse<{ deleted: number }>> => {
-  return baseService.request<{ deleted: number }>('/categories/bulk-delete', {
-    method: 'DELETE',
-    body: { ids: categoryIds }
-  })
-}
-
-/**
- * Delete category image
- */
-export const deleteCategoryImage = async (categoryId: string): Promise<ApiResponse<void>> => {
-  return baseService.delete<void>(`/admin/categories/${categoryId}/image`)
-}
 
 /**
  * Create sample categories (for testing)

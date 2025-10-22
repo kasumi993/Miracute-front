@@ -1,11 +1,14 @@
-// Simplified wrapper around the products and categories stores
-// This maintains compatibility while using the centralized Pinia stores
+// Simplified wrapper around the products store
 import { useProductsStore } from '~/stores/product/products'
-import { useCategoriesStore } from '~/stores/data/categories'
+import { useCategoriesStore } from '~/stores/categories'
 
 export const useProducts = () => {
   const productsStore = useProductsStore()
   const categoriesStore = useCategoriesStore()
+
+  const fetchCategories = async () => {
+    await categoriesStore.fetchCategories()
+  }
 
   return {
     // State (read-only)
@@ -20,7 +23,7 @@ export const useProducts = () => {
     hasProducts: productsStore.hasProducts,
 
     // Categories from categories store
-    categories: computed(() => categoriesStore.categories),
+    categories: computed(() => categoriesStore.sortedCategories),
     totalProducts: computed(() => productsStore.pagination.total),
     hasMore: computed(() => productsStore.pagination.hasNextPage),
 
@@ -38,7 +41,7 @@ export const useProducts = () => {
     clearError: productsStore.clearError,
 
     // Categories actions
-    fetchCategories: categoriesStore.fetchCategories,
+    fetchCategories,
 
     // Missing functions that the template expects
     resetPagination: () => {

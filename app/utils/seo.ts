@@ -1,6 +1,10 @@
 import type { Product, Category } from '@/types/database'
-import { truncateText } from './format'
-// generateSlug is unused here; remove to satisfy lint
+
+// Text truncation utility
+function truncateText(text: string, maxLength: number): string {
+  if (text.length <= maxLength) return text
+  return text.slice(0, maxLength).trim() + '...'
+}
 
 // SEO constants
 export const SEO_CONFIG = {

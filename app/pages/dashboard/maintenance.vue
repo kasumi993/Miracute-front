@@ -53,7 +53,8 @@
 </template>
 
 <script setup lang="ts">
-import { AdminService } from '@/services'
+import { FileService } from '@/services/FileService'
+
 // Middleware and SEO
 definePageMeta({
   middleware: 'admin',
@@ -76,7 +77,7 @@ const runImageCleanup = async () => {
   cleanupResult.value = null
 
   try {
-    const response = await AdminService.cleanupImages()
+    const response = await FileService.cleanupImages()
 
     if (response.success && response.data) {
       cleanupResult.value = {

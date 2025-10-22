@@ -1,6 +1,6 @@
 import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
 import type { Database } from '@/types/database'
-import { createApiResponse } from '../../utils/apiResponse'
+import { createApiResponse } from '../../utils/api/apiResponse'
 
 interface CartItemData {
   productId: string

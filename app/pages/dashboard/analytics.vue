@@ -47,9 +47,8 @@ useSeoMeta({
   robots: 'noindex, nofollow'
 })
 
-// Store
-import { useAnalyticsDashboardStore } from '~/stores/data/analytics'
-const analyticsStore = useAnalyticsDashboardStore()
+// Imports
+import { AnalyticsService } from '@/services'
 
 // State
 const selectedPeriod = ref('today')
@@ -58,11 +57,12 @@ const customDateRange = ref({
   from: '',
   to: ''
 })
+const isLoading = ref(false)
+const analyticsData = ref(null)
 
-// Store getters
-const isLoading = computed(() => analyticsStore.loading.analytics)
-const analytics = computed(() => analyticsStore.currentAnalytics)
-const topPages = computed(() => analyticsStore.topPages)
+// Computed
+const analytics = computed(() => analyticsData.value)
+const topPages = computed(() => analyticsData.value?.topPages || [])
 
 // Time periods for filtering
 const timePeriods = [
@@ -74,6 +74,7 @@ const timePeriods = [
 
 // Methods
 const loadAnalytics = async () => {
+  isLoading.value = true
   try {
     const filters = {
       period: selectedPeriod.value
@@ -85,10 +86,17 @@ const loadAnalytics = async () => {
       delete filters.period
     }
 
-    await analyticsStore.fetchAnalytics(filters)
+    const response = await AnalyticsService.getAnalytics(filters)
+    if (response.success && response.data) {
+      analyticsData.value = response.data
+    } else {
+      throw new Error(response.error || 'Failed to fetch analytics')
+    }
   } catch (error) {
     console.error('Error loading analytics:', error)
     useToast().error('Failed to load analytics data')
+  } finally {
+    isLoading.value = false
   }
 }
 

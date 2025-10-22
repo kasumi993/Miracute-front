@@ -1,23 +1,33 @@
-import { serverSupabaseClient } from '#supabase/server'
+import { serverSupabaseClient, serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
 import type { Database } from '@/types/database'
+import { isAdminUser } from '../../utils/security/auth'
 
 export default defineEventHandler(async (event) => {
-  const supabase = await serverSupabaseClient<Database>(event)
-  const slug = getRouterParam(event, 'slug')
+  // Check if user is admin for unrestricted access
+  const user = await serverSupabaseUser(event)
+  const isAdmin = user ? await isAdminUser(user.id, event) : false
 
-  if (!slug) {
+  // Use service role for admin access, regular client for public access
+  const supabase = isAdmin
+    ? serverSupabaseServiceRole<Database>(event)
+    : await serverSupabaseClient<Database>(event)
+  const identifier = getRouterParam(event, 'id')
+
+  if (!identifier) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Category slug is required'
+      statusMessage: 'Category ID or slug is required'
     })
   }
 
   try {
+    // Check if identifier is a UUID (ID) or a slug
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier)
+
     const { data, error } = await supabase
       .from('categories')
       .select('*')
-      .eq('slug', slug)
-      .eq('is_active', true)
+      .eq(isUUID ? 'id' : 'slug', identifier)
       .single()
 
     if (error) {

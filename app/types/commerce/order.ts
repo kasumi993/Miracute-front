@@ -108,3 +108,16 @@ export interface DownloadToken {
   expiresAt: string
   createdAt: string
 }
+
+/**
+ * Order filtering options
+ */
+export interface OrderFilters {
+  status?: OrderStatus
+  paymentStatus?: PaymentStatus
+  userId?: string
+  customerEmail?: string
+  dateFrom?: string
+  dateTo?: string
+  search?: string
+}

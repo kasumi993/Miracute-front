@@ -91,6 +91,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     stripeSecretKey: process.env.STRIPE_SECRET_KEY,
     stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
+    emailProvider: process.env.EMAIL_PROVIDER || 'brevo',
+    adminEmail: process.env.ADMIN_EMAIL || 'hello@miracute.com',
     smtpHost: process.env.SMTP_HOST,
     smtpPort: process.env.SMTP_PORT,
     smtpUser: process.env.SMTP_USER,

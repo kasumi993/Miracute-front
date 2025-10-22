@@ -223,8 +223,7 @@
 </template>
 
 <script setup>
-import { AdminService } from '@/services'
-import { CategoryService } from '@/services'
+import { CategoryService } from '@/services/CategoryService'
 
 // Admin Guard
 const { isCheckingAccess, hasAdminAccess } = useAdminGuard()
@@ -257,7 +256,7 @@ const loadCategories = async () => {
   isLoading.value = true
   
   try {
-    const response = await AdminService.getCategories()
+    const response = await CategoryService.getCategories()
     categories.value = response.data || []
   } catch (error) {
     console.error('Error loading categories:', error)

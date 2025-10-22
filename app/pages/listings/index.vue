@@ -55,15 +55,21 @@
 
 <script setup>
 import { ProductService } from '~/services'
-import { useCategoriesStore } from '~/stores/data/categories'
+import { useCategoriesStore } from '~/stores/categories'
 
 definePageMeta({
   title: 'Digital Templates & Design Resources',
   description: 'Browse our collection of premium digital templates for Canva, websites, social media, and more.'
 })
 
-// Categories store
+// Use categories store for caching
 const categoriesStore = useCategoriesStore()
+const categories = computed(() => categoriesStore.sortedCategories)
+
+// Fetch categories with caching
+const fetchCategories = async () => {
+  await categoriesStore.fetchCategories()
+}
 
 // Search filter configuration
 const searchFilterConfig = computed(() => ({
@@ -72,7 +78,7 @@ const searchFilterConfig = computed(() => ({
   filterOptions: {
     category: {
       type: 'select',
-      options: categoriesStore.categories || [],
+      options: categories.value || [],
       optionValue: 'id',
       optionLabel: 'name',
       placeholder: 'All Categories',
@@ -213,8 +219,8 @@ watch(() => route.query.search, (newSearch) => {
 onMounted(async () => {
   try {
     console.log('Loading categories...')
-    await categoriesStore.fetchCategories()
-    console.log('Categories loaded:', categoriesStore.categories?.length)
+    await fetchCategories()
+    console.log('Categories loaded:', categories.value?.length)
 
     console.log('Starting initial product search...')
     await search(searchProducts)

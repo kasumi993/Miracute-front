@@ -151,12 +151,16 @@ useSeoMeta({
   robots: 'noindex, nofollow'
 })
 
-import { CategoryService, AdminService } from '@/services'
+import { CategoryService } from '@/services/CategoryService'
+import { useCategoriesStore } from '~/stores/categories'
 
 // Route and query params
 const route = useRoute()
 const categoryId = computed(() => route.query.id)
 const isEditing = computed(() => !!categoryId.value)
+
+// Categories store for cache management
+const categoriesStore = useCategoriesStore()
 
 // State
 const isLoading = ref(false)
@@ -185,21 +189,18 @@ const loadCategory = async () => {
 
   isLoadingCategory.value = true
   try {
-    const response = await AdminService.getCategories()
-    if (response.success && response.data) {
-      const category = response.data.find(cat => cat.id === categoryId.value)
-      if (category) {
-        form.value = {
-          name: category.name || '',
-          slug: category.slug || '',
-          description: category.description || '',
-          sort_order: category.sort_order || 0,
-          is_active: category.is_active !== undefined ? category.is_active : true
-        }
-      } else {
-        useToast().error('Category not found')
-        await navigateTo('/dashboard/categories')
+    const category = await categoriesStore.getCategory(categoryId.value)
+    if (category) {
+      form.value = {
+        name: category.name || '',
+        slug: category.slug || '',
+        description: category.description || '',
+        sort_order: category.sort_order || 0,
+        is_active: category.is_active !== undefined ? category.is_active : true
       }
+    } else {
+      useToast().error('Category not found')
+      await navigateTo('/dashboard/categories')
     }
   } catch (error) {
     console.error('Error loading category:', error)
@@ -223,6 +224,14 @@ const saveCategory = async () => {
 
     if (!response.success) {
       throw new Error(response.error || `Failed to ${isEditing.value ? 'update' : 'create'} category`)
+    }
+
+    // Update cache with the new/updated category
+    if (response.data) {
+      categoriesStore.updateCategory(response.data)
+    } else {
+      // Refresh cache if no data returned
+      await categoriesStore.refresh()
     }
 
     useToast().success(`Category ${isEditing.value ? 'updated' : 'created'} successfully!`)

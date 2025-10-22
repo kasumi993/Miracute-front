@@ -187,7 +187,7 @@
 
 <script setup lang="ts">
 import { debounce } from 'lodash-es'
-import { ProductService } from '@/services'
+import { ProductService } from '@/services/ProductService'
 
 interface Props {
   review?: any
@@ -256,7 +256,7 @@ const searchUsers = debounce(async () => {
 
   try {
     // Use AdminService or dedicated user search service
-    const response = await $fetch<{users: any[]}>('/api/admin/users/search', {
+    const response = await $fetch<{users: any[]}>('/api/users/search', {
       method: 'GET',
       query: { q: userSearch.value, limit: 10 }
     })

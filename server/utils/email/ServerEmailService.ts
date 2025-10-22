@@ -74,7 +74,7 @@ export class ServerEmailService {
     isVerifiedPurchase?: boolean
     productStats?: any
   }): Promise<EmailResult> {
-    const adminEmail = useRuntimeConfig().adminEmail || 'admin@miracute.com'
+    const adminEmail = useRuntimeConfig().adminEmail || 'hello@miracute.com'
 
     return this.provider.sendTransactional(
       'admin-review-notification',

@@ -288,8 +288,8 @@
 
 <script setup>
 // Imports
-import { useAdminDashboardStore } from '~/stores/admin/dashboard'
 import { useUserStore } from '~/stores/auth/user'
+import { AdminService } from '@/services/AdminService'
 
 // Middleware
 definePageMeta({
@@ -305,38 +305,61 @@ useSeoMeta({
 })
 
 // Stores
-const adminDashboardStore = useAdminDashboardStore()
 const userStore = useUserStore()
 
-// Computed from stores
+// State
+const isLoading = ref(false)
+const dashboardData = ref(null)
+
+// Computed
 const isCheckingAccess = computed(() => !userStore.isInitialized)
 const hasAdminAccess = computed(() => userStore.isAdmin)
-const stats = computed(() => ({
-  totalRevenue: adminDashboardStore.totalRevenue || 0,
-  totalOrders: adminDashboardStore.totalOrders || 0,
-  totalCustomers: adminDashboardStore.totalCustomers || 0,
-  totalProducts: adminDashboardStore.totalProducts || 0,
-  monthlyRevenue: adminDashboardStore.totalRevenue || 0,
-  averageOrderValue: adminDashboardStore.averageOrderValue || 0,
-  orderCompletionRate: adminDashboardStore.conversionRate || 0,
-  storeViewsToday: 0,
-  pendingOrders: adminDashboardStore.pendingOrdersCount || 0
-}))
-const recentOrders = computed(() => adminDashboardStore.stats?.recentOrders || [])
-const popularProducts = computed(() => adminDashboardStore.stats?.topProducts || [])
+const stats = computed(() => {
+  if (!dashboardData.value) return {
+    totalRevenue: 0,
+    totalOrders: 0,
+    totalCustomers: 0,
+    totalProducts: 0,
+    monthlyRevenue: 0,
+    averageOrderValue: 0,
+    orderCompletionRate: 0,
+    storeViewsToday: 0,
+    pendingOrders: 0
+  }
 
+  const data = dashboardData.value
+  return {
+    totalRevenue: data.overview?.totalRevenue || 0,
+    totalOrders: data.overview?.totalOrders || 0,
+    totalCustomers: data.overview?.totalCustomers || 0,
+    totalProducts: data.overview?.totalProducts || 0,
+    monthlyRevenue: data.overview?.totalRevenue || 0,
+    averageOrderValue: data.customerStats?.averageOrderValue || 0,
+    orderCompletionRate: 0,
+    storeViewsToday: 0,
+    pendingOrders: data.orderStats?.pendingOrders || 0
+  }
+})
+const recentOrders = computed(() => dashboardData.value?.recentOrders || [])
+const popularProducts = computed(() => dashboardData.value?.topProducts || [])
 
 // Methods
 const loadDashboardData = async () => {
+  isLoading.value = true
   try {
     console.log('Starting to load dashboard data...')
 
-    // Load dashboard data through store
-    await adminDashboardStore.initialize()
-
+    const response = await AdminService.getDashboardStats()
+    if (response.success && response.data) {
+      dashboardData.value = response.data
+    } else {
+      throw new Error(response.error || 'Failed to fetch dashboard stats')
+    }
   } catch (error) {
     console.error('Failed to load dashboard data:', error)
     useToast().error(`Failed to load dashboard: ${error.statusMessage || error.message}`)
+  } finally {
+    isLoading.value = false
   }
 }
 
