@@ -24,8 +24,13 @@
           <!-- Email Preferences -->
           <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
             <h2 class="text-xl font-heading font-medium text-gray-900 mb-6">Email Preferences</h2>
+
+            <div v-if="isLoading" class="flex items-center justify-center py-8">
+              <Icon name="heroicons:arrow-path" class="w-6 h-6 animate-spin text-gray-400" />
+              <span class="ml-2 text-gray-500">Loading preferences...</span>
+            </div>
             
-            <form @submit.prevent="savePreferences" class="space-y-6">
+            <form v-if="!isLoading" @submit.prevent="savePreferences" class="space-y-6">
               <!-- Newsletter -->
               <div class="flex items-start space-x-4">
                 <div class="flex items-center h-5">
@@ -42,35 +47,35 @@
                 </div>
               </div>
 
-              <!-- New Releases -->
+              <!-- Promotional Emails -->
               <div class="flex items-start space-x-4">
                 <div class="flex items-center h-5">
                   <input
-                    id="newReleases"
-                    v-model="preferences.newReleases"
+                    id="promotional"
+                    v-model="preferences.promotional"
                     type="checkbox"
                     class="h-4 w-4 text-brand-sage focus:ring-brand-sage border-gray-300 rounded"
                   >
                 </div>
                 <div class="flex-1">
-                  <label for="newReleases" class="text-sm font-medium text-gray-900">New Template Releases</label>
-                  <p class="text-sm text-gray-600">Be the first to know when we launch new templates in your favorite categories.</p>
+                  <label for="promotional" class="text-sm font-medium text-gray-900">Promotional Emails</label>
+                  <p class="text-sm text-gray-600">Receive exclusive discounts, bundle deals, new releases, and limited-time offers.</p>
                 </div>
               </div>
 
-              <!-- Special Offers -->
+              <!-- Review Requests -->
               <div class="flex items-start space-x-4">
                 <div class="flex items-center h-5">
                   <input
-                    id="specialOffers"
-                    v-model="preferences.specialOffers"
+                    id="reviewRequests"
+                    v-model="preferences.reviewRequests"
                     type="checkbox"
                     class="h-4 w-4 text-brand-sage focus:ring-brand-sage border-gray-300 rounded"
                   >
                 </div>
                 <div class="flex-1">
-                  <label for="specialOffers" class="text-sm font-medium text-gray-900">Special Offers & Discounts</label>
-                  <p class="text-sm text-gray-600">Receive exclusive discounts, bundle deals, and limited-time offers.</p>
+                  <label for="reviewRequests" class="text-sm font-medium text-gray-900">Review Requests</label>
+                  <p class="text-sm text-gray-600">Receive emails asking for reviews on your purchases to help other customers.</p>
                 </div>
               </div>
 
@@ -91,7 +96,7 @@
               </div>
 
               <!-- Save Button -->
-              <div class="pt-4">
+              <div class="pt-4 flex flex-col sm:flex-row gap-4">
                 <button
                   type="submit"
                   :disabled="isSaving"
@@ -102,6 +107,15 @@
                     <Icon name="heroicons:arrow-path" class="w-4 h-4 animate-spin" />
                     <span>Saving...</span>
                   </span>
+                </button>
+
+                <button
+                  type="button"
+                  @click="unsubscribeFromAll"
+                  :disabled="isSaving"
+                  class="btn-secondary border-red-300 text-red-700 hover:bg-red-50 disabled:opacity-50"
+                >
+                  Unsubscribe from All Emails
                 </button>
               </div>
             </form>
@@ -177,12 +191,13 @@ const auth = useAuth()
 // State
 const preferences = reactive({
   newsletter: true,
-  newReleases: true,
-  specialOffers: false,
+  promotional: false,
+  reviewRequests: true,
   orderUpdates: true
 })
 
 const isSaving = ref(false)
+const isLoading = ref(false)
 
 // Methods
 const formatDate = (dateString) => {
@@ -194,24 +209,70 @@ const formatDate = (dateString) => {
   })
 }
 
+const loadPreferences = async () => {
+  isLoading.value = true
+
+  try {
+    const response = await $fetch('/api/email/preferences')
+    if (response.success) {
+      Object.assign(preferences, response.data)
+    }
+  } catch (error) {
+    console.error('Load preferences error:', error)
+    useToast().error('Failed to load preferences.')
+  } finally {
+    isLoading.value = false
+  }
+}
+
 const savePreferences = async () => {
   isSaving.value = true
 
   try {
-    // Simulate API call to save preferences
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    // Here you would call your API to save preferences
-    // await $fetch('/api/account/preferences', {
-    //   method: 'PUT',
-    //   body: preferences
-    // })
+    const response = await $fetch('/api/email/preferences', {
+      method: 'PATCH',
+      body: preferences
+    })
 
-    useToast().success('Preferences saved successfully!')
-    
+    if (response.success) {
+      useToast().success('Preferences saved successfully!')
+    }
+
   } catch (error) {
     console.error('Save preferences error:', error)
     useToast().error('Failed to save preferences. Please try again.')
+  } finally {
+    isSaving.value = false
+  }
+}
+
+const unsubscribeFromAll = async () => {
+  if (!confirm('Are you sure you want to unsubscribe from all emails? You will no longer receive any communication from us.')) {
+    return
+  }
+
+  isSaving.value = true
+
+  try {
+    const response = await $fetch('/api/email/unsubscribe', {
+      method: 'POST'
+    })
+
+    if (response.success) {
+      // Update local preferences to reflect unsubscribed state
+      Object.assign(preferences, {
+        newsletter: false,
+        promotional: false,
+        reviewRequests: false,
+        orderUpdates: false
+      })
+
+      useToast().success('Successfully unsubscribed from all emails.')
+    }
+
+  } catch (error) {
+    console.error('Unsubscribe error:', error)
+    useToast().error('Failed to unsubscribe. Please try again.')
   } finally {
     isSaving.value = false
   }
@@ -236,13 +297,7 @@ const savePreferences = async () => {
 // }
 
 // Load user preferences on mount
-onMounted(async () => {
-  try {
-    // Load preferences from API
-    // const userPrefs = await $fetch('/api/account/preferences')
-    // Object.assign(preferences, userPrefs)
-  } catch (error) {
-    console.error('Load preferences error:', error)
-  }
+onMounted(() => {
+  loadPreferences()
 })
 </script>

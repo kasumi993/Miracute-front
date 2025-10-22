@@ -20,14 +20,19 @@ export default defineEventHandler(async (event) => {
     return new Response(null, { status: 204 })
   }
 
-  // Content-Type validation for POST/PUT/PATCH
+  // Content-Type validation for POST/PUT/PATCH (except file upload endpoints)
   if (['POST', 'PUT', 'PATCH'].includes(event.node.req.method || '')) {
-    const contentType = getHeader(event, 'content-type')
-    if (!contentType?.includes('application/json')) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'Content-Type must be application/json'
-      })
+    const url = event.node.req.url || ''
+    const isFileUpload = url.includes('/upload-') || url.includes('/upload/') || url.includes('/files/upload')
+
+    if (!isFileUpload) {
+      const contentType = getHeader(event, 'content-type')
+      if (!contentType?.includes('application/json')) {
+        throw createError({
+          statusCode: 400,
+          statusMessage: 'Content-Type must be application/json'
+        })
+      }
     }
   }
 
