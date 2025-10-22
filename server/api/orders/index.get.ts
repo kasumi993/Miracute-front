@@ -1,10 +1,10 @@
-import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
+import { serverSupabaseClient, serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
 import type { Database } from '@/types/database'
+import { isAdminUser } from '../../utils/security/auth'
 
 export default defineEventHandler(async (event) => {
-  const supabase = await serverSupabaseServiceRole<Database>(event)
+  // Check if user is admin
   const user = await serverSupabaseUser(event)
-
   if (!user) {
     throw createError({
       statusCode: 401,
@@ -12,67 +12,102 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  const isAdmin = await isAdminUser(user.id, event)
+  if (!isAdmin) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: 'Admin access required'
+    })
+  }
+
+  // Use service role for admin access
+  const supabase = serverSupabaseServiceRole<Database>(event)
+
+  // Get query parameters
   const query = getQuery(event)
-  const limit = parseInt(query.limit as string) || 10
-  const offset = parseInt(query.offset as string) || 0
-  const productId = query.product_id as string
-  const orderId = query.order_id as string
+  const {
+    page = 1,
+    limit = 20,
+    search,
+    status,
+    payment_status,
+    date_from,
+    date_to
+  } = query
 
   try {
-    // Base query for user's orders with order items
-    let queryBuilder = supabase
+    // Build the query
+    let ordersQuery = supabase
       .from('orders')
       .select(`
         *,
-        order_items(
-          *,
-          product:products(
-            id,
-            name,
-            slug,
-            description,
-            short_description,
-            preview_images,
-            file_size,
-            file_formats,
-            download_files
-          )
+        order_items (
+          id,
+          product_name,
+          product_slug,
+          unit_price,
+          total_price,
+          quantity
         )
       `, { count: 'exact' })
-      .eq('user_id', user.id)
 
-    // If filtering by order_id, add the filter
-    if (orderId) {
-      queryBuilder = queryBuilder.eq('id', orderId)
+    // Apply filters
+    if (search) {
+      ordersQuery = ordersQuery.or(`order_number.ilike.%${search}%,customer_email.ilike.%${search}%,customer_name.ilike.%${search}%`)
     }
 
-    // If filtering by product_id, add the filter
-    if (productId) {
-      queryBuilder = queryBuilder.eq('order_items.product_id', productId)
+    if (status) {
+      ordersQuery = ordersQuery.eq('status', status)
     }
 
-    const { data: orders, count, error } = await queryBuilder
+    if (payment_status) {
+      ordersQuery = ordersQuery.eq('payment_status', payment_status)
+    }
+
+    if (date_from) {
+      ordersQuery = ordersQuery.gte('created_at', date_from)
+    }
+
+    if (date_to) {
+      ordersQuery = ordersQuery.lte('created_at', date_to)
+    }
+
+    // Apply pagination
+    const offset = (Number(page) - 1) * Number(limit)
+    ordersQuery = ordersQuery
       .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1)
+      .range(offset, offset + Number(limit) - 1)
 
-    if (error) {throw error}
+    const { data: orders, error, count } = await ordersQuery
+
+    if (error) {
+      throw error
+    }
+
+    // Calculate pagination info
+    const totalPages = Math.ceil((count || 0) / Number(limit))
 
     return {
       success: true,
-      data: orders || [],
-      pagination: {
-        total: count || 0,
-        limit,
-        offset,
-        hasMore: (count || 0) > offset + limit
+      data: {
+        data: orders || [],
+        pagination: {
+          page: Number(page),
+          limit: Number(limit),
+          total: count || 0,
+          totalPages,
+          hasNextPage: Number(page) < totalPages,
+          hasPreviousPage: Number(page) > 1
+        }
       }
     }
 
   } catch (error: any) {
-    console.error('Error fetching user orders:', error)
+    console.error('Error fetching orders:', error)
     throw createError({
       statusCode: 500,
-      statusMessage: 'Failed to fetch orders'
+      statusMessage: 'Failed to fetch orders',
+      data: error
     })
   }
 })

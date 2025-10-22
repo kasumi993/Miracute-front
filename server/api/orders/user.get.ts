@@ -12,18 +12,10 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const orderId = getRouterParam(event, 'id')
-    if (!orderId) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'Order ID is required'
-      })
-    }
-
     const supabase = serverSupabaseServiceRole<Database>(event)
 
-    // Get specific order for the user
-    const { data: order, error } = await supabase
+    // Get user's completed orders with items
+    const { data: orders, error } = await supabase
       .from('orders')
       .select(`
         id,
@@ -36,19 +28,19 @@ export default defineEventHandler(async (event) => {
           download_files
         )
       `)
-      .eq('id', orderId)
       .eq('user_id', user.id)
-      .single()
+      .eq('status', 'completed')
+      .order('created_at', { ascending: false })
 
-    if (error || !order) {
+    if (error) {
       throw createError({
-        statusCode: 404,
-        statusMessage: 'Order not found'
+        statusCode: 500,
+        statusMessage: 'Failed to fetch orders'
       })
     }
 
     // Transform the data to match our UserOrder type
-    const userOrder = {
+    const userOrders = orders?.map(order => ({
       id: order.id,
       status: order.status,
       total_amount: order.total_amount,
@@ -58,18 +50,18 @@ export default defineEventHandler(async (event) => {
         product_name: item.product_name,
         download_files: item.download_files || []
       }))
-    }
+    })) || []
 
     return {
       success: true,
-      data: userOrder
+      data: userOrders
     }
 
   } catch (error: any) {
-    console.error('Get order error:', error)
+    console.error('Get user orders error:', error)
     throw createError({
       statusCode: error.statusCode || 500,
-      statusMessage: error.statusMessage || 'Failed to fetch order'
+      statusMessage: error.statusMessage || 'Failed to fetch orders'
     })
   }
 })

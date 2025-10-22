@@ -258,6 +258,7 @@
 
 <script setup lang="ts">
 import type { OrderWithItems } from '@/types/database'
+import { OrderService } from '@/services/OrderService'
 
 // Middleware and SEO
 definePageMeta({
@@ -286,13 +287,13 @@ const sendingEmail = ref(false)
 const fetchOrder = async () => {
   loading.value = true
   error.value = ''
-  
+
   try {
-    const response = await $fetch(`/api/admin/orders/${orderId}`)
+    const response = await OrderService.getOrder(orderId)
     order.value = response.data
   } catch (err: any) {
     console.error('Failed to fetch order:', err)
-    error.value = err.data?.message || 'Failed to load order details'
+    error.value = err.data?.message || err.message || 'Failed to load order details'
   } finally {
     loading.value = false
   }
@@ -301,18 +302,15 @@ const fetchOrder = async () => {
 // Update order status
 const updateStatus = async (newStatus: string) => {
   if (!order.value || newStatus === order.value.status) return
-  
+
   updatingStatus.value = true
-  
+
   try {
-    await $fetch(`/api/admin/orders/${orderId}`, {
-      method: 'PATCH',
-      body: { status: newStatus }
-    })
-    
+    await OrderService.updateOrderStatus(orderId, newStatus as any)
+
     order.value.status = newStatus as any
     useToast().success('Order status updated successfully')
-    
+
   } catch (err: any) {
     console.error('Failed to update order status:', err)
     useToast().error('Failed to update order status')
@@ -324,16 +322,14 @@ const updateStatus = async (newStatus: string) => {
 // Resend confirmation email
 const resendConfirmationEmail = async () => {
   if (!order.value) return
-  
+
   sendingEmail.value = true
-  
+
   try {
-    await $fetch(`/api/admin/orders/${orderId}/resend-email`, {
-      method: 'POST'
-    })
-    
+    await OrderService.resendOrderEmail(orderId, 'confirmation')
+
     useToast().success('Confirmation email sent successfully')
-    
+
   } catch (err: any) {
     console.error('Failed to resend email:', err)
     useToast().error('Failed to send confirmation email')

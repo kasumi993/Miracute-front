@@ -60,7 +60,6 @@ definePageMeta({
 
 // Composables
 const cartCounter = useCartCounter()
-const orderStore = useOrderStore() // Add order store
 const { getCheckoutPrefillData, updateProfileFromCheckout, hasCompleteProfile } = useUserProfile()
 const auth = useAuth()
 const toast = useToast()

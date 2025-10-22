@@ -233,7 +233,7 @@
 <script setup lang="ts">
 import type { Order } from '@/types/database'
 import { useDebounceFn } from '@vueuse/core'
-import { AdminService } from '@/services'
+import { OrderService } from '@/services/OrderService'
 
 // Admin Guard
 const { isCheckingAccess, hasAdminAccess } = useAdminGuard()
@@ -276,29 +276,32 @@ const debouncedSearch = useDebounceFn(() => {
 // Fetch orders from API
 const fetchOrders = async () => {
   loading.value = true
-  
+
   try {
-    const query = new URLSearchParams({
-      page: pagination.value.page.toString(),
-      limit: pagination.value.limit.toString(),
+    const orderFilters = {
       ...(filters.value.search && { search: filters.value.search }),
       ...(filters.value.status && { status: filters.value.status }),
       ...(filters.value.paymentStatus && { payment_status: filters.value.paymentStatus }),
       ...(filters.value.dateFrom && { date_from: filters.value.dateFrom })
-    })
-    
-    const response = await AdminService.getOrders({
+    }
+
+    const paginationParams = {
       page: pagination.value.page,
-      limit: pagination.value.limit,
-      ...(filters.value.search && { search: filters.value.search }),
-      ...(filters.value.status && { status: filters.value.status }),
-      ...(filters.value.paymentStatus && { payment_status: filters.value.paymentStatus }),
-      ...(filters.value.dateFrom && { date_from: filters.value.dateFrom })
-    })
-    
-    orders.value = response.data
-    pagination.value = response.pagination
-    
+      limit: pagination.value.limit
+    }
+
+    const response = await OrderService.getOrders(orderFilters, paginationParams)
+
+    orders.value = response.data || []
+    pagination.value = response.data?.pagination || {
+      page: 1,
+      limit: 20,
+      total: 0,
+      totalPages: 0,
+      hasNext: false,
+      hasPrev: false
+    }
+
   } catch (error: any) {
     console.error('Failed to fetch orders:', error)
     useToast().error('Failed to fetch orders')
@@ -310,18 +313,18 @@ const fetchOrders = async () => {
 // Update order status
 const updateOrderStatus = async (orderId: string, status: string) => {
   if (!status || !orderId) return
-  
+
   try {
-    await AdminService.updateOrder(orderId, { status })
-    
+    await OrderService.updateOrderStatus(orderId, status as any)
+
     // Update local state
     const order = orders.value.find(o => o.id === orderId)
     if (order) {
       order.status = status as any
     }
-    
+
     useToast().success('Order status updated')
-    
+
   } catch (error: any) {
     console.error('Failed to update order status:', error)
     useToast().error('Failed to update order status')
