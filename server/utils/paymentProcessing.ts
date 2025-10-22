@@ -2,11 +2,8 @@ import type { Database } from '@/types/database'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type Stripe from 'stripe'
 
-import {
-  sendBrevoOrderConfirmation,
-  sendBrevoAdminOrderNotification,
-  sendBrevoReviewRequestEmail,
-} from './email'
+import { ServerEmailService } from '../email/ServerEmailService'
+import * as brevo from '@getbrevo/brevo'
 
 // --- Fonctions Auxiliaires de base ---
 
@@ -104,21 +101,43 @@ export async function sendOrderEmails(order: any) {
   try {
     console.log('Sending order emails for order:', order.id)
 
-    // Confirmation client (à ne pas jeter si elle échoue)
-    await sendBrevoOrderConfirmation(order).catch((e) =>
-      console.error('Failed to send customer confirmation email:', e)
-    )
+    const emailService = new (EmailService as any)()
 
-    // Notification admin (à ne pas jeter si elle échoue)
-    await sendBrevoAdminOrderNotification(order).catch((e) =>
-      console.error('Failed to send admin notification email:', e)
+    // Confirmation client (à ne pas jeter si elle échoue)
+    const orderData = {
+      orderId: order.id,
+      customerName: order.customer_name || 'Customer',
+      customerEmail: order.customer_email,
+      orderDate: new Date(order.created_at).toLocaleDateString(),
+      totalAmount: parseFloat(order.total_amount).toFixed(2),
+      items: order.order_items?.map((item: any) => ({
+        productName: item.product?.name || item.product_name || 'Product',
+        quantity: item.quantity,
+        unitPrice: parseFloat(item.unit_price).toFixed(2)
+      })) || [],
+      hasDownloads: order.order_items?.some((item: any) => item.product?.type === 'digital')
+    }
+
+    await emailService.sendOrderConfirmation(orderData).catch((e: any) =>
+      console.error('Failed to send customer confirmation email:', e)
     )
 
     // Planifier l'email de demande de revue
     setTimeout(async () => {
-        await sendBrevoReviewRequestEmail(order).catch((e) =>
+        try {
+            const reviewData = {
+                orderId: order.id,
+                customerName: order.customer_name || 'Customer',
+                customerEmail: order.customer_email,
+                items: order.order_items?.map((item: any) => ({
+                    productId: item.product_id,
+                    productName: item.product?.name || item.product_name || 'Product'
+                })) || []
+            }
+            await emailService.sendReviewRequest(reviewData)
+        } catch (e) {
             console.error('Failed to send review request email:', e)
-        );
+        }
     }, 3 * 24 * 60 * 60 * 1000) // 3 jours
 
   } catch (error) {
