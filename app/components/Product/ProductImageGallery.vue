@@ -1,172 +1,66 @@
 <template>
   <div class="space-y-3">
-    <!-- Mobile: Main Image with Touch Gestures -->
-    <div class="md:hidden">
-      <div
-        class="relative w-full aspect-square rounded-lg overflow-hidden bg-gray-100 group touch-pan-x select-none"
+    <!-- Mobile Layout -->
+    <div class="sm:hidden">
+      <ProductMediaViewer
+        :current-media="currentMedia"
+        :media-items="mediaItems"
+        :current-index="currentIndex"
+        :image-translate-x="imageTranslateX"
+        class="w-full h-[400px] rounded-lg"
+        mobile
+        @next="nextMedia"
+        @previous="previousMedia"
         @touchstart="onTouchStart"
         @touchmove="onTouchMove"
         @touchend="onTouchEnd"
       >
-        <img
-          v-if="selectedImage"
-          :src="selectedImage"
-          :alt="productName"
-          class="w-full h-full object-cover transition-all duration-300"
-          :style="{ transform: `translateX(${imageTranslateX}px)` }"
-        >
-        <div v-else class="w-full h-full flex items-center justify-center">
-          <Icon name="heroicons:photo" class="w-16 h-16 text-gray-400" />
-        </div>
+        <template #wishlist-button>
+          <slot name="wishlist-button" :class="'absolute top-3 right-3'" />
+        </template>
+      </ProductMediaViewer>
 
-        <!-- Mobile Navigation Arrows (Always Visible) -->
-        <div v-if="images.length > 1" class="absolute inset-0 flex items-center justify-between p-3 pointer-events-none">
-          <!-- Previous Button -->
-          <button
-            @click="previousImage"
-            class="w-12 h-12 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 pointer-events-auto"
-            :disabled="currentImageIndex === 0"
-            :class="currentImageIndex === 0 ? 'opacity-50 cursor-not-allowed' : ''"
-          >
-            <Icon name="heroicons:chevron-left" class="w-6 h-6 text-gray-700" />
-          </button>
-
-          <!-- Next Button -->
-          <button
-            @click="nextImage"
-            class="w-12 h-12 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 pointer-events-auto"
-            :disabled="currentImageIndex === images.length - 1"
-            :class="currentImageIndex === images.length - 1 ? 'opacity-50 cursor-not-allowed' : ''"
-          >
-            <Icon name="heroicons:chevron-right" class="w-6 h-6 text-gray-700" />
-          </button>
-        </div>
-
-        <!-- Image Counter -->
-        <div v-if="images.length > 1" class="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-2 py-1 rounded backdrop-blur">
-          {{ currentImageIndex + 1 }} / {{ images.length }}
-        </div>
-
-        <!-- Wishlist Button (Mobile) -->
-        <slot name="wishlist-button" :class="'absolute top-3 right-3 lg:hidden'" />
-      </div>
-
-      <!-- Mobile: Enhanced Thumbnail Carousel -->
-      <div v-if="images.length > 1" class="mt-3">
-        <div class="flex space-x-2 overflow-x-auto pb-2 scrollbar-hide">
-          <button
-            v-for="(image, index) in images"
-            :key="index"
-            @click="goToImage(index)"
-            :class="[
-              'w-16 h-16 rounded-lg overflow-hidden border-2 transition-all duration-200 flex-shrink-0',
-              currentImageIndex === index
-                ? 'border-brand-brown ring-2 ring-brand-brown/20 scale-105'
-                : 'border-gray-200'
-            ]"
-          >
-            <img :src="image" :alt="`Thumbnail ${index + 1}`" class="w-full h-full object-cover" />
-          </button>
-        </div>
-      </div>
+      <!-- Mobile Thumbnails -->
+      <ProductThumbnailCarousel
+        v-if="mediaItems.length > 1"
+        :media-items="mediaItems"
+        :current-index="currentIndex"
+        layout="horizontal"
+        @select="goToMedia"
+      />
     </div>
 
-    <!-- Desktop/Tablet: Main Image with Left Vertical Thumbnails -->
-    <div v-if="images.length > 1" class="hidden md:flex space-x-4">
-      <!-- Vertical Thumbnail Strip (Left Side) -->
-      <div class="flex-shrink-0">
-        <div class="flex flex-col space-y-2 max-h-96 overflow-y-auto scrollbar-hide">
-          <button
-            v-for="(image, index) in images"
-            :key="index"
-            @click="goToImage(index)"
-            :class="[
-              'w-16 h-16 lg:w-20 lg:h-20 rounded-lg overflow-hidden border-2 transition-all duration-200 flex-shrink-0',
-              currentImageIndex === index
-                ? 'border-brand-brown ring-2 ring-brand-brown/20'
-                : 'border-gray-200 hover:border-gray-300'
-            ]"
-          >
-            <img :src="image" :alt="`Thumbnail ${index + 1}`" class="w-full h-full object-cover" />
-          </button>
-        </div>
-      </div>
+    <!-- Desktop/Tablet Layout -->
+    <div v-if="mediaItems.length > 1" class="hidden sm:flex space-x-4">
+      <!-- Vertical Thumbnails -->
+      <ProductThumbnailCarousel
+        :media-items="mediaItems"
+        :current-index="currentIndex"
+        layout="vertical"
+        @select="goToMedia"
+      />
 
-      <!-- Main Image (Right Side) -->
+      <!-- Main Media -->
       <div class="relative flex-1 flex items-start">
-        <div class="relative w-full max-w-full aspect-square">
-          <div class="rounded-lg lg:rounded-xl overflow-hidden bg-gray-100 group w-full h-full">
-            <img
-              v-if="selectedImage"
-              :src="selectedImage"
-              :alt="productName"
-              class="w-full h-full object-cover transition-all duration-300"
-            >
-            <div v-else class="w-full h-full flex items-center justify-center">
-              <Icon name="heroicons:photo" class="w-16 h-16 text-gray-400" />
-            </div>
-
-            <!-- Desktop Navigation Arrows (Show on Hover) -->
-            <div class="absolute inset-0 flex items-center justify-between p-4 pointer-events-none">
-              <!-- Previous Button -->
-              <button
-                @click="previousImage"
-                class="w-10 h-10 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 pointer-events-auto"
-                :disabled="currentImageIndex === 0"
-                :class="currentImageIndex === 0 ? 'opacity-50 cursor-not-allowed' : ''"
-              >
-                <Icon name="heroicons:chevron-left" class="w-5 h-5 text-gray-700" />
-              </button>
-
-              <!-- Next Button -->
-              <button
-                @click="nextImage"
-                class="w-10 h-10 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 pointer-events-auto"
-                :disabled="currentImageIndex === images.length - 1"
-                :class="currentImageIndex === images.length - 1 ? 'opacity-50 cursor-not-allowed' : ''"
-              >
-                <Icon name="heroicons:chevron-right" class="w-5 h-5 text-gray-700" />
-              </button>
-            </div>
-
-            <!-- Image Counter -->
-            <div class="absolute bottom-4 right-4 bg-black/60 text-white text-xs px-2 py-1 rounded backdrop-blur">
-              {{ currentImageIndex + 1 }} / {{ images.length }}
-            </div>
-
-            <!-- Zoom Icon (Desktop) -->
-            <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-              <div class="w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg cursor-pointer">
-                <Icon name="heroicons:magnifying-glass-plus" class="w-4 h-4 text-gray-700" />
-              </div>
-            </div>
-          </div>
-        </div>
+        <ProductMediaViewer
+          :current-media="currentMedia"
+          :media-items="mediaItems"
+          :current-index="currentIndex"
+          class="w-full max-w-[500px] h-[500px] mx-auto rounded-lg lg:rounded-xl"
+          @next="nextMedia"
+          @previous="previousMedia"
+        />
       </div>
     </div>
 
-    <!-- Desktop/Tablet: Single Image (No Carousel) -->
-    <div v-else class="hidden md:block">
-      <div class="relative w-full max-w-full aspect-square">
-        <div class="rounded-lg lg:rounded-xl overflow-hidden bg-gray-100 group w-full h-full">
-          <img
-            v-if="selectedImage"
-            :src="selectedImage"
-            :alt="productName"
-            class="w-full h-full object-cover transition-all duration-300"
-          >
-          <div v-else class="w-full h-full flex items-center justify-center">
-            <Icon name="heroicons:photo" class="w-16 h-16 text-gray-400" />
-          </div>
-
-          <!-- Zoom Icon (Desktop) -->
-          <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-            <div class="w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg cursor-pointer">
-              <Icon name="heroicons:magnifying-glass-plus" class="w-4 h-4 text-gray-700" />
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- Desktop Single Media -->
+    <div v-else class="hidden sm:block">
+      <ProductMediaViewer
+        :current-media="currentMedia"
+        :media-items="mediaItems"
+        :current-index="currentIndex"
+        class="w-full max-w-[500px] h-[500px] mx-auto rounded-lg lg:rounded-xl"
+      />
     </div>
   </div>
 </template>
@@ -176,28 +70,69 @@ interface Props {
   images: string[]
   productName: string
   initialIndex?: number
+  videoUrl?: string | null
 }
 
 const props = withDefaults(defineProps<Props>(), {
   initialIndex: 0
 })
 
-// State
-const currentImageIndex = ref(props.initialIndex)
-const selectedImage = ref(props.images[props.initialIndex] || '')
+// Media type definition
+type MediaItem = {
+  type: 'video' | 'image'
+  url: string
+}
 
-// Touch gesture state
+// Create unified media items array (video first, then images)
+const mediaItems = computed(() => {
+  const items: MediaItem[] = []
+
+  if (props.videoUrl) {
+    items.push({ type: 'video', url: props.videoUrl })
+  }
+
+  if (props.images?.length) {
+    items.push(...props.images.map(image => ({ type: 'image' as const, url: image })))
+  }
+
+  return items
+})
+
+// Current media state
+const currentIndex = ref(Math.min(props.initialIndex, mediaItems.value.length - 1))
+const currentMedia = computed(() => mediaItems.value[currentIndex.value] || null)
+
+// Touch gesture state (mobile only)
 const touchStartX = ref(0)
 const touchEndX = ref(0)
 const imageTranslateX = ref(0)
 const isDragging = ref(false)
 
-// Watch for image changes
-watch(() => props.images, (newImages) => {
-  if (newImages.length > 0) {
-    selectedImage.value = newImages[currentImageIndex.value] || newImages[0]
+// Debounced navigation
+let navigationTimeout: NodeJS.Timeout | null = null
+
+const goToMedia = (index: number) => {
+  if (index >= 0 && index < mediaItems.value.length && index !== currentIndex.value) {
+    if (navigationTimeout) clearTimeout(navigationTimeout)
+
+    navigationTimeout = setTimeout(() => {
+      currentIndex.value = index
+      navigationTimeout = null
+    }, 50)
   }
-}, { immediate: true })
+}
+
+const nextMedia = () => {
+  if (currentIndex.value < mediaItems.value.length - 1) {
+    goToMedia(currentIndex.value + 1)
+  }
+}
+
+const previousMedia = () => {
+  if (currentIndex.value > 0) {
+    goToMedia(currentIndex.value - 1)
+  }
+}
 
 // Touch gesture methods
 const onTouchStart = (event: TouchEvent) => {
@@ -211,8 +146,6 @@ const onTouchMove = (event: TouchEvent) => {
 
   const currentX = event.touches[0].clientX
   const diffX = currentX - touchStartX.value
-
-  // Limit the drag distance to prevent too much movement
   const maxDrag = 100
   imageTranslateX.value = Math.max(-maxDrag, Math.min(maxDrag, diffX))
 }
@@ -222,50 +155,26 @@ const onTouchEnd = (event: TouchEvent) => {
 
   touchEndX.value = event.changedTouches[0].clientX
   const diffX = touchStartX.value - touchEndX.value
-  const threshold = 75 // Minimum swipe distance
+  const threshold = 75
 
-  // Reset image position
   imageTranslateX.value = 0
   isDragging.value = false
 
-  // Determine swipe direction and change image
   if (Math.abs(diffX) > threshold) {
     if (diffX > 0) {
-      // Swiped left, go to next image
-      nextImage()
+      nextMedia()
     } else {
-      // Swiped right, go to previous image
-      previousImage()
+      previousMedia()
     }
-  }
-}
-
-// Image carousel methods
-const goToImage = (index: number) => {
-  if (props.images && index >= 0 && index < props.images.length) {
-    currentImageIndex.value = index
-    selectedImage.value = props.images[index]
-  }
-}
-
-const nextImage = () => {
-  if (props.images && currentImageIndex.value < props.images.length - 1) {
-    goToImage(currentImageIndex.value + 1)
-  }
-}
-
-const previousImage = () => {
-  if (currentImageIndex.value > 0) {
-    goToImage(currentImageIndex.value - 1)
   }
 }
 
 // Keyboard navigation
 const handleKeydown = (event: KeyboardEvent) => {
   if (event.key === 'ArrowLeft') {
-    previousImage()
+    previousMedia()
   } else if (event.key === 'ArrowRight') {
-    nextImage()
+    nextMedia()
   }
 }
 
@@ -276,29 +185,23 @@ onMounted(() => {
 
 onUnmounted(() => {
   document.removeEventListener('keydown', handleKeydown)
+  if (navigationTimeout) {
+    clearTimeout(navigationTimeout)
+    navigationTimeout = null
+  }
 })
 
-// Expose methods for parent component
+// Expose core methods
 defineExpose({
-  goToImage,
-  nextImage,
-  previousImage,
-  currentImageIndex: readonly(currentImageIndex)
+  goToMedia,
+  nextMedia,
+  previousMedia,
+  currentIndex: readonly(currentIndex),
+  currentMedia: readonly(currentMedia)
 })
 </script>
 
 <style scoped>
-/* Custom scrollbar hiding utility */
-.scrollbar-hide {
-  -ms-overflow-style: none;  /* Internet Explorer 10+ */
-  scrollbar-width: none;  /* Firefox */
-}
-
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;  /* Safari and Chrome */
-}
-
-/* Smooth transitions for mobile interactions */
 .touch-pan-x {
   touch-action: pan-x;
 }

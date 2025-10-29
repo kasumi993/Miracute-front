@@ -2,12 +2,34 @@
   <div class="group">
     <NuxtLink :to="`/listings/${product.slug}`" class="block">
       <!-- Large Image Card -->
-      <div class="aspect-[4/5] bg-white rounded-2xl overflow-hidden mb-3 group-hover:shadow-xl transition-all duration-300 relative border border-gray-100">
-        <img 
+      <div
+        class="aspect-[4/5] bg-white rounded-2xl overflow-hidden mb-3 group-hover:shadow-xl transition-all duration-300 relative border border-gray-100"
+        @mouseenter="startVideoPreview"
+        @mouseleave="stopVideoPreview"
+      >
+        <!-- Video Preview (shown on hover if available) -->
+        <video
+          v-if="showVideoPreview && product.video_url && !hasVideoError"
+          ref="videoRef"
+          :src="product.video_url"
+          class="w-full h-full object-cover transition-opacity duration-300"
+          muted
+          loop
+          playsinline
+          preload="metadata"
+          @loadeddata="onVideoLoaded"
+          @error="onVideoError"
+        />
+
+        <!-- Main Image -->
+        <img
           v-if="product.preview_images?.[0]"
-          :src="product.preview_images[0]" 
+          :src="product.preview_images[0]"
           :alt="product.name"
-          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          :class="[
+            'w-full h-full object-cover transition-all duration-500',
+            showVideoPreview && product.video_url && !hasVideoError && isVideoLoaded ? 'opacity-0' : 'opacity-100 group-hover:scale-105'
+          ]"
         >
         <div v-else class="w-full h-full flex items-center justify-center text-gray-400 bg-gray-50">
           <Icon name="heroicons:photo" class="w-20 h-20" />
@@ -123,6 +145,7 @@ type Product = ProductWithCategory & {
   is_featured?: boolean
   review_count?: number
   average_rating?: number
+  video_url?: string | null
 }
 
 interface Props {
@@ -136,6 +159,12 @@ const cartCounter = useCartCounter()
 const wishlist = useWishlist()
 const toast = useToast()
 const { getBestCoupon, calculateDiscount } = useCoupons()
+
+// Video preview state
+const showVideoPreview = ref(false)
+const videoRef = ref<HTMLVideoElement | null>(null)
+const isVideoLoaded = ref(false)
+const hasVideoError = ref(false)
 
 // Computed
 const basePrice = computed(() => parseFloat(props.product.price))
@@ -218,6 +247,55 @@ const formatViews = (views: number) => {
   return views.toString()
 }
 
-// No longer needed - using real review data from API
+// Video preview methods
+const startVideoPreview = () => {
+  if (props.product.video_url && !hasVideoError.value) {
+    showVideoPreview.value = true
+    // Reset state for new attempt
+    hasVideoError.value = false
+
+    // Start playing video when it's loaded
+    nextTick(() => {
+      if (videoRef.value) {
+        if (isVideoLoaded.value) {
+          videoRef.value.play().catch(() => {
+            // Ignore play promise rejections (common in some browsers)
+          })
+        }
+      }
+    })
+  }
+}
+
+const stopVideoPreview = () => {
+  if (videoRef.value) {
+    videoRef.value.pause()
+    videoRef.value.currentTime = 0
+  }
+  showVideoPreview.value = false
+}
+
+const onVideoLoaded = () => {
+  isVideoLoaded.value = true
+  hasVideoError.value = false
+
+  // Auto-play if we're currently showing the preview
+  if (showVideoPreview.value && videoRef.value) {
+    // Small delay to ensure DOM is ready
+    setTimeout(() => {
+      if (videoRef.value && showVideoPreview.value) {
+        videoRef.value.play().catch((error) => {
+          console.warn('Video autoplay failed:', error)
+          // Don't set error state for autoplay failures
+        })
+      }
+    }, 100)
+  }
+}
+
+const onVideoError = () => {
+  hasVideoError.value = true
+  isVideoLoaded.value = false
+}
 
 </script>

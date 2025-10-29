@@ -48,7 +48,7 @@
 
       <div class="mt-4 p-3 bg-gradient-to-r from-brand-sage/10 to-brand-pink/10 rounded-xl border border-brand-sage/20">
         <div class="flex items-center justify-center space-x-2">
-          <Icon name="heroicons:infinity" class="w-5 h-5 text-brand-sage" />
+          <Icon name="heroicons:check-badge" class="w-5 h-5 text-brand-sage" />
           <span class="text-sm font-semibold text-gray-900">Lifetime Access</span>
         </div>
         <p class="text-center text-xs text-gray-600 mt-1">Download forever, no subscriptions</p>

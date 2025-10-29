@@ -83,7 +83,8 @@
 
 <script setup lang="ts">
 // Import services
-import { CategoryService, TemplateTypeService } from '@/services'
+import { CategoryService } from '@/services/CategoryService'
+import { TemplateTypeService } from '@/services/TemplateTypeService'
 import { ProductService } from '@/services/ProductService'
 
 // Admin Guard

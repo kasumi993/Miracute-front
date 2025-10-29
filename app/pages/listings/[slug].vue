@@ -54,6 +54,7 @@
             <ProductImageGallery
               :images="product.preview_images || []"
               :product-name="product.name"
+              :video-url="product.video_url"
               :initial-index="0"
             >
               <template #wishlist-button="{ class: customClass }">

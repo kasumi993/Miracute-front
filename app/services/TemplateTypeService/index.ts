@@ -20,3 +20,8 @@ export const getTemplateTypes = async (): Promise<ApiResponse<any[]>> => {
 export const getTemplateType = async (id: string): Promise<ApiResponse<any>> => {
   return baseService.get(`/template-types/${id}`)
 }
+
+export const TemplateTypeService = {
+  getTemplateTypes,
+  getTemplateType,
+}
