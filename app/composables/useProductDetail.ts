@@ -3,7 +3,6 @@ import type { PurchaseVerification, OrdersResponse } from '@/types/product'
 
 export const useProductDetail = (slug: string) => {
   const product = ref<ProductWithCategory | null>(null)
-  const relatedProducts = ref<ProductWithCategory[]>([])
   const isLoading = ref(true)
   const error = ref<string | null>(null)
 
@@ -78,7 +77,7 @@ export const useProductDetail = (slug: string) => {
       error.value = null
 
       // Use the products composable
-      const { fetchProductBySlug, fetchRelatedProducts } = useProducts()
+      const { fetchProductBySlug } = useProducts()
 
       const productData = await fetchProductBySlug(slug)
 
@@ -90,22 +89,6 @@ export const useProductDetail = (slug: string) => {
       }
 
       product.value = productData
-
-      // Load related products
-      if (productData.category_id) {
-        try {
-          await fetchRelatedProducts(
-            productData.id,
-            productData.category_id,
-            4
-          )
-          // Get related products from the composable itself (which accesses the store)
-          const { relatedProducts: storeRelatedProducts } = useProducts()
-          relatedProducts.value = storeRelatedProducts.value
-        } catch (error) {
-          console.warn('Failed to load related products:', error)
-        }
-      }
 
       // Set SEO meta tags
       useSeoMeta({
@@ -147,7 +130,6 @@ export const useProductDetail = (slug: string) => {
   return {
     // State
     product,
-    relatedProducts,
     isLoading,
     error,
     purchaseVerification,

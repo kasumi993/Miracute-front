@@ -143,17 +143,12 @@
           </div>
         </div>
 
-        <!-- Related Products -->
-        <div v-if="relatedProducts && relatedProducts.length > 0">
-          <h2 class="text-2xl font-medium text-gray-900 mb-6">Similar templates</h2>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <ProductCard
-              v-for="related in relatedProducts"
-              :key="related.id"
-              :product="related"
-            />
-          </div>
-        </div>
+        <!-- Recommended Products -->
+        <ProductRecommendations
+          v-if="product"
+          :current-product="product"
+          :limit="8"
+        />
       </div>
     </div>
   </div>
@@ -175,7 +170,6 @@ import { BundleService } from '@/services/BundleService'
 const productDetail = useProductDetail(slug)
 const {
   product,
-  relatedProducts,
   isLoading,
   error,
   canUserReview,
