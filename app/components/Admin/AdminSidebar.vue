@@ -82,6 +82,24 @@
           </AdminSidebarLink>
 
           <AdminSidebarLink
+            to="/dashboard/coupons"
+            :active="route.path.startsWith('/dashboard/coupons')"
+            icon="heroicons:ticket"
+            @click="$emit('close')"
+          >
+            Coupons
+          </AdminSidebarLink>
+
+          <AdminSidebarLink
+            to="/dashboard/bundles"
+            :active="route.path.startsWith('/dashboard/bundles')"
+            icon="heroicons:squares-plus"
+            @click="$emit('close')"
+          >
+            Bundles
+          </AdminSidebarLink>
+
+          <AdminSidebarLink
             to="/dashboard/analytics"
             :active="route.path.startsWith('/dashboard/analytics')"
             icon="heroicons:chart-bar"

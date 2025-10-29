@@ -15,9 +15,20 @@
       </div>
       <h1 class="text-2xl font-medium text-gray-900 mb-2">{{ product.name }}</h1>
       <div class="flex items-center justify-between">
-        <span class="text-2xl font-semibold text-gray-900">
-          ${{ parseFloat(product.price).toFixed(2) }}
-        </span>
+        <div class="flex items-center space-x-2">
+          <span :class="[
+            'text-2xl font-semibold',
+            hasDiscount ? 'text-green-600' : 'text-gray-900'
+          ]">
+            ${{ finalPrice.toFixed(2) }}
+          </span>
+          <span v-if="comparePrice" class="text-lg text-gray-500 line-through">
+            ${{ comparePrice.toFixed(2) }}
+          </span>
+          <span v-if="hasDiscount" class="text-sm font-medium text-green-600">
+            {{ discountPercentage }}% OFF
+          </span>
+        </div>
         <div class="flex items-center space-x-2">
           <div class="flex items-center">
             <Icon
@@ -75,13 +86,16 @@
 
       <!-- Price -->
       <div class="flex items-center space-x-3 mb-6">
-        <span class="text-3xl font-semibold text-gray-900">
-          ${{ parseFloat(product.price).toFixed(2) }}
+        <span :class="[
+          'text-3xl font-semibold',
+          hasDiscount ? 'text-green-600' : 'text-gray-900'
+        ]">
+          ${{ finalPrice.toFixed(2) }}
         </span>
-        <span v-if="product.compare_at_price" class="text-xl text-gray-500 line-through">
-          ${{ parseFloat(product.compare_at_price).toFixed(2) }}
+        <span v-if="comparePrice" class="text-xl text-gray-500 line-through">
+          ${{ comparePrice.toFixed(2) }}
         </span>
-        <span v-if="hasDiscount" class="bg-red-100 text-red-800 text-sm font-medium px-2 py-1 rounded">
+        <span v-if="hasDiscount" class="bg-green-100 text-green-800 text-sm font-medium px-2 py-1 rounded">
           {{ discountPercentage }}% off
         </span>
       </div>
@@ -123,15 +137,59 @@ const props = withDefaults(defineProps<Props>(), {
   downloadCount: 0
 })
 
+// Coupon logic
+const { getBestCoupon, calculateDiscount } = useCoupons()
+
 // Computed
-const hasDiscount = computed(() =>
-  props.product?.compare_at_price && parseFloat(props.product.compare_at_price) > parseFloat(props.product.price)
+const basePrice = computed(() => parseFloat(props.product.price))
+const originalComparePrice = computed(() =>
+  props.product.compare_at_price ? parseFloat(props.product.compare_at_price) : null
 )
 
+// Get best coupon available
+const bestCoupon = computed(() => getBestCoupon())
+
+// Calculate discount amount
+const discountAmount = computed(() => {
+  if (!bestCoupon.value) return 0
+  return calculateDiscount(basePrice.value, bestCoupon.value)
+})
+
+// Final price after discount
+const finalPrice = computed(() => {
+  if (discountAmount.value > 0) {
+    return basePrice.value - discountAmount.value
+  }
+  return basePrice.value
+})
+
+// Compare price logic
+const comparePrice = computed(() => {
+  if (discountAmount.value > 0) {
+    return basePrice.value // Show original price when discounted
+  }
+  return originalComparePrice.value // Show compare_at_price if set
+})
+
+// Check if product has any discount
+const hasDiscount = computed(() => {
+  return discountAmount.value > 0 || (originalComparePrice.value && originalComparePrice.value > basePrice.value)
+})
+
+// Discount percentage for display
 const discountPercentage = computed(() => {
-  if (!hasDiscount.value || !props.product.compare_at_price) return 0
-  const original = parseFloat(props.product.compare_at_price)
-  const current = parseFloat(props.product.price)
-  return Math.round(((original - current) / original) * 100)
+  if (discountAmount.value > 0 && bestCoupon.value) {
+    if (bestCoupon.value.discount_type === 'percentage') {
+      return bestCoupon.value.discount_value
+    } else {
+      return Math.round((discountAmount.value / basePrice.value) * 100)
+    }
+  }
+
+  if (originalComparePrice.value && originalComparePrice.value > basePrice.value) {
+    return Math.round(((originalComparePrice.value - basePrice.value) / originalComparePrice.value) * 100)
+  }
+
+  return 0
 })
 </script>

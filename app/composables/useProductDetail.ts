@@ -56,7 +56,8 @@ export const useProductDetail = (slug: string) => {
       })
 
       // Check if any paid order contains this product
-      const hasValidPurchase = response?.data?.some(order =>
+      const orders = Array.isArray(response?.data) ? response.data : []
+      const hasValidPurchase = orders.some(order =>
         order.payment_status === 'paid' &&
         order.order_items?.some(item => item.product_id === product.value!.id)
       )

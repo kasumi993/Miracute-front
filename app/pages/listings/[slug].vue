@@ -36,6 +36,16 @@
           />
         </div>
 
+        <!-- Bundle Offers (Mobile) -->
+        <div v-if="productBundles && productBundles.length > 0" class="lg:hidden mb-6">
+          <ProductBundleWidget
+            :bundles="productBundles"
+            :current-product-id="product.id"
+          />
+        </div>
+
+
+
         <!-- Main Content -->
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-16 mb-8 lg:mb-16">
           <!-- Left Column: Images + What's Included + Reviews (Desktop) -->
@@ -114,6 +124,14 @@
               />
             </div>
 
+            <!-- Bundle Offers (Desktop) -->
+            <div v-if="productBundles && productBundles.length > 0" class="hidden lg:block">
+              <ProductBundleWidget
+                :bundles="productBundles"
+                :current-product-id="product.id"
+              />
+            </div>
+
             <!-- Product Sections (Responsive) -->
             <ProductSections
               :product="product"
@@ -147,6 +165,10 @@ const slug = route.params.slug as string
 
 // Composables
 const user = useSupabaseUser()
+const { fetchCoupons } = useCoupons()
+
+// Import bundle service
+import { BundleService } from '@/services/BundleService'
 
 // Product detail logic
 const productDetail = useProductDetail(slug)
@@ -164,6 +186,27 @@ const {
 const productActions = useProductActions(product)
 
 const downloadCount = computed(() => getDownloadCount())
+
+// Bundle state
+const productBundles = ref([])
+
+// Fetch bundles for this product
+const fetchProductBundles = async () => {
+  if (!product.value?.id) return
+
+  try {
+    const response = await BundleService.getBundles({
+      product_id: product.value.id,
+      status: 'active',
+      limit: 3
+    })
+    if (response.success && response.data) {
+      productBundles.value = response.data.bundles
+    }
+  } catch (error) {
+    console.error('Error fetching product bundles:', error)
+  }
+}
 
 // Template refs
 const reviewsListDesktop = ref()
@@ -188,13 +231,20 @@ provide('refreshAllReviews', refreshAllReviews)
 
 // Initialize on mount
 onMounted(async () => {
-  await initialize()
+  await Promise.all([
+    initialize(),
+    fetchCoupons()
+  ])
+
+  // Fetch bundles after product is loaded
+  await fetchProductBundles()
 })
 
 // Watch for slug changes
 watch(() => route.params.slug, async (newSlug) => {
   if (newSlug && newSlug !== slug) {
     await initialize()
+    await fetchProductBundles()
   }
 })
 

@@ -55,7 +55,7 @@
                 Thank you for your purchase, {{ orderData.customer_name || orderData.customer_email || 'valued customer' }}!
               </p>
               <p class="text-gray-600 mb-8">
-                Your order <span class="font-mono font-medium">#{{ orderData.order_number }}</span> has been confirmed.
+                Your order <span class="font-mono font-medium">#{{ orderData.id?.slice(-8)?.toUpperCase() || orderData.order_number }}</span> has been confirmed.
               </p>
               <div class="flex items-center justify-center space-x-2 text-gray-500 text-sm">
                 <Icon name="heroicons:calendar" class="w-4 h-4" />
@@ -108,7 +108,7 @@
                     </div>
 
                     <!-- Download Button -->
-                    <div v-if="item.download_url" class="flex-shrink-0">
+                    <div class="flex-shrink-0">
                       <button
                         @click="downloadFile(item)"
                         :disabled="item.downloading"
@@ -149,7 +149,7 @@
                 <div class="space-y-3">
                   <div class="flex justify-between items-center py-2 border-b border-gray-100">
                     <span class="text-gray-600 text-sm">Order ID</span>
-                    <span class="font-mono text-gray-900 font-semibold text-sm">#{{ orderData.order_number }}</span>
+                    <span class="font-mono text-gray-900 font-semibold text-sm">#{{ orderData.id?.slice(-8)?.toUpperCase() || orderData.order_number }}</span>
                   </div>
                   <div class="flex justify-between items-center py-2 border-b border-gray-100">
                     <span class="text-gray-600 text-sm">Items</span>
@@ -197,8 +197,8 @@
               <div class="bg-white rounded-xl shadow-soft border border-gray-100 p-4">
                 <h3 class="text-base font-semibold text-gray-900 mb-3">Quick Actions</h3>
                 <div class="space-y-2">
-                  <NuxtLink v-if="auth.isAuthenticated"
-                            to="/account/downloads"
+                  <NuxtLink v-if="user"
+                            to="/account"
                             class="w-full flex items-center justify-center space-x-2 px-3 py-2 bg-brand-sage text-white rounded-lg hover:bg-brand-sage/90 transition-colors text-sm">
                     <Icon name="heroicons:arrow-down-tray" class="w-3 h-3" />
                     <span>View My Downloads</span>
@@ -228,15 +228,15 @@
             </h3>
             <ul class="text-sm text-blue-800 space-y-2">
               <li>• Your files are available for immediate download</li>
-              <li>• Downloads will expire in 30 days from purchase date</li>
-              <li>• You have 5 download attempts per item</li>
+              <li>• You can access your downloads anytime from your account</li>
+              <li>• Download links are generated securely for each request</li>
               <li>• A confirmation email has been sent to {{ orderData.customer_email }}</li>
-              <li v-if="!auth.isAuthenticated">• Create an account to manage your downloads easily</li>
+              <li v-if="!user">• Create an account to manage your downloads easily</li>
             </ul>
           </div>
 
           <!-- Create Account CTA (for guests) -->
-          <div v-if="!auth.isAuthenticated"
+          <div v-if="!user"
                class="bg-gradient-to-r from-brand-pink to-brand-sage rounded-2xl p-8 mb-8 text-white">
             <h3 class="text-xl font-heading font-medium mb-3">Create Your Account</h3>
             <p class="mb-6">Create a free account to easily access all your downloads and manage your orders.</p>
@@ -286,69 +286,55 @@
   </div>
 </template>
 
-<script setup>
-// SEO
+<script setup lang="ts">
+import { OrderService, PaymentService, FileService } from '~/services'
+import type { Order } from '@/types/commerce/order'
+
 useSeoMeta({
   title: 'Order Complete | Miracute',
   description: 'Your order has been successfully processed. Download your templates now.',
   robots: 'noindex, nofollow'
 })
 
-// Composables
 const route = useRoute()
-const auth = useAuth()
+const user = useSupabaseUser()
+const { error: toast } = useToast()
 
-// State
 const isLoading = ref(true)
-const orderData = ref(null)
-const orderItems = ref([])
+const orderData = ref<Order | null>(null)
+const orderItems = ref<any[]>([])
 const isDownloadingAll = ref(false)
 
-// Get session ID or order ID from URL
-const sessionId = route.query.session_id
-const orderId = route.query.order_id || route.query.order
+const sessionId = route.query.session_id as string
+const orderId = route.query.order_id as string || route.query.order as string
 
-// Methods
 const loadOrderData = async () => {
   try {
     isLoading.value = true
 
-    // If we have a session_id, process payment first
     if (sessionId) {
       console.log('Processing payment success for session:', sessionId)
+      const response = await PaymentService.processPaymentWebhook(sessionId)
 
-      const response = await $fetch('/api/payments/success', {
-        method: 'POST',
-        body: { session_id: sessionId }
-      })
-
-      if (response.success) {
+      if (response.success && response.data) {
         console.log('Payment processed successfully:', response)
-
-        // Clear cart after successful payment processing
-        const cart = useCart()
-        await cart.clearCart()
-
-        // Update URL to remove session_id
-        await navigateTo(`/checkout/success?order_id=${response.order_id}`, { replace: true })
+        await navigateTo(`/checkout/success?order_id=${response.data.order_id}`, { replace: true })
         return
       } else {
         console.error('Payment processing failed:', response)
-        useToast().error('There was an issue processing your payment. Please contact support.')
+        toast('There was an issue processing your payment. Please contact support.')
         return
       }
     }
 
-    // If we have an order_id, fetch order details
     if (orderId) {
       console.log('Fetching order details for:', orderId)
+      const orderResponse = await OrderService.getOrder(orderId)
 
-      const orderResponse = await $fetch(`/api/orders/${orderId}`)
       if (orderResponse.success && orderResponse.data) {
         orderData.value = orderResponse.data
-        orderItems.value = orderResponse.data.order_items || []
+        orderItems.value = orderResponse.data.items || []
 
-        // Add downloading state to items
         orderItems.value.forEach(item => {
           item.downloading = false
         })
@@ -358,110 +344,66 @@ const loadOrderData = async () => {
       }
     }
 
-    // Fallback: try to get recent order if user is authenticated
-    if (auth.isAuthenticated) {
+    if (user.value) {
       console.log('Fetching recent orders as fallback...')
-      const response = await $fetch('/api/orders', {
-        query: { limit: 1 }
-      })
-
-      if (response.success && response.data?.length) {
-        const recentOrder = response.data[0]
-        if (recentOrder.payment_status === 'paid') {
-          orderData.value = recentOrder
-          orderItems.value = recentOrder.order_items || []
-
-          orderItems.value.forEach(item => {
-            item.downloading = false
-          })
-
-          console.log('Using recent order as fallback')
-          return
-        }
-      }
     }
 
     console.error('No order found')
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to load order data:', error)
-    useToast().error('There was an issue loading your order. Please contact support.')
+    toast('There was an issue loading your order. Please contact support.')
   } finally {
     isLoading.value = false
   }
 }
 
-// Download individual file
-const downloadFile = async (item) => {
+const downloadFile = async (item: any) => {
   item.downloading = true
 
   try {
-    // Try to download via API endpoint
-    const response = await $fetch(`/api/downloads/${item.product_id}`, {
-      method: 'GET',
-      responseType: 'blob'
-    })
-
-    // Create download link
-    const blob = new Blob([response])
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `${item.product_name.toLowerCase().replace(/\s+/g, '-')}.zip`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
-
-    useToast().success(`${item.product_name} downloaded successfully!`)
-  } catch (error) {
-    console.error('Download error:', error)
-
-    // Fallback to direct download URL if available
-    if (item.download_url) {
-      try {
-        const link = document.createElement('a')
-        link.href = item.download_url
-        link.download = `${item.product_name.toLowerCase().replace(/\s+/g, '-')}.zip`
-        link.target = '_blank'
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-
-        useToast().success(`${item.product_name} download started!`)
-      } catch (fallbackError) {
-        useToast().error('Download failed. Please try again or contact support.')
-      }
-    } else {
-      useToast().error('Download failed. Please try again or contact support.')
+    if (!item.download_files || !item.download_files.length) {
+      throw new Error('No download files available')
     }
+
+    const file = item.download_files[0]
+    const response = await FileService.getDownloadUrl(item.product_id, file.filename)
+
+    if (response.success && response.data) {
+      const link = document.createElement('a')
+      link.href = response.data.downloadUrl
+      link.download = file.filename
+      link.target = '_blank'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    } else {
+      throw new Error(response.error || 'Failed to generate download link')
+    }
+  } catch (error: any) {
+    console.error('Download error:', error)
+    toast(error.message || 'Download failed. Please try again or contact support.')
   } finally {
     item.downloading = false
   }
 }
 
-// Download all files
 const downloadAllFiles = async () => {
   isDownloadingAll.value = true
 
   try {
-    // Download each file with a slight delay
     for (const item of orderItems.value) {
       await downloadFile(item)
-      // Small delay between downloads to prevent server overload
       await new Promise(resolve => setTimeout(resolve, 500))
     }
-
-    useToast().success('All files downloaded successfully!')
   } catch (error) {
-    useToast().error('Some downloads may have failed. Please try individual downloads.')
+    toast('Some downloads may have failed. Please try individual downloads.')
   } finally {
     isDownloadingAll.value = false
   }
 }
 
-// Format date function
-const formatDate = (date) => {
+const formatDate = (date: Date) => {
   return date.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
@@ -469,8 +411,7 @@ const formatDate = (date) => {
   })
 }
 
-// Format time function
-const formatTime = (date) => {
+const formatTime = (date: Date) => {
   return date.toLocaleTimeString('en-US', {
     hour: 'numeric',
     minute: '2-digit',
@@ -478,14 +419,11 @@ const formatTime = (date) => {
   })
 }
 
-// Initialize
 onMounted(async () => {
   await loadOrderData()
 })
 
-// Prevent going back to this page after leaving
 onBeforeRouteLeave(() => {
-  // Clear the session ID from history to prevent refresh issues
   if (typeof window !== 'undefined') {
     window.history.replaceState({}, document.title, window.location.pathname)
   }

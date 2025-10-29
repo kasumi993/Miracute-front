@@ -1,18 +1,17 @@
 // Create new coupon API
-import { serverSupabaseServiceRole } from '#supabase/server'
+import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
+import { isAdminUser } from '../../utils/security/auth'
 
 interface CreateCouponRequest {
   code: string
   name: string
   description?: string
-  discount_type: 'percentage' | 'fixed_amount' | 'buy_x_get_y' | 'free_shipping'
+  type: 'coupon' | 'promotion'
+  discount_type: 'percentage' | 'fixed_amount'
   discount_value: number
-  buy_quantity?: number
-  get_quantity?: number
-  get_discount_percentage?: number
   usage_limit?: number
   usage_limit_per_customer?: number
-  minimum_order_amount?: number
+  minimum_cart_amount?: number
   maximum_discount_amount?: number
   applicable_products?: string[]
   applicable_categories?: string[]
@@ -26,23 +25,30 @@ interface CreateCouponRequest {
 
 export default defineEventHandler(async (event) => {
   try {
+    // Check admin authentication
+    const user = await serverSupabaseUser(event)
+    if (!user) {
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'Authentication required'
+      })
+    }
+
+    const isAdmin = await isAdminUser(user.id, event)
+    if (!isAdmin) {
+      throw createError({
+        statusCode: 403,
+        statusMessage: 'Admin access required'
+      })
+    }
+
     const body = await readBody<CreateCouponRequest>(event)
 
     // Validate required fields
-    if (!body.code || !body.name || !body.discount_type || body.discount_value === undefined) {
+    if (!body.code || !body.name || !body.type || !body.discount_type || body.discount_value === undefined) {
       return {
         success: false,
-        error: 'Missing required fields: code, name, discount_type, discount_value'
-      }
-    }
-
-    // Validate discount type specific fields
-    if (body.discount_type === 'buy_x_get_y') {
-      if (!body.buy_quantity || !body.get_quantity) {
-        return {
-          success: false,
-          error: 'buy_quantity and get_quantity required for BXGY coupons'
-        }
+        error: 'Missing required fields: code, name, type, discount_type, discount_value'
       }
     }
 
@@ -69,7 +75,7 @@ export default defineEventHandler(async (event) => {
         ...body,
         code: body.code.toUpperCase(),
         usage_count: 0,
-        created_by: null // TODO: Get from auth when admin auth is implemented
+        created_by: user.id
       })
       .select()
       .single()

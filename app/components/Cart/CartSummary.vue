@@ -9,19 +9,66 @@
       <div class="space-y-3">
         <div class="flex justify-between text-sm">
           <span class="text-gray-600">Items ({{ itemCount }})</span>
-          <span class="text-gray-900 font-medium">${{ total.toFixed(2) }}</span>
+          <span class="text-gray-900 font-medium">${{ calculatedSubtotal.toFixed(2) }}</span>
         </div>
+
+        <!-- Bundle Discounts -->
+        <div v-if="bundleDiscounts.length > 0" class="space-y-2">
+          <div
+            v-for="discount in bundleDiscounts"
+            :key="discount.id"
+            class="bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-lg p-3 -mx-1"
+          >
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                  <Icon name="heroicons:gift" class="w-4 h-4 text-orange-600" />
+                </div>
+                <div>
+                  <div class="text-sm font-medium text-orange-800">{{ discount.name }}</div>
+                  <div class="text-xs text-orange-600">Bundle savings</div>
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="text-sm font-semibold text-orange-700">-${{ discount.discount_amount.toFixed(2) }}</div>
+                <div class="text-xs text-orange-600">Auto-applied</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="flex justify-between text-sm">
           <span class="text-gray-600">Instant Download</span>
           <span class="text-green-600 font-medium">Free</span>
         </div>
+
+        <!-- Modern Coupon/Promotion Display -->
+        <div v-if="promotionDiscount > 0" class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-3 -mx-1">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                <Icon name="heroicons:sparkles" class="w-4 h-4 text-green-600" />
+              </div>
+              <div>
+                <div class="text-sm font-medium text-green-800">Discount</div>
+                <div class="text-xs text-green-600">{{ bestCoupon?.name || 'Special Discount' }}</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-sm font-semibold text-green-700">-${{ promotionDiscount.toFixed(2) }}</div>
+              <div class="text-xs text-green-600">Auto-applied</div>
+            </div>
+          </div>
+        </div>
+
         <div class="border-t pt-3">
           <div class="flex justify-between text-lg font-semibold">
             <span class="text-gray-900">Total</span>
-            <span class="text-brand-brown">${{ total.toFixed(2) }}</span>
+            <span class="text-brand-brown">${{ finalTotal.toFixed(2) }}</span>
           </div>
         </div>
       </div>
+
 
       <!-- Checkout Button -->
       <NuxtLink
@@ -68,7 +115,9 @@
 </template>
 
 <script setup>
-defineProps({
+import { useCartCalculations } from '@/composables/useCartCalculations'
+
+const props = defineProps({
   itemCount: {
     type: Number,
     required: true
@@ -76,8 +125,33 @@ defineProps({
   total: {
     type: Number,
     required: true
+  },
+  items: {
+    type: Array,
+    default: () => []
   }
 })
 
 defineEmits(['clear-cart'])
+
+// Get coupons and cart calculations
+const { getBestCoupon, calculateDiscount } = useCoupons()
+const { detectAppliedBundleDiscounts } = useCartCalculations()
+const bestCoupon = computed(() => getBestCoupon())
+
+// Bundle discounts from cart items
+const bundleDiscounts = computed(() => {
+  return detectAppliedBundleDiscounts(props.items)
+})
+
+// Current cart subtotal (after bundle discounts but before coupons)
+const calculatedSubtotal = computed(() => props.total)
+
+// Calculate promotion discount for the entire cart
+const promotionDiscount = computed(() => {
+  if (!bestCoupon.value) return 0
+  return calculateDiscount(calculatedSubtotal.value, bestCoupon.value)
+})
+
+const finalTotal = computed(() => Math.max(0, calculatedSubtotal.value - promotionDiscount.value))
 </script>

@@ -57,6 +57,9 @@
 import { ProductService } from '~/services'
 import { useCategoriesStore } from '~/stores/categories'
 
+// Initialize coupons composable
+const { fetchCoupons } = useCoupons()
+
 definePageMeta({
   title: 'Digital Templates & Design Resources',
   description: 'Browse our collection of premium digital templates for Canva, websites, social media, and more.'
@@ -218,9 +221,13 @@ watch(() => route.query.search, (newSearch) => {
 
 onMounted(async () => {
   try {
+    console.log('🚀 Starting onMounted initialization...')
+
     console.log('Loading categories...')
     await fetchCategories()
     console.log('Categories loaded:', categories.value?.length)
+
+    await fetchCoupons()
 
     console.log('Starting initial product search...')
     await search(searchProducts)

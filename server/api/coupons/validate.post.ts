@@ -1,7 +1,7 @@
 // Coupon validation API - Critical for conversion optimization
 import { serverSupabaseServiceRole } from '#supabase/server'
-import { rateLimit } from '../../utils/rateLimit'
-import { createValidator, schemas } from '../../utils/validation'
+import { rateLimit } from '../../utils/security/rateLimit'
+import { createValidator, schemas } from '../../utils/api/validation'
 import { z } from 'zod'
 
 interface CartItem {
@@ -83,13 +83,13 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Check minimum order amount
-    if (coupon.minimum_order_amount && subtotal < coupon.minimum_order_amount) {
+    // Check minimum cart amount (updated for digital products)
+    if (coupon.minimum_cart_amount && subtotal < coupon.minimum_cart_amount) {
       return {
         success: false,
         data: {
           valid: false,
-          error: `Minimum order amount of $${coupon.minimum_order_amount} required`
+          error: `Minimum cart amount of $${coupon.minimum_cart_amount} required`
         }
       }
     }
@@ -147,19 +147,19 @@ export default defineEventHandler(async (event) => {
     // Filter applicable products
     let eligibleItems = cart_items
 
-    if (coupon.applicable_products && coupon.applicable_products.length > 0) {
+    if (coupon.applicable_products && Array.isArray(coupon.applicable_products) && coupon.applicable_products.length > 0) {
       eligibleItems = cart_items.filter(item =>
         coupon.applicable_products!.includes(item.product_id)
       )
     }
 
-    if (coupon.applicable_categories && coupon.applicable_categories.length > 0) {
+    if (coupon.applicable_categories && Array.isArray(coupon.applicable_categories) && coupon.applicable_categories.length > 0) {
       eligibleItems = eligibleItems.filter(item =>
         item.category_id && coupon.applicable_categories!.includes(item.category_id)
       )
     }
 
-    if (coupon.excluded_products && coupon.excluded_products.length > 0) {
+    if (coupon.excluded_products && Array.isArray(coupon.excluded_products) && coupon.excluded_products.length > 0) {
       eligibleItems = eligibleItems.filter(item =>
         !coupon.excluded_products!.includes(item.product_id)
       )
@@ -170,6 +170,11 @@ export default defineEventHandler(async (event) => {
         success: false,
         data: { valid: false, error: 'Coupon is not applicable to items in your cart' }
       }
+    }
+
+    // Ensure eligibleItems is always an array
+    if (!Array.isArray(eligibleItems)) {
+      eligibleItems = []
     }
 
     const eligibleSubtotal = eligibleItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
@@ -183,52 +188,6 @@ export default defineEventHandler(async (event) => {
 
       case 'fixed_amount':
         discountAmount = Math.min(coupon.discount_value, eligibleSubtotal)
-        break
-
-      case 'buy_x_get_y':
-        // Complex BXGY logic
-        const buyQty = coupon.buy_quantity || 1
-        const getQty = coupon.get_quantity || 1
-        const getDiscountPct = coupon.get_discount_percentage || 100
-
-        // Sort items by price (descending) to give discount on most expensive items
-        const sortedItems = [...eligibleItems].sort((a, b) => b.price - a.price)
-
-        let totalBought = 0
-        let discountItems = 0
-
-        for (const item of sortedItems) {
-          const availableQty = item.quantity
-          const buyNeeded = Math.max(0, buyQty - totalBought)
-
-          if (buyNeeded > 0) {
-            const buyFromThis = Math.min(availableQty, buyNeeded)
-            totalBought += buyFromThis
-
-            // Apply discount to remaining items after buy requirement is met
-            const remainingQty = availableQty - buyFromThis
-            const discountQty = Math.min(remainingQty, getQty - discountItems)
-
-            if (discountQty > 0) {
-              discountAmount += item.price * discountQty * (getDiscountPct / 100)
-              discountItems += discountQty
-            }
-          } else {
-            // All buy requirements met, apply discount
-            const discountQty = Math.min(item.quantity, getQty - discountItems)
-            if (discountQty > 0) {
-              discountAmount += item.price * discountQty * (getDiscountPct / 100)
-              discountItems += discountQty
-            }
-          }
-
-          if (discountItems >= getQty) {break}
-        }
-        break
-
-      case 'free_shipping':
-        // For now, set fixed shipping discount amount
-        discountAmount = 10 // This should be dynamic based on actual shipping cost
         break
 
       default:

@@ -85,18 +85,21 @@
         </div>
 
         <!-- Price -->
-        <div class="flex items-center space-x-1 sm:space-x-2 flex-wrap">
-          <span class="text-sm sm:text-lg font-bold text-gray-900">
+        <div class="flex items-center space-x-2 flex-wrap">
+          <span :class="[
+            'text-sm sm:text-lg font-bold',
+            hasDiscount ? 'text-green-600' : 'text-gray-900'
+          ]">
             ${{ price.toFixed(2) }}
           </span>
-          <span v-if="comparePrice" class="text-[10px] sm:text-sm text-gray-500 line-through">
+          <span v-if="comparePrice" class="text-xs sm:text-sm text-gray-500 line-through">
             ${{ comparePrice.toFixed(2) }}
           </span>
-          <span v-if="hasDiscount" class="text-[9px] sm:text-xs text-green-600 font-medium">
+          <span v-if="hasDiscount" class="text-xs font-medium text-green-600">
             {{ discountPercentage }}% OFF
           </span>
         </div>
-        
+
         <!-- Category Tag - Hidden on mobile -->
         <div v-if="product.category?.name" class="pt-1 hidden sm:block">
           <span class="inline-block bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs">
@@ -132,20 +135,59 @@ const props = defineProps<Props>()
 const cartCounter = useCartCounter()
 const wishlist = useWishlist()
 const toast = useToast()
+const { getBestCoupon, calculateDiscount } = useCoupons()
 
 // Computed
-const price = computed(() => parseFloat(props.product.price))
-const comparePrice = computed(() => 
+const basePrice = computed(() => parseFloat(props.product.price))
+const originalComparePrice = computed(() =>
   props.product.compare_at_price ? parseFloat(props.product.compare_at_price) : null
 )
 
-const hasDiscount = computed(() => 
-  comparePrice.value && comparePrice.value > price.value
-)
+// Get best coupon available
+const bestCoupon = computed(() => getBestCoupon())
 
+// Calculate discount amount
+const discountAmount = computed(() => {
+  if (!bestCoupon.value) return 0
+  return calculateDiscount(basePrice.value, bestCoupon.value)
+})
+
+// Final price after discount
+const price = computed(() => {
+  if (discountAmount.value > 0) {
+    return basePrice.value - discountAmount.value
+  }
+  return basePrice.value
+})
+
+// Compare price logic
+const comparePrice = computed(() => {
+  if (discountAmount.value > 0) {
+    return basePrice.value // Show original price when discounted
+  }
+  return originalComparePrice.value // Show compare_at_price if set
+})
+
+// Check if product has any discount
+const hasDiscount = computed(() => {
+  return discountAmount.value > 0 || (originalComparePrice.value && originalComparePrice.value > basePrice.value)
+})
+
+// Discount percentage for display
 const discountPercentage = computed(() => {
-  if (!hasDiscount.value) return 0
-  return Math.round(((comparePrice.value! - price.value) / comparePrice.value!) * 100)
+  if (discountAmount.value > 0 && bestCoupon.value) {
+    if (bestCoupon.value.discount_type === 'percentage') {
+      return bestCoupon.value.discount_value
+    } else {
+      return Math.round((discountAmount.value / basePrice.value) * 100)
+    }
+  }
+
+  if (originalComparePrice.value && originalComparePrice.value > basePrice.value) {
+    return Math.round(((originalComparePrice.value - basePrice.value) / originalComparePrice.value) * 100)
+  }
+
+  return 0
 })
 
 const isProductInCart = computed(() => cartCounter.isInCart(props.product.id))

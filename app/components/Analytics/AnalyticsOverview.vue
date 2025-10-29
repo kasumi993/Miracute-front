@@ -13,42 +13,42 @@
   <!-- Visitor Metrics Cards -->
   <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6">
     <!-- Total Visitors -->
-    <AnalyticsCard
-      :title="`${periodLabel} Visitors`"
+    <DashboardStatsCard
+      :label="`${periodLabel} Visitors`"
       :value="analytics.visitors"
       :change="analytics.visitorsChange"
       icon="heroicons:users"
-      icon-color="blue"
+      icon-color="text-brand-sage"
       :show-change="true"
     />
 
     <!-- Page Views -->
-    <AnalyticsCard
-      title="Page Views"
+    <DashboardStatsCard
+      label="Page Views"
       :value="analytics.pageViews"
       :change="analytics.pageViewsChange"
       icon="heroicons:eye"
-      icon-color="green"
+      icon-color="text-brand-brown"
       :show-change="true"
     />
 
     <!-- Product Views -->
-    <AnalyticsCard
-      title="Product Views"
+    <DashboardStatsCard
+      label="Product Views"
       :value="analytics.productViews"
       :subtitle="analytics.pageViews && analytics.productViews ? `${Math.round((analytics.productViews / analytics.pageViews) * 100)}% of all page views` : ''"
       icon="heroicons:shopping-bag"
-      icon-color="purple"
+      icon-color="text-brand-pink"
       :show-change="false"
     />
 
     <!-- Add to Carts -->
-    <AnalyticsCard
-      title="Add to Carts"
+    <DashboardStatsCard
+      label="Add to Carts"
       :value="analytics.addToCarts"
       :subtitle="analytics.productViews && analytics.addToCarts ? `${Math.round((analytics.addToCarts / analytics.productViews) * 100)}% conversion rate` : ''"
       icon="heroicons:shopping-cart"
-      icon-color="orange"
+      icon-color="text-brand-warm"
       :show-change="false"
     />
   </div>

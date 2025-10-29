@@ -189,6 +189,7 @@ const slug = route.params.slug
 
 // Composables
 const { fetchProducts, fetchCategories, resetPagination } = useProducts()
+const { fetchCoupons } = useCoupons()
 
 // State
 const category = ref(null)
@@ -207,20 +208,23 @@ const PRODUCTS_PER_PAGE = 12
 const loadCategoryData = async () => {
   try {
     isLoading.value = true
-    
+
     // Fetch category data
     const { data: categoryData } = await $fetch(`/api/categories/${slug}`)
-    
+
     if (!categoryData) {
       category.value = null
       return
     }
-    
+
     category.value = categoryData
-    
+
+    // Load coupons for promotional pricing
+    await fetchCoupons()
+
     // Load products for this category
     await loadProducts()
-    
+
     // Load related categories
     await loadRelatedCategories()
     

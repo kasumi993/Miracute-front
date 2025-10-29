@@ -21,13 +21,6 @@ export const getUserOrders = async (page = 1, limit = 20, status?: string): Prom
   return baseService.get<any[]>('/account/orders', query)
 }
 
-/**
- * Get user downloads
- */
-export const getUserDownloads = async (page = 1, limit = 20): Promise<ApiResponse<any[]>> => {
-  const offset = (page - 1) * limit
-  return baseService.get<any[]>('/account/downloads', { offset, limit })
-}
 
 /**
  * Get user settings

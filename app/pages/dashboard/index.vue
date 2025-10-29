@@ -12,65 +12,41 @@
     <div v-else-if="hasAdminAccess">
           <!-- Quick Stats -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-              <div class="flex items-center space-x-3">
-                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Icon name="heroicons:currency-dollar" class="w-6 h-6 text-blue-600" />
-                </div>
-                <div>
-                  <p class="text-2xl font-bold text-gray-900">${{ stats.totalRevenue }}</p>
-                  <p class="text-sm text-gray-600">Total Revenue</p>
-                </div>
-              </div>
-            </div>
+            <DashboardStatsCard
+              icon="heroicons:currency-dollar"
+              icon-color="text-green-600"
+              :value="stats.totalRevenue"
+              label="Total Revenue"
+              format-as-currency
+            />
 
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-              <div class="flex items-center space-x-3">
-                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <Icon name="heroicons:shopping-bag" class="w-6 h-6 text-green-600" />
-                </div>
-                <div>
-                  <p class="text-2xl font-bold text-gray-900">{{ stats.totalOrders }}</p>
-                  <p class="text-sm text-gray-600">Total Orders</p>
-                </div>
-              </div>
-            </div>
+            <DashboardStatsCard
+              icon="heroicons:shopping-bag"
+              icon-color="text-brand-sage"
+              :value="stats.totalOrders"
+              label="Total Orders"
+            />
 
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-              <div class="flex items-center space-x-3">
-                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <Icon name="heroicons:users" class="w-6 h-6 text-purple-600" />
-                </div>
-                <div>
-                  <p class="text-2xl font-bold text-gray-900">{{ stats.totalCustomers }}</p>
-                  <p class="text-sm text-gray-600">Total Customers</p>
-                </div>
-              </div>
-            </div>
+            <DashboardStatsCard
+              icon="heroicons:users"
+              icon-color="text-brand-brown"
+              :value="stats.totalCustomers"
+              label="Total Customers"
+            />
 
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-              <div class="flex items-center space-x-3">
-                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                  <Icon name="heroicons:squares-2x2" class="w-6 h-6 text-orange-600" />
-                </div>
-                <div>
-                  <p class="text-2xl font-bold text-gray-900">{{ stats.totalProducts }}</p>
-                  <p class="text-sm text-gray-600">Total Products</p>
-                </div>
-              </div>
-            </div>
+            <DashboardStatsCard
+              icon="heroicons:squares-2x2"
+              icon-color="text-brand-pink"
+              :value="stats.totalProducts"
+              label="Total Products"
+            />
 
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-              <div class="flex items-center space-x-3">
-                <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
-                  <Icon name="heroicons:eye" class="w-6 h-6 text-indigo-600" />
-                </div>
-                <div>
-                  <p class="text-2xl font-bold text-gray-900">{{ stats.storeViewsToday }}</p>
-                  <p class="text-sm text-gray-600">Store Views Today</p>
-                </div>
-              </div>
-            </div>
+            <DashboardStatsCard
+              icon="heroicons:eye"
+              icon-color="text-brand-warm"
+              :value="stats.storeViewsToday"
+              label="Store Views Today"
+            />
           </div>
 
           <!-- Recent Activity -->

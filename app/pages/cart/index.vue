@@ -44,6 +44,7 @@
           <CartSummary
             :item-count="cartCounter.cartCount.value"
             :total="cartCounter.cartTotal.value"
+            :items="cartCounter.cartItems.value"
             @clear-cart="cartCounter.clearCart"
           />
         </div>
@@ -58,6 +59,12 @@
 <script setup>
 // Composables
 const cartCounter = useCartCounter()
+const { fetchCoupons } = useCoupons()
+
+// Fetch coupons on page load
+onMounted(async () => {
+  await fetchCoupons()
+})
 
 // SEO
 useSeoMeta({

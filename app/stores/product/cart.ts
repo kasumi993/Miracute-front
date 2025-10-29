@@ -92,7 +92,7 @@ export const useCartStore = defineStore('cart', {
 
 
     // Toggle item in cart (add if not present, remove if present)
-    async addItem(product: ProductWithCategory, variant?: string) {
+    async addItem(product: ProductWithCategory, variant?: string, bundleMetadata?: import('@/types/commerce/cart').BundleMetadata) {
       this.setLoading('add', true)
       this.setError(null)
 
@@ -110,7 +110,8 @@ export const useCartStore = defineStore('cart', {
             product,
             selectedVariant: variant,
             addedAt: new Date().toISOString(),
-            price: typeof product.price === 'string' ? parseFloat(product.price) : product.price
+            price: bundleMetadata?.discountedPrice ?? (typeof product.price === 'string' ? parseFloat(product.price) : product.price),
+            bundleMetadata
           }
 
           this.items.push(cartItem)

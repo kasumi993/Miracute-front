@@ -64,6 +64,7 @@ const { getCheckoutPrefillData, updateProfileFromCheckout, hasCompleteProfile } 
 const auth = useAuth()
 const toast = useToast()
 const router = useRouter()
+const { fetchCoupons } = useCoupons()
 
 // Redirect if cart is empty
 if (!cartCounter.cartCount.value) {
@@ -176,6 +177,8 @@ onMounted(async () => {
   // Wait for auth to initialize
   await auth.init()
   await prefillCustomerData()
+  // Fetch coupons for the order summary
+  await fetchCoupons()
 })
 
 // Use flags to prevent recursive updates

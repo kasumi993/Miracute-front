@@ -11,9 +11,9 @@ export const createValidator = <T>(schema: z.ZodSchema<T>) => {
           statusCode: 400,
           statusMessage: 'Validation Error',
           data: {
-            errors: error.errors.map(e => ({
-              field: e.path.join('.'),
-              message: e.message
+            errors: (error.errors || []).map(e => ({
+              field: e.path?.join('.') || 'unknown',
+              message: e.message || 'Validation error'
             }))
           }
         })
@@ -28,6 +28,7 @@ export const schemas = {
   email: z.string().email().max(255),
   uuid: z.string().uuid(),
   positiveNumber: z.number().positive(),
+  positiveInteger: z.string().transform(val => parseInt(val, 10)).pipe(z.number().int().positive()),
   couponCode: z.string().min(3).max(50).regex(/^[A-Z0-9_-]+$/),
   pagination: z.object({
     page: z.number().int().min(1).default(1),

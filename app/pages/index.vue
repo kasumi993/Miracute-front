@@ -6,6 +6,9 @@
     <!-- Featured Products Section -->
     <HomeFeaturedProducts />
 
+    <!-- Featured Bundles Section -->
+    <HomeFeaturedBundles />
+
     <!-- Recently Viewed Section -->
     <HomeRecentlyViewedSection />
 

@@ -1,34 +1,34 @@
 <template>
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 lg:mb-8">
-    <AnalyticsCard
-      title="Total Customers"
+    <DashboardStatsCard
+      label="Total Customers"
       :value="stats.totalCustomers"
       icon="heroicons:users"
-      icon-color="blue"
+      icon-color="text-brand-sage"
       :show-change="false"
     />
 
-    <AnalyticsCard
-      title="Paying Customers"
+    <DashboardStatsCard
+      label="Paying Customers"
       :value="stats.payingCustomers"
       icon="heroicons:shopping-bag"
-      icon-color="green"
+      icon-color="text-brand-brown"
       :show-change="false"
     />
 
-    <AnalyticsCard
-      title="Newsletter Subscribers"
+    <DashboardStatsCard
+      label="Newsletter Subscribers"
       :value="stats.newsletterSubscribers"
       icon="heroicons:envelope"
-      icon-color="purple"
+      icon-color="text-brand-pink"
       :show-change="false"
     />
 
-    <AnalyticsCard
-      title="Contact Submissions"
+    <DashboardStatsCard
+      label="Contact Submissions"
       :value="stats.contactSubmissions"
       icon="heroicons:chat-bubble-left-right"
-      icon-color="orange"
+      icon-color="text-brand-warm"
       :show-change="false"
     />
   </div>

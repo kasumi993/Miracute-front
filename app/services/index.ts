@@ -20,8 +20,11 @@ import { AdminService } from './AdminService'
 
 // Order Service with comprehensive customer and admin functionality
 export * as OrderService from './OrderService'
-export { paymentService, createCheckoutSession } from './PaymentService'
+export { PaymentService } from './PaymentService'
 export * as CouponService from './CouponService'
+export { CouponAnalyticsService } from './AnalyticsService/CouponAnalyticsService'
+export * as BundleService from './BundleService'
+export { BundleAnalyticsService } from './AnalyticsService/BundleAnalyticsService'
 export * as FileService from './FileService'
 
 // Admin Service

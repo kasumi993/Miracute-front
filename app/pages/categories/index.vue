@@ -163,6 +163,7 @@ useSeoMeta({
 
 // Composables
 const { categories, featuredProducts, isLoading, fetchCategories, fetchFeaturedProducts } = useProducts()
+const { fetchCoupons } = useCoupons()
 
 // Newsletter state
 const email = ref('')
@@ -191,7 +192,8 @@ onMounted(async () => {
   try {
     await Promise.all([
       fetchCategories(),
-      fetchFeaturedProducts(6)
+      fetchFeaturedProducts(6),
+      fetchCoupons()
     ])
   } catch (error) {
     console.error('Failed to load categories data:', error)
